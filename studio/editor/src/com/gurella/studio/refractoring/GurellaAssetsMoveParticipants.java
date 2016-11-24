@@ -27,11 +27,11 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 public class GurellaAssetsMoveParticipants extends MoveParticipant {
-	private IResource resource;
+	private IFile file;
 
 	@Override
 	protected boolean initialize(Object element) {
-		resource = (IResource) element;
+		file = (IFile) element;
 		return true;
 	}
 
@@ -49,12 +49,13 @@ public class GurellaAssetsMoveParticipants extends MoveParticipant {
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		final IResource destination = (IResource) getArguments().getDestination();
-		IProject project = resource.getProject();
-		IPath assetsFolderPath = project.getLocation().append("assets");
+		IProject project = file.getProject();
+		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
 		IResource[] roots = { project };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
-		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
-		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
+		IPath oldResourcePath = file.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
+		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
+				.append(file.getName());
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
@@ -85,9 +86,9 @@ public class GurellaAssetsMoveParticipants extends MoveParticipant {
 			IFile file = matchAccess.getFile();
 			TextFileChange change = changes.get(file);
 			if (change == null) {
-				TextChange textChange = getTextChange(file); // an other participant already modified that file?
+				TextChange textChange = getTextChange(file);
 				if (textChange != null) {
-					return false; // don't try to merge changes
+					return false;
 				}
 				change = new TextFileChange(file.getName(), file);
 				change.setEdit(new MultiTextEdit());
@@ -95,7 +96,7 @@ public class GurellaAssetsMoveParticipants extends MoveParticipant {
 			}
 			ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), newFileName);
 			change.addEdit(edit);
-			change.addTextEditGroup(new TextEditGroup("Update type reference", edit)); //$NON-NLS-1$
+			change.addTextEditGroup(new TextEditGroup("Update asset reference", edit)); //$NON-NLS-1$
 			return true;
 		}
 	}

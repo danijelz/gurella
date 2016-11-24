@@ -51,9 +51,21 @@
          <enablement>
             <with
                   variable="element">
-               <instanceof
-                     value="org.eclipse.core.resources.IResource">
-               </instanceof>
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFile">
+                  </instanceof>
+                  <with
+                        variable="affectedNatures">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="org.eclipse.jdt.core.javanature">
+                        </equals>
+                     </iterate>
+                  </with>
+               </and>
             </with></enablement>
       </moveParticipant>
    </extension>
