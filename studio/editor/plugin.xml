@@ -14,10 +14,12 @@
       </editor>
    </extension>
    <extension
+         id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
+         name="Gurella rename participants"
          point="org.eclipse.ltk.core.refactoring.renameParticipants">
       <renameParticipant
-            class="com.gurella.studio.reftactoring.GurellaAssetsRenameParticipants"
-            id="com.gurella.studio.reftactoring.GurellaAssetsRenameParticipants"
+            class="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
+            id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
             name="Gurella assets rename participants">
          <enablement>
             <and>
@@ -31,20 +33,29 @@
                      </equals>
                   </iterate>
                </with>
-               <with
-                     variable="validFileExtension">
-                  <test
-                        args="png,jpg,jpeg,atl"
-                        forcePluginActivation="true"
-                        property="org.eclipse.core.resources.extension">
-                  </test>
-               </with>
                <instanceof
                      value="org.eclipse.core.resources.IFile">
                </instanceof>
             </and>
          </enablement>
       </renameParticipant>
+   </extension>
+   <extension
+         id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
+         name="Gurella assets move participants"
+         point="org.eclipse.ltk.core.refactoring.moveParticipants">
+      <moveParticipant
+            class="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
+            id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
+            name="Gurella assets move participants">
+         <enablement>
+            <with
+                  variable="element">
+               <instanceof
+                     value="org.eclipse.core.resources.IResource">
+               </instanceof>
+            </with></enablement>
+      </moveParticipant>
    </extension>
 
 </plugin>

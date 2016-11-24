@@ -134,8 +134,9 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 
 		@Override
 		public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-			Try.successful(operation).peek(o -> context.workspace.run(o, new NullProgressMonitor())).getUnchecked();
-			return Status.OK_STATUS;
+			String errMsg = "Error while undoing moving resource.";
+			return Try.successful(operation).peek(o -> context.workspace.run(o, new NullProgressMonitor()))
+					.map(m -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 		}
 
 		@Override
@@ -147,9 +148,9 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-			String msg = "Error while undoing moving resource.";
+			String errMsg = "Error while undoing moving resource.";
 			return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(m -> Status.OK_STATUS)
-					.onFailure(e -> log(e, msg)).orElse(Status.CANCEL_STATUS);
+					.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 			// return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
 			// IOperationHistory history = OperationHistoryFactory.getOperationHistory();
 			// IUndoContext undoContext = RefactoringCorePlugin.getUndoContext();
