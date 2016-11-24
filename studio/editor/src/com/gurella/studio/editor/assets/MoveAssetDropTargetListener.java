@@ -15,13 +15,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.IUndoManager;
 import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
-import org.eclipse.ltk.core.refactoring.participants.MoveRefactoring;
-import org.eclipse.ltk.internal.core.refactoring.resource.MoveResourcesProcessor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.resource.MoveResourcesDescriptor;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -111,12 +109,15 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		MoveResourcesProcessor moveProcessor = new MoveResourcesProcessor(new IResource[] { resource });
-		moveProcessor.setDestination(folder);
-		moveProcessor.setUpdateReferences(true);
-		Refactoring ref = new MoveRefactoring(moveProcessor);
-		PerformRefactoringOperation operation = new PerformRefactoringOperation(ref, ALL_CONDITIONS);
-		context.executeOperation(new MoveResourceOperation(context, operation), "Error while moving resource.");
+		MoveResourcesDescriptor descriptor = new MoveResourcesDescriptor();
+		descriptor.setResourcesToMove(new IResource[] { resource });
+		descriptor.setDestination(folder);
+		descriptor.setUpdateReferences(true);
+		RefactoringStatus status = new RefactoringStatus();
+		String errMsg = "Error while moving resource.";
+		Try.successful(descriptor).map(d -> d.createRefactoring(status))
+				.map(r -> new MoveResourceOperation(context, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+				.onSuccess(o -> context.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	public static class MoveResourceOperation extends AbstractOperation {
@@ -139,9 +140,9 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-			String msg = "Error while moving resource.";
+			String errMsg = "Error while moving resource.";
 			return Try.successful(undoManager).peek(m -> m.performRedo(null, monitor)).map(m -> Status.OK_STATUS)
-					.onFailure(e -> log(e, msg)).orElse(Status.CANCEL_STATUS);
+					.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 		}
 
 		@Override
@@ -152,8 +153,7 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 			// return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
 			// IOperationHistory history = OperationHistoryFactory.getOperationHistory();
 			// IUndoContext undoContext = RefactoringCorePlugin.getUndoContext();
-			// history.undo(undoContext, monitor, info);
-			// return Status.OK_STATUS;
+			// return history.undo(undoContext, monitor, info);
 		}
 	}
 }
