@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.assets;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.editor.utils.PrettyPrintSerializer.serialize;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
@@ -33,7 +36,6 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.utils.FileDialogUtils;
-import com.gurella.studio.editor.utils.PrettyPrintSerializer;
 import com.gurella.studio.editor.utils.Try;
 
 class AssetsMenu {
@@ -192,23 +194,71 @@ class AssetsMenu {
 
 			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Prefab");
-			item.addListener(SWT.Selection, e -> addNewFolder());
+			item.addListener(SWT.Selection, e -> addNewPrefab());
 			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Material");
-			item.addListener(SWT.Selection, e -> addNewFolder());
+			item.addListener(SWT.Selection, e -> addNewMaterial());
 			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Render target");
-			item.addListener(SWT.Selection, e -> addNewFolder());
+			item.addListener(SWT.Selection, e -> addNewRendeTarget());
 			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Scene");
 			item.addListener(SWT.Selection, e -> addNewScene());
 			item.setEnabled(enabled);
+		}
+
+		private void addNewPrefab() {
+			IFolder folder = selection == null ? (IFolder) view.rootResource : (IFolder) selection;
+			String name = FileDialogUtils.enterNewFileName(folder, "scene", AssetType.prefab.extension());
+			if (name == null) {
+				return;
+			}
+
+			SceneNode2 node = new SceneNode2();
+			node.setName(name);
+			node.newComponent(TransformComponent.class);
+
+			IFile file = folder.getFile(name);
+			String serialized = serialize(file.getName(), SceneNode2.class, node);
+			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
+					.peek(is -> file.create(is, true, new NullProgressMonitor()))
+					.onFailure(e -> showError(e, "Error creating prefab."));
+		}
+
+		private void addNewMaterial() {
+			IFolder folder = selection == null ? (IFolder) view.rootResource : (IFolder) selection;
+			String name = FileDialogUtils.enterNewFileName(folder, "scene", AssetType.material.extension());
+			if (name == null) {
+				return;
+			}
+
+			MaterialDescriptor material = new MaterialDescriptor();
+			IFile file = folder.getFile(name);
+			String serialized = serialize(file.getName(), MaterialDescriptor.class, material);
+			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
+					.peek(is -> file.create(is, true, new NullProgressMonitor()))
+					.onFailure(e -> showError(e, "Error creating material."));
+		}
+
+		private void addNewRendeTarget() {
+			IFolder folder = selection == null ? (IFolder) view.rootResource : (IFolder) selection;
+			String name = FileDialogUtils.enterNewFileName(folder, "scene", AssetType.renderTarget.extension());
+			if (name == null) {
+				return;
+			}
+
+			RenderTarget renderTarget = new RenderTarget();
+			IFile file = folder.getFile(name);
+			String serialized = serialize(file.getName(), RenderTarget.class, renderTarget);
+			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
+					.peek(is -> file.create(is, true, new NullProgressMonitor()))
+					.onFailure(e -> showError(e, "Error creating render target."));
 		}
 
 		private void addNewScene() {
@@ -227,7 +277,7 @@ class AssetsMenu {
 			node.newComponent(DirectionalLightComponent.class);
 
 			IFile file = folder.getFile(name);
-			String serialized = PrettyPrintSerializer.serialize(file.getName(), Scene.class, scene);
+			String serialized = serialize(file.getName(), Scene.class, scene);
 			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
 					.peek(is -> file.create(is, true, new NullProgressMonitor()))
 					.onFailure(e -> showError(e, "Error creating scene."));

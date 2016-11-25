@@ -345,7 +345,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 	void delete(IResource resource) {
 		if (editorContext.sceneResource.equals(resource)) {
-			// TODO message
+			// TODO error
 			return;
 		}
 
