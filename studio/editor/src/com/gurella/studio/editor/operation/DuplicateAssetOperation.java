@@ -4,6 +4,7 @@ import static com.gurella.studio.GurellaStudioPlugin.log;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -44,8 +45,11 @@ public class DuplicateAssetOperation extends AbstractOperation {
 			newName = name;
 		}
 
+		IPath destinationPath = destinationFolder.getProjectRelativePath();
+		IContainer container = resource instanceof IContainer ? (IContainer) resource : resource.getParent();
+		IPath containerPath = container.getProjectRelativePath();
+		IPath path = destinationPath.makeRelativeTo(containerPath).append(newName);
 		String errMsg = "Error while duplicating resource.";
-		IPath path = destinationFolder.getProjectRelativePath().makeRelativeTo(resource.getProjectRelativePath());
 		return Try.successful(resource).peek(r -> r.copy(path, true, monitor)).map(r -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}

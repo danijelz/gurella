@@ -47,9 +47,5 @@ public class RefractoringOperation extends AbstractOperation {
 		String errMsg = "Error while undoing moving resource.";
 		return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(m -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
-		// return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
-		// IOperationHistory history = OperationHistoryFactory.getOperationHistory();
-		// IUndoContext undoContext = RefactoringCorePlugin.getUndoContext();
-		// return history.undo(undoContext, monitor, info);
 	}
 }

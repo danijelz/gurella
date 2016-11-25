@@ -7,15 +7,19 @@ import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
@@ -52,6 +56,7 @@ import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
+import com.gurella.studio.editor.operation.RenameNodeOperation;
 import com.gurella.studio.editor.operation.ReparentComponentOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
@@ -165,15 +170,11 @@ public class SceneGraphView extends DockableView
 		graph.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste, delete));
 	}
 
-	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste,
-			IHandlerActivation delete) {
+	private void deactivateFocusHandlers(IHandlerActivation... handlers) {
 		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
-		handlerService.deactivateHandler(cut);
-		handlerService.deactivateHandler(copy);
-		handlerService.deactivateHandler(paste);
-		handlerService.deactivateHandler(delete);
+		Arrays.stream(handlers).forEach(h -> handlerService.deactivateHandler(h));
 		focusService.removeFocusTracker(graph);
 	}
 
@@ -374,6 +375,19 @@ public class SceneGraphView extends DockableView
 			SceneNode2 node = component.getNode();
 			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
 			editorContext.executeOperation(operation, "Error while removing component");
+		}
+	}
+
+	void rename() {
+		getFirstSelectedNode().ifPresent(n -> rename(n));
+	}
+
+	void rename(SceneNode2 node) {
+		IInputValidator v = i -> i.length() < 3 ? "Too short" : null;
+		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", node.getName(), v);
+		if (dlg.open() == Window.OK) {
+			RenameNodeOperation operation = new RenameNodeOperation(editorId, node, dlg.getValue());
+			editorContext.executeOperation(operation, "Error while renaming node");
 		}
 	}
 }

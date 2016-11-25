@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
@@ -75,7 +76,7 @@ import com.gurella.studio.editor.utils.Try;
 public class AssetsView extends DockableView implements IResourceChangeListener {
 	private final Tree tree;
 	private final TreeViewer viewer;
-	private final AssetsViewMenu menu;
+	private final AssetsMenu menu;
 	final Clipboard clipboard;
 
 	IResource rootResource;
@@ -93,7 +94,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 		clipboard = new Clipboard(getDisplay());
 		addDisposeListener(e -> clipboard.dispose());
-		menu = new AssetsViewMenu(this);
+		menu = new AssetsMenu(this);
 
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
@@ -146,15 +147,11 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		tree.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste, delete));
 	}
 
-	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste,
-			IHandlerActivation delete) {
+	private void deactivateFocusHandlers(IHandlerActivation... handlers) {
 		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
-		handlerService.deactivateHandler(cut);
-		handlerService.deactivateHandler(copy);
-		handlerService.deactivateHandler(paste);
-		handlerService.deactivateHandler(delete);
+		Arrays.stream(handlers).forEach(h -> handlerService.deactivateHandler(h));
 		focusService.removeFocusTracker(tree);
 	}
 
@@ -321,7 +318,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 	void rename(IResource resource, String newName) {
 		RenameResourceDescriptor descriptor = new RenameResourceDescriptor();
-		descriptor.setResourcePath(resource.getLocation());
+		IPath path = resource.getLocation().makeRelativeTo(resource.getWorkspace().getRoot().getLocation());
+		descriptor.setResourcePath(path);
 		descriptor.setUpdateReferences(true);
 		descriptor.setNewName(newName);
 		executeRefractoringOperation(descriptor, "Error while renaming resource.");
@@ -340,9 +338,10 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 	void delete(IResource resource) {
 		if (editorContext.sceneResource.equals(resource)) {
-			//TODO message
+			// TODO message
 			return;
 		}
+
 		DeleteResourcesDescriptor descriptor = new DeleteResourcesDescriptor();
 		descriptor.setResources(new IResource[] { resource });
 		descriptor.setDeleteContents(true);
