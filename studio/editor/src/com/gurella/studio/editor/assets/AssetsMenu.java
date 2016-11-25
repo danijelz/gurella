@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.MenuItem;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.utils.Try;
 
 class AssetsMenu {
@@ -82,7 +84,7 @@ class AssetsMenu {
 			addSeparator(menu);
 
 			item = new MenuItem(menu, SWT.PUSH);
-			item.setText("Folder");
+			item.setText("New folder");
 			item.addListener(SWT.Selection, e -> addNewFolder());
 			item.setEnabled(selection instanceof IFolder);
 
@@ -147,18 +149,25 @@ class AssetsMenu {
 		}
 
 		private void importAssets() {
+			PreferencesStore store = view.preferencesStore;
+			PreferencesNode preferencesNode = store.resourceNode().node(AssetsMenu.class);
+			String lastPath = preferencesNode.get("lastPath", null);
 			FileDialog dlg = new FileDialog(view.getShell(), SWT.MULTI);
+			dlg.setFilterPath(lastPath);
+
 			if (dlg.open() == null) {
 				return;
 			}
 
 			IFolder folder = (IFolder) selection;
-			String path = dlg.getFilterPath();
+			lastPath = dlg.getFilterPath();
 			for (String fileName : dlg.getFileNames()) {
-				File file = new File(path, fileName);
+				File file = new File(lastPath, fileName);
 				IFile newFile = folder.getFile(fileName);
 				Try.successful(newFile).peek(f -> f.create(new FileInputStream(file), true, null)).getUnchecked();
 			}
+
+			preferencesNode.put("lastPath", lastPath);
 		}
 
 		private void addCreateSubMenu(Menu menu) {

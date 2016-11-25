@@ -1,9 +1,10 @@
 package com.gurella.studio.editor.common;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -82,11 +83,9 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
 		AssetType value = AssetType.value(assetType);
-		dialog.setFilterExtensions(
-				new String[] { Arrays.stream(value.extensions).map(e -> "*." + e).collect(Collectors.joining(";")) });
-
-		IFile file = getEditorFile();
-		IPath location = file.getLocation();
+		String extensions = Arrays.stream(value.extensions).map(e -> "*." + e).collect(joining(";"));
+		dialog.setFilterExtensions(new String[] { extensions });
+		IPath location = getEditorFile().getLocation();
 		dialog.setFilterPath(location.removeLastSegments(1).toString());
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
 	}
@@ -104,7 +103,6 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void assetSelected(final String path) {
 		IFile file = getEditorFile();
 		IPath assetPath = new Path(path).makeRelativeTo(file.getProject().getLocation().append("assets"));
-
 		T oldAsset = asset;
 		asset = AssetService.load(assetPath.toString(), assetType);
 		text.setText(assetPath.lastSegment());
@@ -150,7 +148,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		@Override
 		public void drop(DropTargetEvent event) {
 			event.detail = DND.DROP_NONE;
-			Optional.ofNullable((IResource[]) event.data).filter(d -> d != null && d.length == 1).map(d -> d[0])
+			Optional.ofNullable((IResource[]) event.data).filter(d -> d.length == 1).map(d -> d[0])
 					.filter(r -> isValidResource(r)).ifPresent(r -> assetSelected(r.getLocation().toString()));
 		}
 	}

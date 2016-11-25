@@ -51,6 +51,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
@@ -68,18 +69,21 @@ import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.operation.DuplicateAssetOperation;
 import com.gurella.studio.editor.operation.RefractoringOperation;
+import com.gurella.studio.editor.preferences.PreferencesExtension;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.ControlExpression;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class AssetsView extends DockableView implements IResourceChangeListener {
+public class AssetsView extends DockableView implements IResourceChangeListener, PreferencesExtension {
 	private final Tree tree;
 	private final TreeViewer viewer;
 	private final AssetsMenu menu;
 	final Clipboard clipboard;
 
 	IResource rootResource;
+	PreferencesStore preferencesStore;
 
 	private Object lastSelection;
 
@@ -119,6 +123,9 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		addDisposeListener(e -> workspace.removeResourceChangeListener(this));
 
 		viewer.setInput(rootResource);
+
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
 	}
 
 	private void initDragManagers() {
@@ -346,5 +353,10 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		descriptor.setResources(new IResource[] { resource });
 		descriptor.setDeleteContents(true);
 		executeRefractoringOperation(descriptor, "Error while deleting resource.");
+	}
+
+	@Override
+	public void setPreferencesStore(PreferencesStore preferencesStore) {
+		this.preferencesStore = preferencesStore;
 	}
 }
