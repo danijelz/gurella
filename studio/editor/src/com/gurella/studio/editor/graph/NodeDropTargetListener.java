@@ -26,6 +26,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 	@Override
 	public void dragEnter(DropTargetEvent event) {
+		//TODO if getTransferedNode() == null add to root
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferedNode() == null) {
 			event.detail = DND.DROP_NONE;
 			return;

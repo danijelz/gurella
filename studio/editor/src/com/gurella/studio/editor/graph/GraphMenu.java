@@ -70,6 +70,7 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
+import com.gurella.studio.editor.operation.ReparentNodeOperation;
 import com.gurella.studio.editor.utils.FileDialogUtils;
 
 class GraphMenu {
@@ -138,6 +139,7 @@ class GraphMenu {
 			item.setText("Rename");
 			item.addListener(SWT.Selection, e -> view.rename(node));
 			item.setEnabled(nodeSelected);
+			addSeparator(menu);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Empty node");
@@ -153,12 +155,25 @@ class GraphMenu {
 			item.setText("Convert to prefab");
 			item.addListener(SWT.Selection, e -> convertToPrefab());
 			item.setEnabled(nodeSelected);
+
+			item = new MenuItem(menu, SWT.PUSH);
+			item.setText("Convert to root");
+			item.addListener(SWT.Selection, e -> convertToRoot());
+			item.setEnabled(nodeSelected && node.getParentNode() != null);
 			addSeparator(menu);
 
 			createShapesSubMenu(menu);
 			addSeparator(menu);
 
 			createComponentsSubMenu(menu);
+		}
+
+		private void convertToRoot() {
+			int editorId = context.editorId;
+			SceneNode2 node = (SceneNode2) selection;
+			int newIndex = node.getScene().nodes.size();
+			String errorMsg = "Error while repositioning node";
+			context.executeOperation(new ReparentNodeOperation(editorId, node, null, newIndex), errorMsg);
 		}
 
 		private void convertToPrefab() {

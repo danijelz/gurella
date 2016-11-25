@@ -68,6 +68,7 @@ public class FileDialogUtils {
 	}
 
 	public static String enterNewFileName(IFolder parent, String suggestedName, String extension) {
+		//TODO extension
 		String name = suggestName(parent, suggestedName);
 		InputDialog dlg = new InputDialog(UiUtils.getActiveShell(), "Name", "Enter name", name,
 				i -> validateNewFileName(parent, i));
