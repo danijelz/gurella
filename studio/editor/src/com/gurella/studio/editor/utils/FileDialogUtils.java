@@ -37,7 +37,8 @@ public class FileDialogUtils {
 		FileDialog dialog = new FileDialog(UiUtils.getActiveShell(), SWT.SAVE);
 		dialog.setFilterPath(parent.toString());
 		dialog.setFilterExtensions(extensions);
-		dialog.setFileName(suggestName(parent, suggestedName));
+		String extension = extensions.length == 0 ? "" : "." + extensions[0];
+		dialog.setFileName(suggestName(parent, suggestedName) + extension);
 		return getPathSafely(dialog);
 	}
 
@@ -68,7 +69,7 @@ public class FileDialogUtils {
 	}
 
 	public static String enterNewFileName(IFolder parent, String suggestedName, String extension) {
-		//TODO extension
+		// TODO extension
 		String name = suggestName(parent, suggestedName);
 		InputDialog dlg = new InputDialog(UiUtils.getActiveShell(), "Name", "Enter name", name,
 				i -> validateNewFileName(parent, i));
