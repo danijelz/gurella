@@ -2,12 +2,12 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
-//TODO Poolable
 @BaseSceneElement
-public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent2 {
+public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent2 implements Poolable {
 	transient T light;
 
 	public LightComponent() {
@@ -27,5 +27,10 @@ public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeCo
 
 	public void setColor(Color color) {
 		light.color.set(color);
+	}
+	
+	public void reset() {
+		super.resetPoolable();
+		light.setColor(1, 1, 1, 1);
 	}
 }

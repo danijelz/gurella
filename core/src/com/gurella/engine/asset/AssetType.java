@@ -74,6 +74,10 @@ public enum AssetType {
 		return Arrays.binarySearch(extensions, extension) >= 0;
 	}
 
+	public String extension() {
+		return extensions.length == 0 ? null : extensions[0];
+	}
+
 	public static boolean isValidExtension(Class<?> assetType, String extension) {
 		AssetType type = value(assetType);
 		return type != null && Arrays.binarySearch(type.extensions, extension) >= 0;

@@ -16,7 +16,6 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 @ModelDescriptor(descriptiveName = "Spot Light")
 public class SpotLightComponent extends LightComponent<SpotLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener, DebugRenderable {
-	private final Vector3 direction = new Vector3(0, -1, 0);
 
 	private transient TransformComponent transformComponent;
 	private transient boolean dirty = true;
@@ -27,6 +26,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 		spotLight.intensity = 0.1f;
 		spotLight.cutoffAngle = 1;
 		spotLight.exponent = 1;
+		spotLight.direction.set(0, -1, 0);
 		return spotLight;
 	}
 
@@ -55,12 +55,11 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	public Vector3 getDirection() {
-		return direction;
+		return light.direction;
 	}
 
 	public void setDirection(Vector3 direction) {
-		this.direction.set(direction);
-		dirty = true;
+		light.direction.set(direction);
 	}
 
 	@Override
@@ -99,8 +98,6 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	public void onPreRenderUpdate() {
 		if (dirty) {
 			dirty = false;
-			light.direction.set(direction);
-
 			if (transformComponent == null) {
 				light.position.setZero();
 			} else {
@@ -122,5 +119,14 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	@Override
 	public void debugRender(DebugRenderContext context) {
 		LightDebugRenderer.render(context, this);
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		light.intensity = 0.1f;
+		light.cutoffAngle = 1;
+		light.exponent = 1;
+		light.direction.set(0, -1, 0);
 	}
 }

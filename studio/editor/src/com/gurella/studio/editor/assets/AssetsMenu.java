@@ -1,8 +1,10 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -18,11 +20,20 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 
+import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
+import com.gurella.studio.editor.utils.FileDialogUtils;
+import com.gurella.studio.editor.utils.PrettyPrintSerializer;
 import com.gurella.studio.editor.utils.Try;
 
 class AssetsMenu {
@@ -103,15 +114,16 @@ class AssetsMenu {
 
 		private void rename() {
 			// TODO move to view
+			Shell shell = view.getShell();
 			String name = selection.getName();
-			InputDialog dlg = new InputDialog(view.getShell(), "Rename", "Enter new name", name, this::validateRename);
+			InputDialog dlg = new InputDialog(shell, "Rename", "Enter new name", name, this::validateNewFileName);
 			if (dlg.open() == Window.OK) {
 				String newName = dlg.getValue();
 				view.rename(selection, newName);
 			}
 		}
 
-		private String validateRename(String newFileName) {
+		private String validateNewFileName(String newFileName) {
 			if (Values.isBlank(newFileName)) {
 				return "Name must not be empty";
 			}
@@ -171,30 +183,54 @@ class AssetsMenu {
 		}
 
 		private void addCreateSubMenu(Menu menu) {
+			boolean enabled = selection == null || selection instanceof IFolder;
+
 			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
-			subItem.setText("Create");
+			subItem.setText("New");
 			Menu subMenu = new Menu(menu);
 			subItem.setMenu(subMenu);
 
 			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Prefab");
 			item.addListener(SWT.Selection, e -> addNewFolder());
-			item.setEnabled(selection instanceof IFolder);
+			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Material");
 			item.addListener(SWT.Selection, e -> addNewFolder());
-			item.setEnabled(selection instanceof IFolder);
+			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Render target");
 			item.addListener(SWT.Selection, e -> addNewFolder());
-			item.setEnabled(selection instanceof IFolder);
+			item.setEnabled(enabled);
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Scene");
-			item.addListener(SWT.Selection, e -> addNewFolder());
-			item.setEnabled(selection instanceof IFolder);
+			item.addListener(SWT.Selection, e -> addNewScene());
+			item.setEnabled(enabled);
+		}
+
+		private void addNewScene() {
+			IFolder folder = selection == null ? (IFolder) view.rootResource : (IFolder) selection;
+			String name = FileDialogUtils.enterNewFileName(folder, "scene", AssetType.scene.extension());
+			if (name == null) {
+				return;
+			}
+
+			Scene scene = new Scene();
+			SceneNode2 node = scene.newNode("Main camera");
+			node.newComponent(TransformComponent.class);
+			node.newComponent(PerspectiveCameraComponent.class);
+			node = scene.newNode("Directional light");
+			node.newComponent(TransformComponent.class);
+			node.newComponent(DirectionalLightComponent.class);
+
+			IFile file = folder.getFile(name);
+			String serialized = PrettyPrintSerializer.serialize(file.getName(), Scene.class, scene);
+			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
+					.peek(is -> file.create(is, true, new NullProgressMonitor()))
+					.onFailure(e -> showError(e, "Error creating scene."));
 		}
 	}
 }

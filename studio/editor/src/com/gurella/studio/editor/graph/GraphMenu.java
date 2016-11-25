@@ -1,17 +1,16 @@
 package com.gurella.studio.editor.graph;
 
 import static com.gurella.engine.asset.AssetType.prefab;
-import static java.util.stream.Collectors.joining;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -71,7 +70,7 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
-import com.gurella.studio.editor.utils.SaveFileDialog;
+import com.gurella.studio.editor.utils.FileDialogUtils;
 
 class GraphMenu {
 	private final SceneGraphView view;
@@ -164,12 +163,12 @@ class GraphMenu {
 
 		private void convertToPrefab() {
 			try {
-				String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
 				IProject project = context.project;
 				IPath projectPath = project.getLocation();
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode2 node = (SceneNode2) selection;
-				String fileName = SaveFileDialog.getPath(assetsRootPath, extensions, node.getName());
+				IFolder folder = project.getFolder("assets");
+				String fileName = FileDialogUtils.enterNewFileName(folder, node.getName(), prefab.extension());
 				if (fileName == null) {
 					return;
 				}

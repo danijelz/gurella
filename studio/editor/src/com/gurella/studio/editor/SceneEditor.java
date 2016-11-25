@@ -80,17 +80,23 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IFile file = input.getFile();
 		IPath path = file.getFullPath();
-		JsonOutput output = new JsonOutput();
-		String relativeFileName = file.getProjectRelativePath().toPortableString();
-		String string = output.serialize(new FileHandle(relativeFileName), Scene.class, sceneContext.getScene());
+
 		monitor.beginTask("Saving scene", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
+
+		JsonOutput output = new JsonOutput();
+		String relativeFileName = file.getProjectRelativePath().toPortableString();
+		String serialized = output.serialize(new FileHandle(relativeFileName), Scene.class, sceneContext.getScene());
+		String pretty = new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
+
 		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
-		buffer.getDocument().set(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
+		buffer.getDocument().set(pretty);
 		buffer.commit(monitor, true);
+
 		sceneContext.persist(monitor);
 		manager.disconnect(path, LocationKind.IFILE, monitor);
+
 		dirty = false;
 		firePropertyChange(PROP_DIRTY);
 	}
@@ -136,7 +142,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		initGdxApplication();
 		viewRegistry = new ViewRegistry(this);
 		dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
-		
 
 		String path = ((IPathEditorInput) getEditorInput()).getPath().toString();
 		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);

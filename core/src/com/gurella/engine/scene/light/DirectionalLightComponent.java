@@ -3,85 +3,28 @@ package com.gurella.engine.scene.light;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.ModelDescriptor;
-import com.gurella.engine.base.model.PropertyChangeListener;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
-import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 @ModelDescriptor(descriptiveName = "Directional Light")
-public class DirectionalLightComponent extends LightComponent<DirectionalLight> implements
-		NodeComponentActivityListener, NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
-	private final Vector3 direction = new Vector3(0, -1, 0);
-
-	private transient TransformComponent transformComponent;
-	private transient boolean dirty = true;
+public class DirectionalLightComponent extends LightComponent<DirectionalLight> {
 
 	@Override
 	protected DirectionalLight createLight() {
-		return new DirectionalLight();
+		DirectionalLight directionalLight = new DirectionalLight();
+		directionalLight.direction.set(0, -1, 0);
+		return directionalLight;
 	}
 
 	public Vector3 getDirection() {
-		return direction;
+		return light.direction;
 	}
 
 	public void setDirection(Vector3 direction) {
-		this.direction.set(direction);
-		dirty = true;
+		light.direction.set(direction);
 	}
 
 	@Override
-	protected void componentActivated() {
-		transformComponent = getNode().getComponent(TransformComponent.class);
-	}
-
-	@Override
-	protected void componentDeactivated() {
-		transformComponent = null;
-		dirty = true;
-	}
-
-	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
-		if (component instanceof TransformComponent) {
-			this.transformComponent = (TransformComponent) component;
-			dirty = true;
-		}
-	}
-
-	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
-		if (component instanceof TransformComponent) {
-			transformComponent = null;
-			dirty = true;
-		}
-	}
-
-	@Override
-	public void onNodeTransformChanged() {
-		dirty = true;
-	}
-
-	@Override
-	public void onPreRenderUpdate() {
-		if (dirty) {
-			dirty = false;
-			light.direction.set(direction);
-			if (transformComponent != null) {
-				float x = direction.x;
-				float y = direction.y;
-				float z = direction.z;
-				transformComponent.getWorldTranslation(direction);
-				transformComponent.transformPointToWorld(light.direction).sub(direction);
-				direction.set(x, y, z);
-			}
-		}
-	}
-
-	@Override
-	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
-		dirty = true;
+	public void reset() {
+		super.reset();
+		light.direction.set(0, -1, 0);
 	}
 }

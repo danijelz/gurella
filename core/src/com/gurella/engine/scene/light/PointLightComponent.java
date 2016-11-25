@@ -91,4 +91,11 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	public void debugRender(DebugRenderContext context) {
 		LightDebugRenderer.render(context, this);
 	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		light.intensity = 0.1f;
+		dirty = true;
+	}
 }

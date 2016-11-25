@@ -764,7 +764,7 @@ public class AssetRegistry extends AssetManager {
 		task.free();
 
 		if (!propagated) {
-			// TODO throw exception on rendering thread
+			// TODO throw exception on main thread
 			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);
 		}
 	}
