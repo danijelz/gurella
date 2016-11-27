@@ -1,16 +1,21 @@
 package com.gurella.studio.editor.utils;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.function.Function;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -21,34 +26,35 @@ public class FileDialogUtils {
 	private FileDialogUtils() {
 	}
 
-	public static String selectNewFileName(IFolder parent, String suggestedName, String... extensions) {
-		return selectNewFileName(parent.getLocation(), suggestedName, extensions);
+	public static String selectNewFileName(IFolder parent, String defaultName, String... extensions) {
+		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
-	public static String selectNewFileName(IFolder parent, String suggestedName, AssetType type) {
-		return selectNewFileName(parent.getLocation(), suggestedName, type.extensions);
+	public static String selectNewFileName(IFolder parent, String defaultName, AssetType type) {
+		return selectNewFileName(parent.getLocation(), defaultName, type.extensions);
 	}
 
-	public static String selectNewFileName(IPath parent, String suggestedName, AssetType type) {
-		return selectNewFileName(parent, suggestedName, type.extensions);
+	public static String selectNewFileName(IPath parent, String defaultName, AssetType type) {
+		return selectNewFileName(parent, defaultName, type.extensions);
 	}
 
-	public static String selectNewFileName(IPath parent, String suggestedName, String... extensions) {
+	public static String selectNewFileName(IPath parent, String defaultName, String... extensions) {
 		FileDialog dialog = new FileDialog(UiUtils.getActiveShell(), SWT.SAVE);
 		dialog.setFilterPath(parent.toString());
-		dialog.setFilterExtensions(extensions);
+		Function<? super String, ? extends String> prependDot = e -> e.indexOf('.') < 0 ? "*." + e : e;
+		dialog.setFilterExtensions(Arrays.stream(extensions).map(prependDot).toArray(i -> new String[i]));
 		String extension = extensions.length == 0 ? null : extensions[0];
-		dialog.setFileName(suggestName(parent, suggestedName, extension));
+		dialog.setFileName(suggestName(parent, defaultName, extension));
 		return getPathSafely(dialog);
 	}
 
-	private static String suggestName(IPath parentPath, String suggestedName, String extension) {
+	private static String suggestName(IPath parentPath, String defaultName, String extension) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource parent = root.findMember(parentPath.makeRelativeTo(root.getLocation()));
 		if (parent instanceof IFolder && parent.exists()) {
-			return suggestName((IFolder) parent, suggestedName, extension);
+			return suggestName((IFolder) parent, defaultName, extension);
 		} else {
-			return suggestedName;
+			return defaultName;
 		}
 	}
 
@@ -68,32 +74,34 @@ public class FileDialogUtils {
 		}
 	}
 
-	public static String enterNewFileName(IFolder parent, String suggestedName, String extension) {
-		String name = suggestName(parent, suggestedName, extension);
-		InputDialog dlg = new InputDialog(UiUtils.getActiveShell(), "Name", "Enter name", name,
-				i -> validateNewFileName(parent, i));
+	public static String enterNewFileName(IFolder parent, String defaultName, String extension) {
+		String name = suggestName(parent, defaultName, extension);
+		Shell shell = UiUtils.getActiveShell();
+		IInputValidator validator = i -> validateNewFileName(parent, i);
+		FileNameDialog dlg = new FileNameDialog(shell, "Name", "Enter name", name, validator);
 		return dlg.open() == Window.OK ? dlg.getValue() : null;
 	}
 
-	private static String suggestName(IFolder parent, String suggestedName, String extension) {
-		int index = suggestedName.lastIndexOf('.');
+	private static String suggestName(IFolder parent, String defaultName, String extension) {
+		int index = defaultName.lastIndexOf('.');
 		String name;
-		if (index >= 0) {
-			name = suggestedName.substring(0, index);
+		if (index > 0) {
+			name = defaultName.substring(0, index);
 		} else {
-			name = suggestedName;
+			name = defaultName;
 		}
 
-		IResource member = parent.findMember(composeName(name, extension));
+		String composedName = composeName(name, extension);
+		IResource member = parent.findMember(composedName);
 		if (member == null || !member.exists()) {
-			return suggestedName;
+			return composedName;
 		}
 
-		for (int i = 0; i < 1000; i++) {
-			String proposedName = composeName(name + "-" + i, extension);
-			member = parent.findMember(proposedName);
+		for (int i = 1; i < 1000; i++) {
+			composedName = composeName(name + "-" + i, extension);
+			member = parent.findMember(composedName);
 			if (member == null || !member.exists()) {
-				return name;
+				return composedName;
 			}
 		}
 
@@ -114,6 +122,23 @@ public class FileDialogUtils {
 			return "Resource with that name already exists";
 		} else {
 			return null;
+		}
+	}
+
+	private static class FileNameDialog extends InputDialog {
+		public FileNameDialog(Shell parentShell, String dialogTitle, String dialogMessage, String initialValue,
+				IInputValidator validator) {
+			super(parentShell, dialogTitle, dialogMessage, initialValue, validator);
+		}
+
+		@Override
+		protected Control createContents(Composite parent) {
+			Control control = super.createContents(parent);
+			int index = getValue().lastIndexOf('.');
+			if (index > 0) {
+				getText().setSelection(0, index);
+			}
+			return control;
 		}
 	}
 }

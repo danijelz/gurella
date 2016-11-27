@@ -183,7 +183,7 @@ class GraphMenu {
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode2 node = (SceneNode2) selection;
 				IFolder folder = project.getFolder("assets");
-				String fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab.extension());
+				String fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
 				if (fileName == null) {
 					return;
 				}

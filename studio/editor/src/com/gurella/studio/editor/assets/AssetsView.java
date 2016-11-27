@@ -82,7 +82,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	private final AssetsMenu menu;
 	final Clipboard clipboard;
 
-	IResource rootResource;
+	IFolder rootAssetsFolder;
 	PreferencesStore preferencesStore;
 
 	private Object lastSelection;
@@ -94,7 +94,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		rootResource = editorContext.project.getFolder("assets");
+		rootAssetsFolder = editorContext.project.getFolder("assets");
 
 		clipboard = new Clipboard(getDisplay());
 		addDisposeListener(e -> clipboard.dispose());
@@ -122,7 +122,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		workspace.addResourceChangeListener(this);
 		addDisposeListener(e -> workspace.removeResourceChangeListener(this));
 
-		viewer.setInput(rootResource);
+		viewer.setInput(rootAssetsFolder);
 
 		addDisposeListener(e -> Workbench.deactivate(this));
 		Workbench.activate(this);
@@ -177,7 +177,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 			return;
 		}
 
-		IResourceDelta assetsDelta = mainDelta.findMember(rootResource.getFullPath());
+		IResourceDelta assetsDelta = mainDelta.findMember(rootAssetsFolder.getFullPath());
 		if (assetsDelta == null) {
 			return;
 		}
