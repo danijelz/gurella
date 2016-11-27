@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.base.object.ObjectInstanceMask;
 import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.managedobject.ObjectInstanceMask;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.renderable.LayerMask;

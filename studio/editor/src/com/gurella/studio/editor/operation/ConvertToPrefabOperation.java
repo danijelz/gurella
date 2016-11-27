@@ -8,8 +8,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.base.object.Prefabs;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.managedobject.Prefabs;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;

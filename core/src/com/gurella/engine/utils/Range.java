@@ -1,13 +1,13 @@
 package com.gurella.engine.utils;
 
-import com.gurella.engine.base.model.ValueRange;
-import com.gurella.engine.base.model.ValueRange.ByteRange;
-import com.gurella.engine.base.model.ValueRange.CharRange;
-import com.gurella.engine.base.model.ValueRange.DoubleRange;
-import com.gurella.engine.base.model.ValueRange.FloatRange;
-import com.gurella.engine.base.model.ValueRange.IntegerRange;
-import com.gurella.engine.base.model.ValueRange.LongRange;
-import com.gurella.engine.base.model.ValueRange.ShortRange;
+import com.gurella.engine.metatype.ValueRange;
+import com.gurella.engine.metatype.ValueRange.ByteRange;
+import com.gurella.engine.metatype.ValueRange.CharRange;
+import com.gurella.engine.metatype.ValueRange.DoubleRange;
+import com.gurella.engine.metatype.ValueRange.FloatRange;
+import com.gurella.engine.metatype.ValueRange.IntegerRange;
+import com.gurella.engine.metatype.ValueRange.LongRange;
+import com.gurella.engine.metatype.ValueRange.ShortRange;
 
 public class Range<T extends Comparable<T>> {
 	private T min;

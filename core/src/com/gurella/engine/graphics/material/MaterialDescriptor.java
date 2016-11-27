@@ -15,10 +15,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset.properties.TextureProperties;
-import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.graphics.render.gl.BlendFunction;
 import com.gurella.engine.graphics.render.gl.CullFace;
 import com.gurella.engine.graphics.render.gl.DepthTestFunction;
+import com.gurella.engine.managedobject.ManagedObject;
 
 public class MaterialDescriptor extends ManagedObject {
 	public Color diffuseColor;

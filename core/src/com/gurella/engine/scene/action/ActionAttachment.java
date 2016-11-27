@@ -1,8 +1,8 @@
 package com.gurella.engine.scene.action;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.object.Attachment;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.managedobject.Attachment;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;

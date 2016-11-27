@@ -1,7 +1,7 @@
 package com.gurella.engine.test;
 
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestEditorComponent extends SceneNodeComponent2 {

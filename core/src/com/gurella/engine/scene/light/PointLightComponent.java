@@ -2,8 +2,8 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Matrix4;
-import com.gurella.engine.base.model.ModelDescriptor;
-import com.gurella.engine.base.model.PropertyChangeListener;
+import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.light.debug.LightDebugRenderer;

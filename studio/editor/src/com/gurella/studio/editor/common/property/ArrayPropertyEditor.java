@@ -16,10 +16,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.model.ReflectionProperty;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
+import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;

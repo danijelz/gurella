@@ -3,9 +3,9 @@ package com.gurella.studio.editor.common.property;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.model.PropertyChangeListener;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Property;
+import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 

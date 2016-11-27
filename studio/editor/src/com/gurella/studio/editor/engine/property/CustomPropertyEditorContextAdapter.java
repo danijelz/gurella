@@ -10,11 +10,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
+import com.gurella.engine.metatype.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.common.bean.DefaultBeanEditor;

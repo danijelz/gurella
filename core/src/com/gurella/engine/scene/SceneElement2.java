@@ -1,6 +1,6 @@
 package com.gurella.engine.scene;
 
-import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.managedobject.ManagedObject;
 
 public class SceneElement2 extends ManagedObject {
 	transient Scene scene;

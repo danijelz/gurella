@@ -14,8 +14,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.metatype.ModelDescriptor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 

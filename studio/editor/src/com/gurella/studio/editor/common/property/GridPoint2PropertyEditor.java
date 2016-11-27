@@ -9,9 +9,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.GridPoint2;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;

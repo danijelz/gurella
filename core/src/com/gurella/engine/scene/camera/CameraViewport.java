@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Scaling;
-import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.base.model.ValueRange;
-import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
+import com.gurella.engine.metatype.ValueRange;
+import com.gurella.engine.metatype.ValueRange.FloatRange;
 
 public class CameraViewport {
 	private transient Camera camera;

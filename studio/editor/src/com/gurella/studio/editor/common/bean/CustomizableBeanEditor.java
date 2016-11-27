@@ -35,9 +35,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.OrderedMap;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.managedobject.ManagedObject;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.SceneEditorContext;

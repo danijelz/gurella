@@ -3,14 +3,14 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.CopyContext;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.object.PrefabReference;
-import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serializable;
+import com.gurella.engine.managedobject.PrefabReference;
+import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.serialization.Input;
+import com.gurella.engine.serialization.Output;
+import com.gurella.engine.serialization.Serializable;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Sequence;
@@ -42,6 +42,11 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	@Override
 	public Range<?> getRange() {
 		return null;
+	}
+	
+	@Override
+	public boolean isAsset() {
+		return false;
 	}
 
 	@Override

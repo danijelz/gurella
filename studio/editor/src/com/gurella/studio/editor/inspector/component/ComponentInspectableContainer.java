@@ -6,14 +6,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.base.model.Models;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditor;
-import com.gurella.studio.editor.common.bean.BeanEditorFactory;
 import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
+import com.gurella.studio.editor.common.bean.BeanEditorFactory;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.utils.SceneChangedEvent;

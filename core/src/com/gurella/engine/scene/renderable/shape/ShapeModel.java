@@ -12,9 +12,9 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
 
 public abstract class ShapeModel implements Disposable {

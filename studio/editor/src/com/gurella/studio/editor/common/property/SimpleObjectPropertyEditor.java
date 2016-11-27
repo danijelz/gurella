@@ -7,9 +7,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.UiUtils;
 

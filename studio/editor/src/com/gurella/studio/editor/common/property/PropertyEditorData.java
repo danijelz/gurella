@@ -13,11 +13,11 @@ import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
+import com.gurella.engine.metatype.Property;
+import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 

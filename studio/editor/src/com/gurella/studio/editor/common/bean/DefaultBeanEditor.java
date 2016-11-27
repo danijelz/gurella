@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.base.model.Property;
+import com.gurella.engine.metatype.Property;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {

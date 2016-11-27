@@ -4,7 +4,7 @@ import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader.BitmapFontParameter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 
 public class BitmapFontProperties implements AssetProperties<BitmapFont> {
 	public boolean flip = false;

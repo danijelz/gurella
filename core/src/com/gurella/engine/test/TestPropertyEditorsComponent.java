@@ -21,8 +21,6 @@ import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.model.ModelEditorContext;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.engine.editor.model.ModelEditorFactory;
@@ -61,6 +59,8 @@ import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.GridRectangle;
 

@@ -2,7 +2,7 @@ package com.gurella.engine.math.geometry;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.TransientProperty;
+import com.gurella.engine.metatype.TransientProperty;
 
 public class Angle implements Poolable {
 	private float degrees;

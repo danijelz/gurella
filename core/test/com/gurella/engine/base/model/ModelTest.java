@@ -1,5 +1,7 @@
 package com.gurella.engine.base.model;
 
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.transform.TransformComponent;
 

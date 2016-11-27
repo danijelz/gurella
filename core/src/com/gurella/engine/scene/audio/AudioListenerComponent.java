@@ -3,7 +3,7 @@ package com.gurella.engine.scene.audio;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.metatype.ModelDescriptor;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.debug.AudioDebugRenderer;
 import com.gurella.engine.scene.debug.DebugRenderable;

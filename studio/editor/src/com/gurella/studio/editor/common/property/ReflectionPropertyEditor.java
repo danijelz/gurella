@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.base.model.DefaultModels.SimpleModel;
-import com.gurella.engine.base.model.Models;
+import com.gurella.engine.metatype.DefaultModels.SimpleModel;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;

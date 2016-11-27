@@ -1,10 +1,10 @@
 package com.gurella.engine.editor.property;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
+import com.gurella.engine.metatype.Property;
 
 public interface PropertyEditorContext<P> {
 	Property<P> getProperty();

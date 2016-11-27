@@ -1,7 +1,7 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.metatype.ModelDescriptor;
 import com.gurella.engine.scene.renderable.shape.ShapeModel;
 
 @ModelDescriptor(descriptiveName = "3D Shape")

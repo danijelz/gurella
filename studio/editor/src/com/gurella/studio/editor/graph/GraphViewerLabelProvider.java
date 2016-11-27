@@ -4,7 +4,7 @@ import org.eclipse.jface.viewers.BaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import com.gurella.engine.base.model.Models;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;

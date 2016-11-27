@@ -2,7 +2,7 @@ package com.gurella.engine.scene.velocity;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.metatype.ModelDescriptor;
 import com.gurella.engine.scene.RequiresComponent;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;

@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.persister.AbstractAssetPersister;
-import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.serialization.json.JsonOutput;
 
 public class JsonObjectPersister<T> extends AbstractAssetPersister<T> {
 	private final Class<T> expectedType;

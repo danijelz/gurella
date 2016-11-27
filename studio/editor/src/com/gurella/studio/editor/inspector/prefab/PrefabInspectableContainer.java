@@ -43,7 +43,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.base.model.Models;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;

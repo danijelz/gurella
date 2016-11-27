@@ -45,9 +45,9 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
-import com.gurella.engine.base.model.Models;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.Scene;
@@ -83,8 +83,8 @@ import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChan
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
-import com.gurella.studio.editor.operation.SetNodeEnabledOperation;
 import com.gurella.studio.editor.operation.RenameNodeOperation;
+import com.gurella.studio.editor.operation.SetNodeEnabledOperation;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;

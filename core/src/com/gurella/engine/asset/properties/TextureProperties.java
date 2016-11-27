@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 
 public class TextureProperties implements AssetProperties<Texture> {
 	@PropertyDescriptor(nullable = false)

@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 
 public class CompositeShapeModel extends ShapeModel {
 	private final Quaternion rotation = new Quaternion();

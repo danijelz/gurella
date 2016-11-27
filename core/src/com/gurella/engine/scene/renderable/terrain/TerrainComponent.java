@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.metatype.ModelDescriptor;
 import com.gurella.engine.scene.renderable.RenderableComponent3d;
 import com.gurella.engine.scene.transform.TransformComponent;
 

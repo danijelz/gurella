@@ -3,14 +3,14 @@ package com.gurella.engine.base.serialization;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.gurella.engine.base.model.CopyContext;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.serialization.json.JsonInput;
-import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.serialization.json.JsonInput;
+import com.gurella.engine.serialization.json.JsonOutput;
 
 public class SceneSerializationTest {
 	public static void main(String[] args) {

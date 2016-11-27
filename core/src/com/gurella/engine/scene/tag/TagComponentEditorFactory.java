@@ -7,8 +7,6 @@ import static com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlign
 import java.util.Arrays;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.model.ModelEditorContext;
 import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
@@ -20,6 +18,8 @@ import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 
 public class TagComponentEditorFactory implements ModelEditorFactory<TagComponent> {
 	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Empty name in invalid.");

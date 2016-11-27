@@ -28,9 +28,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.Assets;
-import com.gurella.engine.base.model.CopyContext;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;

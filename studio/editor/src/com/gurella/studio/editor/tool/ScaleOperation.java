@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;

@@ -1,9 +1,9 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.gurella.engine.base.model.TransientProperty;
-import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.managedobject.ManagedObject;
+import com.gurella.engine.metatype.TransientProperty;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public abstract class SceneSystem2 extends SceneElement2 {

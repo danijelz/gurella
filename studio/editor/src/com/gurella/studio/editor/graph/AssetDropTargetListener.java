@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.base.model.CopyContext;
+import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.ModelComponent;

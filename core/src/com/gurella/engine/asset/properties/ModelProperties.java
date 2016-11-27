@@ -3,7 +3,7 @@ package com.gurella.engine.asset.properties;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 
 public abstract class ModelProperties implements AssetProperties<Model> {
 	@PropertyDescriptor(nullable = false)

@@ -39,8 +39,8 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.swt.IFocusService;
 
-import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;

@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.metatype.ModelDescriptor;
 
 @ModelDescriptor(descriptiveName = "Perspective Camera")
 public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {

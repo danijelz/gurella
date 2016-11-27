@@ -2,10 +2,10 @@ package com.gurella.studio.editor.common.bean;
 
 import java.util.Optional;
 
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.Signal1;
+import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.Property;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public class BeanEditorContext<T> {

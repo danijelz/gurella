@@ -2,10 +2,10 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.ModelDescriptor;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;

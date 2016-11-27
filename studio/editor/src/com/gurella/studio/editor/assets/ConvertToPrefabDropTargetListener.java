@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.engine.asset.AssetType.prefab;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -11,29 +14,25 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.base.model.CopyContext;
-import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.managedobject.ManagedObject;
+import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
+import com.gurella.studio.editor.utils.FileDialogUtils;
+import com.gurella.studio.editor.utils.Try;
 
 class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 	private final SceneEditorContext context;
@@ -102,38 +101,14 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 
 		IFolder folder = (IFolder) data;
 		SceneNode2 node = getTransferedNode();
-		Shell shell = event.display.getActiveShell();
-		String nodeName = Optional.ofNullable(node.getName()).filter(n -> Values.isNotBlank(n)).orElse("Prefab");
-		String prefabName = getPrefabName(shell, folder, nodeName);
+		String prefabName = FileDialogUtils.enterNewFileName(folder, node.getName(), true, prefab.extension());
 		if (prefabName == null) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		try {
-			convertToPrefab(folder, node, prefabName);
-		} catch (Exception e) {
-			GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
-		}
-	}
-
-	private static String getPrefabName(Shell shell, IFolder folder, String nodeName) {
-		String msg = "Enter node name";
-		String initialValue = nodeName + ".pref";
-		InputDialog dlg = new InputDialog(shell, "Add prefab", msg, initialValue,
-				i -> i.length() < 3 ? "Too short" : null);
-		if (dlg.open() != Window.OK) {
-			return null;
-		}
-
-		String prefabName = dlg.getValue();
-		IFile file = folder.getFile(prefabName);
-		if (file.exists()) {
-			String message = prefabName + " already exists. Do you want to replace it?";
-			return MessageDialog.openQuestion(shell, "Confirm", message) ? prefabName : null;
-		} else {
-			return prefabName;
-		}
+		Try.successful(null).peek(n -> convertToPrefab(folder, node, prefabName))
+				.onFailure(e -> showError(e, "Error while converting to prefab."));
 	}
 
 	private void convertToPrefab(IFolder folder, SceneNode2 node, String prefabName)
