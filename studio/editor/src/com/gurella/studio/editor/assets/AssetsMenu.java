@@ -8,12 +8,16 @@ import static org.eclipse.swt.SWT.SEPARATOR;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -166,22 +170,31 @@ class AssetsMenu {
 			PreferencesStore store = view.preferencesStore;
 			PreferencesNode preferencesNode = store.resourceNode().node(AssetsMenu.class);
 			String lastPath = preferencesNode.get("lastPath", null);
-			FileDialog dlg = new FileDialog(view.getShell(), SWT.MULTI);
+			Shell shell = view.getShell();
+			FileDialog dlg = new FileDialog(shell, SWT.MULTI);
 			dlg.setFilterPath(lastPath);
 
 			if (dlg.open() == null) {
 				return;
 			}
 
-			IFolder folder = (IFolder) selection;
-			lastPath = dlg.getFilterPath();
-			for (String fileName : dlg.getFileNames()) {
-				File file = new File(lastPath, fileName);
-				IFile newFile = folder.getFile(fileName);
-				Try.successful(newFile).peek(f -> f.create(new FileInputStream(file), true, null)).getUnchecked();
-			}
+			String path = dlg.getFilterPath();
+			List<String> unsuccessful = new ArrayList<>();
+			Arrays.stream(dlg.getFileNames()).forEach(fn -> importAsset(path, fn, unsuccessful));
+			preferencesNode.put("lastPath", path);
 
-			preferencesNode.put("lastPath", lastPath);
+			if (!unsuccessful.isEmpty()) {
+				MessageDialog.openWarning(shell, "Import prblems",
+						"Some assets could'n be imported: " + unsuccessful.toString());
+			}
+		}
+
+		private void importAsset(String path, String fileName, List<String> unsuccessful) {
+			IFolder folder = (IFolder) selection;
+			File file = new File(path, fileName);
+			IFile newFile = folder.getFile(fileName);
+			Try.successful(newFile).peek(f -> f.create(new FileInputStream(file), true, null))
+					.onFailure(e -> unsuccessful.add(fileName));
 		}
 
 		private void addCreateSubMenu(Menu menu) {

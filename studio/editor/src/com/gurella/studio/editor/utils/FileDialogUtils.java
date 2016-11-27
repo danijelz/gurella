@@ -37,16 +37,16 @@ public class FileDialogUtils {
 		FileDialog dialog = new FileDialog(UiUtils.getActiveShell(), SWT.SAVE);
 		dialog.setFilterPath(parent.toString());
 		dialog.setFilterExtensions(extensions);
-		String extension = extensions.length == 0 ? "" : "." + extensions[0];
-		dialog.setFileName(suggestName(parent, suggestedName) + extension);
+		String extension = extensions.length == 0 ? null : extensions[0];
+		dialog.setFileName(suggestName(parent, suggestedName, extension));
 		return getPathSafely(dialog);
 	}
 
-	private static String suggestName(IPath parentPath, String suggestedName) {
+	private static String suggestName(IPath parentPath, String suggestedName, String extension) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource parent = root.findMember(parentPath.makeRelativeTo(root.getLocation()));
 		if (parent instanceof IFolder && parent.exists()) {
-			return suggestName((IFolder) parent, suggestedName);
+			return suggestName((IFolder) parent, suggestedName, extension);
 		} else {
 			return suggestedName;
 		}
@@ -69,28 +69,39 @@ public class FileDialogUtils {
 	}
 
 	public static String enterNewFileName(IFolder parent, String suggestedName, String extension) {
-		// TODO extension
-		String name = suggestName(parent, suggestedName);
+		String name = suggestName(parent, suggestedName, extension);
 		InputDialog dlg = new InputDialog(UiUtils.getActiveShell(), "Name", "Enter name", name,
 				i -> validateNewFileName(parent, i));
 		return dlg.open() == Window.OK ? dlg.getValue() : null;
 	}
 
-	private static String suggestName(IFolder parent, String suggestedName) {
-		IResource member = parent.findMember(suggestedName);
+	private static String suggestName(IFolder parent, String suggestedName, String extension) {
+		int index = suggestedName.lastIndexOf('.');
+		String name;
+		if (index >= 0) {
+			name = suggestedName.substring(0, index);
+		} else {
+			name = suggestedName;
+		}
+
+		IResource member = parent.findMember(composeName(name, extension));
 		if (member == null || !member.exists()) {
 			return suggestedName;
 		}
 
 		for (int i = 0; i < 1000; i++) {
-			String name = suggestedName + "-" + i;
-			member = parent.findMember(name);
+			String proposedName = composeName(name + "-" + i, extension);
+			member = parent.findMember(proposedName);
 			if (member == null || !member.exists()) {
 				return name;
 			}
 		}
 
 		return null;
+	}
+
+	private static String composeName(String name, String extension) {
+		return name + (extension == null ? "" : '.' + extension);
 	}
 
 	private static String validateNewFileName(IFolder parent, String newFileName) {
