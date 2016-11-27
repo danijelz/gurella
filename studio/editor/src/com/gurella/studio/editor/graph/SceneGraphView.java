@@ -83,6 +83,8 @@ public class SceneGraphView extends DockableView
 	final Clipboard clipboard;
 	Scene scene;
 
+	private SceneElement2 lastSelection;
+
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
 
@@ -112,8 +114,9 @@ public class SceneGraphView extends DockableView
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, 1).applyTo(graph);
 		graph.setHeaderVisible(false);
-		graph.addListener(SWT.Selection, e -> selectionChanged());
-		graph.addListener(SWT.MouseUp, this::showMenu);
+		graph.addListener(SWT.KeyDown, e -> onKeyDown());
+		graph.addListener(SWT.KeyUp, e -> onKeyUp());
+		graph.addListener(SWT.MouseUp, this::onMouseUp);
 		graph.addListener(SWT.MouseDoubleClick, this::flipExpansion);
 
 		viewer = new TreeViewer(graph);
@@ -178,18 +181,28 @@ public class SceneGraphView extends DockableView
 		focusService.removeFocusTracker(graph);
 	}
 
-	private void selectionChanged() {
-		getFirstSelectedElement().map(SceneGraphView::toInspectable)
+	private void onKeyDown() {
+		lastSelection = getSelectedElement().orElse(null);
+	}
+
+	private void onKeyUp() {
+		getSelectedElement().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
+	}
+
+	private void onMouseUp(Event event) {
+		Optional.of(event).filter(e -> e.button == 1).flatMap(e -> getSelectedElement())
+				.ifPresent(f -> presentInspectable());
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getElementAt(event.x, event.y)));
+	}
+
+	private void presentInspectable() {
+		getSelectedElement().map(SceneGraphView::toInspectable)
 				.ifPresent(s -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(s)));
 	}
 
 	private static Inspectable<? extends SceneElement2> toInspectable(SceneElement2 element) {
 		return element instanceof SceneNode2 ? new NodeInspectable((SceneNode2) element)
 				: new ComponentInspectable((SceneNodeComponent2) element);
-	}
-
-	private void showMenu(Event event) {
-		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getElementAt(event.x, event.y)));
 	}
 
 	private void flipExpansion(Event event) {
@@ -203,18 +216,17 @@ public class SceneGraphView extends DockableView
 				.filter(SceneNode2.class::isInstance).map(c -> (SceneElement2) c).orElse(null);
 	}
 
-	Optional<SceneElement2> getFirstSelectedElement() {
+	Optional<SceneElement2> getSelectedElement() {
 		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
 				.map(SceneElement2.class::cast);
 	}
 
-	Optional<SceneNode2> getFirstSelectedNode() {
-		return getFirstSelectedElement().filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast);
+	Optional<SceneNode2> getSelectedNode() {
+		return getSelectedElement().filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast);
 	}
 
-	Optional<SceneNodeComponent2> getFirstSelectedComponent() {
-		return getFirstSelectedElement().filter(SceneNodeComponent2.class::isInstance)
-				.map(SceneNodeComponent2.class::cast);
+	Optional<SceneNodeComponent2> getSelectedComponent() {
+		return getSelectedElement().filter(SceneNodeComponent2.class::isInstance).map(SceneNodeComponent2.class::cast);
 	}
 
 	@Override
@@ -276,7 +288,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	void cut() {
-		getFirstSelectedElement().ifPresent(e -> cut(e));
+		getSelectedElement().ifPresent(e -> cut(e));
 	}
 
 	void cut(SceneElement2 element) {
@@ -287,7 +299,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	void copy() {
-		getFirstSelectedElement().ifPresent(e -> copy(e));
+		getSelectedElement().ifPresent(e -> copy(e));
 	}
 
 	void copy(SceneElement2 element) {
@@ -298,7 +310,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	void paste() {
-		getFirstSelectedNode().ifPresent(e -> paste(e));
+		getSelectedNode().ifPresent(e -> paste(e));
 	}
 
 	void paste(SceneNode2 destination) {
@@ -361,7 +373,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	void delete() {
-		getFirstSelectedElement().ifPresent(e -> delete(e));
+		getSelectedElement().ifPresent(e -> delete(e));
 	}
 
 	void delete(SceneElement2 element) {
@@ -379,7 +391,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	void rename() {
-		getFirstSelectedNode().ifPresent(n -> rename(n));
+		getSelectedNode().ifPresent(n -> rename(n));
 	}
 
 	void rename(SceneNode2 node) {

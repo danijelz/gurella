@@ -11,15 +11,14 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.FileDialog;
@@ -35,7 +34,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
@@ -119,27 +117,12 @@ class AssetsMenu {
 		}
 
 		private void rename() {
-			// TODO move to view
-			Shell shell = view.getShell();
-			String name = selection.getName();
-			InputDialog dlg = new InputDialog(shell, "Rename", "Enter new name", name, this::validateNewFileName);
-			if (dlg.open() == Window.OK) {
-				String newName = dlg.getValue();
-				view.rename(selection, newName);
+			IFolder parent = (IFolder) selection.getParent();
+			String name = FileDialogUtils.enterNewFileName(parent, "New folder", null);
+			if (name == null) {
+				return;
 			}
-		}
-
-		private String validateNewFileName(String newFileName) {
-			if (Values.isBlank(newFileName)) {
-				return "Name must not be empty";
-			}
-
-			IResource member = selection.getParent().findMember(newFileName);
-			if (member != null && member.exists()) {
-				return "Resource with that name already exists";
-			} else {
-				return null;
-			}
+			view.rename(selection, name);
 		}
 
 		private void addNewFolder() {
@@ -170,11 +153,8 @@ class AssetsMenu {
 			List<String> unsuccessful = new ArrayList<>();
 			Arrays.stream(dlg.getFileNames()).forEach(fn -> importAsset(path, fn, unsuccessful));
 			preferencesNode.put("lastPath", path);
-
-			if (!unsuccessful.isEmpty()) {
-				MessageDialog.openWarning(shell, "Import prblems",
-						"Some assets could'n be imported: " + unsuccessful.toString());
-			}
+			Optional.of(unsuccessful).filter(u -> !u.isEmpty()).ifPresent(u -> MessageDialog.openWarning(shell,
+					"Import problems", "Some assets could'n be imported: " + u.toString()));
 		}
 
 		private void importAsset(String path, String fileName, List<String> unsuccessful) {

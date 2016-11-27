@@ -19,7 +19,7 @@ class NodeDragSourceListener extends DragSourceAdapter {
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		Optional<SceneNode2> selected = view.getFirstSelectedNode();
+		Optional<SceneNode2> selected = view.getSelectedNode();
 		if (selected.isPresent()) {
 			SceneNode2 node = selected.get();
 			localTransfer.setSelection(new NodeSelection(node));

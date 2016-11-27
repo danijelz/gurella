@@ -19,7 +19,7 @@ class ComponentDragSourceListener extends DragSourceAdapter {
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		Optional<SceneNodeComponent2> selected = view.getFirstSelectedComponent();
+		Optional<SceneNodeComponent2> selected = view.getSelectedComponent();
 		if (selected.isPresent()) {
 			SceneNodeComponent2 component = selected.get();
 			localTransfer.setSelection(new ComponentSelection(component));

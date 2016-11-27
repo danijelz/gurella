@@ -21,8 +21,8 @@ public class RefractoringOperation extends AbstractOperation {
 	private final PerformRefactoringOperation operation;
 	private final IUndoManager undoManager;
 
-	public RefractoringOperation(SceneEditorContext context, PerformRefactoringOperation operation) {
-		super("move resource");
+	public RefractoringOperation(SceneEditorContext context, String label, PerformRefactoringOperation operation) {
+		super(label);
 		this.context = context;
 		this.operation = operation;
 		undoManager = RefactoringCore.getUndoManager();

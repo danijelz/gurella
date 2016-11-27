@@ -202,7 +202,7 @@ class GraphMenu {
 					PrefabReference oldPrefabReference = prefab.getPrefab();
 					if (oldPrefabReference != null
 							&& oldPrefabReference.getFileName().equals(gdxAssetPath.toString())) {
-						// TODO overriding current prefab
+						// TODO overriding existing prefab
 					}
 					file.setContents(is, true, true, new NullProgressMonitor());
 				} else {

@@ -105,8 +105,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.addListener(SWT.KeyDown, e -> onKeyDown());
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
-		tree.addListener(SWT.MouseUp, e -> presentInspectable());
-		tree.addListener(SWT.MouseUp, this::showMenu);
+		tree.addListener(SWT.MouseUp, this::onMouseUp);
 		tree.addListener(SWT.MouseDoubleClick, this::flipExpansion);
 
 		viewer = new TreeViewer(tree);
@@ -212,31 +211,33 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 				.filter(IResource.class::isInstance).map(e -> (IResource) e).orElse(null);
 	}
 
-	Optional<IResource> getFirstSelectedResource() {
+	Optional<IResource> getSelectedResource() {
 		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
 				.map(IResource.class::cast);
 	}
 
-	Optional<IFile> getFirstSelectedFile() {
-		return getFirstSelectedResource().filter(IFile.class::isInstance).map(IFile.class::cast);
+	Optional<IFile> getSelectedFile() {
+		return getSelectedResource().filter(IFile.class::isInstance).map(IFile.class::cast);
 	}
 
 	private void onKeyDown() {
-		lastSelection = getFirstSelectedResource().orElse(null);
+		lastSelection = getSelectedResource().orElse(null);
 	}
 
 	private void onKeyUp() {
-		getFirstSelectedResource().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
+		getSelectedResource().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
+	}
+
+	private void onMouseUp(Event event) {
+		Optional.of(event).filter(e -> e.button == 1).flatMap(e -> getSelectedFile()).ifPresent(
+				f -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getResourceAt(event.x, event.y)));
 	}
 
 	private void presentInspectable() {
 		int editorId = editorContext.editorId;
-		getFirstSelectedFile().ifPresent(
+		getSelectedFile().ifPresent(
 				f -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
-	}
-
-	private void showMenu(Event event) {
-		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getResourceAt(event.x, event.y)));
 	}
 
 	private void flipExpansion(Event event) {
@@ -271,7 +272,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	void cut() {
-		getFirstSelectedResource().ifPresent(r -> cut(r));
+		getSelectedResource().ifPresent(r -> cut(r));
 	}
 
 	void cut(IResource resource) {
@@ -282,7 +283,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	void copy() {
-		getFirstSelectedResource().ifPresent(r -> copy(r));
+		getSelectedResource().ifPresent(r -> copy(r));
 	}
 
 	void copy(IResource resource) {
@@ -293,7 +294,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	void paste() {
-		getFirstSelectedResource().ifPresent(r -> paste(r));
+		getSelectedResource().ifPresent(r -> paste(r));
 	}
 
 	void paste(IResource destination) {
@@ -315,7 +316,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		descriptor.setResourcesToMove(new IResource[] { resource });
 		descriptor.setDestination(destination);
 		descriptor.setUpdateReferences(true);
-		executeRefractoringOperation(descriptor, "Error while moving resource.");
+		executeRefractoringOperation(descriptor, "Move asset", "Error while moving resource.");
 	}
 
 	private void duplicate(IResource resource, IFolder destinationFolder) {
@@ -329,18 +330,19 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		descriptor.setResourcePath(path);
 		descriptor.setUpdateReferences(true);
 		descriptor.setNewName(newName);
-		executeRefractoringOperation(descriptor, "Error while renaming resource.");
+		executeRefractoringOperation(descriptor, "Rename asset", "Error while renaming resource.");
 	}
 
-	private void executeRefractoringOperation(RefactoringDescriptor descriptor, String errMsg) {
+	private void executeRefractoringOperation(RefactoringDescriptor descriptor, String label, String errMsg) {
 		RefactoringStatus status = new RefactoringStatus();
 		Try.successful(descriptor).map(d -> d.createRefactoring(status))
-				.map(r -> new RefractoringOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+				.map(r -> new RefractoringOperation(editorContext, label,
+						new PerformRefactoringOperation(r, ALL_CONDITIONS)))
 				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	void delete() {
-		getFirstSelectedResource().ifPresent(e -> delete(e));
+		getSelectedResource().ifPresent(e -> delete(e));
 	}
 
 	void delete(IResource resource) {
@@ -352,7 +354,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		DeleteResourcesDescriptor descriptor = new DeleteResourcesDescriptor();
 		descriptor.setResources(new IResource[] { resource });
 		descriptor.setDeleteContents(true);
-		executeRefractoringOperation(descriptor, "Error while deleting resource.");
+		executeRefractoringOperation(descriptor, "Delete asset", "Error while deleting resource.");
 	}
 
 	@Override

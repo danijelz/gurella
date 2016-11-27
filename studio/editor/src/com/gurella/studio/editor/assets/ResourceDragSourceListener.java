@@ -18,7 +18,7 @@ class ResourceDragSourceListener implements DragSourceListener {
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		Optional<IResource> selected = view.getFirstSelectedResource();
+		Optional<IResource> selected = view.getSelectedResource();
 		if (!selected.isPresent()) {
 			event.doit = false;
 			return;
@@ -33,7 +33,7 @@ class ResourceDragSourceListener implements DragSourceListener {
 
 	@Override
 	public void dragSetData(DragSourceEvent event) {
-		event.data = new IResource[] { view.getFirstSelectedResource().get() };
+		event.data = new IResource[] { view.getSelectedResource().get() };
 	}
 
 	@Override
