@@ -74,8 +74,8 @@ public class FileDialogUtils {
 		}
 	}
 
-	public static String enterNewFileName(IFolder parent, String defaultName, String extension) {
-		String name = suggestName(parent, defaultName, extension);
+	public static String enterNewFileName(IFolder parent, String defaultName, boolean suggestName, String extension) {
+		String name = suggestName ? suggestName(parent, defaultName, extension) : defaultName;
 		Shell shell = UiUtils.getActiveShell();
 		IInputValidator validator = i -> validateNewFileName(parent, i);
 		FileNameDialog dlg = new FileNameDialog(shell, "Name", "Enter name", name, validator);
@@ -91,14 +91,21 @@ public class FileDialogUtils {
 			name = defaultName;
 		}
 
-		String composedName = composeName(name, extension);
+		String ext;
+		if (Values.isNotBlank(extension)) {
+			ext = extension;
+		} else {
+			ext = index > 0 && index < defaultName.length() - 1 ? defaultName.substring(index) : null;
+		}
+
+		String composedName = composeName(name, ext);
 		IResource member = parent.findMember(composedName);
 		if (member == null || !member.exists()) {
 			return composedName;
 		}
 
 		for (int i = 1; i < 1000; i++) {
-			composedName = composeName(name + "-" + i, extension);
+			composedName = composeName(name + "-" + i, ext);
 			member = parent.findMember(composedName);
 			if (member == null || !member.exists()) {
 				return composedName;

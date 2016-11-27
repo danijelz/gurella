@@ -118,7 +118,7 @@ class AssetsMenu {
 
 		private void rename() {
 			IFolder parent = (IFolder) selection.getParent();
-			String name = FileDialogUtils.enterNewFileName(parent, "New folder", null);
+			String name = FileDialogUtils.enterNewFileName(parent, selection.getName(), false, null);
 			if (name == null) {
 				return;
 			}
@@ -127,7 +127,7 @@ class AssetsMenu {
 
 		private void addNewFolder() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "New folder", null);
+			String name = FileDialogUtils.enterNewFileName(parent, "New folder", true, null);
 			if (name == null) {
 				return;
 			}
@@ -196,7 +196,7 @@ class AssetsMenu {
 
 		private void addNewPrefab() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "node", AssetType.prefab.extension());
+			String name = FileDialogUtils.enterNewFileName(parent, "node", true, AssetType.prefab.extension());
 			if (name == null) {
 				return;
 			}
@@ -214,7 +214,7 @@ class AssetsMenu {
 
 		private void addNewMaterial() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "material", AssetType.material.extension());
+			String name = FileDialogUtils.enterNewFileName(parent, "material", true, AssetType.material.extension());
 			if (name == null) {
 				return;
 			}
@@ -229,7 +229,8 @@ class AssetsMenu {
 
 		private void addNewRendeTarget() {
 			IFolder folder = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(folder, "renderTarget", AssetType.renderTarget.extension());
+			String name = FileDialogUtils.enterNewFileName(folder, "renderTarget", true,
+					AssetType.renderTarget.extension());
 			if (name == null) {
 				return;
 			}
@@ -244,7 +245,7 @@ class AssetsMenu {
 
 		private void addNewScene() {
 			IFolder folder = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(folder, "scene", AssetType.scene.extension());
+			String name = FileDialogUtils.enterNewFileName(folder, "scene", true, AssetType.scene.extension());
 			if (name == null) {
 				return;
 			}

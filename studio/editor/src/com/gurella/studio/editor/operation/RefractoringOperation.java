@@ -30,21 +30,21 @@ public class RefractoringOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		String errMsg = "Error while undoing moving resource.";
+		String errMsg = "Error while refractoring resource.";
 		return Try.successful(operation).peek(o -> context.workspace.run(o, new NullProgressMonitor()))
 				.map(m -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		String errMsg = "Error while moving resource.";
+		String errMsg = "Error while refractoring resource.";
 		return Try.successful(undoManager).peek(m -> m.performRedo(null, monitor)).map(m -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		String errMsg = "Error while undoing moving resource.";
+		String errMsg = "Error while undoing refractoring resource.";
 		return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(m -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
