@@ -1,7 +1,10 @@
 package com.gurella.studio.editor.utils;
 
+import static org.eclipse.jface.dialogs.MessageDialog.openQuestion;
+
 import java.io.File;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.eclipse.core.resources.IFolder;
@@ -11,7 +14,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -26,19 +28,19 @@ public class FileDialogUtils {
 	private FileDialogUtils() {
 	}
 
-	public static String selectNewFileName(IFolder parent, String defaultName, String... extensions) {
+	public static Optional<String> selectNewFileName(IFolder parent, String defaultName, String... extensions) {
 		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
-	public static String selectNewFileName(IFolder parent, String defaultName, AssetType type) {
+	public static Optional<String> selectNewFileName(IFolder parent, String defaultName, AssetType type) {
 		return selectNewFileName(parent.getLocation(), defaultName, type.extensions);
 	}
 
-	public static String selectNewFileName(IPath parent, String defaultName, AssetType type) {
+	public static Optional<String> selectNewFileName(IPath parent, String defaultName, AssetType type) {
 		return selectNewFileName(parent, defaultName, type.extensions);
 	}
 
-	public static String selectNewFileName(IPath parent, String defaultName, String... extensions) {
+	public static Optional<String> selectNewFileName(IPath parent, String defaultName, String... extensions) {
 		FileDialog dialog = new FileDialog(UiUtils.getActiveShell(), SWT.SAVE);
 		dialog.setFilterPath(parent.toString());
 		Function<? super String, ? extends String> prependDot = e -> e.indexOf('.') < 0 ? "*." + e : e;
@@ -58,28 +60,29 @@ public class FileDialogUtils {
 		}
 	}
 
-	private static String getPathSafely(FileDialog dialog) {
+	private static Optional<String> getPathSafely(FileDialog dialog) {
 		String fileName = dialog.open();
 		if (fileName == null) {
-			return null;
+			return Optional.empty();
 		}
 
 		File file = new File(fileName);
 		if (file.exists()) {
 			Shell shell = dialog.getParent();
 			String message = fileName + " already exists. Do you want to replace it?";
-			return MessageDialog.openQuestion(shell, "Confirm", message) ? fileName : getPathSafely(dialog);
+			return openQuestion(shell, "Confirm", message) ? Optional.of(fileName) : getPathSafely(dialog);
 		} else {
-			return fileName;
+			return Optional.of(fileName);
 		}
 	}
 
-	public static String enterNewFileName(IFolder parent, String defaultName, boolean suggestName, String extension) {
+	public static Optional<String> enterNewFileName(IFolder parent, String defaultName, boolean suggestName,
+			String extension) {
 		String name = suggestName ? suggestName(parent, defaultName, extension) : defaultName;
 		Shell shell = UiUtils.getActiveShell();
 		IInputValidator validator = i -> validateNewFileName(parent, i);
 		FileNameDialog dlg = new FileNameDialog(shell, "Name", "Enter name", name, validator);
-		return dlg.open() == Window.OK ? dlg.getValue() : null;
+		return dlg.open() == Window.OK ? Optional.of(dlg.getValue()) : Optional.empty();
 	}
 
 	private static String suggestName(IFolder parent, String defaultName, String extension) {

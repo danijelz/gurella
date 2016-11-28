@@ -1,7 +1,14 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.engine.asset.AssetType.material;
+import static com.gurella.engine.asset.AssetType.prefab;
+import static com.gurella.engine.asset.AssetType.renderTarget;
+import static com.gurella.engine.asset.AssetType.scene;
+import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
 import static com.gurella.studio.editor.utils.PrettyPrintSerializer.serialize;
+import static com.gurella.studio.editor.utils.Try.successful;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
@@ -26,7 +33,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
@@ -34,10 +40,9 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
-import com.gurella.studio.editor.utils.FileDialogUtils;
 import com.gurella.studio.editor.utils.Try;
 
 class AssetsMenu {
@@ -118,23 +123,14 @@ class AssetsMenu {
 
 		private void rename() {
 			IFolder parent = (IFolder) selection.getParent();
-			String name = FileDialogUtils.enterNewFileName(parent, selection.getName(), false, null);
-			if (name == null) {
-				return;
-			}
-			view.rename(selection, name);
+			enterNewFileName(parent, selection.getName(), false, null).ifPresent(n -> view.rename(selection, n));
 		}
 
 		private void addNewFolder() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "New folder", true, null);
-			if (name == null) {
-				return;
-			}
-
-			IFolder newFolder = ((IFolder) selection).getFolder(name);
-			Try.successful(newFolder).peek(f -> f.create(true, true, new NullProgressMonitor()))
-					.onFailure(e -> GurellaStudioPlugin.log(e, "Error creating new folder"));
+			enterNewFileName(parent, "New folder", true, null).map(n -> ((IFolder) selection).getFolder(n))
+					.ifPresent(nf -> successful(nf).peek(f -> f.create(true, true, new NullProgressMonitor()))
+							.onFailure(e -> log(e, "Error creating new folder")));
 		}
 
 		private void importAssets() {
@@ -196,60 +192,44 @@ class AssetsMenu {
 
 		private void addNewPrefab() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "node", true, AssetType.prefab.extension());
-			if (name == null) {
-				return;
-			}
+			enterNewFileName(parent, "node", true, prefab.extension())
+					.ifPresent(n -> addAsset(parent, n, newPrefab(n)));
+		}
 
+		private static SceneNode newPrefab(String name) {
 			SceneNode node = new SceneNode();
 			node.setName(name);
 			node.newComponent(TransformComponent.class);
-
-			IFile file = parent.getFile(name);
-			String serialized = serialize(file.getName(), SceneNode.class, node);
-			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
-					.peek(is -> file.create(is, true, new NullProgressMonitor()))
-					.onFailure(e -> showError(e, "Error creating prefab."));
+			return node;
 		}
 
 		private void addNewMaterial() {
 			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(parent, "material", true, AssetType.material.extension());
-			if (name == null) {
-				return;
-			}
+			enterNewFileName(parent, "material", true, material.extension())
+					.ifPresent(n -> addAsset(parent, n, new MaterialDescriptor()));
+		}
 
-			MaterialDescriptor material = new MaterialDescriptor();
+		private static <T> void addAsset(IFolder parent, String name, T asset) {
 			IFile file = parent.getFile(name);
-			String serialized = serialize(file.getName(), MaterialDescriptor.class, material);
+			Class<T> expectedType = Values.cast(asset.getClass());
+			String serialized = serialize(file.getName(), expectedType, asset);
 			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
 					.peek(is -> file.create(is, true, new NullProgressMonitor()))
 					.onFailure(e -> showError(e, "Error creating material."));
 		}
 
 		private void addNewRendeTarget() {
-			IFolder folder = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(folder, "renderTarget", true,
-					AssetType.renderTarget.extension());
-			if (name == null) {
-				return;
-			}
-
-			RenderTarget renderTarget = new RenderTarget();
-			IFile file = folder.getFile(name);
-			String serialized = serialize(file.getName(), RenderTarget.class, renderTarget);
-			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
-					.peek(is -> file.create(is, true, new NullProgressMonitor()))
-					.onFailure(e -> showError(e, "Error creating render target."));
+			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			enterNewFileName(parent, "renderTarget", true, renderTarget.extension())
+					.ifPresent(n -> addAsset(parent, n, new RenderTarget()));
 		}
 
 		private void addNewScene() {
-			IFolder folder = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
-			String name = FileDialogUtils.enterNewFileName(folder, "scene", true, AssetType.scene.extension());
-			if (name == null) {
-				return;
-			}
+			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			enterNewFileName(parent, "scene", true, scene.extension()).ifPresent(n -> addAsset(parent, n, newScene()));
+		}
 
+		private static Scene newScene() {
 			Scene scene = new Scene();
 			SceneNode node = scene.newNode("Main camera");
 			node.newComponent(TransformComponent.class);
@@ -257,12 +237,7 @@ class AssetsMenu {
 			node = scene.newNode("Directional light");
 			node.newComponent(TransformComponent.class);
 			node.newComponent(DirectionalLightComponent.class);
-
-			IFile file = folder.getFile(name);
-			String serialized = serialize(file.getName(), Scene.class, scene);
-			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
-					.peek(is -> file.create(is, true, new NullProgressMonitor()))
-					.onFailure(e -> showError(e, "Error creating scene."));
+			return scene;
 		}
 	}
 }

@@ -183,12 +183,12 @@ class GraphMenu {
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode node = (SceneNode) selection;
 				IFolder folder = project.getFolder("assets");
-				String fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
-				if (fileName == null) {
+				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
+				if (!fileName.isPresent()) {
 					return;
 				}
 
-				IPath projectAssetPath = new Path(fileName).makeRelativeTo(projectPath);
+				IPath projectAssetPath = new Path(fileName.get()).makeRelativeTo(projectPath);
 				SceneNode prefab = CopyContext.copyObject(node);
 				JsonOutput output = new JsonOutput();
 				SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get())
@@ -197,7 +197,7 @@ class GraphMenu {
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);
-				IPath gdxAssetPath = new Path(fileName).makeRelativeTo(assetsRootPath);
+				IPath gdxAssetPath = new Path(fileName.get()).makeRelativeTo(assetsRootPath);
 				if (file.exists()) {
 					PrefabReference oldPrefabReference = prefab.getPrefab();
 					if (oldPrefabReference != null

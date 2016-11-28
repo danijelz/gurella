@@ -1,6 +1,9 @@
 package com.gurella.studio.editor.operation;
 
 import static com.gurella.studio.GurellaStudioPlugin.log;
+import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
+
+import java.util.Optional;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
@@ -13,7 +16,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.studio.editor.utils.ErrorStatusFactory;
-import com.gurella.studio.editor.utils.FileDialogUtils;
 import com.gurella.studio.editor.utils.Try;
 
 public class DuplicateAssetOperation extends AbstractOperation implements ErrorStatusFactory {
@@ -32,10 +34,11 @@ public class DuplicateAssetOperation extends AbstractOperation implements ErrorS
 		newName = resource.getName();
 		IResource member = destinationFolder.findMember(newName);
 		if (member != null && member.exists()) {
-			newName = FileDialogUtils.enterNewFileName(destinationFolder, newName, true, null);
-			if (newName == null) {
+			Optional<String> fileName = enterNewFileName(destinationFolder, newName, true, null);
+			if (!fileName.isPresent()) {
 				return Status.CANCEL_STATUS;
 			}
+			newName = fileName.get();
 		}
 
 		IPath path = destinationFolder.getFullPath().append(newName);

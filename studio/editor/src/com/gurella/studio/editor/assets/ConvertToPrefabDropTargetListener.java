@@ -2,6 +2,7 @@ package com.gurella.studio.editor.assets;
 
 import static com.gurella.engine.asset.AssetType.prefab;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -31,7 +32,6 @@ import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
-import com.gurella.studio.editor.utils.FileDialogUtils;
 import com.gurella.studio.editor.utils.Try;
 
 class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
@@ -101,13 +101,13 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 
 		IFolder folder = (IFolder) data;
 		SceneNode node = getTransferedNode();
-		String prefabName = FileDialogUtils.enterNewFileName(folder, node.getName(), true, prefab.extension());
-		if (prefabName == null) {
+		Optional<String> prefabName = enterNewFileName(folder, node.getName(), true, prefab.extension());
+		if (!prefabName.isPresent()) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		Try.successful(null).peek(n -> convertToPrefab(folder, node, prefabName))
+		Try.successful(prefabName.get()).peek(n -> convertToPrefab(folder, node, n))
 				.onFailure(e -> showError(e, "Error while converting to prefab."));
 	}
 
