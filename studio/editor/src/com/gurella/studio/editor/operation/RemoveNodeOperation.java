@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
@@ -17,11 +17,11 @@ import com.gurella.studio.editor.utils.SceneChangedEvent;
 public class RemoveNodeOperation extends AbstractOperation {
 	final int editorId;
 	final Scene scene;
-	final SceneNode2 parentNode;
-	final SceneNode2 node;
+	final SceneNode parentNode;
+	final SceneNode node;
 	final int index;
 
-	public RemoveNodeOperation(int editorId, Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public RemoveNodeOperation(int editorId, Scene scene, SceneNode parentNode, SceneNode node) {
 		super("Remove node");
 		this.editorId = editorId;
 		this.scene = scene;

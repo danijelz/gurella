@@ -25,8 +25,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
@@ -78,20 +78,20 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Class<Object> componentType = getComponentType();
-			Model<Object> itemModel = Models.getModel(componentType);
-			IntStream.range(0, values.size).forEach(i -> addItemEditor(itemModel, values.get(i), i));
+			MetaType<Object> itemMetaType = MetaTypes.getMetaType(componentType);
+			IntStream.range(0, values.size).forEach(i -> addItemEditor(itemMetaType, values.get(i), i));
 		}
 	}
 
-	private void addItemEditor(Model<Object> itemModel, T item, int index) {
+	private void addItemEditor(MetaType<Object> itemMetaType, T item, int index) {
 		Label label = getToolkit().createLabel(content, Integer.toString(index) + ".");
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 		label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 
 		Property<Object> property = Values.cast(getProperty());
-		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
-		Class<Object> type = item == null ? itemModel.getType() : Values.cast(item.getClass());
+		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemMetaType, item, property, index);
+		Class<Object> type = item == null ? itemMetaType.getType() : Values.cast(item.getClass());
 		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		editor.getBody().setLayoutData(layoutData);
@@ -239,9 +239,9 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		private Array<P> array;
 		private int index;
 
-		public ItemContext(PropertyEditorContext<?, ?> parent, Model<M> model, M modelInstance, Property<P> property,
+		public ItemContext(PropertyEditorContext<?, ?> parent, MetaType<M> metaType, M bean, Property<P> property,
 				int index) {
-			super(parent, model, modelInstance, property);
+			super(parent, metaType, bean, property);
 			this.index = index;
 			valueGetter = this::getItemValue;
 			valueSetter = this::setItemValue;
@@ -269,7 +269,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 		@Override
 		public Class<P> getPropertyType() {
-			return Values.cast(model.getType());
+			return Values.cast(metaType.getType());
 		}
 
 		protected void setItemValue(P newValue) {

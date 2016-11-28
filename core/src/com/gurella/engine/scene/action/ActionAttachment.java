@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.Attachment;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneElement2;
+import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
@@ -17,7 +17,7 @@ import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
 
 public abstract class ActionAttachment extends Attachment<Action> implements Poolable {
-	protected SceneElement2 owner;
+	protected SceneElement owner;
 	protected CompletionListener completionListener;
 
 	ActionAttachment() {
@@ -44,12 +44,12 @@ public abstract class ActionAttachment extends Attachment<Action> implements Poo
 		owner = null;
 	}
 
-	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority,
+	public static ActionAttachment obtain(SceneElement owner, CommonUpdatePriority updatePriority,
 			Action action) {
 		return obtain(owner, updatePriority, action, DetachOnFinishedStrategy.instance);
 	}
 
-	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority, Action action,
+	public static ActionAttachment obtain(SceneElement owner, CommonUpdatePriority updatePriority, Action action,
 			CompletionListener finishedStrategy) {
 		ActionAttachment attachment = obtain(updatePriority);
 		attachment.value = action;

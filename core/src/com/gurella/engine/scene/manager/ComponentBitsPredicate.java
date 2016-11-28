@@ -6,11 +6,11 @@ import static com.gurella.engine.scene.ComponentType.getType;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
+public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
 	private final Bits any = new Bits();
@@ -19,7 +19,7 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 	}
 
 	@Override
-	public boolean evaluate(SceneNode2 node) {
+	public boolean evaluate(SceneNode node) {
 		ImmutableBits componentBits = node.componentBits;
 		int componentId;
 
@@ -99,17 +99,17 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 	}
 
 	@SafeVarargs
-	public static Builder all(Class<? extends SceneNodeComponent2>... types) {
+	public static Builder all(Class<? extends SceneNodeComponent>... types) {
 		return new Builder().all(types);
 	}
 
 	@SafeVarargs
-	public static Builder exclude(Class<? extends SceneNodeComponent2>... types) {
+	public static Builder exclude(Class<? extends SceneNodeComponent>... types) {
 		return new Builder().exclude(types);
 	}
 
 	@SafeVarargs
-	public static Builder any(Class<? extends SceneNodeComponent2>... types) {
+	public static Builder any(Class<? extends SceneNodeComponent>... types) {
 		return new Builder().any(types);
 	}
 
@@ -118,23 +118,23 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		private final Bits exclude = new Bits();
 		private final Bits any = new Bits();
 
-		public Builder all(Class<? extends SceneNodeComponent2>... types) {
-			for (Class<? extends SceneNodeComponent2> type : types) {
+		public Builder all(Class<? extends SceneNodeComponent>... types) {
+			for (Class<? extends SceneNodeComponent> type : types) {
 				all.set(getType(type));
 			}
 			return this;
 		}
 
-		public Builder any(Class<? extends SceneNodeComponent2>... types) {
-			for (Class<? extends SceneNodeComponent2> type : types) {
+		public Builder any(Class<? extends SceneNodeComponent>... types) {
+			for (Class<? extends SceneNodeComponent> type : types) {
 				int componentType = getType(type);
 				getSubtypes(componentType).orBits(any);
 			}
 			return this;
 		}
 
-		public Builder exclude(Class<? extends SceneNodeComponent2>... types) {
-			for (Class<? extends SceneNodeComponent2> type : types) {
+		public Builder exclude(Class<? extends SceneNodeComponent>... types) {
+			for (Class<? extends SceneNodeComponent> type : types) {
 				int componentType = getType(type);
 				getSubtypes(componentType).orBits(exclude);
 			}

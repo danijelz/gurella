@@ -2,19 +2,19 @@ package com.gurella.studio.editor.subscription;
 
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 
 public interface EditorSceneActivityListener extends EventSubscription {
-	void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node);
+	void nodeAdded(Scene scene, SceneNode parentNode, SceneNode node);
 
-	void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node);
+	void nodeRemoved(Scene scene, SceneNode parentNode, SceneNode node);
 
-	void nodeIndexChanged(SceneNode2 node, int newIndex);
+	void nodeIndexChanged(SceneNode node, int newIndex);
 
-	void componentAdded(SceneNode2 node, SceneNodeComponent2 component);
+	void componentAdded(SceneNode node, SceneNodeComponent component);
 
-	void componentRemoved(SceneNode2 node, SceneNodeComponent2 component);
+	void componentRemoved(SceneNode node, SceneNodeComponent component);
 
-	void componentIndexChanged(SceneNodeComponent2 component, int newIndex);
+	void componentIndexChanged(SceneNodeComponent component, int newIndex);
 }

@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.metatype.DefaultModels.SimpleModel;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -71,15 +71,15 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
-		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
+		} else if (MetaTypes.getMetaType(value.getClass()) instanceof SimpleMetaType) {
 			PropertyEditorContext<Object, P> casted = cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
 			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child, cast(value.getClass()));
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getBody().setLayoutData(layoutData);
 		} else {
-			BeanEditor<P> modelEditor = BeanEditorFactory.createEditor(content, context, value);
-			modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+			BeanEditor<P> beanEditor = BeanEditorFactory.createEditor(content, context, value);
+			beanEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 	}
 

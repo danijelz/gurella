@@ -4,18 +4,18 @@ import org.eclipse.jface.viewers.BaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import com.gurella.engine.metatype.Models;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.GurellaStudioPlugin;
 
 class GraphViewerLabelProvider extends BaseLabelProvider implements ILabelProvider {
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof SceneNode2) {
+		if (element instanceof SceneNode) {
 			return GurellaStudioPlugin.getImage("icons/ice_cube.png");
-		} else if (element instanceof SceneNodeComponent2) {
+		} else if (element instanceof SceneNodeComponent) {
 			if (element instanceof TransformComponent) {
 				return GurellaStudioPlugin.getImage("icons/transform.png");
 			} else {
@@ -28,11 +28,11 @@ class GraphViewerLabelProvider extends BaseLabelProvider implements ILabelProvid
 
 	@Override
 	public String getText(Object element) {
-		if (element instanceof SceneNode2) {
-			String name = ((SceneNode2) element).getName();
+		if (element instanceof SceneNode) {
+			String name = ((SceneNode) element).getName();
 			return name == null ? "" : name;
-		} else if (element instanceof SceneNodeComponent2) {
-			return Models.getModel(element).getName();
+		} else if (element instanceof SceneNodeComponent) {
+			return MetaTypes.getMetaType(element).getName();
 		} else {
 			return "";
 		}

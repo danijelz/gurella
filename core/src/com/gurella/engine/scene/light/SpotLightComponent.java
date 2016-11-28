@@ -3,9 +3,9 @@ package com.gurella.engine.scene.light;
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.metatype.PropertyChangeListener;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.light.debug.LightDebugRenderer;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -13,7 +13,7 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
-@ModelDescriptor(descriptiveName = "Spot Light")
+@MetaTypeDescriptor(descriptiveName = "Spot Light")
 public class SpotLightComponent extends LightComponent<SpotLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener, DebugRenderable {
 
@@ -74,7 +74,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
+	public void nodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 			dirty = true;
@@ -82,7 +82,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+	public void nodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 			dirty = true;

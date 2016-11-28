@@ -8,17 +8,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ReindexNodeOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNode2 node;
+	final SceneNode node;
 	final int oldIndex;
 	final int newIndex;
 
-	public ReindexNodeOperation(int editorId, SceneNode2 node, int newIndex) {
+	public ReindexNodeOperation(int editorId, SceneNode node, int newIndex) {
 		super("Set index");
 		this.editorId = editorId;
 		this.node = node;

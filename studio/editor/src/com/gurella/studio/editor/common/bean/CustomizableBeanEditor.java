@@ -36,7 +36,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.OrderedMap;
 import com.gurella.engine.managedobject.ManagedObject;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
@@ -184,7 +184,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 	}
 
 	private Property<?> getProperty(String propertyName) {
-		return context.model.getProperty(propertyName);
+		return context.metaType.getProperty(propertyName);
 	}
 
 	protected void createPropertyControls(String groupName, String propertyName) {
@@ -368,7 +368,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	private <V> void createCompositeEditors(ExpandableGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
-		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
+		Property<?>[] properties = MetaTypes.getMetaType(value.getClass()).getProperties().toArray(Property.class);
 		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
 				.forEach(p -> createEditorControls(getPropertyGroup(group, p),
 						new PropertyEditorContext<>(parent, cast(value), p)));

@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.tag.TagActivityListener;
@@ -16,10 +16,10 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO EntitySubscription -> TagSubscription
-public class TagManager extends SceneService2 implements ComponentActivityListener, TagActivityListener {
+public class TagManager extends SceneService implements ComponentActivityListener, TagActivityListener {
 	private static final ComponentFamily tagComponentFamily = ComponentFamily.fromComponentType(TagComponent.class);
 
-	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
+	private final IntMap<OrderedIdentitySet<SceneNode>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode>>();
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	public TagManager(Scene scene) {
@@ -42,7 +42,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
 			updateFamilies(tagComponent);
@@ -61,7 +61,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
 			removeFromFamilies(tagComponent);
@@ -74,7 +74,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 	}
 
 	private void removeFromFamilies(TagComponent component) {
-		SceneNode2 node = component.getNode();
+		SceneNode node = component.getNode();
 		for (FamilyNodes familyNodes : families.values()) {
 			familyNodes.remove(node);
 		}
@@ -107,11 +107,11 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 		}
 	}
 
-	private OrderedIdentitySet<SceneNode2> getNodesByTag(int tagId) {
-		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
+	private OrderedIdentitySet<SceneNode> getNodesByTag(int tagId) {
+		OrderedIdentitySet<SceneNode> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null) {
-			nodes = new OrderedIdentitySet<SceneNode2>();
+			nodes = new OrderedIdentitySet<SceneNode>();
 			nodesByTag.put(tagId, nodes);
 		}
 
@@ -130,24 +130,24 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 		nodesByTag.get(tagId).remove(component.getNode());
 	}
 
-	public ImmutableArray<SceneNode2> getNodes(Tag tag) {
+	public ImmutableArray<SceneNode> getNodes(Tag tag) {
 		int tagId = tag.id;
-		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
-		return nodes == null ? ImmutableArray.<SceneNode2> empty() : nodes.orderedItems();
+		OrderedIdentitySet<SceneNode> nodes = nodesByTag.get(tagId);
+		return nodes == null ? ImmutableArray.<SceneNode> empty() : nodes.orderedItems();
 	}
 
-	public boolean belongsToFamily(SceneNode2 node, TagFamily family) {
+	public boolean belongsToFamily(SceneNode node, TagFamily family) {
 		return getNodes(family).contains(node, true);
 	}
 
-	public ImmutableArray<SceneNode2> getNodes(TagFamily family) {
+	public ImmutableArray<SceneNode> getNodes(TagFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
-		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.nodes.immutable();
+		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.nodes.immutable();
 	}
 
-	public SceneNode2 getSingleNodeByTag(Tag tag) {
+	public SceneNode getSingleNodeByTag(Tag tag) {
 		int tagId = tag.id;
-		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
+		OrderedIdentitySet<SceneNode> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null || nodes.size == 0) {
 			return null;
@@ -158,10 +158,10 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 
 	private static class FamilyNodes implements Poolable {
 		private TagFamily family;
-		private final ArrayExt<SceneNode2> nodes = new ArrayExt<SceneNode2>();
+		private final ArrayExt<SceneNode> nodes = new ArrayExt<SceneNode>();
 
 		private void handle(TagComponent component) {
-			SceneNode2 node = component.getNode();
+			SceneNode node = component.getNode();
 			boolean belongsToFamily = family.matches(component);
 			boolean containsNode = nodes.contains(node, true);
 			if (belongsToFamily && !containsNode) {
@@ -171,7 +171,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			}
 		}
 
-		private void remove(SceneNode2 node) {
+		private void remove(SceneNode node) {
 			nodes.removeValue(node, true);
 		}
 

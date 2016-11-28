@@ -21,9 +21,9 @@ import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.editor.model.ModelEditorContext;
-import com.gurella.engine.editor.model.ModelEditorDescriptor;
-import com.gurella.engine.editor.model.ModelEditorFactory;
+import com.gurella.engine.editor.bean.BeanEditorContext;
+import com.gurella.engine.editor.bean.BeanEditorDescriptor;
+import com.gurella.engine.editor.bean.BeanEditorFactory;
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
@@ -59,12 +59,12 @@ import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.GridRectangle;
 
-public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
+public class TestPropertyEditorsComponent extends SceneNodeComponent {
 	@PropertyEditorDescriptor(group = "assets")
 	public Texture texture;
 	@PropertyEditorDescriptor(group = "assets")
@@ -138,8 +138,8 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 	@PropertyEditorDescriptor(group = "Custom Property Editor", factory = TestPropertyEditorFactory.class)
 	public Object customPropertyEditor;
 
-	@PropertyEditorDescriptor(group = "Custom Model Editor")
-	public ModelEditorObject customModelEditor;
+	@PropertyEditorDescriptor(group = "Custom Bean Editor")
+	public BeanEditorObject customBeanEditor;
 
 	static class TestPropertyEditorFactory implements PropertyEditorFactory<Object> {
 		@Override
@@ -411,18 +411,18 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 		}
 	}
 
-	@ModelEditorDescriptor(factory = TestPropertyEditorModelFactory.class)
-	private static class ModelEditorObject {
+	@BeanEditorDescriptor(factory = TestBeanEditorFactory.class)
+	private static class BeanEditorObject {
 		@SuppressWarnings("unused")
 		int testInt;
 	}
 
-	static class TestPropertyEditorModelFactory implements ModelEditorFactory<Object> {
+	static class TestBeanEditorFactory implements BeanEditorFactory<Object> {
 		@Override
-		public void buildUi(EditorComposite parent, ModelEditorContext<Object> context) {
+		public void buildUi(EditorComposite parent, BeanEditorContext<Object> context) {
 			parent.setLayout(2);
-			Model<Object> model = context.getModel();
-			Property<Integer> property = model.getProperty("testInt");
+			MetaType<Object> metaType = context.getMetaType();
+			Property<Integer> property = metaType.getProperty("testInt");
 			context.createPropertyLabel(parent, property);
 			context.createPropertyEditor(parent, property);
 		}

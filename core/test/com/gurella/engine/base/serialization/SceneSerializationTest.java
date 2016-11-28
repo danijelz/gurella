@@ -4,10 +4,10 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.serialization.json.JsonInput;
 import com.gurella.engine.serialization.json.JsonOutput;
@@ -17,13 +17,13 @@ public class SceneSerializationTest {
 		Scene scene = new Scene();
 		scene.newNode("Node 1");
 		scene.newNode("Node 2");
-		SceneNode2 node3 = scene.newNode("Node 3");
-		SceneNode2 node3_1 = node3.newChild("Node 3/1");
+		SceneNode node3 = scene.newNode("Node 3");
+		SceneNode node3_1 = node3.newChild("Node 3/1");
 		TransformComponent component = node3_1.newComponent(TransformComponent.class);
 		component.setTranslation(1, 1, 1);
 
-		Model<Scene> model = Models.getModel(Scene.class);
-		model.getProperties();
+		MetaType<Scene> metaType = MetaTypes.getMetaType(Scene.class);
+		metaType.getProperties();
 
 		FileHandle file = new FileHandle("");
 		JsonOutput output = new JsonOutput();
@@ -32,18 +32,18 @@ public class SceneSerializationTest {
 
 		JsonInput input = new JsonInput();
 		Scene deserialized = input.deserialize(Scene.class, string);
-		System.out.println("deserialized: " + Models.isEqual(scene, deserialized));
+		System.out.println("deserialized: " + MetaTypes.isEqual(scene, deserialized));
 
 		Scene duplicate = CopyContext.copyObject(scene);
-		System.out.println("duplicate: " + Models.isEqual(scene, duplicate));
+		System.out.println("duplicate: " + MetaTypes.isEqual(scene, duplicate));
 
 		Scene copied = CopyContext.copyObjectProperties(scene, new Scene());
-		System.out.println("copied: " + Models.isEqual(scene, copied));
+		System.out.println("copied: " + MetaTypes.isEqual(scene, copied));
 
 		String string1 = output.serialize(file, Scene.class, scene, duplicate);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 
 		Scene deserialized1 = input.deserialize(Scene.class, string1, scene);
-		System.out.println(Models.isEqual(scene, deserialized1));
+		System.out.println(MetaTypes.isEqual(scene, deserialized1));
 	}
 }

@@ -16,8 +16,8 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -89,7 +89,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 			}
 		} else {
 			Object data = item.getData();
-			if (!(data instanceof SceneNode2)) {
+			if (!(data instanceof SceneNode)) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
@@ -98,8 +98,8 @@ class AssetDropTargetListener extends DropTargetAdapter {
 				event.detail = DND.DROP_COPY;
 				event.feedback |= DND.FEEDBACK_SELECT;
 			} else {
-				SceneNode2 node = (SceneNode2) data;
-				Class<? extends SceneNodeComponent2> type = getComponentType(file);
+				SceneNode node = (SceneNode) data;
+				Class<? extends SceneNodeComponent> type = getComponentType(file);
 				if (node.getComponent(type, true) == null) {
 					event.detail = DND.DROP_COPY;
 					event.feedback |= DND.FEEDBACK_SELECT;
@@ -110,7 +110,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private static Class<? extends SceneNodeComponent2> getComponentType(IFile file) {
+	private static Class<? extends SceneNodeComponent> getComponentType(IFile file) {
 		String fileExtension = file.getFileExtension();
 
 		if (AssetType.isValidExtension(Model.class, fileExtension)) {
@@ -139,8 +139,8 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		boolean isPrefab = AssetType.prefab.containsExtension(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
-				SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
-				SceneNode2 instance = CopyContext.copyObject(prefab);
+				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
+				SceneNode instance = CopyContext.copyObject(prefab);
 				int editorId = context.editorId;
 				AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), null, instance);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
@@ -150,21 +150,21 @@ class AssetDropTargetListener extends DropTargetAdapter {
 			}
 		} else {
 			Object data = item.getData();
-			if (!(data instanceof SceneNode2)) {
+			if (!(data instanceof SceneNode)) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
 
-			SceneNode2 node = (SceneNode2) data;
+			SceneNode node = (SceneNode) data;
 			if (isPrefab) {
-				SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
-				SceneNode2 instance = CopyContext.copyObject(prefab);
+				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
+				SceneNode instance = CopyContext.copyObject(prefab);
 				int editorId = context.editorId;
 				AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
 						"Error while instantiating prefab.");
 			} else {
-				Class<? extends SceneNodeComponent2> type = getComponentType(file);
+				Class<? extends SceneNodeComponent> type = getComponentType(file);
 				if (node.getComponent(type, true) != null) {
 					event.detail = DND.DROP_NONE;
 					return;

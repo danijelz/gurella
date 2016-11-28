@@ -13,8 +13,8 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
@@ -38,8 +38,8 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	private Scene scene;
 	private Camera camera;
 
-	private SceneNode2 focusedNode;
-	private SceneNodeComponent2 focusedComponent;
+	private SceneNode focusedNode;
+	private SceneNodeComponent focusedComponent;
 	private Control lastFocusControl;
 	private boolean focusDataFromSelection;
 
@@ -81,15 +81,15 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 		while (control != null) {
 			if (control instanceof BeanEditor) {
 				BeanEditorContext<?> context = ((BeanEditor<?>) control).getContext();
-				Object modelInstance = context.bean;
-				if (modelInstance instanceof SceneNodeComponent2) {
-					focusedComponent = (SceneNodeComponent2) modelInstance;
+				Object bean = context.bean;
+				if (bean instanceof SceneNodeComponent) {
+					focusedComponent = (SceneNodeComponent) bean;
 					focusedNode = focusedComponent.getNode();
 					focusChanged();
 					return;
-				} else if (modelInstance instanceof SceneNode2) {
+				} else if (bean instanceof SceneNode) {
 					focusedComponent = null;
-					focusedNode = (SceneNode2) modelInstance;
+					focusedNode = (SceneNode) bean;
 					focusChanged();
 					return;
 				}

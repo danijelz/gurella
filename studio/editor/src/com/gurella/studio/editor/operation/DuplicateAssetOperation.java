@@ -4,7 +4,6 @@ import static com.gurella.studio.GurellaStudioPlugin.log;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -12,15 +11,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Shell;
 
-import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.utils.ErrorStatusFactory;
+import com.gurella.studio.editor.utils.FileDialogUtils;
 import com.gurella.studio.editor.utils.Try;
-import com.gurella.studio.editor.utils.UiUtils;
 
-public class DuplicateAssetOperation extends AbstractOperation {
+public class DuplicateAssetOperation extends AbstractOperation implements ErrorStatusFactory {
 	private final IResource resource;
 	private final IFolder destinationFolder;
 	private String newName;
@@ -33,25 +29,19 @@ public class DuplicateAssetOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		String name = resource.getName();
-		if (validateRename(name) != null) {
-			Shell shell = UiUtils.getActiveShell();
-			InputDialog dlg = new InputDialog(shell, "Select name", "Enter new name", name, this::validateRename);
-			if (dlg.open() != Window.OK) {
+		newName = resource.getName();
+		IResource member = destinationFolder.findMember(newName);
+		if (member != null && member.exists()) {
+			newName = FileDialogUtils.enterNewFileName(destinationFolder, newName, true, null);
+			if (newName == null) {
 				return Status.CANCEL_STATUS;
 			}
-			newName = dlg.getValue();
-		} else {
-			newName = name;
 		}
 
-		IPath destinationPath = destinationFolder.getProjectRelativePath();
-		IContainer container = resource instanceof IContainer ? (IContainer) resource : resource.getParent();
-		IPath containerPath = container.getProjectRelativePath();
-		IPath path = destinationPath.makeRelativeTo(containerPath).append(newName);
+		IPath path = destinationFolder.getFullPath().append(newName);
 		String errMsg = "Error while duplicating resource.";
 		return Try.successful(resource).peek(r -> r.copy(path, true, monitor)).map(r -> Status.OK_STATUS)
-				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
+				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 
 	@Override
@@ -64,19 +54,6 @@ public class DuplicateAssetOperation extends AbstractOperation {
 		String errMsg = "Error while deleting resource.";
 		IResource member = destinationFolder.findMember(newName);
 		return Try.successful(member).peek(m -> m.delete(true, monitor)).map(m -> Status.OK_STATUS)
-				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
-	}
-
-	private String validateRename(String newFileName) {
-		if (Values.isBlank(newFileName)) {
-			return "Name must not be empty";
-		}
-
-		IResource member = destinationFolder.getParent().findMember(newFileName);
-		if (member != null && member.exists()) {
-			return "Resource with that name already exists";
-		} else {
-			return null;
-		}
+				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 }

@@ -1,8 +1,8 @@
 package com.gurella.studio.editor.subscription;
 
 import com.gurella.engine.event.EventSubscription;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 
 public interface NodeNameChangeListener extends EventSubscription {
-	void nodeNameChanged(SceneNode2 node);
+	void nodeNameChanged(SceneNode node);
 }

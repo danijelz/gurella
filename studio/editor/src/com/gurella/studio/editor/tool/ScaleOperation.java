@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
@@ -24,7 +24,7 @@ public class ScaleOperation extends TransformOperation {
 
 	public ScaleOperation(int editorId, TransformComponent component) {
 		super("Scale", editorId, component);
-		property = Models.getModel(transform).getProperty("scale");
+		property = MetaTypes.getMetaType(transform).getProperty("scale");
 		component.getScale(initial);
 	}
 

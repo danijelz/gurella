@@ -13,7 +13,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.editor.bean.BeanEditorDescriptor;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
@@ -38,7 +38,7 @@ public class BeanEditorFactory {
 			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
 		}
 
-		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, context);
+		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance, context);
 		if (factory == null) {
 			return new DefaultBeanEditor<T>(parent, context, instance);
 		} else {
@@ -54,7 +54,7 @@ public class BeanEditorFactory {
 			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
 		}
 
-		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, sceneContext);
+		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance, sceneContext);
 		if (factory == null) {
 			return new DefaultBeanEditor<T>(parent, new BeanEditorContext<>(parentContext, instance));
 		} else {
@@ -63,10 +63,10 @@ public class BeanEditorFactory {
 		}
 	}
 
-	private static <T> com.gurella.engine.editor.model.ModelEditorFactory<T> getCustomFactory(T modelInstance,
+	private static <T> com.gurella.engine.editor.bean.BeanEditorFactory<T> getCustomFactory(T bean,
 			SceneEditorContext sceneContext) {
 		try {
-			String customFactoryClass = getCustomFactoryClass(modelInstance, sceneContext.javaProject);
+			String customFactoryClass = getCustomFactoryClass(bean, sceneContext.javaProject);
 			if (customFactoryClass == null) {
 				return null;
 			}
@@ -76,30 +76,30 @@ public class BeanEditorFactory {
 			constructor.setAccessible(true);
 			return cast(constructor.newInstance(new Object[0]));
 		} catch (Exception e) {
-			customFactories.put(modelInstance.getClass(), null);
+			customFactories.put(bean.getClass(), null);
 			return null;
 		}
 	}
 
-	private static <T> String getCustomFactoryClass(T modelInstance, IJavaProject javaProject) throws Exception {
-		Class<?> modelClass = modelInstance.getClass();
-		if (customFactories.containsKey(modelClass)) {
-			return customFactories.get(modelClass);
+	private static <T> String getCustomFactoryClass(T bean, IJavaProject javaProject) throws Exception {
+		Class<?> beanClass = bean.getClass();
+		if (customFactories.containsKey(beanClass)) {
+			return customFactories.get(beanClass);
 		}
 
-		IType type = javaProject.findType(modelClass.getName());
+		IType type = javaProject.findType(beanClass.getName());
 		for (IAnnotation annotation : type.getAnnotations()) {
-			if (annotation.getElementName().equals(ModelEditorDescriptor.class.getSimpleName())) {
-				String modelFactoryClass = parseAnnotation(type, annotation);
-				customFactories.put(modelClass, modelFactoryClass);
-				return modelFactoryClass;
+			if (annotation.getElementName().equals(BeanEditorDescriptor.class.getSimpleName())) {
+				String metaTypeFactoryClass = parseAnnotation(type, annotation);
+				customFactories.put(beanClass, metaTypeFactoryClass);
+				return metaTypeFactoryClass;
 			}
 		}
 
-		IAnnotation annotation = type.getAnnotation(ModelEditorDescriptor.class.getName());
-		String modelFactoryClass = annotation == null ? null : parseAnnotation(type, annotation);
-		customFactories.put(modelClass, modelFactoryClass);
-		return modelFactoryClass;
+		IAnnotation annotation = type.getAnnotation(BeanEditorDescriptor.class.getName());
+		String factoryClass = annotation == null ? null : parseAnnotation(type, annotation);
+		customFactories.put(beanClass, factoryClass);
+		return factoryClass;
 	}
 
 	private static String parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {

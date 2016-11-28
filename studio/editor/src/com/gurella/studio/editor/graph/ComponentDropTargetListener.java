@@ -10,9 +10,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.engine.scene.SceneElement2;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneElement;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.ReindexComponentOperation;
 import com.gurella.studio.editor.operation.ReparentComponentOperation;
@@ -35,7 +35,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private static SceneNodeComponent2 getTransferComponent() {
+	private static SceneNodeComponent getTransferComponent() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		if (selection instanceof ComponentSelection) {
 			return ((ComponentSelection) selection).getComponent();
@@ -55,27 +55,27 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNodeComponent2) && !(data instanceof SceneNode2)) {
+		if (!(data instanceof SceneNodeComponent) && !(data instanceof SceneNode)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneElement2 eventElement = (SceneElement2) data;
-		SceneNodeComponent2 component = getTransferComponent();
+		SceneElement eventElement = (SceneElement) data;
+		SceneNodeComponent component = getTransferComponent();
 		if (component == eventElement) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNode2 eventNode;
-		if (eventElement instanceof SceneNode2) {
-			eventNode = (SceneNode2) eventElement;
+		SceneNode eventNode;
+		if (eventElement instanceof SceneNode) {
+			eventNode = (SceneNode) eventElement;
 			if (component.getNode() == eventNode) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
 		} else {
-			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			SceneNodeComponent eventComponent = (SceneNodeComponent) data;
 			eventNode = eventComponent.getNode();
 		}
 
@@ -93,7 +93,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		} else if (eventNode.hasComponent(component.getClass(), true)) {
 			event.detail = DND.DROP_NONE;
 			return;
-		} else if (data instanceof SceneNodeComponent2) {
+		} else if (data instanceof SceneNodeComponent) {
 			if (point.y < bounds.y + bounds.height / 2) {
 				event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
 				event.detail = DND.DROP_MOVE;
@@ -121,27 +121,27 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNodeComponent2) && !(data instanceof SceneNode2)) {
+		if (!(data instanceof SceneNodeComponent) && !(data instanceof SceneNode)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneElement2 eventElement = (SceneElement2) data;
-		SceneNodeComponent2 component = getTransferComponent();
+		SceneElement eventElement = (SceneElement) data;
+		SceneNodeComponent component = getTransferComponent();
 		if (component == eventElement) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNode2 eventNode;
-		if (eventElement instanceof SceneNode2) {
-			eventNode = (SceneNode2) eventElement;
+		SceneNode eventNode;
+		if (eventElement instanceof SceneNode) {
+			eventNode = (SceneNode) eventElement;
 			if (component.getNode() == eventNode) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
 		} else {
-			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			SceneNodeComponent eventComponent = (SceneNodeComponent) data;
 			eventNode = eventComponent.getNode();
 		}
 
@@ -150,7 +150,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		Rectangle bounds = item.getBounds();
 
 		if (component.getNode() == eventNode) {
-			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			SceneNodeComponent eventComponent = (SceneNodeComponent) data;
 
 			if (point.y < bounds.y + bounds.height / 2) {
 				int newIndex = eventComponent.getIndex();
@@ -163,8 +163,8 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			}
 		} else if (eventNode.hasComponent(component.getClass(), true)) {
 			event.detail = DND.DROP_NONE;
-		} else if (data instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+		} else if (data instanceof SceneNodeComponent) {
+			SceneNodeComponent eventComponent = (SceneNodeComponent) data;
 			if (point.y < bounds.y + bounds.height / 2) {
 				int newIndex = eventComponent.getIndex();
 				reparentComponent(component, eventNode, newIndex);
@@ -178,13 +178,13 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private void reindexComponent(SceneNodeComponent2 component, int newIndex) {
+	private void reindexComponent(SceneNodeComponent component, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning component";
 		context.executeOperation(new ReindexComponentOperation(editorId, component, newIndex), errorMsg);
 	}
 
-	private void reparentComponent(SceneNodeComponent2 component, SceneNode2 newParent, int newIndex) {
+	private void reparentComponent(SceneNodeComponent component, SceneNode newParent, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning element";
 		context.executeOperation(new ReparentComponentOperation(editorId, component, newParent, newIndex), errorMsg);

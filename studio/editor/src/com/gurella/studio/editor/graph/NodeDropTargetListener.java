@@ -10,7 +10,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.ReindexNodeOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
@@ -35,7 +35,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		event.detail = DND.DROP_MOVE;
 	}
 
-	private static SceneNode2 getTransferedNode() {
+	private static SceneNode getTransferedNode() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		if (selection instanceof NodeSelection) {
 			return ((NodeSelection) selection).getNode();
@@ -55,13 +55,13 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNode2)) {
+		if (!(data instanceof SceneNode)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNode2 eventNode = (SceneNode2) data;
-		SceneNode2 node = getTransferedNode();
+		SceneNode eventNode = (SceneNode) data;
+		SceneNode node = getTransferedNode();
 		if (node == eventNode) {
 			event.detail = DND.DROP_NONE;
 			return;
@@ -98,13 +98,13 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNode2)) {
+		if (!(data instanceof SceneNode)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNode2 eventNode = (SceneNode2) data;
-		SceneNode2 node = getTransferedNode();
+		SceneNode eventNode = (SceneNode) data;
+		SceneNode node = getTransferedNode();
 		if (node == eventNode) {
 			event.detail = DND.DROP_NONE;
 			return;
@@ -120,7 +120,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reindexNode(node, newIndex);
 			} else {
-				SceneNode2 parent = eventNode.getParentNode();
+				SceneNode parent = eventNode.getParentNode();
 				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reparentNode(node, parent, newIndex);
@@ -131,7 +131,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
 				reindexNode(node, newIndex);
 			} else {
-				SceneNode2 parent = eventNode.getParentNode();
+				SceneNode parent = eventNode.getParentNode();
 				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
 				reparentNode(node, parent, newIndex);
@@ -141,13 +141,13 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private void reindexNode(SceneNode2 node, int newIndex) {
+	private void reindexNode(SceneNode node, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
 		context.executeOperation(new ReindexNodeOperation(editorId, node, newIndex), errorMsg);
 	}
 
-	private void reparentNode(SceneNode2 node, SceneNode2 newParent, int newIndex) {
+	private void reparentNode(SceneNode node, SceneNode newParent, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
 		context.executeOperation(new ReparentNodeOperation(editorId, node, newParent, newIndex), errorMsg);

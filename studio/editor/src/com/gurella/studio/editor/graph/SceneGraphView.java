@@ -42,9 +42,9 @@ import org.eclipse.ui.swt.IFocusService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneElement2;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneElement;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
@@ -83,7 +83,7 @@ public class SceneGraphView extends DockableView
 	final Clipboard clipboard;
 	Scene scene;
 
-	private SceneElement2 lastSelection;
+	private SceneElement lastSelection;
 
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
@@ -200,37 +200,37 @@ public class SceneGraphView extends DockableView
 				.ifPresent(s -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(s)));
 	}
 
-	private static Inspectable<? extends SceneElement2> toInspectable(SceneElement2 element) {
-		return element instanceof SceneNode2 ? new NodeInspectable((SceneNode2) element)
-				: new ComponentInspectable((SceneNodeComponent2) element);
+	private static Inspectable<? extends SceneElement> toInspectable(SceneElement element) {
+		return element instanceof SceneNode ? new NodeInspectable((SceneNode) element)
+				: new ComponentInspectable((SceneNodeComponent) element);
 	}
 
 	private void flipExpansion(Event event) {
 		Optional.of(event).filter(e -> e.button == 1).map(e -> getElementAt(e.x, e.y))
-				.filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast)
+				.filter(SceneNode.class::isInstance).map(SceneNode.class::cast)
 				.ifPresent(n -> viewer.setExpandedState(n, !viewer.getExpandedState(n)));
 	}
 
-	private SceneElement2 getElementAt(int x, int y) {
+	private SceneElement getElementAt(int x, int y) {
 		return Optional.ofNullable(viewer.getCell(new Point(x, y))).map(c -> c.getElement())
-				.filter(SceneNode2.class::isInstance).map(c -> (SceneElement2) c).orElse(null);
+				.filter(SceneNode.class::isInstance).map(c -> (SceneElement) c).orElse(null);
 	}
 
-	Optional<SceneElement2> getSelectedElement() {
+	Optional<SceneElement> getSelectedElement() {
 		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
-				.map(SceneElement2.class::cast);
+				.map(SceneElement.class::cast);
 	}
 
-	Optional<SceneNode2> getSelectedNode() {
-		return getSelectedElement().filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast);
+	Optional<SceneNode> getSelectedNode() {
+		return getSelectedElement().filter(SceneNode.class::isInstance).map(SceneNode.class::cast);
 	}
 
-	Optional<SceneNodeComponent2> getSelectedComponent() {
-		return getSelectedElement().filter(SceneNodeComponent2.class::isInstance).map(SceneNodeComponent2.class::cast);
+	Optional<SceneNodeComponent> getSelectedComponent() {
+		return getSelectedElement().filter(SceneNodeComponent.class::isInstance).map(SceneNodeComponent.class::cast);
 	}
 
 	@Override
-	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public void nodeAdded(Scene scene, SceneNode parentNode, SceneNode node) {
 		if (parentNode == null) {
 			viewer.add(scene, node);
 		} else {
@@ -243,35 +243,35 @@ public class SceneGraphView extends DockableView
 	}
 
 	@Override
-	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public void nodeRemoved(Scene scene, SceneNode parentNode, SceneNode node) {
 		viewer.remove(node);
 	}
 
 	@Override
-	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
+	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 		viewer.add(node, component);
 		viewer.setExpandedState(component, true);
 		viewer.setSelection(new StructuredSelection(component), true);
 	}
 
 	@Override
-	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
+	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 		viewer.remove(component);
 	}
 
 	@Override
-	public void nodeNameChanged(SceneNode2 node) {
+	public void nodeNameChanged(SceneNode node) {
 		viewer.update(node, null);
 	}
 
 	@Override
-	public void componentIndexChanged(SceneNodeComponent2 component, int newIndex) {
+	public void componentIndexChanged(SceneNodeComponent component, int newIndex) {
 		viewer.refresh(component.getNode(), false);
 	}
 
 	@Override
-	public void nodeIndexChanged(SceneNode2 node, int newIndex) {
-		SceneNode2 parentNode = node.getParentNode();
+	public void nodeIndexChanged(SceneNode node, int newIndex) {
+		SceneNode parentNode = node.getParentNode();
 		if (parentNode == null) {
 			viewer.refresh(false);
 		} else {
@@ -291,7 +291,7 @@ public class SceneGraphView extends DockableView
 		getSelectedElement().ifPresent(e -> cut(e));
 	}
 
-	void cut(SceneElement2 element) {
+	void cut(SceneElement element) {
 		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
 		ISelection selection = new CutElementSelection(element);
 		transfer.setSelection(selection);
@@ -302,7 +302,7 @@ public class SceneGraphView extends DockableView
 		getSelectedElement().ifPresent(e -> copy(e));
 	}
 
-	void copy(SceneElement2 element) {
+	void copy(SceneElement element) {
 		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
 		CopyElementSelection selection = new CopyElementSelection(element);
 		transfer.setSelection(selection);
@@ -313,7 +313,7 @@ public class SceneGraphView extends DockableView
 		getSelectedNode().ifPresent(e -> paste(e));
 	}
 
-	void paste(SceneNode2 destination) {
+	void paste(SceneNode destination) {
 		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutElementSelection) {
 			move(((CutElementSelection) contents).getElement(), destination);
@@ -322,13 +322,13 @@ public class SceneGraphView extends DockableView
 		}
 	}
 
-	private void move(SceneElement2 source, SceneNode2 destination) {
+	private void move(SceneElement source, SceneNode destination) {
 		if (source == destination) {
 			return;
 		}
 
-		if (source instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 component = (SceneNodeComponent2) source;
+		if (source instanceof SceneNodeComponent) {
+			SceneNodeComponent component = (SceneNodeComponent) source;
 			if (destination.hasComponent(component.getClass(), true)) {
 				return;
 			}
@@ -342,7 +342,7 @@ public class SceneGraphView extends DockableView
 				return;
 			}
 
-			SceneNode2 node = (SceneNode2) source;
+			SceneNode node = (SceneNode) source;
 			String errorMsg = "Error while repositioning node";
 			int newIndex = destination.childNodes.size();
 			editorContext.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
@@ -351,24 +351,24 @@ public class SceneGraphView extends DockableView
 		clipboard.clearContents();
 	}
 
-	private void duplicate(SceneElement2 source, SceneNode2 destination) {
-		if (source instanceof SceneNodeComponent2 && destination.getComponent(cast(source.getClass()), true) != null) {
+	private void duplicate(SceneElement source, SceneNode destination) {
+		if (source instanceof SceneNodeComponent && destination.getComponent(cast(source.getClass()), true) != null) {
 			return;
 		}
 
-		SceneElement2 copy = CopyContext.copyObject(source);
-		if (copy instanceof SceneNode2) {
-			SceneNode2 node = (SceneNode2) copy;
+		SceneElement copy = CopyContext.copyObject(source);
+		if (copy instanceof SceneNode) {
+			SceneNode node = (SceneNode) copy;
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, destination, node);
 			editorContext.executeOperation(operation, "Error while adding component");
 		} else {
-			SceneNodeComponent2 component = (SceneNodeComponent2) copy;
+			SceneNodeComponent component = (SceneNodeComponent) copy;
 			AddComponentOperation operation = new AddComponentOperation(editorId, destination, component);
 			editorContext.executeOperation(operation, "Error while adding component");
 		}
 	}
 
-	void duplicate(SceneNode2 source) {
+	void duplicate(SceneNode source) {
 		duplicate(source, source.getParentNode());
 	}
 
@@ -376,15 +376,15 @@ public class SceneGraphView extends DockableView
 		getSelectedElement().ifPresent(e -> delete(e));
 	}
 
-	void delete(SceneElement2 element) {
-		if (element instanceof SceneNode2) {
-			SceneNode2 node = (SceneNode2) element;
-			SceneNode2 parentNode = node.getParentNode();
+	void delete(SceneElement element) {
+		if (element instanceof SceneNode) {
+			SceneNode node = (SceneNode) element;
+			SceneNode parentNode = node.getParentNode();
 			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
 			editorContext.executeOperation(operation, "Error while removing node");
-		} else if (element instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 component = (SceneNodeComponent2) element;
-			SceneNode2 node = component.getNode();
+		} else if (element instanceof SceneNodeComponent) {
+			SceneNodeComponent component = (SceneNodeComponent) element;
+			SceneNode node = component.getNode();
 			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
 			editorContext.executeOperation(operation, "Error while removing component");
 		}
@@ -394,7 +394,7 @@ public class SceneGraphView extends DockableView
 		getSelectedNode().ifPresent(n -> rename(n));
 	}
 
-	void rename(SceneNode2 node) {
+	void rename(SceneNode node) {
 		IInputValidator v = i -> i.length() < 3 ? "Too short" : null;
 		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", node.getName(), v);
 		if (dlg.open() == Window.OK) {

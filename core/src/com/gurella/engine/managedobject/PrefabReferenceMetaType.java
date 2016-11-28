@@ -1,13 +1,13 @@
 package com.gurella.engine.managedobject;
 
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.DefaultModels.SimpleObjectModel;
+import com.gurella.engine.metatype.DefaultMetaType.SimpleObjectMetaType;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.Values;
 
-class PrefabReferenceModel extends SimpleObjectModel<PrefabReference> {
-	public PrefabReferenceModel() {
+class PrefabReferenceMetaType extends SimpleObjectMetaType<PrefabReference> {
+	public PrefabReferenceMetaType() {
 		super(PrefabReference.class);
 	}
 

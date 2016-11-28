@@ -21,8 +21,8 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.managedobject.ManagedObject;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.serialization.Reference;
 import com.gurella.engine.utils.IdentityObjectIntMap;
@@ -105,8 +105,8 @@ public class JsonOutput implements Output, Poolable {
 				pop();
 			}
 
-			Model<Object> model = Models.getModel(object);
-			model.serialize(object, template, this);
+			MetaType<Object> metaType = MetaTypes.getMetaType(object);
+			metaType.serialize(object, template, this);
 			pop();
 		} else {
 			object();
@@ -114,8 +114,8 @@ public class JsonOutput implements Output, Poolable {
 			if (expectedType != actualType) {
 				type(actualType);
 			}
-			Model<Object> model = Models.getModel(object);
-			model.serialize(object, template, this);
+			MetaType<Object> metaType = MetaTypes.getMetaType(object);
+			metaType.serialize(object, template, this);
 			pop();
 		}
 	}
@@ -221,19 +221,19 @@ public class JsonOutput implements Output, Poolable {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
 			@SuppressWarnings("unchecked")
-			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
-			model.serialize(value, null, this);
+			MetaType<Object> metaType = (MetaType<Object>) MetaTypes.getMetaType(expectedType);
+			metaType.serialize(value, null, this);
 		} else if (isSimpleType(value)) {
 			addReferenceDependency(value);
-			Model<Object> model = Models.getModel(value);
+			MetaType<Object> metaType = MetaTypes.getMetaType(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
-				model.serialize(value, null, this);
+				metaType.serialize(value, null, this);
 			} else {
 				object();
 				type(actualType);
 				name(valuePropertyName);
-				model.serialize(value, null, this);
+				metaType.serialize(value, null, this);
 				pop();
 			}
 		} else if (flat) {

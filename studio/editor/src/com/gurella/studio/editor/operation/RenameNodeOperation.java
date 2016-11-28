@@ -8,17 +8,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class RenameNodeOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNode2 node;
+	final SceneNode node;
 	final String oldValue;
 	final String newValue;
 
-	public RenameNodeOperation(int editorId, SceneNode2 node, String newValue) {
+	public RenameNodeOperation(int editorId, SceneNode node, String newValue) {
 		super("Name");
 		this.editorId = editorId;
 		this.node = node;

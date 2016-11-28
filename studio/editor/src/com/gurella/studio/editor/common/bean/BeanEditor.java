@@ -19,8 +19,8 @@ public abstract class BeanEditor<T> extends Composite {
 	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
 	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
-	public BeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
-		this(parent, new BeanEditorContext<>(sceneEditorContext, modelInstance));
+	public BeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T bean) {
+		this(parent, new BeanEditorContext<>(sceneEditorContext, bean));
 	}
 
 	public BeanEditor(Composite parent, BeanEditorContext<T> context) {

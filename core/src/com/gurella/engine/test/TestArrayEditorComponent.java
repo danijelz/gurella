@@ -6,9 +6,9 @@ import java.util.List;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 
-public class TestArrayEditorComponent extends SceneNodeComponent2 {
+public class TestArrayEditorComponent extends SceneNodeComponent {
 	@PropertyEditorDescriptor(genericTypes = { String.class })
 	public Array<String> strings = new Array<String>();
 

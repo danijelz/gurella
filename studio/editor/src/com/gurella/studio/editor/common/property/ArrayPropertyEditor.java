@@ -16,8 +16,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Values;
@@ -56,7 +56,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 		} else {
 			Property<Object> property = Values.cast(getProperty());
 			Class<Object> componentType = getComponentType();
-			Model<Object> model = Models.getModel(componentType);
+			MetaType<Object> metaType = MetaTypes.getMetaType(componentType);
 
 			for (int i = 0, n = Array.getLength(values); i < n; i++) {
 				Label label = toolkit.createLabel(content, Integer.toString(i) + ".");
@@ -66,7 +66,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 				label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 				Object item = Array.get(values, i);
-				ItemContext<Object, Object> itemContext = new ItemContext<>(context, model, item, property, i);
+				ItemContext<Object, Object> itemContext = new ItemContext<>(context, metaType, item, property, i);
 				Class<Object> type = item == null ? componentType : Values.cast(item.getClass());
 				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 				GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -177,25 +177,25 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {
-		private Object parentModelInstance;
+		private Object parentBean;
 		private int index;
 
-		public ItemContext(PropertyEditorContext<?, ?> parent, Model<M> model, M modelInstance, Property<P> property,
+		public ItemContext(PropertyEditorContext<?, ?> parent, MetaType<M> metaType, M bean, Property<P> property,
 				int index) {
-			super(parent, model, modelInstance, property);
-			parentModelInstance = parent.getValue();
+			super(parent, metaType, bean, property);
+			parentBean = parent.getValue();
 			this.index = index;
 			valueGetter = this::getItemValue;
 			valueSetter = this::setItemValue;
 		}
 
 		protected P getItemValue() {
-			return Values.cast(Array.get(parentModelInstance, index));
+			return Values.cast(Array.get(parentBean, index));
 		}
 
 		@Override
 		public boolean isNullable() {
-			return !parentModelInstance.getClass().getComponentType().isPrimitive();
+			return !parentBean.getClass().getComponentType().isPrimitive();
 		}
 
 		@Override
@@ -215,7 +215,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 			int length = Array.getLength(value);
 			Object oldValue = Array.newInstance(value.getClass().getComponentType(), length);
 			System.arraycopy(value, 0, oldValue, 0, length);
-			Array.set(parentModelInstance, index, newValue);
+			Array.set(parentBean, index, newValue);
 			parent.propertyValueChanged(parentContext.property, oldValue, getValue());
 		}
 	}

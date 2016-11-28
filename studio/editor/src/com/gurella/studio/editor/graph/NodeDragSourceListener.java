@@ -6,7 +6,7 @@ import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 
 class NodeDragSourceListener extends DragSourceAdapter {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
@@ -19,9 +19,9 @@ class NodeDragSourceListener extends DragSourceAdapter {
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		Optional<SceneNode2> selected = view.getSelectedNode();
+		Optional<SceneNode> selected = view.getSelectedNode();
 		if (selected.isPresent()) {
-			SceneNode2 node = selected.get();
+			SceneNode node = selected.get();
 			localTransfer.setSelection(new NodeSelection(node));
 			event.data = node;
 			event.doit = true;

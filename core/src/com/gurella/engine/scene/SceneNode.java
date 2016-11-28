@@ -16,16 +16,16 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
-public final class SceneNode2 extends SceneElement2 implements NodeContainer, Poolable {
+public final class SceneNode extends SceneElement implements NodeContainer, Poolable {
 	String name;
 
-	transient final OrderedIdentitySet<SceneNode2> _childNodes = new OrderedIdentitySet<SceneNode2>();
+	transient final OrderedIdentitySet<SceneNode> _childNodes = new OrderedIdentitySet<SceneNode>();
 	@PropertyDescriptor(property = NodeChildrenProperty.class)
-	public final ImmutableArray<SceneNode2> childNodes = _childNodes.orderedItems();
+	public final ImmutableArray<SceneNode> childNodes = _childNodes.orderedItems();
 
-	transient final OrderedValuesIntMap<SceneNodeComponent2> _components = new OrderedValuesIntMap<SceneNodeComponent2>();
+	transient final OrderedValuesIntMap<SceneNodeComponent> _components = new OrderedValuesIntMap<SceneNodeComponent>();
 	@PropertyDescriptor(property = NodeComponentsProperty.class)
-	public final ImmutableArray<SceneNodeComponent2> components = _components.orderedValues();
+	public final ImmutableArray<SceneNodeComponent> components = _components.orderedValues();
 
 	transient final Bits _componentBits = new Bits(1);
 	public transient final ImmutableBits componentBits = new ImmutableBits(_componentBits);
@@ -47,7 +47,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	}
 
 	@Override
-	public ImmutableArray<SceneNode2> getNodes() {
+	public ImmutableArray<SceneNode> getNodes() {
 		return childNodes;
 	}
 
@@ -55,7 +55,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
 		Class<?> parentType = newParent.getClass();
-		if (parentType != SceneNode2.class && parentType != Scene.class) {
+		if (parentType != SceneNode.class && parentType != Scene.class) {
 			throw new GdxRuntimeException(
 					"Node can only be added to Scene or other Node. Parent type: " + parentType.getSimpleName());
 		}
@@ -72,7 +72,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 
 	public final boolean isParentHierarchyEnabled() {
 		ManagedObject parent = getParent();
-		return parent instanceof SceneNode2 ? ((SceneNode2) parent).isHierarchyEnabled() : true;
+		return parent instanceof SceneNode ? ((SceneNode) parent).isHierarchyEnabled() : true;
 	}
 
 	@Override
@@ -81,12 +81,12 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		_components.clear();
 	}
 
-	public SceneNode2 getParentNode() {
+	public SceneNode getParentNode() {
 		ManagedObject parent = getParent();
-		return parent instanceof SceneNode2 ? (SceneNode2) parent : null;
+		return parent instanceof SceneNode ? (SceneNode) parent : null;
 	}
 
-	final void setParent(SceneNode2 node) {
+	final void setParent(SceneNode node) {
 		super.setParent(node);
 	}
 
@@ -106,8 +106,8 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 
 	@Override
 	protected final void childAdded(ManagedObject child) {
-		if (child instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 component = (SceneNodeComponent2) child;
+		if (child instanceof SceneNodeComponent) {
+			SceneNodeComponent component = (SceneNodeComponent) child;
 			int baseType = component.baseComponentType;
 			if (_components.containsKey(baseType)) {
 				throw new IllegalArgumentException(
@@ -117,7 +117,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 			_components.put(baseType, component);
 			_componentBits.set(component.componentType);
 		} else {
-			SceneNode2 node = (SceneNode2) child;
+			SceneNode node = (SceneNode) child;
 			node.scene = scene;
 			_childNodes.add(node);
 		}
@@ -125,39 +125,39 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 
 	@Override
 	protected void childRemoved(ManagedObject child) {
-		if (child instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 component = (SceneNodeComponent2) child;
+		if (child instanceof SceneNodeComponent) {
+			SceneNodeComponent component = (SceneNodeComponent) child;
 			component.scene = null;
 			_components.remove(component.baseComponentType);
 			_componentBits.clear(component.componentType);
 		} else {
-			SceneNode2 node = (SceneNode2) child;
+			SceneNode node = (SceneNode) child;
 			node.scene = null;
 			_childNodes.remove(node);
 		}
 	}
 
-	public void addChild(SceneNode2 child) {
+	public void addChild(SceneNode child) {
 		child.setParent(this);
 	}
 
 	//TODO public void removeChild(SceneNode2 child, boolean destroy)
-	public void removeChild(SceneNode2 child) {
+	public void removeChild(SceneNode child) {
 		if (_childNodes.contains(child)) {
 			child.destroy();
 		}
 	}
 
-	public SceneNode2 newChild(String name) {
-		SceneNode2 node = PoolService.obtain(SceneNode2.class);
+	public SceneNode newChild(String name) {
+		SceneNode node = PoolService.obtain(SceneNode.class);
 		node.name = name;
 		node.setParent(this);
 		return node;
 	}
 
-	public SceneNode2 getChildNode(String name) {
+	public SceneNode getChildNode(String name) {
 		for (int i = 0; i < childNodes.size(); i++) {
-			SceneNode2 node = childNodes.get(i);
+			SceneNode node = childNodes.get(i);
 			if (Values.isEqual(name, node.name)) {
 				return node;
 			}
@@ -165,9 +165,9 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		return null;
 	}
 
-	public Array<SceneNode2> getChildNodes(String name, Array<SceneNode2> out) {
+	public Array<SceneNode> getChildNodes(String name, Array<SceneNode> out) {
 		for (int i = 0; i < childNodes.size(); i++) {
-			SceneNode2 node = childNodes.get(i);
+			SceneNode node = childNodes.get(i);
 			if (Values.isEqual(name, node.name)) {
 				out.add(node);
 			}
@@ -180,8 +180,8 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		ManagedObject parent = getParent();
 		if (parent instanceof Scene) {
 			return ((Scene) parent)._nodes.indexOf(this);
-		} else if (parent instanceof SceneNode2) {
-			return ((SceneNode2) parent)._childNodes.indexOf(this);
+		} else if (parent instanceof SceneNode) {
+			return ((SceneNode) parent)._childNodes.indexOf(this);
 		} else {
 			return -1;
 		}
@@ -191,71 +191,71 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		ManagedObject parent = getParent();
 		if (parent instanceof Scene) {
 			((Scene) parent)._nodes.setIndex(newIndex, this);
-		} else if (parent instanceof SceneNode2) {
-			((SceneNode2) parent)._childNodes.setIndex(newIndex, this);
+		} else if (parent instanceof SceneNode) {
+			((SceneNode) parent)._childNodes.setIndex(newIndex, this);
 		} else {
 			throw new GdxRuntimeException("Node is not attached to graph.");
 		}
 	}
 
-	public void addComponent(SceneNodeComponent2 component) {
+	public void addComponent(SceneNodeComponent component) {
 		component.setParent(this);
 	}
 
-	public <T extends SceneNodeComponent2 & Poolable> T newComponent(Class<T> componentType) {
+	public <T extends SceneNodeComponent & Poolable> T newComponent(Class<T> componentType) {
 		T component = PoolService.obtain(componentType);
 		component.setParent(this);
 		return component;
 	}
 
 	//TODO public void removeComponent(SceneNodeComponent2 component, boolean destroy)
-	public void removeComponent(SceneNodeComponent2 component) {
-		SceneNodeComponent2 value = _components.get(component.baseComponentType);
+	public void removeComponent(SceneNodeComponent component) {
+		SceneNodeComponent value = _components.get(component.baseComponentType);
 		if (value == component) {
 			component.destroy();
 		}
 	}
 
-	public <T extends SceneNodeComponent2> void removeComponent(Class<T> componentType) {
+	public <T extends SceneNodeComponent> void removeComponent(Class<T> componentType) {
 		int typeId = ComponentType.findType(componentType);
-		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(typeId));
+		SceneNodeComponent component = _components.get(ComponentType.findBaseType(typeId));
 		if (component != null && isSubtype(typeId, component.componentType)) {
 			component.destroy();
 		}
 	}
 
 	public void removeComponent(int componentTypeId) {
-		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(componentTypeId));
+		SceneNodeComponent component = _components.get(ComponentType.findBaseType(componentTypeId));
 		if (component != null && isSubtype(componentTypeId, component.componentType)) {
 			component.destroy();
 		}
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(int typeId, boolean includeInactive) {
-		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+	public <T extends SceneNodeComponent> T getComponent(int typeId, boolean includeInactive) {
+		SceneNodeComponent value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType)
 				? Values.<T> cast(value) : null;
 	}
 
 	public boolean hasComponent(int typeId, boolean includeInactive) {
-		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		SceneNodeComponent value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType);
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(Class<T> type, boolean includeInactive) {
+	public <T extends SceneNodeComponent> T getComponent(Class<T> type, boolean includeInactive) {
 		int typeId = ComponentType.findType(type);
-		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		SceneNodeComponent value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType)
 				? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneNodeComponent2> boolean hasComponent(Class<T> type, boolean includeInactive) {
+	public <T extends SceneNodeComponent> boolean hasComponent(Class<T> type, boolean includeInactive) {
 		int typeId = ComponentType.findType(type);
-		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		SceneNodeComponent value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType);
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
+	public <T extends SceneNodeComponent> T getComponent(int typeId) {
 		return getComponent(typeId, false);
 	}
 
@@ -263,11 +263,11 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		return hasComponent(typeId, false);
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
+	public <T extends SceneNodeComponent> T getComponent(Class<T> type) {
 		return getComponent(type, false);
 	}
 
-	public <T extends SceneNodeComponent2> boolean hasComponent(Class<T> type) {
+	public <T extends SceneNodeComponent> boolean hasComponent(Class<T> type) {
 		return hasComponent(type, false);
 	}
 
@@ -283,7 +283,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		builder.append(name == null ? "-" : name);
 
 		builder.append("\n\tComponents [");
-		for (SceneNodeComponent2 component : components) {
+		for (SceneNodeComponent component : components) {
 			builder.append("\n\t\t");
 			if (!component.isActive()) {
 				builder.append("*");
@@ -293,7 +293,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		builder.append("]");
 
 		builder.append("\n\tChildren [");
-		for (SceneNode2 child : _childNodes) {
+		for (SceneNode child : _childNodes) {
 			builder.append("\n\t\t");
 			builder.append(child.appendDiagnostics(builder));
 		}

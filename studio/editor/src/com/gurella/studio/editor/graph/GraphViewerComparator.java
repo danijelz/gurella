@@ -3,15 +3,15 @@ package com.gurella.studio.editor.graph;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 
 class GraphViewerComparator extends ViewerComparator {
 	@Override
 	public int category(Object element) {
-		if (element instanceof SceneNodeComponent2) {
+		if (element instanceof SceneNodeComponent) {
 			return 0;
-		} else if (element instanceof SceneNode2) {
+		} else if (element instanceof SceneNode) {
 			return 1;
 		} else {
 			throw new IllegalArgumentException("Unsupported element:" + element);
@@ -25,10 +25,10 @@ class GraphViewerComparator extends ViewerComparator {
 
 		if (cat1 != cat2) {
 			return cat1 - cat2;
-		} else if (e1 instanceof SceneNodeComponent2) {
-			return ((SceneNodeComponent2) e1).getIndex() - ((SceneNodeComponent2) e2).getIndex();
-		} else if (e1 instanceof SceneNode2) {
-			return ((SceneNode2) e1).getIndex() - ((SceneNode2) e2).getIndex();
+		} else if (e1 instanceof SceneNodeComponent) {
+			return ((SceneNodeComponent) e1).getIndex() - ((SceneNodeComponent) e2).getIndex();
+		} else if (e1 instanceof SceneNode) {
+			return ((SceneNode) e1).getIndex() - ((SceneNode) e2).getIndex();
 		} else {
 			throw new IllegalArgumentException("Unsupported element:" + e1);
 		}

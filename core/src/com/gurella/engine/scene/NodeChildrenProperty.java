@@ -2,7 +2,7 @@ package com.gurella.engine.scene;
 
 import com.gurella.engine.utils.ImmutableArray;
 
-class NodeChildrenProperty extends SceneElementsProperty<SceneNode2> {
+class NodeChildrenProperty extends SceneElementsProperty<SceneNode> {
 	private static final String propertyName = "children";
 
 	public NodeChildrenProperty() {
@@ -10,12 +10,12 @@ class NodeChildrenProperty extends SceneElementsProperty<SceneNode2> {
 	}
 
 	@Override
-	public ImmutableArray<SceneNode2> getValue(Object object) {
-		return ((SceneNode2) object).childNodes;
+	public ImmutableArray<SceneNode> getValue(Object object) {
+		return ((SceneNode) object).childNodes;
 	}
 
 	@Override
-	protected void addElement(Object object, SceneNode2 element) {
-		((SceneNode2) object).addChild(element);
+	protected void addElement(Object object, SceneNode element) {
+		((SceneNode) object).addChild(element);
 	}
 }

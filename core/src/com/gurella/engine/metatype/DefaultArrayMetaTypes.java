@@ -7,14 +7,14 @@ import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class DefaultArrayModels {
-	private DefaultArrayModels() {
+public class DefaultArrayMetaTypes {
+	private DefaultArrayMetaTypes() {
 	}
 
-	private static abstract class PrimitiveArrayModel<T> implements Model<T> {
+	private static abstract class PrimitiveArrayMetaType<T> implements MetaType<T> {
 		private Class<T> type;
 
-		private PrimitiveArrayModel(Class<T> type) {
+		private PrimitiveArrayMetaType(Class<T> type) {
 			this.type = type;
 		}
 
@@ -71,10 +71,10 @@ public class DefaultArrayModels {
 		protected abstract T readValues(Input input);
 	}
 
-	public static final class IntArrayModel extends PrimitiveArrayModel<int[]> {
-		public static final IntArrayModel instance = new IntArrayModel();
+	public static final class IntArrayMetaType extends PrimitiveArrayMetaType<int[]> {
+		public static final IntArrayMetaType instance = new IntArrayMetaType();
 
-		private IntArrayModel() {
+		private IntArrayMetaType() {
 			super(int[].class);
 		}
 
@@ -104,10 +104,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class LongArrayModel extends PrimitiveArrayModel<long[]> {
-		public static final LongArrayModel instance = new LongArrayModel();
+	public static final class LongArrayMetaType extends PrimitiveArrayMetaType<long[]> {
+		public static final LongArrayMetaType instance = new LongArrayMetaType();
 
-		private LongArrayModel() {
+		private LongArrayMetaType() {
 			super(long[].class);
 		}
 
@@ -137,10 +137,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class ShortArrayModel extends PrimitiveArrayModel<short[]> {
-		public static final ShortArrayModel instance = new ShortArrayModel();
+	public static final class ShortArrayMetaType extends PrimitiveArrayMetaType<short[]> {
+		public static final ShortArrayMetaType instance = new ShortArrayMetaType();
 
-		private ShortArrayModel() {
+		private ShortArrayMetaType() {
 			super(short[].class);
 		}
 
@@ -170,10 +170,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class ByteArrayModel extends PrimitiveArrayModel<byte[]> {
-		public static final ByteArrayModel instance = new ByteArrayModel();
+	public static final class ByteArrayMetaType extends PrimitiveArrayMetaType<byte[]> {
+		public static final ByteArrayMetaType instance = new ByteArrayMetaType();
 
-		private ByteArrayModel() {
+		private ByteArrayMetaType() {
 			super(byte[].class);
 		}
 
@@ -203,10 +203,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class CharArrayModel extends PrimitiveArrayModel<char[]> {
-		public static final CharArrayModel instance = new CharArrayModel();
+	public static final class CharArrayMetaType extends PrimitiveArrayMetaType<char[]> {
+		public static final CharArrayMetaType instance = new CharArrayMetaType();
 
-		private CharArrayModel() {
+		private CharArrayMetaType() {
 			super(char[].class);
 		}
 
@@ -236,10 +236,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class BooleanArrayModel extends PrimitiveArrayModel<boolean[]> {
-		public static final BooleanArrayModel instance = new BooleanArrayModel();
+	public static final class BooleanArrayMetaType extends PrimitiveArrayMetaType<boolean[]> {
+		public static final BooleanArrayMetaType instance = new BooleanArrayMetaType();
 
-		private BooleanArrayModel() {
+		private BooleanArrayMetaType() {
 			super(boolean[].class);
 		}
 
@@ -269,10 +269,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class DoubleArrayModel extends PrimitiveArrayModel<double[]> {
-		public static final DoubleArrayModel instance = new DoubleArrayModel();
+	public static final class DoubleArrayMetaType extends PrimitiveArrayMetaType<double[]> {
+		public static final DoubleArrayMetaType instance = new DoubleArrayMetaType();
 
-		private DoubleArrayModel() {
+		private DoubleArrayMetaType() {
 			super(double[].class);
 		}
 
@@ -302,10 +302,10 @@ public class DefaultArrayModels {
 		}
 	}
 
-	public static final class FloatArrayModel extends PrimitiveArrayModel<float[]> {
-		public static final FloatArrayModel instance = new FloatArrayModel();
+	public static final class FloatArrayMetaType extends PrimitiveArrayMetaType<float[]> {
+		public static final FloatArrayMetaType instance = new FloatArrayMetaType();
 
-		private FloatArrayModel() {
+		private FloatArrayMetaType() {
 			super(float[].class);
 		}
 

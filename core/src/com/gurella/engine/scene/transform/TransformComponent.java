@@ -9,18 +9,18 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.ManagedObject;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.metatype.PropertyDescriptor;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
 //TODO make logic to reparent node and update local transform
-@ModelDescriptor(descriptiveName = "Transform")
-public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
+@MetaTypeDescriptor(descriptiveName = "Transform")
+public class TransformComponent extends SceneNodeComponent implements PropertyChangeListener, Poolable {
 	private static final TransformChangedEvent event = new TransformChangedEvent();
 
 	private transient int nodeId;
@@ -54,11 +54,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	@Override
 	protected void componentActivated() {
-		SceneNode2 node = getNode();
+		SceneNode node = getNode();
 		nodeId = node.getInstanceId();
 		subscribeTo(node, nodeParentChangedListener);
 
-		SceneNode2 parentNode = node.getParentNode();
+		SceneNode parentNode = node.getParentNode();
 		if (parentNode != null) {
 			parentTransform = parentNode.getComponent(TransformComponent.class);
 			subscribeTo(parentNode, parentComponentActivityListener);
@@ -935,11 +935,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 			boolean notify = false;
 			boolean updateWorldTransform = false;
 
-			if (oldParent instanceof SceneNode2) {
+			if (oldParent instanceof SceneNode) {
 				updateWorldTransform = true;
 				getWorldTransform(transformInverse);
 
-				SceneNode2 parentNode = (SceneNode2) oldParent;
+				SceneNode parentNode = (SceneNode) oldParent;
 				unsubscribeFrom(parentNode, parentComponentActivityListener);
 				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
 				if (parentTransform != null) {
@@ -948,8 +948,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 				}
 			}
 
-			if (newParent instanceof SceneNode2) {
-				SceneNode2 parentNode = (SceneNode2) newParent;
+			if (newParent instanceof SceneNode) {
+				SceneNode parentNode = (SceneNode) newParent;
 				TransformComponent newParentTransform = parentNode.getComponent(TransformComponent.class);
 				if (newParentTransform != null) {
 					notify = true;
@@ -972,7 +972,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	private class ParentComponentActivityListener implements NodeComponentActivityListener {
 		@Override
-		public void nodeComponentActivated(SceneNodeComponent2 component) {
+		public void nodeComponentActivated(SceneNodeComponent component) {
 			if (component instanceof TransformComponent) {
 				parentTransform = (TransformComponent) component;
 				notifyChanged();
@@ -980,7 +980,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		}
 
 		@Override
-		public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+		public void nodeComponentDeactivated(SceneNodeComponent component) {
 			if (parentTransform == component) {
 				parentTransform = null;
 				notifyChanged();

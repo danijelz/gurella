@@ -20,7 +20,7 @@ import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.input.InputActionMap;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 
 public enum AssetType {
 	texture(Texture.class, "png", "jpg", "jpeg"),
@@ -36,7 +36,7 @@ public enum AssetType {
 	pixmap(Pixmap.class, "png", "bmp", "jpg", "jpeg"),
 	polygonRegion(PolygonRegion.class, "psh"),
 	inputActionMap(InputActionMap.class, "giam"),
-	prefab(SceneNode2.class, "pref"),
+	prefab(SceneNode.class, "pref"),
 	scene(Scene.class, "gscn"),
 	material(MaterialDescriptor.class, "gmat"),
 	shaderTemplate(ShaderTemplate.class, "glslt"),

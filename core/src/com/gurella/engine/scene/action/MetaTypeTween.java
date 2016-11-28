@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -18,7 +18,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class ModelTween<T> implements Tween, Poolable {
+public class MetaTypeTween<T> implements Tween, Poolable {
 	private static final ObjectSet<Class<?>> tweenableTypes = new ObjectSet<Class<?>>();
 	private static final IdentityMap<Class<?>, Interpolator<?>> interpolatorsByType = new IdentityMap<Class<?>, Interpolator<?>>();
 
@@ -54,23 +54,23 @@ public class ModelTween<T> implements Tween, Poolable {
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Interpolator<?>> interpolators = new ArrayExt<Interpolator<?>>();
 	private final ArrayExt<Property<?>> compositeProperties = new ArrayExt<Property<?>>();
-	private final ArrayExt<ModelTween<?>> children = new ArrayExt<ModelTween<?>>();
+	private final ArrayExt<MetaTypeTween<?>> children = new ArrayExt<MetaTypeTween<?>>();
 
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
 
-	public ModelTween(T target, T end) {
-		this(target, target, end, Models.<T> getCommonModel(target, end));
+	public MetaTypeTween(T target, T end) {
+		this(target, target, end, MetaTypes.<T> getCommonMetaType(target, end));
 	}
 
-	public ModelTween(T target, T start, T end) {
-		this(target, start, end, Models.<T> getCommonModel(target, start, end));
+	public MetaTypeTween(T target, T start, T end) {
+		this(target, start, end, MetaTypes.<T> getCommonMetaType(target, start, end));
 	}
 
-	private ModelTween(T target, T start, T end, Model<T> model) {
+	private MetaTypeTween(T target, T start, T end, MetaType<T> metaType) {
 		this.target = target;
 
-		ImmutableArray<Property<?>> allProperties = model.getProperties();
+		ImmutableArray<Property<?>> allProperties = metaType.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
 			@SuppressWarnings("unchecked")
 			Property<Object> property = (Property<Object>) allProperties.get(i);
@@ -102,19 +102,19 @@ public class ModelTween<T> implements Tween, Poolable {
 			return;
 		}
 
-		Model<P> model = Models.<P> getCommonModel(childTarget, start, end);
-		if (model.getProperties().size() == 0) {
+		MetaType<P> metaType = MetaTypes.<P> getCommonMetaType(childTarget, start, end);
+		if (metaType.getProperties().size() == 0) {
 			return;
 		}
 
 		compositeProperties.add(property);
-		children.add(new ModelTween<P>(childTarget, start, end));
+		children.add(new MetaTypeTween<P>(childTarget, start, end));
 	}
 
 	@Override
 	public void update(float percent) {
 		for (int i = 0, n = children.size; i < n; i++) {
-			ModelTween<?> child = children.get(i);
+			MetaTypeTween<?> child = children.get(i);
 			child.update(percent);
 			if (target instanceof PropertyChangeListener) {
 				Property<?> childProperty = compositeProperties.get(i);
@@ -310,7 +310,7 @@ public class ModelTween<T> implements Tween, Poolable {
 		TransformComponent tc1 = new TransformComponent();
 		TransformComponent tc2 = new TransformComponent();
 		tc2.setEulerRotation(100, 100, 100);
-		ModelTween<TransformComponent> tween = new ModelTween<TransformComponent>(tc1, tc2);
+		MetaTypeTween<TransformComponent> tween = new MetaTypeTween<TransformComponent>(tc1, tc2);
 		Vector3 outRotation = new Vector3();
 		for (int i = 0; i < 100; i++) {
 			tween.update((float) (i * 0.01 + 0.01));

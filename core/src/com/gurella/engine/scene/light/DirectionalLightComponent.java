@@ -2,9 +2,9 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 
-@ModelDescriptor(descriptiveName = "Directional Light")
+@MetaTypeDescriptor(descriptiveName = "Directional Light")
 public class DirectionalLightComponent extends LightComponent<DirectionalLight> {
 
 	@Override

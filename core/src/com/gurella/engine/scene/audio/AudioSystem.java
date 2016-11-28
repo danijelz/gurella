@@ -10,13 +10,13 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
-public class AudioSystem extends SceneService2 implements ComponentActivityListener, PreRenderUpdateListener {
+public class AudioSystem extends SceneService implements ComponentActivityListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -31,7 +31,7 @@ public class AudioSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = AudioListenerData.getInstance();
 			audioListenerData.init((AudioListenerComponent) component);
@@ -57,7 +57,7 @@ public class AudioSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = activeListeners.remove(component.getNodeId());
 			if (audioListenerData != null) {

@@ -9,21 +9,21 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ReparentNodeOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNode2 node;
-	final SceneNode2 oldParent;
+	final SceneNode node;
+	final SceneNode oldParent;
 	final int oldIndex;
-	final SceneNode2 newParent;
+	final SceneNode newParent;
 	final int newIndex;
 	final Scene scene;
 
-	public ReparentNodeOperation(int editorId, SceneNode2 node, SceneNode2 newParent, int newIndex) {
+	public ReparentNodeOperation(int editorId, SceneNode node, SceneNode newParent, int newIndex) {
 		super("Set node parent");
 		this.editorId = editorId;
 		this.node = node;
@@ -51,7 +51,7 @@ public class ReparentNodeOperation extends AbstractOperation {
 		return execute(monitor, adaptable);
 	}
 
-	private void setParent(int newIndex, SceneNode2 newParent) {
+	private void setParent(int newIndex, SceneNode newParent) {
 		if (newParent == null) {
 			scene.addNode(node);
 			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());

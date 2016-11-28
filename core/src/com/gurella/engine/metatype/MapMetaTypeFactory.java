@@ -18,38 +18,38 @@ import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
-public class MapModelFactory implements ModelFactory {
-	public static final MapModelFactory instance = new MapModelFactory();
+public class MapMetaTypeFactory implements MetaTypeFactory {
+	public static final MapMetaTypeFactory instance = new MapMetaTypeFactory();
 
-	private MapModelFactory() {
+	private MapMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) EnumMapModel.modelInstance;
+			MetaType<T> casted = (MetaType<T>) EnumMapMetaType.typeInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(TreeMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) TreeMapModel.modelInstance;
+			MetaType<T> casted = (MetaType<T>) TreeMapMetaType.typeInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Map.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			MapModel raw = new MapModel(type);
+			MapMetaType raw = new MapMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class MapModel<T extends Map<?, ?>> implements Model<T> {
+	public static class MapMetaType<T extends Map<?, ?>> implements MetaType<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
-		public MapModel(Class<T> type) {
+		public MapMetaType(Class<T> type) {
 			this.type = type;
 			properties = new ArrayExt<Property<?>>();
 			properties.add(new MapEntriesProperty());
@@ -140,7 +140,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
+		public Property<Set<Entry<?, ?>>> newInstance(MetaType<?> owner) {
 			return this;
 		}
 
@@ -271,11 +271,11 @@ public class MapModelFactory implements ModelFactory {
 		}
 	}
 
-	public static final class TreeMapModel extends MapModel<TreeMap<?, ?>> {
-		public static final TreeMapModel modelInstance = new TreeMapModel();
+	public static final class TreeMapMetaType extends MapMetaType<TreeMap<?, ?>> {
+		public static final TreeMapMetaType typeInstance = new TreeMapMetaType();
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private TreeMapModel() {
+		private TreeMapMetaType() {
 			super((Class) TreeMap.class);
 		}
 
@@ -343,9 +343,9 @@ public class MapModelFactory implements ModelFactory {
 		}
 	}
 
-	public static class EnumMapModel extends MapModel<EnumMap<?, ?>> {
+	public static class EnumMapMetaType extends MapMetaType<EnumMap<?, ?>> {
 		private static final String keyTypeFieldName = "keyType";
-		public static final EnumMapModel modelInstance = new EnumMapModel();
+		public static final EnumMapMetaType typeInstance = new EnumMapMetaType();
 
 		private static final Field keyTypeField;
 
@@ -357,7 +357,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public EnumMapModel() {
+		public EnumMapMetaType() {
 			super((Class) EnumMap.class);
 		}
 

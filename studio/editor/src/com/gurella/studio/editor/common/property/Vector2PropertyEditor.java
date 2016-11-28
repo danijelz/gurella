@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Vector2;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -46,15 +46,15 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			Model<Vector2> model = Models.getModel(Vector2.class);
-			createEditorField(model, value, "x");
-			createEditorField(model, value, "y");
+			MetaType<Vector2> metaType = MetaTypes.getMetaType(Vector2.class);
+			createEditorField(metaType, value, "x");
+			createEditorField(metaType, value, "y");
 			UiUtils.paintBordersFor(content);
 		}
 	}
 
-	private void createEditorField(final Model<Vector2> model, Vector2 value, String propertyName) {
-		Property<Float> childProperty = model.getProperty(propertyName);
+	private void createEditorField(final MetaType<Vector2> metaType, Vector2 value, String propertyName) {
+		Property<Float> childProperty = metaType.getProperty(propertyName);
 		Text text = UiUtils.createFloatWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 50;

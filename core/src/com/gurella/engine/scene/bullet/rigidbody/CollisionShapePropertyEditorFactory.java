@@ -71,9 +71,9 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 				.applyTo(combo);
 
 		if (!(value instanceof EmptyCollisionShape)) {
-			EditorComposite modelEditor = context.createModelEditor(parent, value);
+			EditorComposite beanEditor = context.createBeanEditor(parent, value);
 			new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-					.span(2, 1).applyTo(modelEditor);
+					.span(2, 1).applyTo(beanEditor);
 		}
 
 		parent.layout();

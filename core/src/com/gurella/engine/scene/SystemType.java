@@ -16,8 +16,8 @@ public class SystemType {
 
 	private static final IntIntMap baseComponentTypes = new IntIntMap();
 	private static final IntMap<BitsExt> componentSubtypes = new IntMap<BitsExt>();
-	private static final TypeRegistry<SceneSystem2> registry = new TypeRegistry<SceneSystem2>();
-	private static final int rootComponentType = registry.getId(SceneSystem2.class);
+	private static final TypeRegistry<SceneSystem> registry = new TypeRegistry<SceneSystem>();
+	private static final int rootComponentType = registry.getId(SceneSystem.class);
 
 	static {
 		baseComponentTypes.put(rootComponentType, rootComponentType);
@@ -26,7 +26,7 @@ public class SystemType {
 	private SystemType() {
 	}
 
-	static int findBaseType(Class<? extends SceneSystem2> type) {
+	static int findBaseType(Class<? extends SceneSystem> type) {
 		return baseComponentTypes.get(registry.findId(type), invalidId);
 	}
 
@@ -34,25 +34,25 @@ public class SystemType {
 		return baseComponentTypes.get(typeId, invalidId);
 	}
 
-	static int findType(Class<? extends SceneSystem2> type) {
+	static int findType(Class<? extends SceneSystem> type) {
 		return registry.findId(type);
 	}
 
-	public static int getBaseType(Class<? extends SceneSystem2> type) {
+	public static int getBaseType(Class<? extends SceneSystem> type) {
 		init(type);
 		return baseComponentTypes.get(registry.findId(type), invalidId);
 	}
 
-	public static int getType(Class<? extends SceneSystem2> type) {
+	public static int getType(Class<? extends SceneSystem> type) {
 		init(type);
 		return registry.findId(type);
 	}
 
-	public static ImmutableBits getSubtypes(SceneSystem2 component) {
+	public static ImmutableBits getSubtypes(SceneSystem component) {
 		return getSubtypes(component.getClass());
 	}
 
-	public static ImmutableBits getSubtypes(Class<? extends SceneSystem2> type) {
+	public static ImmutableBits getSubtypes(Class<? extends SceneSystem> type) {
 		init(type);
 		BitsExt subtypes = componentSubtypes.get(registry.findId(type));
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
@@ -68,13 +68,13 @@ public class SystemType {
 		return subtypes == null ? false : subtypes.get(typeId);
 	}
 
-	public static boolean isSubtype(Class<? extends SceneSystem2> baseType, Class<? extends SceneSystem2> type) {
+	public static boolean isSubtype(Class<? extends SceneSystem> baseType, Class<? extends SceneSystem> type) {
 		init(type);
 		return getSubtypes(baseType).get(registry.findId(type));
 	}
 
-	private static void init(Class<? extends SceneSystem2> type) {
-		if (registry.contais(type) || !ClassReflection.isAssignableFrom(SceneSystem2.class, type)) {
+	private static void init(Class<? extends SceneSystem> type) {
+		if (registry.contais(type) || !ClassReflection.isAssignableFrom(SceneSystem.class, type)) {
 			return;
 		}
 
@@ -84,8 +84,8 @@ public class SystemType {
 		BitsExt lastBits = null;
 		BitsExt currentBits;
 
-		while (temp != SceneSystem2.class) {
-			Class<? extends SceneSystem2> casted = Values.cast(temp);
+		while (temp != SceneSystem.class) {
+			Class<? extends SceneSystem> casted = Values.cast(temp);
 			int componentType = registry.getId(casted);
 			currentBits = componentSubtypes.get(componentType);
 
@@ -100,19 +100,19 @@ public class SystemType {
 		}
 	}
 
-	private static void initHierarchy(Class<? extends SceneSystem2> type) {
+	private static void initHierarchy(Class<? extends SceneSystem> type) {
 		if (registry.contais(type)) {
 			return;
 		}
 
-		if (!ClassReflection.isAssignableFrom(SceneSystem2.class, type)) {
+		if (!ClassReflection.isAssignableFrom(SceneSystem.class, type)) {
 			throw new GdxRuntimeException("Invalid class: " + type);
 		}
 
 		int typeId = registry.getId(type);
 		componentSubtypes.put(typeId, new BitsExt());
 
-		Class<? extends SceneSystem2> parentType = Values.cast(type.getSuperclass());
+		Class<? extends SceneSystem> parentType = Values.cast(type.getSuperclass());
 		initHierarchy(parentType);
 
 		int parentId = registry.getId(parentType);

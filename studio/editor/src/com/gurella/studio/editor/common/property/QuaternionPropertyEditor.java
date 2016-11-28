@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Quaternion;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -46,17 +46,17 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 4, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			Model<Quaternion> model = Models.getModel(Quaternion.class);
-			createEditorField(model, value, "x");
-			createEditorField(model, value, "y");
-			createEditorField(model, value, "z");
-			createEditorField(model, value, "w");
+			MetaType<Quaternion> metaType = MetaTypes.getMetaType(Quaternion.class);
+			createEditorField(metaType, value, "x");
+			createEditorField(metaType, value, "y");
+			createEditorField(metaType, value, "z");
+			createEditorField(metaType, value, "w");
 			UiUtils.paintBordersFor(content);
 		}
 	}
 
-	private void createEditorField(final Model<Quaternion> model, Quaternion value, String propertyName) {
-		Property<Float> childProperty = model.getProperty(propertyName);
+	private void createEditorField(final MetaType<Quaternion> metaType, Quaternion value, String propertyName) {
+		Property<Float> childProperty = metaType.getProperty(propertyName);
 		Text text = UiUtils.createFloatWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 40;

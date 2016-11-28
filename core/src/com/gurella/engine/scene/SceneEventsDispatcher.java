@@ -59,7 +59,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		EventService.unsubscribe(this);
 	}
 
-	void componentActivated(SceneNodeComponent2 component) {
+	void componentActivated(SceneNodeComponent component) {
 		componentActivatedEvent.component = component;
 		EventService.post(sceneId, componentActivatedEvent);
 		componentActivatedEvent.component = null;
@@ -69,7 +69,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		nodeComponentActivatedEvent.component = null;
 	}
 
-	void componentDeactivated(SceneNodeComponent2 component) {
+	void componentDeactivated(SceneNodeComponent component) {
 		componentDeactivatedEvent.component = component;
 		EventService.post(sceneId, componentDeactivatedEvent);
 		componentDeactivatedEvent.component = null;
@@ -79,7 +79,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		nodeComponentDeactivatedEvent.component = null;
 	}
 
-	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
+	void nodeRenamed(SceneNode node, String oldName, String newName) {
 		NodeRenamedEvent nodeRenamedEvent = PoolService.obtain(NodeRenamedEvent.class);
 		nodeRenamedEvent.node = node;
 		nodeRenamedEvent.oldName = oldName;
@@ -239,7 +239,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	private static class ComponentActivatedEvent implements Event<ComponentActivityListener> {
-		SceneNodeComponent2 component;
+		SceneNodeComponent component;
 
 		@Override
 		public Class<ComponentActivityListener> getSubscriptionType() {
@@ -253,7 +253,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	private static class ComponentDeactivatedEvent implements Event<ComponentActivityListener> {
-		SceneNodeComponent2 component;
+		SceneNodeComponent component;
 
 		@Override
 		public Class<ComponentActivityListener> getSubscriptionType() {
@@ -267,7 +267,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	private static class NodeComponentActivatedEvent implements Event<NodeComponentActivityListener> {
-		SceneNodeComponent2 component;
+		SceneNodeComponent component;
 
 		@Override
 		public Class<NodeComponentActivityListener> getSubscriptionType() {
@@ -281,7 +281,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	private static class NodeComponentDeactivatedEvent implements Event<NodeComponentActivityListener> {
-		SceneNodeComponent2 component;
+		SceneNodeComponent component;
 
 		@Override
 		public Class<NodeComponentActivityListener> getSubscriptionType() {
@@ -295,7 +295,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	private static class NodeRenamedEvent implements Event<NodeRenamedListener>, Poolable {
-		SceneNode2 node;
+		SceneNode node;
 		String oldName;
 		String newName;
 

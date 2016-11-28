@@ -47,12 +47,12 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
 import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
@@ -94,7 +94,7 @@ import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneActivityListener,
+public class NodeInspectableContainer extends InspectableContainer<SceneNode> implements EditorSceneActivityListener,
 		NodeNameChangeListener, NodeEnabledChangeListener, PreferencesExtension {
 	private Text nameText;
 	private Listener nameChangedlLstener;
@@ -105,11 +105,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	private Label menuButton;
 
 	private Composite componentsComposite;
-	private Map<SceneNodeComponent2, Section> editors = new IdentityHashMap<>();
+	private Map<SceneNodeComponent, Section> editors = new IdentityHashMap<>();
 
 	private PreferencesStore preferencesStore;
 
-	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
+	public NodeInspectableContainer(InspectorView parent, SceneNode target) {
 		super(parent, target);
 
 		int editorId = editorContext.editorId;
@@ -215,21 +215,21 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private void initComponentContainers() {
-		ImmutableArray<SceneNodeComponent2> components = target.components;
+		ImmutableArray<SceneNodeComponent> components = target.components;
 		for (int i = 0; i < components.size(); i++) {
 			createSection(components.get(i));
 		}
 	}
 
-	private Section createSection(SceneNodeComponent2 component) {
+	private Section createSection(SceneNodeComponent component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
-		section.setText(Models.getModel(component).getName());
+		section.setText(MetaTypes.getMetaType(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.addExpansionListener(new ExpansionListener(component));
 
-		BeanEditor<SceneNodeComponent2> editor = createEditor(section, editorContext, component);
+		BeanEditor<SceneNodeComponent> editor = createEditor(section, editorContext, component);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> notifySceneChanged());
 
@@ -248,15 +248,15 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		EventService.post(editorContext.editorId, SceneChangedEvent.instance);
 	}
 
-	private void addComponent(SceneNodeComponent2 component) {
+	private void addComponent(SceneNodeComponent component) {
 		int editorId = editorContext.editorId;
 		AddComponentOperation operation = new AddComponentOperation(editorId, target, component);
 		editorContext.executeOperation(operation, "Error while adding component");
 	}
 
-	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
+	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent> componentType) {
 		MenuItem item = new MenuItem(menu, PUSH);
-		item.setText(Models.getModel(componentType).getName());
+		item.setText(MetaTypes.getMetaType(componentType).getName());
 		item.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
 		item.setEnabled(target.getComponent(ComponentType.getBaseType(componentType), true) == null);
 	}
@@ -283,7 +283,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 	private void addScriptComponent() throws Exception {
 		IJavaProject javaProject = editorContext.javaProject;
-		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent2.class.getName()));
+		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent.class.getName()));
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(getShell());
 		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), monitor, scope, CONSIDER_CLASSES, false);
 		if (dialog.open() != IDialogConstants.OK_ID) {
@@ -297,24 +297,24 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
 			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
-			SceneNodeComponent2 component = Values.cast(constructor.newInstance(new Object[0]));
+			SceneNodeComponent component = Values.cast(constructor.newInstance(new Object[0]));
 			addComponent(component);
 		}
 	}
 
 	@Override
-	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public void nodeAdded(Scene scene, SceneNode parentNode, SceneNode node) {
 	}
 
 	@Override
-	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public void nodeRemoved(Scene scene, SceneNode parentNode, SceneNode node) {
 		if (node == target) {
 			dispose();
 		}
 	}
 
 	@Override
-	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
+	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 		if (node == target) {
 			createSection(component);
 			reflow(true);
@@ -322,7 +322,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	@Override
-	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
+	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 		Section section = editors.remove(component);
 		if (section != null) {
 			section.dispose();
@@ -331,16 +331,16 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	@Override
-	public void nodeIndexChanged(SceneNode2 node, int newIndex) {
+	public void nodeIndexChanged(SceneNode node, int newIndex) {
 	}
 
 	@Override
-	public void componentIndexChanged(SceneNodeComponent2 component, int newIndex) {
+	public void componentIndexChanged(SceneNodeComponent component, int newIndex) {
 		Section section = editors.get(component);
 		if (section == null) {
 			return;
 		}
-		ImmutableArray<SceneNodeComponent2> components = component.getNode().components;
+		ImmutableArray<SceneNodeComponent> components = component.getNode().components;
 		int size = components.size();
 		if (size < 2) {
 			return;
@@ -356,7 +356,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	@Override
-	public void nodeNameChanged(SceneNode2 node) {
+	public void nodeNameChanged(SceneNode node) {
 		if (target == node && !nameText.isDisposed() && !nameText.getText().equals(node.getName())) {
 			nameText.removeListener(SWT.Modify, nameChangedlLstener);
 			nameText.setText(target.getName());
@@ -365,7 +365,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	@Override
-	public void nodeEnabledChanged(SceneNode2 node) {
+	public void nodeEnabledChanged(SceneNode node) {
 		if (target == node && !enabledCheck.isDisposed() && enabledCheck.getSelection() != node.isEnabled()) {
 			enabledCheck.removeListener(SWT.Selection, nodeEnabledListener);
 			enabledCheck.setSelection(node.isEnabled());
@@ -379,9 +379,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private class ExpansionListener extends ExpansionAdapter {
-		final SceneNodeComponent2 component;
+		final SceneNodeComponent component;
 
-		ExpansionListener(SceneNodeComponent2 component) {
+		ExpansionListener(SceneNodeComponent component) {
 			this.component = component;
 		}
 

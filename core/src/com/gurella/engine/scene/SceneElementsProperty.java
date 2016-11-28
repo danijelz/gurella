@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.serialization.Input;
@@ -17,7 +17,7 @@ import com.gurella.engine.utils.Sequence;
 import com.gurella.engine.utils.Values;
 
 //TODO factory method
-abstract class SceneElementsProperty<T extends SceneElement2> implements Property<ImmutableArray<T>> {
+abstract class SceneElementsProperty<T extends SceneElement> implements Property<ImmutableArray<T>> {
 	String name;
 
 	public SceneElementsProperty(String name) {
@@ -70,7 +70,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 
 	@Override
-	public Property<ImmutableArray<T>> newInstance(Model<?> model) {
+	public Property<ImmutableArray<T>> newInstance(MetaType<?> metaType) {
 		return this;
 	}
 
@@ -190,7 +190,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		}
 	}
 
-	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>>, Poolable {
+	static class SceneElements<T extends SceneElement> implements Serializable<SceneElements<T>>, Poolable {
 		final Array<String> removedElements = new Array<String>();
 		final Array<T> elements = new Array<T>();
 
@@ -202,8 +202,8 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 						removedElements.toArray(String.class), true);
 			}
 			if (elements.size > 0) {
-				output.writeObjectProperty("elements", SceneElement2[].class, null,
-						elements.toArray(SceneElement2.class), true);
+				output.writeObjectProperty("elements", SceneElement[].class, null,
+						elements.toArray(SceneElement.class), true);
 			}
 		}
 
@@ -215,7 +215,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 			}
 
 			if (input.hasProperty("elements")) {
-				T[] values = Values.cast(input.readObjectProperty("elements", SceneElement2[].class, null));
+				T[] values = Values.cast(input.readObjectProperty("elements", SceneElement[].class, null));
 				elements.addAll(values);
 			}
 		}

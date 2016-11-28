@@ -13,8 +13,8 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -69,8 +69,8 @@ public class JsonInput implements Input, Poolable {
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> resolvedType, Object template) {
 		push(jsonValue);
-		Model<T> model = Models.getModel(resolvedType);
-		T object = model.deserialize(template, this);
+		MetaType<T> metaType = MetaTypes.getMetaType(resolvedType);
+		T object = metaType.deserialize(template, this);
 		pop();
 		return object;
 	}
@@ -169,7 +169,7 @@ public class JsonInput implements Input, Poolable {
 			} else {
 				push(value);
 			}
-			result = Models.getModel(expectedType).deserialize(template, this);
+			result = MetaTypes.getMetaType(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
 			if (assetReferenceTypeName.equals(value.getString(typePropertyName, null))) {

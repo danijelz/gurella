@@ -14,18 +14,18 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstruct
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.scene.RequiresComponent;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.bullet.shape.CollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
-@ModelDescriptor(descriptiveName = "Collision Object 3D")
+@MetaTypeDescriptor(descriptiveName = "Collision Object 3D")
 @RequiresComponent(TransformComponent.class)
-public class BulletRigidBodyComponent extends SceneNodeComponent2
+public class BulletRigidBodyComponent extends SceneNodeComponent
 		implements NodeComponentActivityListener, Poolable, DebugRenderable {
 
 	static {
@@ -107,14 +107,14 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
+	public void nodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = (TransformComponent) component;
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+	public void nodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 			if (collisionObject != null && collisionObject.isActive()) {

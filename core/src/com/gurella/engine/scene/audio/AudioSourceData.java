@@ -12,7 +12,7 @@ import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
 
 class AudioSourceData implements Poolable {
@@ -43,7 +43,7 @@ class AudioSourceData implements Poolable {
 	}
 
 	void init(AudioSourceComponent initAudioSourceComponent) {
-		SceneNode2 node = initAudioSourceComponent.getNode();
+		SceneNode node = initAudioSourceComponent.getNode();
 		this.audioSourceComponent = initAudioSourceComponent;
 		this.transformComponent = node.getComponent(TransformComponent.class);
 	}

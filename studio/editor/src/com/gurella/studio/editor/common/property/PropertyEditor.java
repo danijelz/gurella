@@ -90,7 +90,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		return context.property;
 	}
 
-	protected Object getModelInstance() {
+	protected Object getBean() {
 		return context.bean;
 	}
 

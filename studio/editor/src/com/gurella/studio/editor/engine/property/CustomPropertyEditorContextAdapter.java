@@ -40,8 +40,8 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 	}
 
 	@Override
-	public Object getModelInstance() {
-		return context.model;
+	public Object getBean() {
+		return context.metaType;
 	}
 
 	@Override
@@ -91,19 +91,18 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 	}
 
 	@Override
-	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance) {
+	public EditorComposite createBeanEditor(EditorComposite parent, Object bean) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
-		BeanEditorContext<Object> modelContext = new BeanEditorContext<>(context, modelInstance);
-		DefaultBeanEditor<Object> modelEditor = new DefaultBeanEditor<>(swtParent, modelContext);
-		return new SwtEditorComposite(modelEditor);
+		BeanEditorContext<Object> beanContext = new BeanEditorContext<>(context, bean);
+		DefaultBeanEditor<Object> beanEditor = new DefaultBeanEditor<>(swtParent, beanContext);
+		return new SwtEditorComposite(beanEditor);
 	}
 
 	@Override
-	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance,
-			EditorLayoutData layoutData) {
-		EditorComposite modelEditor = createModelEditor(parent, modelInstance);
-		modelEditor.setLayoutData(layoutData);
-		return modelEditor;
+	public EditorComposite createBeanEditor(EditorComposite parent, Object bean, EditorLayoutData layoutData) {
+		EditorComposite beanEditor = createBeanEditor(parent, bean);
+		beanEditor.setLayoutData(layoutData);
+		return beanEditor;
 	}
 
 	@Override

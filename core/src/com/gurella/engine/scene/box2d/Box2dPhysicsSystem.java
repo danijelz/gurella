@@ -6,13 +6,13 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 
-public class Box2dPhysicsSystem extends SceneService2
+public class Box2dPhysicsSystem extends SceneService
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
 		Box2D.init();
@@ -67,11 +67,11 @@ public class Box2dPhysicsSystem extends SceneService2
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 	}
 
 	@Override

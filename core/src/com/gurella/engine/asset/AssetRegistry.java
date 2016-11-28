@@ -65,7 +65,7 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplateLoader;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.base.resource.AssetActivityListener;
 import com.gurella.engine.utils.Values;
 
@@ -125,7 +125,7 @@ public class AssetRegistry extends AssetManager {
 		setLoader(Model.class, "obj", new ObjLoader(resolver));
 		setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 		setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
-		setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
+		setLoader(SceneNode.class, "pref", new JsonObjectLoader<SceneNode>(resolver, SceneNode.class));
 		setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
 		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));

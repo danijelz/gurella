@@ -22,8 +22,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.asset.Assets;
-import com.gurella.engine.metatype.DefaultModels.SimpleModel;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -36,9 +36,9 @@ import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 public class PropertyEditorFactory {
 	public static boolean hasReflectionEditor(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneContext.javaProject;
-		Class<?> modelClass = context.bean.getClass();
+		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
+		PropertyEditorData data = PropertyEditorData.get(javaProject, beanType, property);
 		if (data != null && data.isValidFactoryClass()) {
 			return false;
 		}
@@ -125,9 +125,9 @@ public class PropertyEditorFactory {
 	private static <T> PropertyEditor<T> createCustomEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		try {
 			IJavaProject javaProject = context.sceneContext.javaProject;
-			Class<?> modelClass = context.bean.getClass();
+			Class<?> beanType = context.bean.getClass();
 			Property<?> property = context.property;
-			PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
+			PropertyEditorData data = PropertyEditorData.get(javaProject, beanType, property);
 			if (data == null || !data.isValidFactoryClass()) {
 				return null;
 			}
@@ -220,7 +220,7 @@ public class PropertyEditorFactory {
 	}
 
 	private static boolean isSimpleProperty(Class<?> propertyType) {
-		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
+		ImmutableArray<Property<?>> properties = MetaTypes.getMetaType(propertyType).getProperties();
 		Property<?> editableProperty = null;
 		for (Property<?> property : properties) {
 			if (property.isEditable()) {
@@ -232,6 +232,6 @@ public class PropertyEditorFactory {
 			}
 		}
 
-		return editableProperty != null && Models.getModel(editableProperty.getType()) instanceof SimpleModel;
+		return editableProperty != null && MetaTypes.getMetaType(editableProperty.getType()) instanceof SimpleMetaType;
 	}
 }

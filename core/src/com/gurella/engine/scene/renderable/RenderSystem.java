@@ -21,8 +21,8 @@ import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
@@ -39,7 +39,7 @@ import com.gurella.engine.utils.Exceptions;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class RenderSystem extends SceneService2
+public class RenderSystem extends SceneService
 		implements ComponentActivityListener, RenderUpdateListener, CameraOrdinalChangedListener {
 	private GenericBatch batch;
 
@@ -212,7 +212,7 @@ public class RenderSystem extends SceneService2
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.add((CameraComponent<?>) component);
 			cameras.sort(OrdinalComparator.instance);
@@ -226,7 +226,7 @@ public class RenderSystem extends SceneService2
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.removeValue((CameraComponent<?>) component, true);
 		} else if (component instanceof DirectionalLightComponent) {

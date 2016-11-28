@@ -10,17 +10,17 @@ import org.eclipse.core.runtime.Status;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.Prefabs;
-import com.gurella.engine.scene.SceneElement2;
+import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ConvertToPrefabOperation extends AbstractOperation {
 	private final int editorId;
-	private final SceneElement2 element;
-	private final SceneElement2 prefab;
+	private final SceneElement element;
+	private final SceneElement prefab;
 	private final String fileName;
 
-	public ConvertToPrefabOperation(int editorId, SceneElement2 element, SceneElement2 prefab) {
+	public ConvertToPrefabOperation(int editorId, SceneElement element, SceneElement prefab) {
 		super("Convert to prefab");
 		this.editorId = editorId;
 		this.element = element;

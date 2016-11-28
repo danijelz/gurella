@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
-public @interface ModelDescriptor {
+public @interface MetaTypeDescriptor {
 	// TODO rename
 	@SuppressWarnings("rawtypes")
-	Class<? extends Model> model() default ReflectionModel.class;
+	Class<? extends MetaType> metaType() default ReflectionMetaType.class;
 
 	String descriptiveName() default ""; //TODO move to @EditorBeanDescriptor
 

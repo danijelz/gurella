@@ -2,7 +2,7 @@ package com.gurella.engine.managedobject;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
@@ -58,7 +58,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	}
 
 	@Override
-	public Property<PrefabReference> newInstance(Model<?> model) {
+	public Property<PrefabReference> newInstance(MetaType<?> owner) {
 		return this;
 	}
 

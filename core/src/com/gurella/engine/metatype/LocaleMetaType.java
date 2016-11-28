@@ -7,10 +7,10 @@ import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class LocaleModel implements Model<Locale> {
-	public static final LocaleModel instance = new LocaleModel();
+public class LocaleMetaType implements MetaType<Locale> {
+	public static final LocaleMetaType instance = new LocaleMetaType();
 
-	private LocaleModel() {
+	private LocaleMetaType() {
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
@@ -24,7 +24,7 @@ public class RotateOperation extends TransformOperation {
 
 	public RotateOperation(int editorId, TransformComponent component) {
 		super("Rotate", editorId, component);
-		property = Models.getModel(transform).getProperty("rotation");
+		property = MetaTypes.getMetaType(transform).getProperty("rotation");
 		component.getEulerRotation(initial);
 	}
 

@@ -10,8 +10,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.application.SceneTransition;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.scene.renderable.Layer;
@@ -21,7 +21,7 @@ import com.gurella.engine.scene.tag.Tag;
 import com.gurella.engine.utils.ImmutableArray;
 
 @SuppressWarnings("unused")
-public abstract class BehaviourComponent extends SceneNodeComponent2 {
+public abstract class BehaviourComponent extends SceneNodeComponent {
 	// TODO onJointBreak
 
 	// TODO box2d physics events
@@ -49,11 +49,11 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void removeInputProcessor(InputProcessor inputProcessor) {
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(Class<T> componnetType) {
+	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
 	}
 
-	public Array<? super SceneNodeComponent2> getComponents(Array<? super SceneNodeComponent2> out) {
+	public Array<? super SceneNodeComponent> getComponents(Array<? super SceneNodeComponent> out) {
 		// Values<SceneNodeComponent2> components = getNode().getComponents();
 		// while (components.hasNext) {
 		// out.add(components.next());
@@ -61,7 +61,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 		return out;
 	}
 
-	public <T extends SceneNodeComponent2> T getComponentInChildren(Class<T> componetType) {
+	public <T extends SceneNodeComponent> T getComponentInChildren(Class<T> componetType) {
 		// ImmutableArray<SceneNode2> children = getNode().children;
 		// for (int i = 0; i < children.size(); i++) {
 		// T component = children.get(i).getComponent(componetType);
@@ -72,25 +72,25 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent2> Array<T> getComponentsInChildren(Class<T> componnetType, Array<T> out) {
+	public <T extends SceneNodeComponent> Array<T> getComponentsInChildren(Class<T> componnetType, Array<T> out) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent2> T getComponentInParent(Class<T> componnetType) {
+	public <T extends SceneNodeComponent> T getComponentInParent(Class<T> componnetType) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent2> Array<T> getComponentsInParent(Class<T> componnetType, Array<T> out) {
+	public <T extends SceneNodeComponent> Array<T> getComponentsInParent(Class<T> componnetType, Array<T> out) {
 		return null;
 	}
 
-	public Array<SceneNodeComponent2> getSceneComponents(Class<? extends SceneNodeComponent2> componentClass,
-			Comparator<SceneNodeComponent2> comparator) {
+	public Array<SceneNodeComponent> getSceneComponents(Class<? extends SceneNodeComponent> componentClass,
+			Comparator<SceneNodeComponent> comparator) {
 		return null;
 	}
 
-	public SceneNode2 getParentNode() {
-		SceneNode2 node = getNode();
+	public SceneNode getParentNode() {
+		SceneNode node = getNode();
 		return null;// node == null ? null : node.getParent();
 	}
 
@@ -124,17 +124,17 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	}
 
-	public Array<SceneNode2> getNodes(SceneNodeFamily nodeFamily) {
+	public Array<SceneNode> getNodes(SceneNodeFamily nodeFamily) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily componentFamily) {
+	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily componentFamily) {
+	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily componentFamily) {
+	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily componentFamily) {
 		return null;
 	}
 

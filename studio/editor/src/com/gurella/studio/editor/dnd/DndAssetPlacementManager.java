@@ -30,7 +30,7 @@ import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
@@ -270,7 +270,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			event.detail = DND.DROP_NONE;
 			if (model != null) {
 				updateModelInstance();
-				SceneNode2 node = scene.newNode("Model");
+				SceneNode node = scene.newNode("Model");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				transformComponent.setTranslation(position);
 				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
@@ -279,7 +279,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
 			} else {
 				updateSprite();
-				SceneNode2 node = scene.newNode("Sprite");
+				SceneNode node = scene.newNode("Sprite");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
 				Texture texture = AssetService.load(getAssetPath(), Texture.class);

@@ -39,22 +39,22 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
-	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
+	transient final OrderedValuesIntMap<SceneSystem> _systems = new OrderedValuesIntMap<SceneSystem>();
 	@PropertyDescriptor(property = SceneSystemsProperty.class)
-	public final ImmutableArray<SceneSystem2> systems = _systems.orderedValues();
-	transient final OrderedIdentitySet<SceneSystem2> _activeSystems = new OrderedIdentitySet<SceneSystem2>();
-	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
+	public final ImmutableArray<SceneSystem> systems = _systems.orderedValues();
+	transient final OrderedIdentitySet<SceneSystem> _activeSystems = new OrderedIdentitySet<SceneSystem>();
+	public transient final ImmutableArray<SceneSystem> activeSystems = _activeSystems.orderedItems();
 
-	transient final OrderedIdentitySet<SceneNode2> _nodes = new OrderedIdentitySet<SceneNode2>();
+	transient final OrderedIdentitySet<SceneNode> _nodes = new OrderedIdentitySet<SceneNode>();
 	@PropertyDescriptor(property = SceneNodesProperty.class)
-	public final ImmutableArray<SceneNode2> nodes = _nodes.orderedItems();
-	transient final OrderedIdentitySet<SceneNode2> _activeNodes = new OrderedIdentitySet<SceneNode2>();
-	public transient final ImmutableArray<SceneNode2> activeNodes = _activeNodes.orderedItems();
+	public final ImmutableArray<SceneNode> nodes = _nodes.orderedItems();
+	transient final OrderedIdentitySet<SceneNode> _activeNodes = new OrderedIdentitySet<SceneNode>();
+	public transient final ImmutableArray<SceneNode> activeNodes = _activeNodes.orderedItems();
 
-	transient final OrderedIdentitySet<SceneNodeComponent2> _components = new OrderedIdentitySet<SceneNodeComponent2>();
-	public transient final ImmutableArray<SceneNodeComponent2> components = _components.orderedItems();
-	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
-	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
+	transient final OrderedIdentitySet<SceneNodeComponent> _components = new OrderedIdentitySet<SceneNodeComponent>();
+	public transient final ImmutableArray<SceneNodeComponent> components = _components.orderedItems();
+	transient final OrderedIdentitySet<SceneNodeComponent> _activeComponents = new OrderedIdentitySet<SceneNodeComponent>();
+	public transient final ImmutableArray<SceneNodeComponent> activeComponents = _activeComponents.orderedItems();
 
 	public static Scene getCurrent() {
 		return current;
@@ -116,13 +116,13 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 
 	@Override
 	protected final void childAdded(ManagedObject child) {
-		if (child instanceof SceneNode2) {
-			SceneNode2 node = (SceneNode2) child;
+		if (child instanceof SceneNode) {
+			SceneNode node = (SceneNode) child;
 			node.scene = this;
 			updateNodeChildren(node);
 			_nodes.add(node);
 		} else {
-			SceneSystem2 system = (SceneSystem2) child;
+			SceneSystem system = (SceneSystem) child;
 			int baseSystemType = system.baseSystemType;
 			if (_systems.containsKey(baseSystemType)) {
 				throw new IllegalArgumentException("Scene already contains system: " + system.getClass().getName());
@@ -132,36 +132,36 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		}
 	}
 
-	private void updateNodeChildren(SceneNode2 node) {
+	private void updateNodeChildren(SceneNode node) {
 		ImmutableArray<ManagedObject> nodeChildren = node.children;
 		for (int i = 0, n = nodeChildren.size(); i < n; i++) {
-			SceneElement2 sceneElement = (SceneElement2) nodeChildren.get(i);
+			SceneElement sceneElement = (SceneElement) nodeChildren.get(i);
 			sceneElement.scene = this;
-			if (sceneElement instanceof SceneNode2) {
-				updateNodeChildren((SceneNode2) sceneElement);
+			if (sceneElement instanceof SceneNode) {
+				updateNodeChildren((SceneNode) sceneElement);
 			}
 		}
 	}
 
 	@Override
 	protected void childRemoved(ManagedObject child) {
-		if (child instanceof SceneNode2) {
-			SceneNode2 node = (SceneNode2) child;
+		if (child instanceof SceneNode) {
+			SceneNode node = (SceneNode) child;
 			node.scene = null;
 			_nodes.remove(node);
 		} else {
-			SceneSystem2 system = (SceneSystem2) child;
+			SceneSystem system = (SceneSystem) child;
 			system.scene = null;
 			_systems.remove(system.baseSystemType);
 		}
 	}
 
-	public void addSystem(SceneSystem2 system) {
+	public void addSystem(SceneSystem system) {
 		system.setParent(this);
 	}
 
-	public void removeSystem(SceneSystem2 system) {
-		SceneSystem2 value = _systems.get(system.baseSystemType);
+	public void removeSystem(SceneSystem system) {
+		SceneSystem value = _systems.get(system.baseSystemType);
 		if (value != system) {
 			return;
 		}
@@ -169,9 +169,9 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		system.destroy();
 	}
 
-	public <T extends SceneSystem2> void removeSystem(Class<T> type) {
+	public <T extends SceneSystem> void removeSystem(Class<T> type) {
 		int typeId = SystemType.findType(type);
-		SceneSystem2 system = _systems.get(SystemType.findBaseType(typeId));
+		SceneSystem system = _systems.get(SystemType.findBaseType(typeId));
 		if (system == null || !SystemType.isSubtype(typeId, system.systemType)) {
 			return;
 		}
@@ -180,7 +180,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	public void removeSystem(int systemType) {
-		SceneSystem2 system = _systems.get(SystemType.findBaseType(systemType));
+		SceneSystem system = _systems.get(SystemType.findBaseType(systemType));
 		if (system == null || !SystemType.isSubtype(systemType, system.systemType)) {
 			return;
 		}
@@ -188,48 +188,48 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		system.destroy();
 	}
 
-	public <T extends SceneSystem2> T getSystem(int typeId) {
-		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
+	public <T extends SceneSystem> T getSystem(int typeId) {
+		SceneSystem value = _systems.get(SystemType.findBaseType(typeId));
 		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneSystem2> T getSystem(Class<T> type) {
+	public <T extends SceneSystem> T getSystem(Class<T> type) {
 		int typeId = SystemType.findType(type);
-		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
+		SceneSystem value = _systems.get(SystemType.findBaseType(typeId));
 		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneSystem2 & Poolable> T newSystem(Class<T> systemType) {
+	public <T extends SceneSystem & Poolable> T newSystem(Class<T> systemType) {
 		T system = PoolService.obtain(systemType);
 		system.setParent(this);
 		return system;
 	}
 
 	@Override
-	public ImmutableArray<SceneNode2> getNodes() {
+	public ImmutableArray<SceneNode> getNodes() {
 		return nodes;
 	}
 
-	public void addNode(SceneNode2 node) {
+	public void addNode(SceneNode node) {
 		node.setParent(this);
 	}
 
-	public void removeNode(SceneNode2 node) {
+	public void removeNode(SceneNode node) {
 		if (_nodes.contains(node)) {
 			node.destroy();
 		}
 	}
 
-	public SceneNode2 newNode(String name) {
-		SceneNode2 node = PoolService.obtain(SceneNode2.class);
+	public SceneNode newNode(String name) {
+		SceneNode node = PoolService.obtain(SceneNode.class);
 		node.name = name;
 		node.setParent(this);
 		return node;
 	}
 
-	public SceneNode2 getNode(String name) {
+	public SceneNode getNode(String name) {
 		for (int i = 0; i < nodes.size(); i++) {
-			SceneNode2 node = nodes.get(i);
+			SceneNode node = nodes.get(i);
 			if (Values.isEqual(name, node.name)) {
 				return node;
 			}
@@ -237,9 +237,9 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		return null;
 	}
 
-	public Array<SceneNode2> getNodes(String name, Array<SceneNode2> out) {
+	public Array<SceneNode> getNodes(String name, Array<SceneNode> out) {
 		for (int i = 0; i < nodes.size(); i++) {
-			SceneNode2 node = nodes.get(i);
+			SceneNode node = nodes.get(i);
 			if (Values.isEqual(name, node.name)) {
 				out.add(node);
 			}
@@ -248,20 +248,20 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	@TransientProperty
-	public int getNodeIndex(SceneNode2 child) {
+	public int getNodeIndex(SceneNode child) {
 		return _nodes.indexOf(child);
 	}
 
-	public void setNodeIndex(int newIndex, SceneNode2 child) {
+	public void setNodeIndex(int newIndex, SceneNode child) {
 		_nodes.setIndex(newIndex, child);
 	}
 
 	public String getDiagnostics() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Systems [");
-		ImmutableArray<SceneSystem2> orderedSystems = _systems.orderedValues();
+		ImmutableArray<SceneSystem> orderedSystems = _systems.orderedValues();
 		for (int i = 0; i < orderedSystems.size(); i++) {
-			SceneSystem2 system = orderedSystems.get(i);
+			SceneSystem system = orderedSystems.get(i);
 			builder.append("\n\t");
 			if (!system.isActive()) {
 				builder.append("*");
@@ -271,7 +271,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		builder.append("]\n");
 		builder.append("Nodes [");
 		for (int i = 0; i < nodes.size(); i++) {
-			SceneNode2 node = nodes.get(i);
+			SceneNode node = nodes.get(i);
 			builder.append("\n");
 			builder.append(node.getDiagnostics());
 		}

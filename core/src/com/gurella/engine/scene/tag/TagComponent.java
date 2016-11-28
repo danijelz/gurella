@@ -2,19 +2,19 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.editor.bean.BeanEditorDescriptor;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.Values;
 
-@ModelDescriptor(descriptiveName = "Tags")
-@ModelEditorDescriptor(factory = TagComponentEditorFactory.class)
-public final class TagComponent extends SceneNodeComponent2 implements Poolable {
+@MetaTypeDescriptor(descriptiveName = "Tags")
+@BeanEditorDescriptor(factory = TagComponentEditorFactory.class)
+public final class TagComponent extends SceneNodeComponent implements Poolable {
 	final transient Bits _tags = new Bits();
 	public final transient ImmutableBits tagBits = new ImmutableBits(_tags);
 
@@ -97,7 +97,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		_tags.clear();
 	}
 
-	public static void addTag(SceneNode2 node, Tag tag) {
+	public static void addTag(SceneNode node, Tag tag) {
 		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component == null) {
 			component = node.newComponent(TagComponent.class);
@@ -105,7 +105,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		component.addTag(tag);
 	}
 
-	public static void addTags(SceneNode2 node, Tag... tags) {
+	public static void addTags(SceneNode node, Tag... tags) {
 		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component == null) {
 			component = node.newComponent(TagComponent.class);
@@ -113,14 +113,14 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		component.addTags(tags);
 	}
 
-	public static void removeTag(SceneNode2 node, Tag tag) {
+	public static void removeTag(SceneNode node, Tag tag) {
 		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component != null) {
 			component.removeTag(tag);
 		}
 	}
 
-	public static void removeTags(SceneNode2 node, Tag... tags) {
+	public static void removeTags(SceneNode node, Tag... tags) {
 		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component != null) {
 			component.removeTags(tags);

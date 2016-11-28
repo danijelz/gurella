@@ -13,11 +13,11 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.scene.renderable.RenderableComponent3d;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-@ModelDescriptor(descriptiveName = "Terrain")
+@MetaTypeDescriptor(descriptiveName = "Terrain")
 public class TerrainComponent extends RenderableComponent3d {
 	public static final int DEFAULT_SIZE = 1600;
 	public static final int DEFAULT_VERTEX_RESOLUTION = 180;

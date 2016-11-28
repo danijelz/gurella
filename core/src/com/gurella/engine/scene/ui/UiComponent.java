@@ -1,10 +1,10 @@
 package com.gurella.engine.scene.ui;
 
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 
 @BaseSceneElement
-public class UiComponent extends SceneNodeComponent2 {
+public class UiComponent extends SceneNodeComponent {
 	public int x;
 	public int y;
 	public int w;

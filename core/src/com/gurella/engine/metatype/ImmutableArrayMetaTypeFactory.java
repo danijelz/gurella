@@ -7,30 +7,30 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 
-public class ImmutableArrayModelFactory implements ModelFactory {
-	public static final ImmutableArrayModelFactory instance = new ImmutableArrayModelFactory();
+public class ImmutableArrayMetaTypeFactory implements MetaTypeFactory {
+	public static final ImmutableArrayMetaTypeFactory instance = new ImmutableArrayMetaTypeFactory();
 
-	private ImmutableArrayModelFactory() {
+	private ImmutableArrayMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(ImmutableArray.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			ImmutableArrayModel raw = new ImmutableArrayModel(type);
+			ImmutableArrayMetaType raw = new ImmutableArrayMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class ImmutableArrayModel<T extends ImmutableArray<?>> implements Model<T> {
+	public static class ImmutableArrayMetaType<T extends ImmutableArray<?>> implements MetaType<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
-		public ImmutableArrayModel(Class<T> type) {
+		public ImmutableArrayMetaType(Class<T> type) {
 			this.type = type;
 			properties = new ArrayExt<Property<?>>();
 			properties.add(new ArrayItemsProperty());
@@ -91,7 +91,7 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Model<?> model) {
+		public Property<Object[]> newInstance(MetaType<?> metaType) {
 			return this;
 		}
 

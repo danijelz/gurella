@@ -6,12 +6,12 @@ import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.TransientProperty;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
-public abstract class SceneSystem2 extends SceneElement2 {
+public abstract class SceneSystem extends SceneElement {
 	public final int baseSystemType;
 	public final int systemType;
 
-	public SceneSystem2() {
-		Class<? extends SceneSystem2> type = getClass();
+	public SceneSystem() {
+		Class<? extends SceneSystem> type = getClass();
 		baseSystemType = SystemType.getBaseType(type);
 		systemType = SystemType.findType(type);
 	}

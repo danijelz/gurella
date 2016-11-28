@@ -2,8 +2,8 @@ package com.gurella.engine.scene.velocity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
@@ -11,7 +11,7 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdateListener {
+public class LinearVelocitySystem extends SceneSystem implements PreRenderUpdateListener {
 	@SuppressWarnings("unchecked")
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(TransformComponent.class, LinearVelocityComponent.class).build());
@@ -35,9 +35,9 @@ public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdat
 	@Override
 	public void onPreRenderUpdate() {
 		float deltaTime = Gdx.graphics.getDeltaTime();
-		ImmutableArray<SceneNode2> nodes = nodeManager.getNodes(family);
+		ImmutableArray<SceneNode> nodes = nodeManager.getNodes(family);
 		for (int i = 0; i < nodes.size(); i++) {
-			SceneNode2 node = nodes.get(i);
+			SceneNode node = nodes.get(i);
 			LinearVelocityComponent linearVelocityComponent = node.getComponent(LinearVelocityComponent.class);
 			node.getComponent(TransformComponent.class).getTranslation(tempTranslate);
 

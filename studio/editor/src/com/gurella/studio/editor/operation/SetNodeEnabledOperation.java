@@ -8,17 +8,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class SetNodeEnabledOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNode2 node;
+	final SceneNode node;
 	final boolean oldValue;
 	final boolean newValue;
 
-	public SetNodeEnabledOperation(int editorId, SceneNode2 node, boolean oldValue, boolean newValue) {
+	public SetNodeEnabledOperation(int editorId, SceneNode node, boolean oldValue, boolean newValue) {
 		super("Enabled");
 		this.editorId = editorId;
 		this.node = node;

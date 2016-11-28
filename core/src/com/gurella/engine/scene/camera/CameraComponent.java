@@ -19,7 +19,7 @@ import com.gurella.engine.metatype.ValueRange.FloatRange;
 import com.gurella.engine.metatype.ValueRange.IntegerRange;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.camera.debug.CameraDebugRenderer;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.renderable.Layer;
@@ -31,7 +31,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
-public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
+public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
 		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener,
 		DebugRenderable, Poolable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
@@ -108,7 +108,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
+	public void nodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 			updateTransform();
@@ -116,7 +116,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+	public void nodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = null;
 			updateDefaultTransform();

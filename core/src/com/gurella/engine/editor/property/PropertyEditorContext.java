@@ -9,7 +9,7 @@ import com.gurella.engine.metatype.Property;
 public interface PropertyEditorContext<P> {
 	Property<P> getProperty();
 
-	Object getModelInstance();
+	Object getBean();
 
 	P getPropertyValue();
 
@@ -29,7 +29,7 @@ public interface PropertyEditorContext<P> {
 
 	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData);
 	
-	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance);
+	EditorComposite createBeanEditor(EditorComposite parent, Object bean);
 
-	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance, EditorLayoutData layoutData);
+	EditorComposite createBeanEditor(EditorComposite parent, Object bean, EditorLayoutData layoutData);
 }

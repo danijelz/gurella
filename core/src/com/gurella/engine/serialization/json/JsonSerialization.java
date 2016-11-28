@@ -5,8 +5,8 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.metatype.Models;
-import com.gurella.engine.metatype.DefaultModels.SimpleModel;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
@@ -56,7 +56,7 @@ public class JsonSerialization {
 	}
 
 	static boolean isSimpleType(Class<?> type) {
-		return type.isPrimitive() || Models.getModel(type) instanceof SimpleModel;
+		return type.isPrimitive() || MetaTypes.getMetaType(type) instanceof SimpleMetaType;
 	}
 
 	static Class<?> resolveOutputType(Class<?> type) {

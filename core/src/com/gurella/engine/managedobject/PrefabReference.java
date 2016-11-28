@@ -2,12 +2,12 @@ package com.gurella.engine.managedobject;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.serialization.Reference;
 import com.gurella.engine.utils.Uuid;
 
-@ModelDescriptor(model = PrefabReferenceModel.class)
+@MetaTypeDescriptor(metaType = PrefabReferenceMetaType.class)
 public final class PrefabReference implements Reference, Poolable {
 	String fileName;
 	String uuid;

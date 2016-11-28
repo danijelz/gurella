@@ -9,13 +9,13 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO EntitySubscription -> ComponentSubscription
-public class ComponentManager extends SceneService2 implements ComponentActivityListener {
+public class ComponentManager extends SceneService implements ComponentActivityListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	public ComponentManager(Scene scene) {
@@ -31,14 +31,14 @@ public class ComponentManager extends SceneService2 implements ComponentActivity
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
 			familyComponents.handle(component);
 		}
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		for (Iterator<Entry<FamilyComponents<?>>> iter = families.iterator(); iter.hasNext();) {
 			Entry<FamilyComponents<?>> next = iter.next();
 			FamilyComponents<?> familyComponents = next.value;
@@ -50,13 +50,13 @@ public class ComponentManager extends SceneService2 implements ComponentActivity
 		}
 	}
 
-	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily family) {
+	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.get(family.id);
 		return familyComponents == null ? ImmutableArray.<T> empty() : familyComponents.immutableComponents;
 	}
 
-	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily family) {
+	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily family) {
 		if (families.containsKey(family.id)) {
 			return;
 		}
@@ -66,13 +66,13 @@ public class ComponentManager extends SceneService2 implements ComponentActivity
 		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
-		ImmutableArray<SceneNodeComponent2> components = scene.components;
+		ImmutableArray<SceneNodeComponent> components = scene.components;
 		for (int i = 0; i < components.size(); i++) {
 			familyComponents.handle(components.get(i));
 		}
 	}
 
-	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily family) {
+	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
 		if (familyComponents != null) {
@@ -84,24 +84,24 @@ public class ComponentManager extends SceneService2 implements ComponentActivity
 		private static int INDEXER = 0;
 
 		public final int id;
-		public final Predicate<? super SceneNodeComponent2> predicate;
+		public final Predicate<? super SceneNodeComponent> predicate;
 
-		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate) {
+		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate) {
 			id = INDEXER++;
 			this.predicate = predicate;
 		}
 
-		public static ComponentFamily fromComponentType(Class<? extends SceneNodeComponent2> type) {
+		public static ComponentFamily fromComponentType(Class<? extends SceneNodeComponent> type) {
 			return new ComponentFamily(new ComponentTypePredicate(type));
 		}
 	}
 
-	private static class FamilyComponents<T extends SceneNodeComponent2> implements Poolable {
+	private static class FamilyComponents<T extends SceneNodeComponent> implements Poolable {
 		private ComponentFamily family;
 		private final Array<T> components = new Array<T>();
 		private final ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
-		private void handle(SceneNodeComponent2 component) {
+		private void handle(SceneNodeComponent component) {
 			if (family.predicate.evaluate(component)) {
 				@SuppressWarnings("unchecked")
 				T casted = (T) component;
@@ -109,7 +109,7 @@ public class ComponentManager extends SceneService2 implements ComponentActivity
 			}
 		}
 
-		private void remove(SceneNodeComponent2 component) {
+		private void remove(SceneNodeComponent component) {
 			@SuppressWarnings("unchecked")
 			T casted = (T) component;
 			components.removeValue(casted, true);

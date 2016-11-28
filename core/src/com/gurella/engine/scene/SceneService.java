@@ -4,10 +4,10 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
-public class SceneService2 {
+public class SceneService {
 	public final Scene scene;
 
-	public SceneService2(Scene scene) {
+	public SceneService(Scene scene) {
 		this.scene = scene;
 	}
 

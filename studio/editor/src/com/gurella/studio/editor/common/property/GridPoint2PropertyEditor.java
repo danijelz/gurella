@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.GridPoint2;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -46,15 +46,15 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			Model<GridPoint2> model = Models.getModel(GridPoint2.class);
-			createEditorField(model, value, "x");
-			createEditorField(model, value, "y");
+			MetaType<GridPoint2> metaType = MetaTypes.getMetaType(GridPoint2.class);
+			createEditorField(metaType, value, "x");
+			createEditorField(metaType, value, "y");
 			UiUtils.paintBordersFor(content);
 		}
 	}
 
-	private void createEditorField(final Model<GridPoint2> model, GridPoint2 value, String propertyName) {
-		Property<Integer> childProperty = model.getProperty(propertyName);
+	private void createEditorField(final MetaType<GridPoint2> metaType, GridPoint2 value, String propertyName) {
+		Property<Integer> childProperty = metaType.getProperty(propertyName);
 		Text text = UiUtils.createIntegerWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 50;

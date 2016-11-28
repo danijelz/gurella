@@ -29,11 +29,11 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneElement2;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneElement;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
 import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
@@ -80,7 +80,7 @@ class GraphMenu {
 		this.view = view;
 	}
 
-	void show(SceneElement2 selection) {
+	void show(SceneElement selection) {
 		Menu menu = new Menu(view.getShell(), POP_UP);
 		new MenuPopulator(view, selection).populate(menu);
 		menu.setLocation(view.getDisplay().getCursorLocation());
@@ -92,9 +92,9 @@ class GraphMenu {
 		private final Clipboard clipboard;
 		private final SceneEditorContext context;
 		private final int editorId;
-		private final SceneElement2 selection;
+		private final SceneElement selection;
 
-		MenuPopulator(SceneGraphView view, SceneElement2 selection) {
+		MenuPopulator(SceneGraphView view, SceneElement selection) {
 			this.view = view;
 			this.clipboard = view.clipboard;
 			this.context = view.editorContext;
@@ -104,10 +104,10 @@ class GraphMenu {
 
 		private void populate(Menu menu) {
 			boolean selected = selection != null;
-			boolean nodeSelected = selection instanceof SceneNode2;
+			boolean nodeSelected = selection instanceof SceneNode;
 			final LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
 			boolean elementInClipboard = clipboard.getContents(transfer) instanceof ElementSelection;
-			SceneNode2 node = selection instanceof SceneNode2 ? (SceneNode2) selection : null;
+			SceneNode node = selection instanceof SceneNode ? (SceneNode) selection : null;
 
 			MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Cut");
@@ -170,7 +170,7 @@ class GraphMenu {
 
 		private void convertToRoot() {
 			int editorId = context.editorId;
-			SceneNode2 node = (SceneNode2) selection;
+			SceneNode node = (SceneNode) selection;
 			int newIndex = node.getScene().nodes.size();
 			String errorMsg = "Error while repositioning node";
 			context.executeOperation(new ReparentNodeOperation(editorId, node, null, newIndex), errorMsg);
@@ -181,7 +181,7 @@ class GraphMenu {
 				IProject project = context.project;
 				IPath projectPath = project.getLocation();
 				IPath assetsRootPath = projectPath.append("assets");
-				SceneNode2 node = (SceneNode2) selection;
+				SceneNode node = (SceneNode) selection;
 				IFolder folder = project.getFolder("assets");
 				String fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
 				if (fileName == null) {
@@ -189,9 +189,9 @@ class GraphMenu {
 				}
 
 				IPath projectAssetPath = new Path(fileName).makeRelativeTo(projectPath);
-				SceneNode2 prefab = CopyContext.copyObject(node);
+				SceneNode prefab = CopyContext.copyObject(node);
 				JsonOutput output = new JsonOutput();
-				SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get())
+				SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get())
 						.orElse(null);
 				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
@@ -298,16 +298,16 @@ class GraphMenu {
 			return new MenuItem(menu, SEPARATOR);
 		}
 
-		private void addNewComponentMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
+		private void addNewComponentMenuItem(Menu menu, final Class<? extends SceneNodeComponent> componentType) {
 			MenuItem item = new MenuItem(menu, PUSH);
-			item.setText(Models.getModel(componentType).getName());
+			item.setText(MetaTypes.getMetaType(componentType).getName());
 			item.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-			item.setEnabled(selection instanceof SceneNode2);
+			item.setEnabled(selection instanceof SceneNode);
 		}
 
 		private void addShapeNode(String name, ShapeModel shapeModel) {
 			Scene scene = context.getScene();
-			SceneNode2 node = scene.newNode(name);
+			SceneNode node = scene.newNode(name);
 			node.newComponent(TransformComponent.class);
 			ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
 			shapeComponent.setShape(shapeModel);
@@ -315,13 +315,13 @@ class GraphMenu {
 			context.executeOperation(operation, "Error while adding node");
 		}
 
-		private void addComponent(SceneNodeComponent2 component) {
-			SceneNode2 node = (SceneNode2) selection;
+		private void addComponent(SceneNodeComponent component) {
+			SceneNode node = (SceneNode) selection;
 			AddComponentOperation operation = new AddComponentOperation(editorId, node, component);
 			context.executeOperation(operation, "Error while adding component");
 		}
 
-		private void addNode(SceneNode2 parent) {
+		private void addNode(SceneNode parent) {
 			InputDialog dlg = new InputDialog(view.getShell(), "Add Node", "Enter node name", "Node",
 					i -> i.length() < 3 ? "Too short" : null);
 
@@ -329,7 +329,7 @@ class GraphMenu {
 				return;
 			}
 
-			SceneNode2 node = new SceneNode2();
+			SceneNode node = new SceneNode();
 			node.setName(dlg.getValue());
 			node.newComponent(TransformComponent.class);
 

@@ -30,8 +30,8 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
@@ -78,21 +78,21 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Class<Object> componentType = getComponentType();
-			Model<Object> itemModel = Models.getModel(componentType);
+			MetaType<Object> itemMetaType = MetaTypes.getMetaType(componentType);
 			Iterator<T> iter = values.iterator();
-			IntStream.range(0, values.size()).forEach(i -> addItemEditor(itemModel, iter.next(), i));
+			IntStream.range(0, values.size()).forEach(i -> addItemEditor(itemMetaType, iter.next(), i));
 		}
 	}
 
-	private int addItemEditor(Model<Object> itemModel, T item, int index) {
+	private int addItemEditor(MetaType<Object> itemMetaType, T item, int index) {
 		Label label = getToolkit().createLabel(content, Integer.toString(index) + ".");
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 		label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		Property<Object> property = Values.cast(getProperty());
-		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
-		Class<Object> type = item == null ? itemModel.getType() : Values.cast(item.getClass());
+		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemMetaType, item, property, index);
+		Class<Object> type = item == null ? itemMetaType.getType() : Values.cast(item.getClass());
 		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		editor.getBody().setLayoutData(layoutData);
@@ -165,7 +165,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		Collection<T> oldValue = getValue();
 		PropertyEditor<?> itemEditor = itemEditors.get(i);
 		Collection<T> newValue = CopyContext.copyObject(oldValue);
-		newValue.remove(itemEditor.getModelInstance());
+		newValue.remove(itemEditor.getBean());
 		setValue(newValue);
 		rebuildUi();
 	}
@@ -258,9 +258,9 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		private Collection<P> collection;
 		private int index;
 
-		public ItemContext(PropertyEditorContext<?, ?> parent, Model<M> model, M modelInstance, Property<P> property,
+		public ItemContext(PropertyEditorContext<?, ?> parent, MetaType<M> metaType, M bean, Property<P> property,
 				int index) {
-			super(parent, model, modelInstance, property);
+			super(parent, metaType, bean, property);
 			this.index = index;
 			collection = Values.cast(parent.getValue());
 			valueGetter = this::getItemValue;

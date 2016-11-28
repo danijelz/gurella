@@ -30,7 +30,7 @@ import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -201,12 +201,12 @@ class AssetsMenu {
 				return;
 			}
 
-			SceneNode2 node = new SceneNode2();
+			SceneNode node = new SceneNode();
 			node.setName(name);
 			node.newComponent(TransformComponent.class);
 
 			IFile file = parent.getFile(name);
-			String serialized = serialize(file.getName(), SceneNode2.class, node);
+			String serialized = serialize(file.getName(), SceneNode.class, node);
 			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
 					.peek(is -> file.create(is, true, new NullProgressMonitor()))
 					.onFailure(e -> showError(e, "Error creating prefab."));
@@ -251,7 +251,7 @@ class AssetsMenu {
 			}
 
 			Scene scene = new Scene();
-			SceneNode2 node = scene.newNode("Main camera");
+			SceneNode node = scene.newNode("Main camera");
 			node.newComponent(TransformComponent.class);
 			node.newComponent(PerspectiveCameraComponent.class);
 			node = scene.newNode("Directional light");

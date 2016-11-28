@@ -19,7 +19,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.debug.DebugRenderable;
@@ -114,7 +114,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.add((CameraComponent<?>) component);
 			cameras.sort(OrdinalComparator.instance);
@@ -129,7 +129,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		}
 	}
 
-	private void addDebugRenderable(SceneNodeComponent2 component) {
+	private void addDebugRenderable(SceneNodeComponent component) {
 		int nodeId = component.getNodeId();
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
 		if (renderables == null) {
@@ -140,7 +140,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.removeValue((CameraComponent<?>) component, true);
 		} else if (component instanceof DebugRenderable) {
@@ -154,7 +154,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		}
 	}
 
-	private void removeDebugRenderable(SceneNodeComponent2 component) {
+	private void removeDebugRenderable(SceneNodeComponent component) {
 		int nodeId = component.getNodeId();
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
 		if (renderables == null) {
@@ -211,7 +211,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		tempSpatials.sort(LayerOrdinalComparator.instance);
 
-		SceneNodeComponent2 focusedComponent = focusData.focusedComponent;
+		SceneNodeComponent focusedComponent = focusData.focusedComponent;
 		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
 		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 
@@ -233,7 +233,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		batch.end();
 	}
 
-	private void debugRender(DebugRenderContext context, Spatial spatial, SceneNodeComponent2 focusedComponent) {
+	private void debugRender(DebugRenderContext context, Spatial spatial, SceneNodeComponent focusedComponent) {
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
 		if (renderables == null) {
 			return;

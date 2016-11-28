@@ -2,35 +2,35 @@ package com.gurella.engine.metatype;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.metatype.DefaultModels.AbstractSimpleModel;
+import com.gurella.engine.metatype.DefaultMetaType.AbstractSimpleMetaType;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.Values;
 
-public class EnumModelFactory implements ModelFactory {
-	public static final EnumModelFactory instance = new EnumModelFactory();
+public class EnumMetaTypeFactory implements MetaTypeFactory {
+	public static final EnumMetaTypeFactory instance = new EnumMetaTypeFactory();
 
-	private EnumModelFactory() {
+	private EnumMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Enum.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			EnumModel raw = new EnumModel(type);
+			EnumMetaType raw = new EnumMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static final class EnumModel<T extends Enum<T>> extends AbstractSimpleModel<T> {
+	public static final class EnumMetaType<T extends Enum<T>> extends AbstractSimpleMetaType<T> {
 		private Class<T> enumType;
 		private T[] constants;
 
-		private EnumModel(Class<T> type) {
+		private EnumMetaType(Class<T> type) {
 			super(type);
 			constants = type.getEnumConstants();
 			enumType = type;

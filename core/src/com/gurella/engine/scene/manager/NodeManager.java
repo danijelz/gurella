@@ -5,15 +5,15 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 ////TODO EntitySubscription -> NodeSubscription
-public class NodeManager extends SceneService2 implements ComponentActivityListener {
+public class NodeManager extends SceneService implements ComponentActivityListener {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	public NodeManager(Scene scene) {
@@ -29,17 +29,17 @@ public class NodeManager extends SceneService2 implements ComponentActivityListe
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		handleComponent(component);
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		handleComponent(component);
 	}
 
-	private void handleComponent(SceneNodeComponent2 component) {
-		SceneNode2 node = component.getNode();
+	private void handleComponent(SceneNodeComponent component) {
+		SceneNode node = component.getNode();
 		for (FamilyNodes familyNodes : families.values()) {
 			familyNodes.handle(node);
 		}
@@ -58,7 +58,7 @@ public class NodeManager extends SceneService2 implements ComponentActivityListe
 			return;
 		}
 
-		ImmutableArray<SceneNode2> nodes = scene.nodes;
+		ImmutableArray<SceneNode> nodes = scene.nodes;
 		for (int i = 0; i < nodes.size(); i++) {
 			familyNodes.handle(nodes.get(i));
 		}
@@ -71,22 +71,22 @@ public class NodeManager extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	public boolean belongsToFamily(SceneNode2 node, SceneNodeFamily family) {
+	public boolean belongsToFamily(SceneNode node, SceneNodeFamily family) {
 		return getNodes(family).contains(node, true);
 	}
 
-	public ImmutableArray<SceneNode2> getNodes(SceneNodeFamily family) {
+	public ImmutableArray<SceneNode> getNodes(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
-		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.nodes.immutable();
+		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.nodes.immutable();
 	}
 
 	public static final class SceneNodeFamily {
 		private static int INDEXER = 0;
 
 		public final int id;
-		public final Predicate<SceneNode2> predicate;
+		public final Predicate<SceneNode> predicate;
 
-		public SceneNodeFamily(Predicate<SceneNode2> predicate) {
+		public SceneNodeFamily(Predicate<SceneNode> predicate) {
 			id = INDEXER++;
 			this.predicate = predicate;
 		}
@@ -94,9 +94,9 @@ public class NodeManager extends SceneService2 implements ComponentActivityListe
 
 	private static class FamilyNodes implements Poolable {
 		private SceneNodeFamily family;
-		private final ArrayExt<SceneNode2> nodes = new ArrayExt<SceneNode2>();
+		private final ArrayExt<SceneNode> nodes = new ArrayExt<SceneNode>();
 
-		private void handle(SceneNode2 node) {
+		private void handle(SceneNode node) {
 			boolean belongsToFamily = family.predicate.evaluate(node);
 			boolean containsNode = nodes.contains(node, true);
 			if (belongsToFamily && !containsNode) {

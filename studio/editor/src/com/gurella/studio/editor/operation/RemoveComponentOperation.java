@@ -8,19 +8,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class RemoveComponentOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNode2 node;
-	final SceneNodeComponent2 component;
+	final SceneNode node;
+	final SceneNodeComponent component;
 	final int index;
 
-	public RemoveComponentOperation(int editorId, SceneNode2 node, SceneNodeComponent2 component) {
+	public RemoveComponentOperation(int editorId, SceneNode node, SceneNodeComponent component) {
 		super("Remove component");
 		this.editorId = editorId;
 		this.node = node;

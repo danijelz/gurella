@@ -2,12 +2,12 @@ package com.gurella.engine.scene.ui;
 
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 
-public class UiSystem extends SceneService2 implements ComponentActivityListener, ObjectsParentListener {
+public class UiSystem extends SceneService implements ComponentActivityListener, ObjectsParentListener {
 	UiFocusManager uiFocusManager;
 
 	public UiSystem(Scene scene) {
@@ -26,7 +26,7 @@ public class UiSystem extends SceneService2 implements ComponentActivityListener
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof UiComponent) {
 			UiComponent uiComponent = (UiComponent) component;
 			uiComponent.uiSystem = this;
@@ -36,7 +36,7 @@ public class UiSystem extends SceneService2 implements ComponentActivityListener
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof UiComponent) {
 			UiComponent uiComponent = (UiComponent) component;
 			uiComponent.uiSystem = null;

@@ -10,12 +10,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.gurella.engine.editor.model.ModelEditorFactory;
+import com.gurella.engine.editor.bean.BeanEditorFactory;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -29,28 +29,26 @@ import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
 
 public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
-		implements com.gurella.engine.editor.model.ModelEditorContext<T> {
-	final ModelEditorFactory<T> factory;
+		implements com.gurella.engine.editor.bean.BeanEditorContext<T> {
+	final BeanEditorFactory<T> factory;
 
-	public CustomBeanEditorContextAdapter(BeanEditorContext<?> parent, T modelInstance,
-			ModelEditorFactory<T> factory) {
-		super(parent, modelInstance);
+	public CustomBeanEditorContextAdapter(BeanEditorContext<?> parent, T bean, BeanEditorFactory<T> factory) {
+		super(parent, bean);
 		this.factory = factory;
 	}
 
-	public CustomBeanEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance,
-			ModelEditorFactory<T> factory) {
-		super(sceneEditorContext, modelInstance);
+	public CustomBeanEditorContextAdapter(SceneEditorContext sceneEditorContext, T bean, BeanEditorFactory<T> factory) {
+		super(sceneEditorContext, bean);
 		this.factory = factory;
 	}
 
 	@Override
-	public Model<T> getModel() {
-		return this.model;
+	public MetaType<T> getMetaType() {
+		return this.metaType;
 	}
 
 	@Override
-	public T getModelInstance() {
+	public T getBean() {
 		return this.bean;
 	}
 
@@ -76,19 +74,19 @@ public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 	}
 
 	@Override
-	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance) {
+	public EditorComposite createBeanEditor(EditorComposite parent, Object bean) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
-		BeanEditorContext<Object> context = new BeanEditorContext<>(this, modelInstance);
-		DefaultBeanEditor<Object> modelEditor = new DefaultBeanEditor<>(swtParent, context);
-		return new SwtEditorComposite(modelEditor);
+		BeanEditorContext<Object> context = new BeanEditorContext<>(this, bean);
+		DefaultBeanEditor<Object> beanEditor = new DefaultBeanEditor<>(swtParent, context);
+		return new SwtEditorComposite(beanEditor);
 	}
 
 	@Override
-	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance,
+	public EditorComposite createBeanEditor(EditorComposite parent, Object bean,
 			EditorLayoutData layoutData) {
-		EditorComposite modelEditor = createModelEditor(parent, modelInstance);
-		modelEditor.setLayoutData(layoutData);
-		return modelEditor;
+		EditorComposite beanEditor = createBeanEditor(parent, bean);
+		beanEditor.setLayoutData(layoutData);
+		return beanEditor;
 	}
 
 	@Override

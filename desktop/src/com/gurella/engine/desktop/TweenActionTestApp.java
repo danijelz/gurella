@@ -8,7 +8,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
-import com.gurella.engine.scene.action.ModelTween;
+import com.gurella.engine.scene.action.MetaTypeTween;
 import com.gurella.engine.scene.action.TweenAction;
 
 public class TweenActionTestApp {
@@ -31,7 +31,7 @@ public class TweenActionTestApp {
 
 		@Override
 		public void create() {
-			action = new TweenAction(new ModelTween<Color>(new Color(), Color.BLACK, Color.WHITE), 0.3f,
+			action = new TweenAction(new MetaTypeTween<Color>(new Color(), Color.BLACK, Color.WHITE), 0.3f,
 					Interpolation.linear);
 			action.setReverse(true);
 		}

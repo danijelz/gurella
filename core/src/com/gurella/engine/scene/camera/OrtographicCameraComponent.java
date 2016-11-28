@@ -3,9 +3,9 @@ package com.gurella.engine.scene.camera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.gurella.engine.metatype.ModelDescriptor;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
 
-@ModelDescriptor(descriptiveName = "Ortographic Camera")
+@MetaTypeDescriptor(descriptiveName = "Ortographic Camera")
 public class OrtographicCameraComponent extends CameraComponent<OrthographicCamera> {
 	@Override
 	OrthographicCamera createCamera() {

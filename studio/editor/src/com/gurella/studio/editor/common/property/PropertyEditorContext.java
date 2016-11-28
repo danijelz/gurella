@@ -3,7 +3,7 @@ package com.gurella.studio.editor.common.property;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.utils.Values;
@@ -15,21 +15,21 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	public Consumer<P> valueSetter;
 
 	public PropertyEditorContext(BeanEditorContext<M> parent, Property<P> property) {
-		super(parent.sceneContext, parent, parent.model, parent.bean);
+		super(parent.sceneContext, parent, parent.metaType, parent.bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
 	}
 
-	public PropertyEditorContext(BeanEditorContext<?> parent, M modelInstance, Property<P> property) {
-		super(parent, modelInstance);
+	public PropertyEditorContext(BeanEditorContext<?> parent, M bean, Property<P> property) {
+		super(parent, bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
 	}
 
-	public PropertyEditorContext(BeanEditorContext<?> parent, Model<M> model, M modelInstance, Property<P> property) {
-		super(parent.sceneContext, parent, model, modelInstance);
+	public PropertyEditorContext(BeanEditorContext<?> parent, MetaType<M> metaType, M bean, Property<P> property) {
+		super(parent.sceneContext, parent, metaType, bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
@@ -60,7 +60,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	public void propertyValueChanged(Object oldValue, Object newValue) {
-		propertiesSignal.dispatch(new PropertyValueChangedEvent(model, property, bean, oldValue, newValue));
+		propertiesSignal.dispatch(new PropertyValueChangedEvent(metaType, property, bean, oldValue, newValue));
 
 		BeanEditorContext<?> temp = this;
 		while (temp != null) {

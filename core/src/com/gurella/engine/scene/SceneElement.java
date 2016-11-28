@@ -2,7 +2,7 @@ package com.gurella.engine.scene;
 
 import com.gurella.engine.managedobject.ManagedObject;
 
-public class SceneElement2 extends ManagedObject {
+public class SceneElement extends ManagedObject {
 	transient Scene scene;
 
 	boolean enabled = true;

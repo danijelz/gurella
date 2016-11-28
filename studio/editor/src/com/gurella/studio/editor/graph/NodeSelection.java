@@ -2,14 +2,14 @@ package com.gurella.studio.editor.graph;
 
 import org.eclipse.jface.viewers.StructuredSelection;
 
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 
 public class NodeSelection extends StructuredSelection {
-	NodeSelection(SceneNode2 component) {
+	NodeSelection(SceneNode component) {
 		super(component);
 	}
 
-	public SceneNode2 getNode() {
-		return (SceneNode2) getFirstElement();
+	public SceneNode getNode() {
+		return (SceneNode) getFirstElement();
 	}
 }

@@ -14,9 +14,10 @@ import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 
 import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.utils.ErrorStatusFactory;
 import com.gurella.studio.editor.utils.Try;
 
-public class RefractoringOperation extends AbstractOperation {
+public class RefractoringOperation extends AbstractOperation implements ErrorStatusFactory {
 	private final SceneEditorContext context;
 	private final PerformRefactoringOperation operation;
 	private final IUndoManager undoManager;
@@ -39,13 +40,13 @@ public class RefractoringOperation extends AbstractOperation {
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while refractoring resource.";
 		return Try.successful(undoManager).peek(m -> m.performRedo(null, monitor)).map(m -> Status.OK_STATUS)
-				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
+				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while undoing refractoring resource.";
 		return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(m -> Status.OK_STATUS)
-				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
+				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 }

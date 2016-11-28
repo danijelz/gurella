@@ -8,8 +8,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
-import com.gurella.engine.metatype.Models;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
@@ -18,16 +18,16 @@ import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
-public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent2> {
-	private BeanEditor<SceneNodeComponent2> editor;
+public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent> {
+	private BeanEditor<SceneNodeComponent> editor;
 
-	public ComponentInspectableContainer(InspectorView parent, SceneNodeComponent2 target) {
+	public ComponentInspectableContainer(InspectorView parent, SceneNodeComponent target) {
 		super(parent, target);
 
 		Composite head = getForm().getHead();
 		head.setFont(GurellaStudioPlugin.getFont(head, SWT.BOLD));
 		head.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE));
-		setText(Models.getModel(target).getName());
+		setText(MetaTypes.getMetaType(target).getName());
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);

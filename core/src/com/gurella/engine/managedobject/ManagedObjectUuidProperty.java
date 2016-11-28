@@ -1,7 +1,7 @@
 package com.gurella.engine.managedobject;
 
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Model;
+import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
@@ -56,7 +56,7 @@ class ManagedObjectUuidProperty implements Property<String> {
 	}
 
 	@Override
-	public Property<String> newInstance(Model<?> model) {
+	public Property<String> newInstance(MetaType<?> owner) {
 		return this;
 	}
 

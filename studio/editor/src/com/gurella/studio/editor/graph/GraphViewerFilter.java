@@ -12,14 +12,14 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
 
 class GraphViewerFilter extends ViewerFilter {
 	private String filter;
-	private final Map<SceneNode2, Boolean> nodes = new IdentityHashMap<>();
-	private final Map<SceneNode2, Boolean> names = new IdentityHashMap<>();
+	private final Map<SceneNode, Boolean> nodes = new IdentityHashMap<>();
+	private final Map<SceneNode, Boolean> names = new IdentityHashMap<>();
 	private Matcher matcher;
 
 	void setFilter(String filter) {
@@ -35,26 +35,26 @@ class GraphViewerFilter extends ViewerFilter {
 			return true;
 		}
 
-		if (element instanceof SceneNodeComponent2) {
-			return nodeNameMatchesFilter((SceneNode2) parentElement);
-		} else if (element instanceof SceneNode2) {
-			return nodes.computeIfAbsent((SceneNode2) element, this::isNodeEnabled).booleanValue();
+		if (element instanceof SceneNodeComponent) {
+			return nodeNameMatchesFilter((SceneNode) parentElement);
+		} else if (element instanceof SceneNode) {
+			return nodes.computeIfAbsent((SceneNode) element, this::isNodeEnabled).booleanValue();
 		} else {
 			return false;
 		}
 	}
 
-	private Boolean isNodeEnabled(SceneNode2 node) {
+	private Boolean isNodeEnabled(SceneNode node) {
 		if (nodeNameMatchesFilter(node)) {
 			return Boolean.TRUE;
 		}
 
-		return Boolean.valueOf(Arrays.stream(node.childNodes.<SceneNode2> toArray(SceneNode2.class))
+		return Boolean.valueOf(Arrays.stream(node.childNodes.<SceneNode> toArray(SceneNode.class))
 				.map(n -> nodes.computeIfAbsent(n, this::isNodeEnabled)).filter(e -> e == Boolean.TRUE).findAny()
 				.isPresent());
 	}
 
-	private boolean nodeNameMatchesFilter(SceneNode2 node) {
+	private boolean nodeNameMatchesFilter(SceneNode node) {
 		String name = node.getName();
 		return names.computeIfAbsent(node, n -> Boolean.valueOf(Values.isNotBlank(name) && getMatcher(name).find()))
 				.booleanValue();

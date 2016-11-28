@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.graph;
 
-import com.gurella.engine.scene.SceneElement2;
+import com.gurella.engine.scene.SceneElement;
 
 class CutElementSelection extends ElementSelection {
-	CutElementSelection(SceneElement2 element) {
+	CutElementSelection(SceneElement element) {
 		super(element);
 	}
 }

@@ -7,8 +7,8 @@ import static com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlign
 import java.util.Arrays;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.gurella.engine.editor.model.ModelEditorContext;
-import com.gurella.engine.editor.model.ModelEditorFactory;
+import com.gurella.engine.editor.bean.BeanEditorContext;
+import com.gurella.engine.editor.bean.BeanEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorInputValidator.BlankTextValidator;
@@ -18,15 +18,15 @@ import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 
-public class TagComponentEditorFactory implements ModelEditorFactory<TagComponent> {
+public class TagComponentEditorFactory implements BeanEditorFactory<TagComponent> {
 	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Empty name in invalid.");
-	private static final Property<String[]> tagsProperty = Models.getModel(TagComponent.class).getProperty("tags");
+	private static final Property<String[]> tagsProperty = MetaTypes.getMetaType(TagComponent.class).getProperty("tags");
 
 	@Override
-	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
+	public void buildUi(final EditorComposite parent, final BeanEditorContext<TagComponent> context) {
 		parent.setLayout(1);
 		final EditorUi uiFactory = context.getEditorUi();
 
@@ -51,9 +51,9 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 		return new EditorLayoutData().alignment(FILL, TOP).grab(true, false).minSize(150, 10).sizeHint(150, size * 21);
 	}
 
-	private static void buildTagComponents(final ModelEditorContext<TagComponent> context,
+	private static void buildTagComponents(final BeanEditorContext<TagComponent> context,
 			final EditorComposite parent) {
-		final TagComponent tagComponent = context.getModelInstance();
+		final TagComponent tagComponent = context.getBean();
 		String[] tags = tagComponent.getTags();
 		Arrays.sort(tags);
 
@@ -65,7 +65,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 		}
 	}
 
-	protected static void buildTagComponent(final ModelEditorContext<TagComponent> context,
+	protected static void buildTagComponent(final BeanEditorContext<TagComponent> context,
 			final EditorComposite parent, String[] tags, Tag tag) {
 		final EditorButton checkBox = context.getEditorUi().createCheckBox(parent);
 		new EditorLayoutData().alignment(FILL, TOP).grab(true, false).applyTo(checkBox);
@@ -76,9 +76,9 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 
 	private static final class AddButtonSelectionListener implements EditorEventListener {
 		private final EditorScrolledForm scroll;
-		private final ModelEditorContext<TagComponent> context;
+		private final BeanEditorContext<TagComponent> context;
 
-		private AddButtonSelectionListener(EditorScrolledForm scroll, ModelEditorContext<TagComponent> context) {
+		private AddButtonSelectionListener(EditorScrolledForm scroll, BeanEditorContext<TagComponent> context) {
 			this.scroll = scroll;
 			this.context = context;
 		}
@@ -92,7 +92,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 			}
 
 			EditorComposite content = scroll.getForm().getBody();
-			context.getModelInstance().addTag(tagName);
+			context.getBean().addTag(tagName);
 			context.propertyValueChanged(tagsProperty, null, null);
 			content.disposeAllChildren();
 			buildTagComponents(context, content);
@@ -102,17 +102,17 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 	}
 
 	private static final class TagSelectionListener implements EditorEventListener {
-		private final ModelEditorContext<TagComponent> context;
+		private final BeanEditorContext<TagComponent> context;
 		private final EditorButton checkBox;
 
-		private TagSelectionListener(ModelEditorContext<TagComponent> context, EditorButton checkBox) {
+		private TagSelectionListener(BeanEditorContext<TagComponent> context, EditorButton checkBox) {
 			this.context = context;
 			this.checkBox = checkBox;
 		}
 
 		@Override
 		public void handleEvent(EditorEvent event) {
-			TagComponent tagComponent = context.getModelInstance();
+			TagComponent tagComponent = context.getBean();
 			String tagName = checkBox.getText();
 			if (checkBox.getSelection()) {
 				tagComponent.addTag(tagName);

@@ -17,34 +17,34 @@ import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
-public class CollectionModelFactory implements ModelFactory {
-	public static final CollectionModelFactory instance = new CollectionModelFactory();
+public class CollectionMetaTypeFactory implements MetaTypeFactory {
+	public static final CollectionMetaTypeFactory instance = new CollectionMetaTypeFactory();
 
-	private CollectionModelFactory() {
+	private CollectionMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumSet.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) EnumSetModel.modelInstance;
+			MetaType<T> casted = (MetaType<T>) EnumSetMetaType.typeInstance;
 			return casted;
 		} else if (TreeSet.class == type) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) TreeSetModel.modelInstance;
+			MetaType<T> casted = (MetaType<T>) TreeSetMetaType.typeInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Collection.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			CollectionModel raw = new CollectionModel(type);
+			CollectionMetaType raw = new CollectionMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class CollectionModel<T extends Collection<?>> implements Model<T> {
+	public static class CollectionMetaType<T extends Collection<?>> implements MetaType<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -52,7 +52,7 @@ public class CollectionModelFactory implements ModelFactory {
 		private String name;
 		private Constructor constructor;
 
-		public CollectionModel(Class<T> type) {
+		public CollectionMetaType(Class<T> type) {
 			this.type = type;
 			innerClass = Reflection.isInnerClass(type);
 			resolveName();
@@ -61,7 +61,7 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		private void resolveName() {
-			ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
+			MetaTypeDescriptor resourceAnnotation = Reflection.getAnnotation(type, MetaTypeDescriptor.class);
 			if (resourceAnnotation == null) {
 				name = type.getSimpleName();
 			} else {
@@ -184,7 +184,7 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Model<?> model) {
+		public Property<Object[]> newInstance(MetaType<?> owner) {
 			return this;
 		}
 
@@ -319,11 +319,11 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 	}
 
-	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
-		private static final TreeSetModel modelInstance = new TreeSetModel();
+	public static class TreeSetMetaType extends CollectionMetaType<TreeSet<?>> {
+		private static final TreeSetMetaType typeInstance = new TreeSetMetaType();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private TreeSetModel() {
+		private TreeSetMetaType() {
 			super((Class) TreeSet.class);
 		}
 
@@ -393,11 +393,11 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 	}
 
-	public static class EnumSetModel extends CollectionModel<EnumSet<?>> {
-		public static final EnumSetModel modelInstance = new EnumSetModel();
+	public static class EnumSetMetaType extends CollectionMetaType<EnumSet<?>> {
+		public static final EnumSetMetaType typeInstance = new EnumSetMetaType();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private EnumSetModel() {
+		private EnumSetMetaType() {
 			super((Class) EnumSet.class);
 		}
 

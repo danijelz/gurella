@@ -20,25 +20,25 @@ class DefaultInstances {
 	}
 
 	public static <T, P> P getDefault(Class<T> type, String propertyName) {
-		T defaultModelInstance = getDefault(type);
-		if (defaultModelInstance == null) {
+		T defaultBean = getDefault(type);
+		if (defaultBean == null) {
 			return null;
 		}
 
-		Model<T> model = Models.getModel(type);
-		Property<P> property = model.getProperty(propertyName);
+		MetaType<T> metaType = MetaTypes.getMetaType(type);
+		Property<P> property = metaType.getProperty(propertyName);
 		if (property == null) {
 			throw new GdxRuntimeException("Invalid property.");
 		}
 
-		return property.getValue(defaultModelInstance);
+		return property.getValue(defaultBean);
 	}
 
 	public static <T, P> P getDefault(Class<T> type, Property<P> property) {
-		T defaultModelInstance = getDefault(type);
-		if (defaultModelInstance == null) {
+		T defaultBean = getDefault(type);
+		if (defaultBean == null) {
 			return null;
 		}
-		return property.getValue(defaultModelInstance);
+		return property.getValue(defaultBean);
 	}
 }

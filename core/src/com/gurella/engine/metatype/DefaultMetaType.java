@@ -14,18 +14,18 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
-public class DefaultModels {
-	private DefaultModels() {
+public class DefaultMetaType {
+	private DefaultMetaType() {
 	}
 
-	public interface SimpleModel<T> extends Model<T> {
+	public interface SimpleMetaType<T> extends MetaType<T> {
 
 	}
 
-	public static abstract class AbstractSimpleModel<T> implements SimpleModel<T> {
+	public static abstract class AbstractSimpleMetaType<T> implements SimpleMetaType<T> {
 		private Class<T> type;
 
-		public AbstractSimpleModel(Class<T> type) {
+		public AbstractSimpleMetaType(Class<T> type) {
 			this.type = type;
 		}
 
@@ -55,8 +55,8 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class PrimitiveModel<T> extends AbstractSimpleModel<T> {
-		public PrimitiveModel(Class<T> type) {
+	public static abstract class PrimitiveMetaType<T> extends AbstractSimpleMetaType<T> {
+		public PrimitiveMetaType(Class<T> type) {
 			super(type);
 		}
 
@@ -80,10 +80,10 @@ public class DefaultModels {
 		protected abstract T readValue(Input input);
 	}
 
-	public static final class IntegerPrimitiveModel extends PrimitiveModel<Integer> {
-		public static final IntegerPrimitiveModel instance = new IntegerPrimitiveModel();
+	public static final class IntegerPrimitiveMetaType extends PrimitiveMetaType<Integer> {
+		public static final IntegerPrimitiveMetaType instance = new IntegerPrimitiveMetaType();
 
-		private IntegerPrimitiveModel() {
+		private IntegerPrimitiveMetaType() {
 			super(int.class);
 		}
 
@@ -98,10 +98,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class LongPrimitiveModel extends PrimitiveModel<Long> {
-		public static final LongPrimitiveModel instance = new LongPrimitiveModel();
+	public static final class LongPrimitiveMetaType extends PrimitiveMetaType<Long> {
+		public static final LongPrimitiveMetaType instance = new LongPrimitiveMetaType();
 
-		private LongPrimitiveModel() {
+		private LongPrimitiveMetaType() {
 			super(long.class);
 		}
 
@@ -116,10 +116,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ShortPrimitiveModel extends PrimitiveModel<Short> {
-		public static final ShortPrimitiveModel instance = new ShortPrimitiveModel();
+	public static final class ShortPrimitiveMetaType extends PrimitiveMetaType<Short> {
+		public static final ShortPrimitiveMetaType instance = new ShortPrimitiveMetaType();
 
-		private ShortPrimitiveModel() {
+		private ShortPrimitiveMetaType() {
 			super(short.class);
 		}
 
@@ -134,10 +134,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BytePrimitiveModel extends PrimitiveModel<Byte> {
-		public static final BytePrimitiveModel instance = new BytePrimitiveModel();
+	public static final class BytePrimitiveMetaType extends PrimitiveMetaType<Byte> {
+		public static final BytePrimitiveMetaType instance = new BytePrimitiveMetaType();
 
-		private BytePrimitiveModel() {
+		private BytePrimitiveMetaType() {
 			super(byte.class);
 		}
 
@@ -152,10 +152,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class CharPrimitiveModel extends PrimitiveModel<Character> {
-		public static final CharPrimitiveModel instance = new CharPrimitiveModel();
+	public static final class CharPrimitiveMetaType extends PrimitiveMetaType<Character> {
+		public static final CharPrimitiveMetaType instance = new CharPrimitiveMetaType();
 
-		private CharPrimitiveModel() {
+		private CharPrimitiveMetaType() {
 			super(char.class);
 		}
 
@@ -170,10 +170,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BooleanPrimitiveModel extends PrimitiveModel<Boolean> {
-		public static final BooleanPrimitiveModel instance = new BooleanPrimitiveModel();
+	public static final class BooleanPrimitiveMetaType extends PrimitiveMetaType<Boolean> {
+		public static final BooleanPrimitiveMetaType instance = new BooleanPrimitiveMetaType();
 
-		private BooleanPrimitiveModel() {
+		private BooleanPrimitiveMetaType() {
 			super(boolean.class);
 		}
 
@@ -188,10 +188,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class DoublePrimitiveModel extends PrimitiveModel<Double> {
-		public static final DoublePrimitiveModel instance = new DoublePrimitiveModel();
+	public static final class DoublePrimitiveMetaType extends PrimitiveMetaType<Double> {
+		public static final DoublePrimitiveMetaType instance = new DoublePrimitiveMetaType();
 
-		private DoublePrimitiveModel() {
+		private DoublePrimitiveMetaType() {
 			super(double.class);
 		}
 
@@ -206,10 +206,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class FloatPrimitiveModel extends PrimitiveModel<Float> {
-		public static final FloatPrimitiveModel instance = new FloatPrimitiveModel();
+	public static final class FloatPrimitiveMetaType extends PrimitiveMetaType<Float> {
+		public static final FloatPrimitiveMetaType instance = new FloatPrimitiveMetaType();
 
-		private FloatPrimitiveModel() {
+		private FloatPrimitiveMetaType() {
 			super(float.class);
 		}
 
@@ -224,8 +224,8 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class SimpleObjectModel<T> extends AbstractSimpleModel<T> {
-		public SimpleObjectModel(Class<T> type) {
+	public static abstract class SimpleObjectMetaType<T> extends AbstractSimpleMetaType<T> {
+		public SimpleObjectMetaType(Class<T> type) {
 			super(type);
 		}
 
@@ -258,10 +258,10 @@ public class DefaultModels {
 		protected abstract T readValue(Input input);
 	}
 
-	public static final class VoidModel extends AbstractSimpleModel<Void> {
-		public static final VoidModel instance = new VoidModel();
+	public static final class VoidMetaType extends AbstractSimpleMetaType<Void> {
+		public static final VoidMetaType instance = new VoidMetaType();
 
-		private VoidModel() {
+		private VoidMetaType() {
 			super(Void.class);
 		}
 
@@ -276,10 +276,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class IntegerModel extends SimpleObjectModel<Integer> {
-		public static final IntegerModel instance = new IntegerModel();
+	public static final class IntegerMetaType extends SimpleObjectMetaType<Integer> {
+		public static final IntegerMetaType instance = new IntegerMetaType();
 
-		private IntegerModel() {
+		private IntegerMetaType() {
 			super(Integer.class);
 		}
 
@@ -294,10 +294,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class LongModel extends SimpleObjectModel<Long> {
-		public static final LongModel instance = new LongModel();
+	public static final class LongMetaType extends SimpleObjectMetaType<Long> {
+		public static final LongMetaType instance = new LongMetaType();
 
-		private LongModel() {
+		private LongMetaType() {
 			super(Long.class);
 		}
 
@@ -312,10 +312,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ShortModel extends SimpleObjectModel<Short> {
-		public static final ShortModel instance = new ShortModel();
+	public static final class ShortMetaType extends SimpleObjectMetaType<Short> {
+		public static final ShortMetaType instance = new ShortMetaType();
 
-		private ShortModel() {
+		private ShortMetaType() {
 			super(Short.class);
 		}
 
@@ -330,10 +330,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ByteModel extends SimpleObjectModel<Byte> {
-		public static final ByteModel instance = new ByteModel();
+	public static final class ByteMetaType extends SimpleObjectMetaType<Byte> {
+		public static final ByteMetaType instance = new ByteMetaType();
 
-		private ByteModel() {
+		private ByteMetaType() {
 			super(Byte.class);
 		}
 
@@ -348,10 +348,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class CharModel extends SimpleObjectModel<Character> {
-		public static final CharModel instance = new CharModel();
+	public static final class CharMetaType extends SimpleObjectMetaType<Character> {
+		public static final CharMetaType instance = new CharMetaType();
 
-		private CharModel() {
+		private CharMetaType() {
 			super(Character.class);
 		}
 
@@ -366,10 +366,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BooleanModel extends SimpleObjectModel<Boolean> {
-		public static final BooleanModel instance = new BooleanModel();
+	public static final class BooleanMetaType extends SimpleObjectMetaType<Boolean> {
+		public static final BooleanMetaType instance = new BooleanMetaType();
 
-		private BooleanModel() {
+		private BooleanMetaType() {
 			super(Boolean.class);
 		}
 
@@ -384,10 +384,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class DoubleModel extends SimpleObjectModel<Double> {
-		public static final DoubleModel instance = new DoubleModel();
+	public static final class DoubleMetaType extends SimpleObjectMetaType<Double> {
+		public static final DoubleMetaType instance = new DoubleMetaType();
 
-		private DoubleModel() {
+		private DoubleMetaType() {
 			super(Double.class);
 		}
 
@@ -402,10 +402,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class FloatModel extends SimpleObjectModel<Float> {
-		public static final FloatModel instance = new FloatModel();
+	public static final class FloatMetaType extends SimpleObjectMetaType<Float> {
+		public static final FloatMetaType instance = new FloatMetaType();
 
-		private FloatModel() {
+		private FloatMetaType() {
 			super(Float.class);
 		}
 
@@ -420,10 +420,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class StringModel extends SimpleObjectModel<String> {
-		public static final StringModel instance = new StringModel();
+	public static final class StringMetaType extends SimpleObjectMetaType<String> {
+		public static final StringMetaType instance = new StringMetaType();
 
-		private StringModel() {
+		private StringMetaType() {
 			super(String.class);
 		}
 
@@ -438,10 +438,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigIntegerModel extends SimpleObjectModel<BigInteger> {
-		public static final BigIntegerModel instance = new BigIntegerModel();
+	public static final class BigIntegerMetaType extends SimpleObjectMetaType<BigInteger> {
+		public static final BigIntegerMetaType instance = new BigIntegerMetaType();
 
-		private BigIntegerModel() {
+		private BigIntegerMetaType() {
 			super(BigInteger.class);
 		}
 
@@ -456,10 +456,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal> {
-		public static final BigDecimalModel instance = new BigDecimalModel();
+	public static final class BigDecimalMetaType extends SimpleObjectMetaType<BigDecimal> {
+		public static final BigDecimalMetaType instance = new BigDecimalMetaType();
 
-		private BigDecimalModel() {
+		private BigDecimalMetaType() {
 			super(BigDecimal.class);
 		}
 
@@ -474,11 +474,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ClassModel extends SimpleObjectModel<Class<?>> {
-		public static final ClassModel instance = new ClassModel();
+	public static final class ClassMetaType extends SimpleObjectMetaType<Class<?>> {
+		public static final ClassMetaType instance = new ClassMetaType();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private ClassModel() {
+		private ClassMetaType() {
 			super((Class) Class.class);
 		}
 
@@ -494,10 +494,10 @@ public class DefaultModels {
 	}
 
 	// TODO change to resolver
-	public static final class DateModel extends SimpleObjectModel<Date> {
-		public static final DateModel instance = new DateModel();
+	public static final class DateMetaType extends SimpleObjectMetaType<Date> {
+		public static final DateMetaType instance = new DateMetaType();
 
-		private DateModel() {
+		private DateMetaType() {
 			super(Date.class);
 		}
 
@@ -517,10 +517,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ColorModel extends ReflectionModel<Color> implements SimpleModel<Color> {
-		public static final ColorModel instance = new ColorModel();
+	public static final class ColorMetaType extends ReflectionMetaType<Color> implements SimpleMetaType<Color> {
+		public static final ColorMetaType instance = new ColorMetaType();
 
-		private ColorModel() {
+		private ColorMetaType() {
 			super(Color.class);
 		}
 
@@ -552,10 +552,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class UuidModel extends SimpleObjectModel<Uuid> {
-		public static final UuidModel instance = new UuidModel();
+	public static final class UuidMetaType extends SimpleObjectMetaType<Uuid> {
+		public static final UuidMetaType instance = new UuidMetaType();
 
-		private UuidModel() {
+		private UuidMetaType() {
 			super(Uuid.class);
 		}
 
@@ -575,10 +575,10 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class LayerModel extends SimpleObjectModel<Layer> {
-		public static final LayerModel instance = new LayerModel();
+	public static final class LayerMetaType extends SimpleObjectMetaType<Layer> {
+		public static final LayerMetaType instance = new LayerMetaType();
 
-		private LayerModel() {
+		private LayerMetaType() {
 			super(Layer.class);
 		}
 

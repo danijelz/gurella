@@ -8,12 +8,12 @@ import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 import com.gurella.engine.utils.Sequence;
 
-public abstract class SceneNodeComponent2 extends SceneElement2 {
+public abstract class SceneNodeComponent extends SceneElement {
 	public final int baseComponentType;
 	public final int componentType;
 
-	public SceneNodeComponent2() {
-		Class<? extends SceneNodeComponent2> type = getClass();
+	public SceneNodeComponent() {
+		Class<? extends SceneNodeComponent> type = getClass();
 		baseComponentType = ComponentType.getBaseType(type);
 		componentType = ComponentType.findType(type);
 	}
@@ -31,8 +31,8 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		return getNode() == null ? false : getNode().isHierarchyEnabled();
 	}
 
-	public final SceneNode2 getNode() {
-		return (SceneNode2) getParent();
+	public final SceneNode getNode() {
+		return (SceneNode) getParent();
 	}
 
 	public final int getNodeId() {
@@ -74,18 +74,18 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 	protected void componentDeactivated() {
 	}
 
-	final void setParent(SceneNode2 node) {
+	final void setParent(SceneNode node) {
 		super.setParent(node);
 	}
 
 	@TransientProperty
 	public int getIndex() {
-		SceneNode2 node = getNode();
+		SceneNode node = getNode();
 		return node == null ? -1 : node._components.indexOf(this, true);
 	}
 
 	public void setIndex(int newIndex) {
-		SceneNode2 node = getNode();
+		SceneNode node = getNode();
 		if (node == null) {
 			throw new GdxRuntimeException("Component is not attached to graph.");
 		}

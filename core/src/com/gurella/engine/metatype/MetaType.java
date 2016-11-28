@@ -4,7 +4,7 @@ import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 
-public interface Model<T> {
+public interface MetaType<T> {
 	Class<T> getType();
 
 	String getName();

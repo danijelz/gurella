@@ -9,26 +9,26 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
-public class GdxArrayModelFactory implements ModelFactory {
-	public static final GdxArrayModelFactory instance = new GdxArrayModelFactory();
+public class GdxArrayMetaTypeFactory implements MetaTypeFactory {
+	public static final GdxArrayMetaTypeFactory instance = new GdxArrayMetaTypeFactory();
 
-	private GdxArrayModelFactory() {
+	private GdxArrayMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Array.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			GdxArrayModel raw = new GdxArrayModel(type);
+			GdxArrayMetaType raw = new GdxArrayMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class GdxArrayModel<T extends Array<?>> implements Model<T> {
+	public static class GdxArrayMetaType<T extends Array<?>> implements MetaType<T> {
 		private static final String componentTypePropertyName = "componentType";
 		private static final String orderedPropertyName = "ordered";
 		private static final String sizePropertyName = "size";
@@ -36,7 +36,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		private final Class<T> type;
 
-		public GdxArrayModel(Class<T> type) {
+		public GdxArrayMetaType(Class<T> type) {
 			this.type = type;
 		}
 

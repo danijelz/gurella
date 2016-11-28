@@ -10,7 +10,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
@@ -19,7 +19,7 @@ import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedList
 //TODO PolygonSpriteComponent, ImmediateModeComponent, SvgComponent
 //TODO input data should be moved to InputResponsiveRenderableComponent
 @BaseSceneElement
-public abstract class RenderableComponent extends SceneNodeComponent2 implements NodeComponentActivityListener,
+public abstract class RenderableComponent extends SceneNodeComponent implements NodeComponentActivityListener,
 		NodeTransformChangedListener, Event<SceneRenderableChangedListener>, Poolable {
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
@@ -68,14 +68,14 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
+	public void nodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			setTransformComponent((TransformComponent) component);
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+	public void nodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			setTransformComponent(null);
 		}

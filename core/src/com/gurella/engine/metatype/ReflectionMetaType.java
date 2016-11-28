@@ -1,8 +1,8 @@
 package com.gurella.engine.metatype;
 
-import static com.gurella.engine.metatype.Models.getPrefix;
-import static com.gurella.engine.metatype.Models.isPrefix;
-import static com.gurella.engine.metatype.Models.setPrefix;
+import static com.gurella.engine.metatype.MetaTypes.getPrefix;
+import static com.gurella.engine.metatype.MetaTypes.isPrefix;
+import static com.gurella.engine.metatype.MetaTypes.setPrefix;
 
 import java.util.Arrays;
 
@@ -41,8 +41,8 @@ import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
-public class ReflectionModel<T> implements Model<T> {
-	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
+public class ReflectionMetaType<T> implements MetaType<T> {
+	private static final ObjectMap<Class<?>, ReflectionMetaType<?>> typesByType = new ObjectMap<Class<?>, ReflectionMetaType<?>>();
 
 	static {
 		String[] mapProps = { "loadFactor", "hashShift", "mask", "threshold", "stashCapacity", "pushIterations" };
@@ -63,17 +63,17 @@ public class ReflectionModel<T> implements Model<T> {
 		getInstance(BoundingBox.class, new String[] { "cnt", "dim" }, (String[]) null);
 	}
 
-	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {
+	public static <T> ReflectionMetaType<T> getInstance(Class<T> type, String... forcedProperties) {
 		return getInstance(type, null, forcedProperties);
 	}
 
-	public static <T> ReflectionModel<T> getInstance(Class<T> type, String[] ignoredProperties,
+	public static <T> ReflectionMetaType<T> getInstance(Class<T> type, String[] ignoredProperties,
 			String... forcedProperties) {
-		synchronized (modelsByType) {
+		synchronized (typesByType) {
 			@SuppressWarnings("unchecked")
-			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(type);
+			ReflectionMetaType<T> instance = (ReflectionMetaType<T>) typesByType.get(type);
 			if (instance == null) {
-				instance = new ReflectionModel<T>(type, ignoredProperties, forcedProperties);
+				instance = new ReflectionMetaType<T>(type, ignoredProperties, forcedProperties);
 			}
 			return instance;
 		}
@@ -91,15 +91,15 @@ public class ReflectionModel<T> implements Model<T> {
 	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
-	public ReflectionModel(Class<T> type) {
+	public ReflectionMetaType(Class<T> type) {
 		this(type, (String[]) null);
 	}
 
-	public ReflectionModel(Class<T> type, String... forcedProperties) {
+	public ReflectionMetaType(Class<T> type, String... forcedProperties) {
 		this(type, (String[]) null, forcedProperties);
 	}
 
-	public ReflectionModel(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
+	public ReflectionMetaType(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
 		this.type = type;
 		innerClass = Reflection.isInnerClass(type);
 		poolable = ClassReflection.isAssignableFrom(Poolable.class, type);
@@ -113,13 +113,13 @@ public class ReflectionModel<T> implements Model<T> {
 			this.forcedProperties = forcedProperties;
 		}
 
-		modelsByType.put(type, this);
+		typesByType.put(type, this);
 		resolveName();
 		resolveProperties();
 	}
 
 	private void resolveName() {
-		ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
+		MetaTypeDescriptor resourceAnnotation = Reflection.getAnnotation(type, MetaTypeDescriptor.class);
 		if (resourceAnnotation == null) {
 			name = type.getSimpleName();
 		} else {
@@ -276,8 +276,8 @@ public class ReflectionModel<T> implements Model<T> {
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();
 		if (supertype != null && supertype != Object.class) {
-			Model<? super T> model = Models.getModel(supertype);
-			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
+			MetaType<? super T> metaType = MetaTypes.getMetaType(supertype);
+			ImmutableArray<Property<?>> supertypeProperties = metaType.getProperties();
 			for (int i = 0, n = supertypeProperties.size(); i < n; i++) {
 				Property<?> property = supertypeProperties.get(i).newInstance(this);
 				properties.add(property);
@@ -406,8 +406,8 @@ public class ReflectionModel<T> implements Model<T> {
 			return true;
 		}
 
-		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();
-		return modelProperties == null || modelProperties.size() == 0;
+		ImmutableArray<Property<?>> properties = MetaTypes.getMetaType(fieldType).getProperties();
+		return properties == null || properties.size() == 0;
 	}
 
 	private boolean isBeanProperty(Field field) {
@@ -453,9 +453,9 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private ReflectionProperty<?> createReflectionProperty(Field field, boolean forced) {
-		ReflectionProperty<?> propertyModel = createBeanProperty(field, forced);
-		if (propertyModel != null) {
-			return propertyModel;
+		ReflectionProperty<?> property = createBeanProperty(field, forced);
+		if (property != null) {
+			return property;
 		} else {
 			return new ReflectionProperty<Object>(type, field, this);
 		}

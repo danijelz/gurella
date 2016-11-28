@@ -8,7 +8,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
 //TODO unused
-public abstract class BaseModel<T> implements Model<T> {
+public abstract class BaseMetaType<T> implements MetaType<T> {
 	private final Class<T> type;
 	private final String name;
 
@@ -18,10 +18,10 @@ public abstract class BaseModel<T> implements Model<T> {
 	private final ArrayExt<Property<?>> properties;
 	private final ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
-	public BaseModel(Class<T> type) {
+	public BaseMetaType(Class<T> type) {
 		this.type = type;
 
-		ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
+		MetaTypeDescriptor resourceAnnotation = Reflection.getAnnotation(type, MetaTypeDescriptor.class);
 		if (resourceAnnotation == null) {
 			name = type.getSimpleName();
 		} else {

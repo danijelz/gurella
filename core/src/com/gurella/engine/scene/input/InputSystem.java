@@ -19,9 +19,9 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.ReverseOrdinalComparator;
 import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
@@ -34,7 +34,7 @@ import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 
-public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
+public class InputSystem extends SceneService implements ComponentActivityListener, InputUpdateListener {
 	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 
 	private SpatialSystem<?> spatialSystem;
@@ -100,7 +100,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.add((CameraComponent<?>) component);
 			cameras.sort(ReverseOrdinalComparator.instance);
@@ -108,7 +108,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.removeValue((CameraComponent<?>) component, true);
 		}
@@ -250,7 +250,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			scrollInfo.set(screenX, screenY, amount, pickResult.renderable, pickResult.location);
 			EventService.post(scene.getInstanceId(), sceneScrollEvent);
 
-			SceneNode2 node = pickResult.node;
+			SceneNode node = pickResult.node;
 			if (node != null) {
 				EventService.post(node.getInstanceId(), nodeScrollEvent);
 			}
@@ -270,7 +270,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			pointerInfo.set(pointer, button, screenX, screenY, pickResult.renderable, pickResult.location);
 			EventService.post(scene.getInstanceId(), sceneTouchDownEvent);
 
-			SceneNode2 node = pickResult.node;
+			SceneNode node = pickResult.node;
 			if (node != null) {
 				EventService.post(node.getInstanceId(), nodeTouchDownEvent);
 			}
@@ -287,7 +287,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			pointerInfo.set(pointer, button, screenX, screenY, pickResult.renderable, pickResult.location);
 			EventService.post(scene.getInstanceId(), sceneTouchUpEvent);
 
-			SceneNode2 node = pickResult.node;
+			SceneNode node = pickResult.node;
 			if (node != null) {
 				EventService.post(node.getInstanceId(), nodeTouchUpEvent);
 			}

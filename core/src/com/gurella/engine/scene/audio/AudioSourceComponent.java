@@ -11,13 +11,13 @@ import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.math.geometry.Angle;
-import com.gurella.engine.metatype.ModelDescriptor;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.metatype.MetaTypeDescriptor;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
-@ModelDescriptor(descriptiveName = "Audio Source")
-public class AudioSourceComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable {
+@MetaTypeDescriptor(descriptiveName = "Audio Source")
+public class AudioSourceComponent extends SceneNodeComponent implements NodeComponentActivityListener, Poolable {
 	public AudioClip audioClip;
 
 	public boolean spatial = true;
@@ -93,14 +93,14 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements NodeCom
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent2 component) {
+	public void nodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+	public void nodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 		}

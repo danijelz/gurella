@@ -26,7 +26,7 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
@@ -51,7 +51,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 		event.detail = DND.DROP_MOVE;
 	}
 
-	private static SceneNode2 getTransferedNode() {
+	private static SceneNode getTransferedNode() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		if (selection instanceof NodeSelection) {
 			return ((NodeSelection) selection).getNode();
@@ -100,7 +100,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 		}
 
 		IFolder folder = (IFolder) data;
-		SceneNode2 node = getTransferedNode();
+		SceneNode node = getTransferedNode();
 		String prefabName = FileDialogUtils.enterNewFileName(folder, node.getName(), true, prefab.extension());
 		if (prefabName == null) {
 			event.detail = DND.DROP_NONE;
@@ -111,16 +111,16 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 				.onFailure(e -> showError(e, "Error while converting to prefab."));
 	}
 
-	private void convertToPrefab(IFolder folder, SceneNode2 node, String prefabName)
+	private void convertToPrefab(IFolder folder, SceneNode node, String prefabName)
 			throws UnsupportedEncodingException, CoreException {
 		IProject project = folder.getProject();
 		IPath projectPath = project.getLocation();
 		IPath assetsRootPath = projectPath.append("assets");
 		IPath projectAssetPath = folder.getFile(prefabName).getLocation().makeRelativeTo(projectPath);
 
-		SceneNode2 prefab = CopyContext.copyObject(node);
+		SceneNode prefab = CopyContext.copyObject(node);
 		JsonOutput output = new JsonOutput();
-		SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get()).orElse(null);
+		SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get()).orElse(null);
 		String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
 		String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));

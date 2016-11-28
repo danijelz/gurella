@@ -52,7 +52,7 @@ import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
@@ -242,7 +242,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 	private void flipExpansion(Event event) {
 		Optional.of(event).filter(e -> e.button == 1).map(e -> getResourceAt(e.x, e.y))
-				.filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast)
+				.filter(SceneNode.class::isInstance).map(SceneNode.class::cast)
 				.ifPresent(n -> viewer.setExpandedState(n, !viewer.getExpandedState(n)));
 	}
 

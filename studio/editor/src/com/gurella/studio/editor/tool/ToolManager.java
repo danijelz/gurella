@@ -18,7 +18,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.ModelIntesector;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.priority.Priority;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
@@ -68,7 +68,7 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public void focusChanged(EditorFocusData focusData) {
-		SceneNode2 node = focusData.focusedNode;
+		SceneNode node = focusData.focusedNode;
 		transform = node == null ? null : node.getComponent(TransformComponent.class);
 		translateTool.transform = transform;
 		rotateTool.transform = transform;

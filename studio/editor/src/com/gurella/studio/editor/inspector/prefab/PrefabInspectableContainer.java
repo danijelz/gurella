@@ -43,9 +43,9 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.metatype.Models;
-import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
 import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
@@ -78,7 +78,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private Composite componentsComposite;
 	private Array<BeanEditor<?>> componentEditors = new Array<>();
 
-	SceneNode2 prefab;
+	SceneNode prefab;
 
 	public PrefabInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -172,20 +172,20 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void initComponentContainers() {
-		ImmutableArray<SceneNodeComponent2> components = prefab.components;
+		ImmutableArray<SceneNodeComponent> components = prefab.components;
 		for (int i = 0; i < components.size(); i++) {
-			SceneNodeComponent2 component = components.get(i);
+			SceneNodeComponent component = components.get(i);
 			componentEditors.add(createSection(component));
 		}
 	}
 
-	private BeanEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+	private BeanEditor<SceneNodeComponent> createSection(SceneNodeComponent component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
-		section.setText(Models.getModel(component).getName());
+		section.setText(MetaTypes.getMetaType(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		BeanEditor<SceneNodeComponent2> componentEditor = createEditor(section, editorContext, component);
+		BeanEditor<SceneNodeComponent> componentEditor = createEditor(section, editorContext, component);
 		/*
 		 * componentEditor.getContext().propertyChangedSignal .addListener((event) ->
 		 * postMessage(SceneChangedMessage.instance));
@@ -196,7 +196,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		return componentEditor;
 	}
 
-	private void addComponent(SceneNodeComponent2 component) {
+	private void addComponent(SceneNodeComponent component) {
 		prefab.addComponent(component);
 		componentEditors.add(createSection(component));
 		// TODO postMessage(new ComponentAddedMessage(component));
@@ -204,9 +204,9 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		reflow(true);
 	}
 
-	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
+	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent> componentType) {
 		MenuItem item1 = new MenuItem(menu, PUSH);
-		item1.setText(Models.getModel(componentType).getName());
+		item1.setText(MetaTypes.getMetaType(componentType).getName());
 		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
 		item1.setEnabled(prefab.getComponent(componentType, true) == null);
 	}
@@ -233,7 +233,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	private void addScriptComponent() throws Exception {
 		IJavaProject javaProject = editorContext.javaProject;
-		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent2.class.getName()));
+		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent.class.getName()));
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(getShell());
 		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), monitor, scope, CONSIDER_CLASSES, false);
 		if (dialog.open() != IDialogConstants.OK_ID) {
@@ -247,7 +247,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
 			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
-			SceneNodeComponent2 component = Values.cast(constructor.newInstance(new Object[0]));
+			SceneNodeComponent component = Values.cast(constructor.newInstance(new Object[0]));
 			addComponent(component);
 		}
 	}

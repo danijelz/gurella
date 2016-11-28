@@ -1,8 +1,8 @@
 package com.gurella.engine.metatype;
 
-import static com.gurella.engine.metatype.Models.getPrefix;
-import static com.gurella.engine.metatype.Models.isPrefix;
-import static com.gurella.engine.metatype.Models.setPrefix;
+import static com.gurella.engine.metatype.MetaTypes.getPrefix;
+import static com.gurella.engine.metatype.MetaTypes.isPrefix;
+import static com.gurella.engine.metatype.MetaTypes.setPrefix;
 
 import java.lang.annotation.Annotation;
 
@@ -35,7 +35,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Method getter;
 	private Method setter;
 
-	public static <T> ReflectionProperty<T> newInstance(Class<?> owner, String name, Model<?> model) {
+	public static <T> ReflectionProperty<T> newInstance(Class<?> owner, String name, MetaType<?> metaType) {
 		Field field = Reflection.getDeclaredFieldSilently(owner, name);
 		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
 		Class<?> fieldType = field == null ? null : field.getType();
@@ -55,21 +55,21 @@ public class ReflectionProperty<T> implements Property<T> {
 			Method setter = getter == null ? null
 					: Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, getter.getReturnType());
 			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
-			return new ReflectionProperty<T>(owner, name, field, getter, setter, model);
+			return new ReflectionProperty<T>(owner, name, field, getter, setter, metaType);
 		} else {
 			String prefix = boolean.class.equals(fieldType) ? isPrefix : getPrefix;
 			Method getter = Reflection.getDeclaredMethodSilently(owner, prefix + upperCaseName);
 			getter = getter == null || !isValidBeanMethod(getter) ? null : getter;
 			if (getter == null) {
-				return new ReflectionProperty<T>(owner, field, model);
+				return new ReflectionProperty<T>(owner, field, metaType);
 			}
 
 			Method setter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, fieldType);
 			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
 			if (setter == null) {
-				return new ReflectionProperty<T>(owner, field, model);
+				return new ReflectionProperty<T>(owner, field, metaType);
 			} else {
-				return new ReflectionProperty<T>(owner, name, field, getter, setter, model);
+				return new ReflectionProperty<T>(owner, name, field, getter, setter, metaType);
 			}
 		}
 	}
@@ -78,12 +78,12 @@ public class ReflectionProperty<T> implements Property<T> {
 		return !method.isPrivate() || method.getDeclaredAnnotation(PropertyDescriptor.class) != null;
 	}
 
-	public ReflectionProperty(Class<?> declaringClass, Field field, Model<?> model) {
-		this(declaringClass, field.getName(), field, null, null, model);
+	public ReflectionProperty(Class<?> declaringClass, Field field, MetaType<?> metaType) {
+		this(declaringClass, field.getName(), field, null, null, metaType);
 	}
 
 	public ReflectionProperty(Class<?> declaringClass, String name, Field field, Method getter, Method setter,
-			Model<?> model) {
+			MetaType<?> metaType) {
 		this.declaringClass = declaringClass;
 		this.name = name;
 
@@ -131,7 +131,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			editable = editorDescriptor.editable();
 		}
 
-		defaultValue = getValue(DefaultInstances.getDefault(model.getType()));
+		defaultValue = getValue(DefaultInstances.getDefault(metaType.getType()));
 	}
 
 	private <A extends Annotation> A findAnnotation(Class<A> type) {
@@ -229,10 +229,10 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Property<T> newInstance(Model<?> newModel) {
-		T overriden = getValue(DefaultInstances.getDefault(newModel.getType()));
+	public Property<T> newInstance(MetaType<?> owner) {
+		T overriden = getValue(DefaultInstances.getDefault(owner.getType()));
 		return Values.isEqual(defaultValue, overriden, true) ? this
-				: new ReflectionProperty<T>(declaringClass, name, field, getter, setter, newModel);
+				: new ReflectionProperty<T>(declaringClass, name, field, getter, setter, owner);
 	}
 
 	@Override

@@ -6,30 +6,30 @@ import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class ObjectArrayModelFactory implements ModelFactory {
-	public static final ObjectArrayModelFactory instance = new ObjectArrayModelFactory();
+public class ObjectArrayMetaTypeFactory implements MetaTypeFactory {
+	public static final ObjectArrayMetaTypeFactory instance = new ObjectArrayMetaTypeFactory();
 
-	private ObjectArrayModelFactory() {
+	private ObjectArrayMetaTypeFactory() {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> MetaType<T> create(Class<T> type) {
 		if (type.isArray()) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			ObjectArrayModel raw = new ObjectArrayModel(type);
+			ObjectArrayMetaType raw = new ObjectArrayMetaType(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			MetaType<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class ObjectArrayModel<T> implements Model<T> {
+	public static class ObjectArrayMetaType<T> implements MetaType<T> {
 		private Class<T> type;
 		private Class<?> componentType;
 
-		public ObjectArrayModel(Class<T> type) {
+		public ObjectArrayMetaType(Class<T> type) {
 			this.type = type;
 			componentType = type.getComponentType();
 		}

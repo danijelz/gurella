@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.graph;
 
-import com.gurella.engine.scene.SceneElement2;
+import com.gurella.engine.scene.SceneElement;
 
 class CopyElementSelection extends ElementSelection {
-	CopyElementSelection(SceneElement2 element) {
+	CopyElementSelection(SceneElement element) {
 		super(element);
 	}
 }

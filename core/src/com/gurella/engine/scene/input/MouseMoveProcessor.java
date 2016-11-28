@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.NodeMouseOverListener;
 import com.gurella.engine.subscriptions.scene.input.SceneMouseListener;
@@ -18,13 +18,13 @@ class MouseMoveProcessor {
 	private final MouseOverMoveEvent mouseOverMoveEvent = new MouseOverMoveEvent();
 	private final MouseOverEndEvent mouseOverEndEvent = new MouseOverEndEvent();
 
-	private SceneNode2 mouseOverNode;
+	private SceneNode mouseOverNode;
 
 	MouseMoveProcessor(Scene scene) {
 		this.scene = scene;
 	}
 
-	void mouseMoved(int screenX, int screenY, SceneNode2 currentNode, Vector3 intersection) {
+	void mouseMoved(int screenX, int screenY, SceneNode currentNode, Vector3 intersection) {
 		mouseMoveInfo.screenX = screenX;
 		mouseMoveInfo.screenY = screenY;
 		if (currentNode != null) {

@@ -8,14 +8,14 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
-public abstract class SpatialSystem<T extends Spatial> extends SceneService2
+public abstract class SpatialSystem<T extends Spatial> extends SceneService
 		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
 	private Object mutex = new Object();
 
@@ -149,7 +149,7 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService2
 	protected abstract T createSpatial(RenderableComponent drawableComponent);
 
 	@Override
-	public void componentActivated(SceneNodeComponent2 component) {
+	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = createSpatial((RenderableComponent) component);
 			add(spatial);
@@ -157,7 +157,7 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService2
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent2 component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = allSpatials.get(component.getNodeId());
 			if (spatial != null) {

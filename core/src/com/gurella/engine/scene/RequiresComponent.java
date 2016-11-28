@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
 public @interface RequiresComponent {
-	Class<? extends SceneNodeComponent2> value();
+	Class<? extends SceneNodeComponent> value();
 }

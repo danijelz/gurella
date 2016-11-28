@@ -23,7 +23,7 @@ public interface Property<T> {
 
 	boolean isEditable(); // TODO remove
 
-	Property<T> newInstance(Model<?> model);
+	Property<T> newInstance(MetaType<?> owner);
 
 	T getValue(Object object);
 

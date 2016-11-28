@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.metatype.Models;
+import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.json.JsonInput;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.engine.utils.ArrayExt;
@@ -69,7 +69,7 @@ public class InputOutputTest {
 		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
-		// TODO Models.isEqual must handle circular references obj.child = obj;
+		// TODO MetaTypess.isEqual must handle circular references obj.child = obj;
 
 		JsonOutput output = new JsonOutput();
 		FileHandle file = new FileHandle("");
@@ -79,20 +79,20 @@ public class InputOutputTest {
 
 		JsonInput input = new JsonInput();
 		Test deserialized = input.deserialize(Test.class, string);
-		System.out.println(Models.isEqual(obj, deserialized));
+		System.out.println(MetaTypes.isEqual(obj, deserialized));
 
 		Test duplicate = CopyContext.copyObject(obj);
-		System.out.println(Models.isEqual(obj, duplicate));
+		System.out.println(MetaTypes.isEqual(obj, duplicate));
 
 		Object copied = CopyContext.copyObjectProperties(obj, new Test());
-		System.out.println(Models.isEqual(obj, copied));
+		System.out.println(MetaTypes.isEqual(obj, copied));
 
 		System.out.println("\n\n\n\n");
 
 		String string1 = output.serialize(file, Test.class, obj, duplicate);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 		Test deserialized1 = input.deserialize(Test.class, string1, obj);
-		System.out.println(Models.isEqual(obj, deserialized1));
+		System.out.println(MetaTypes.isEqual(obj, deserialized1));
 	}
 
 	public static class Test {
