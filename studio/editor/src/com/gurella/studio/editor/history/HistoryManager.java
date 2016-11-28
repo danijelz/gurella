@@ -3,6 +3,8 @@ package com.gurella.studio.editor.history;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
+import java.util.Optional;
+
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.UndoContext;
@@ -88,7 +90,12 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 
 	@Override
 	public void contribute(ContextMenuActions actions) {
-		actions.addAction("&Undo", -1000, canUndo(), this::undo);
-		actions.addAction("&Redo", -900, canRedo(), this::redo);
+		IUndoableOperation undoOperation = operationHistory.getUndoOperation(this);
+		String undo = Optional.ofNullable(undoOperation).map(o -> "&Undo" + o.getLabel()).orElse("&Undo");
+		actions.addAction(undo, -1000, canUndo(), this::undo);
+
+		IUndoableOperation redoOperation = operationHistory.getRedoOperation(this);
+		String redo = Optional.ofNullable(redoOperation).map(o -> "&Redo" + o.getLabel()).orElse("&Redo");
+		actions.addAction(redo, -900, canRedo(), this::redo);
 	}
 }

@@ -29,6 +29,7 @@ public class ContextMenuManager implements EditorCloseListener {
 		public boolean tap(float x, float y, int count, int button) {
 			if (count == 1 && button == Buttons.RIGHT) {
 				ContextMenuActions actions = new ContextMenuActions();
+				//TODO handle with plugin
 				EventService.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
 				actions.showMenu();
 			}
