@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -16,12 +17,12 @@ import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
+import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-public class GurellaAssetsRenameParticipants extends RenameParticipant {
+public class GurellaAssetsMoveParticipant extends MoveParticipant {
 	private IFile file;
 
 	@Override
@@ -32,7 +33,7 @@ public class GurellaAssetsRenameParticipants extends RenameParticipant {
 
 	@Override
 	public String getName() {
-		return "Gurella asset references participant";
+		return "Gurella asset move participant";
 	}
 
 	@Override
@@ -43,12 +44,14 @@ public class GurellaAssetsRenameParticipants extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		final IContainer destination = (IContainer) getArguments().getDestination();
 		IProject project = file.getProject();
 		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
 		IResource[] roots = { project };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 		IPath oldResourcePath = file.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
-		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(getArguments().getNewName());
+		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
+				.append(file.getName());
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();

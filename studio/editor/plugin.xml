@@ -14,13 +14,13 @@
       </editor>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
-         name="Gurella rename participants"
+         id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipant"
+         name="Gurella rename participant"
          point="org.eclipse.ltk.core.refactoring.renameParticipants">
       <renameParticipant
-            class="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
-            id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipants"
-            name="Gurella assets rename participants">
+            class="com.gurella.studio.refractoring.GurellaAssetsRenameParticipant"
+            id="com.gurella.studio.refractoring.GurellaAssetsRenameParticipant"
+            name="Gurella assets rename participant">
          <enablement>
             <and>
                <with
@@ -41,13 +41,13 @@
       </renameParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
-         name="Gurella assets move participants"
+         id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipant"
+         name="Gurella assets move participant"
          point="org.eclipse.ltk.core.refactoring.moveParticipants">
       <moveParticipant
-            class="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
-            id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipants"
-            name="Gurella assets move participants">
+            class="com.gurella.studio.refractoring.GurellaAssetsMoveParticipant"
+            id="com.gurella.studio.refractoring.GurellaAssetsMoveParticipant"
+            name="Gurella assets move participant">
          <enablement>
             <with
                   variable="element">
@@ -68,6 +68,34 @@
                </and>
             </with></enablement>
       </moveParticipant>
+   </extension>
+   <extension
+         id="com.gurella.studio.refractoring.GurellaAssetsCopyParticipant"
+         name="Gurella assets copy participant"
+         point="org.eclipse.ltk.core.refactoring.copyParticipants">
+      <copyParticipant
+            class="com.gurella.studio.refractoring.GurellaAssetsCopyParticipant"
+            id="com.gurella.studio.refractoring.GurellaAssetsCopyParticipant"
+            name="Gurella assets copy participant"
+            processOnCancel="false">
+         <enablement>
+            <with
+                  variable="element">
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFile">
+                  </instanceof>
+                  <with
+                        variable="affectedNatures">
+                     <iterate>
+                        <equals
+                              value="org.eclipse.jdt.core.javanature">
+                        </equals>
+                     </iterate>
+                  </with>
+               </and>
+            </with></enablement>
+      </copyParticipant>
    </extension>
 
 </plugin>

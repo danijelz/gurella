@@ -95,7 +95,7 @@ public class FileDialogUtils {
 		if (Values.isNotBlank(extension)) {
 			ext = extension;
 		} else {
-			ext = index > 0 && index < defaultName.length() - 1 ? defaultName.substring(index) : null;
+			ext = index > 0 && index < defaultName.length() - 1 ? defaultName.substring(index + 1) : null;
 		}
 
 		String composedName = composeName(name, ext);
