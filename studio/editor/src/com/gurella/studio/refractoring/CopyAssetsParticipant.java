@@ -49,14 +49,15 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		IProject project = file.getProject();
 		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
 		IResource[] roots = { destination };
-		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
-				.append(file.getName());
-		String[] fileNamePatterns = {newResourcePath.toString()};
+		IPath copyPath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath).append(file.getName());
+		IFile copy = destination.getFile(copyPath.makeRelativeTo(destination.getProjectRelativePath()));
+
+		String[] fileNamePatterns = { copyPath.toString() };
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new ReplaceAssetNameRequestor(this, changes, newResourcePath.toString());
-		Pattern pattern = Pattern.compile("uuid: ..............");
+		TextSearchRequestor requestor = new GenerateUuidRequestor(changes, copy);
+		Pattern pattern = Pattern.compile("uuid:\\s*[0-9a-fA-F]{32}(?=\\s)");
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
