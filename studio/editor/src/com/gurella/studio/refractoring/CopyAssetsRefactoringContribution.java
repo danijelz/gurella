@@ -51,42 +51,47 @@ public class CopyAssetsRefactoringContribution extends RefactoringContribution {
 	public RefactoringDescriptor createDescriptor(String id, String project, String description, String comment,
 			Map<String, String> arguments, int flags) throws IllegalArgumentException {
 		try {
-			int numResources = Integer.parseInt(arguments.get(ATTRIBUTE_NUMBER_OF_RESOURCES));
-			if (numResources < 0 || numResources > 100000) {
-				String msg = "Can not restore CopyAssetsDescriptor from map, number of elements is invalid";
-				throw new IllegalArgumentException(msg);
-			}
-
-			IPath[] resourcePaths = new IPath[numResources];
-			for (int i = 0; i < numResources; i++) {
-				String resource = arguments.get(ATTRIBUTE_ELEMENT + String.valueOf(i + 1));
-				if (resource == null) {
-					String msg = "Can not restore CopyAssetsDescriptor from map, resource missing";
-					throw new IllegalArgumentException(msg);
-				}
-
-				resourcePaths[i] = handleToResourcePath(project, resource);
-			}
-
-			String destination = arguments.get(ATTRIBUTE_DESTINATION);
-			if (destination == null) {
-				String msg = "Can not restore CopyAssetsDescriptor from map, destination missing";
-				throw new IllegalArgumentException(msg);
-			}
-
-			IPath destPath = handleToResourcePath(project, destination);
-
-			CopyAssetsDescriptor descriptor = new CopyAssetsDescriptor();
-			descriptor.setProject(project);
-			descriptor.setDescription(description);
-			descriptor.setComment(comment);
-			descriptor.setFlags(flags);
-			descriptor.setResourcePathsToCopy(resourcePaths);
-			descriptor.setDestinationPath(destPath);
-			return descriptor;
+			return createDescriptor(project, description, comment, arguments, flags);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("Can not restore CopyAssetsDescriptor from map");
 		}
+	}
+
+	private static RefactoringDescriptor createDescriptor(String project, String description, String comment,
+			Map<String, String> arguments, int flags) {
+		int numResources = Integer.parseInt(arguments.get(ATTRIBUTE_NUMBER_OF_RESOURCES));
+		if (numResources < 0 || numResources > 100000) {
+			String msg = "Can not restore CopyAssetsDescriptor from map, number of elements is invalid";
+			throw new IllegalArgumentException(msg);
+		}
+
+		IPath[] resourcePaths = new IPath[numResources];
+		for (int i = 0; i < numResources; i++) {
+			String resource = arguments.get(ATTRIBUTE_ELEMENT + String.valueOf(i + 1));
+			if (resource == null) {
+				String msg = "Can not restore CopyAssetsDescriptor from map, resource missing";
+				throw new IllegalArgumentException(msg);
+			}
+
+			resourcePaths[i] = handleToResourcePath(project, resource);
+		}
+
+		String destination = arguments.get(ATTRIBUTE_DESTINATION);
+		if (destination == null) {
+			String msg = "Can not restore CopyAssetsDescriptor from map, destination missing";
+			throw new IllegalArgumentException(msg);
+		}
+
+		IPath destPath = handleToResourcePath(project, destination);
+
+		CopyAssetsDescriptor descriptor = new CopyAssetsDescriptor();
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(flags);
+		descriptor.setResourcePathsToCopy(resourcePaths);
+		descriptor.setDestinationPath(destPath);
+		return descriptor;
 	}
 
 	private static IPath handleToResourcePath(final String project, final String handle) {
