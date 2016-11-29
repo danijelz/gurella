@@ -48,13 +48,11 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		final IContainer destination = (IContainer) getArguments().getDestination();
 		IProject project = file.getProject();
 		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
-		IResource[] roots = { destination };
 		IPath copyPath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath).append(file.getName());
 		IFile copy = destination.getFile(copyPath.makeRelativeTo(destination.getProjectRelativePath()));
+		IResource[] roots = new IResource[] { file };
 
-		String[] fileNamePatterns = { file.getProjectRelativePath().toString() };
-
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, new String[]{"*"}, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new GenerateUuidRequestor(changes, copy);
 		Pattern pattern = Pattern.compile("uuid:\\s*[0-9a-fA-F]{32}(?=\\s)");
