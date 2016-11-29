@@ -52,7 +52,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		IPath copyPath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath).append(file.getName());
 		IFile copy = destination.getFile(copyPath.makeRelativeTo(destination.getProjectRelativePath()));
 
-		String[] fileNamePatterns = { copyPath.toString() };
+		String[] fileNamePatterns = { file.getProjectRelativePath().toString() };
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
