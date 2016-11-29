@@ -40,7 +40,6 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.utils.Try;
@@ -140,7 +139,6 @@ class AssetsMenu {
 			Shell shell = view.getShell();
 			FileDialog dlg = new FileDialog(shell, SWT.MULTI);
 			dlg.setFilterPath(lastPath);
-
 			if (dlg.open() == null) {
 				return;
 			}
@@ -150,7 +148,7 @@ class AssetsMenu {
 			Arrays.stream(dlg.getFileNames()).forEach(fn -> importAsset(path, fn, unsuccessful));
 			preferencesNode.put("lastPath", path);
 			Optional.of(unsuccessful).filter(u -> !u.isEmpty()).ifPresent(u -> MessageDialog.openWarning(shell,
-					"Import problems", "Some assets could'n be imported: " + u.toString()));
+					"Import problems", "Some assets could not be imported: " + u.toString()));
 		}
 
 		private void importAsset(String path, String fileName, List<String> unsuccessful) {
