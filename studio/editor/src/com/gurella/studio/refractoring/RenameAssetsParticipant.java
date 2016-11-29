@@ -21,7 +21,7 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-public class GurellaAssetsRenameParticipant extends RenameParticipant {
+public class RenameAssetsParticipant extends RenameParticipant {
 	private IFile file;
 
 	@Override

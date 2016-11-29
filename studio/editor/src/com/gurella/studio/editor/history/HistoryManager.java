@@ -64,11 +64,11 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		Try.ofFailable(() -> operationHistory.execute(operation, monitor, null)).onFailure(e -> showError(e, errorMsg));
 	}
 
-	public boolean canUndo() {
+	private boolean canUndo() {
 		return operationHistory.canUndo(this);
 	}
 
-	public void undo() {
+	private void undo() {
 		if (canUndo()) {
 			IProgressMonitor monitor = statusLineManager.getProgressMonitor();
 			String msg = "Error while executing undo.";
@@ -76,11 +76,11 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		}
 	}
 
-	public boolean canRedo() {
+	private boolean canRedo() {
 		return operationHistory.canRedo(this);
 	}
 
-	public void redo() {
+	private void redo() {
 		if (canRedo()) {
 			IProgressMonitor monitor = statusLineManager.getProgressMonitor();
 			String msg = "Error while executing redo.";
@@ -91,11 +91,11 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 	@Override
 	public void contribute(ContextMenuActions actions) {
 		IUndoableOperation undoOperation = operationHistory.getUndoOperation(this);
-		String undo = Optional.ofNullable(undoOperation).map(o -> "&Undo" + o.getLabel()).orElse("&Undo");
+		String undo = Optional.ofNullable(undoOperation).map(o -> "&Undo " + o.getLabel()).orElse("&Undo");
 		actions.addAction(undo, -1000, canUndo(), this::undo);
 
 		IUndoableOperation redoOperation = operationHistory.getRedoOperation(this);
-		String redo = Optional.ofNullable(redoOperation).map(o -> "&Redo" + o.getLabel()).orElse("&Redo");
+		String redo = Optional.ofNullable(redoOperation).map(o -> "&Redo " + o.getLabel()).orElse("&Redo");
 		actions.addAction(redo, -900, canRedo(), this::redo);
 	}
 }

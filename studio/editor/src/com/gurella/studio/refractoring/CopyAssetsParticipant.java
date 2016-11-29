@@ -9,7 +9,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.CopyParticipant;
 
-public class GurellaAssetsCopyParticipant extends CopyParticipant {
+public class CopyAssetsParticipant extends CopyParticipant {
 	private IFile file;
 	
 	@Override

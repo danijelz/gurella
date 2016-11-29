@@ -75,6 +75,7 @@ import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.ControlExpression;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.refractoring.CopyAssetsDescriptor;
 
 public class AssetsView extends DockableView implements IResourceChangeListener, PreferencesExtension {
 	private final Tree tree;
@@ -319,9 +320,14 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		executeRefractoringOperation(descriptor, "Move asset", "Error while moving resource.");
 	}
 
-	private void duplicate(IResource resource, IFolder destinationFolder) {
-		DuplicateAssetOperation operation = new DuplicateAssetOperation(resource, destinationFolder);
-		editorContext.executeOperation(operation, "Error while duplicating resource.");
+	private void duplicate(IResource resource, IFolder destination) {
+		CopyAssetsDescriptor descriptor = new CopyAssetsDescriptor();
+		descriptor.setResourcesToCopy(new IResource[] { resource });
+		descriptor.setDestination(destination);
+		executeRefractoringOperation(descriptor, "Copy asset", "Error while copying resource.");
+		
+//		DuplicateAssetOperation operation = new DuplicateAssetOperation(resource, destinationFolder);
+//		editorContext.executeOperation(operation, "Error while duplicating resource.");
 	}
 
 	void rename(IResource resource, String newName) {

@@ -22,7 +22,7 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-public class GurellaAssetsMoveParticipant extends MoveParticipant {
+public class MoveAssetsParticipant extends MoveParticipant {
 	private IFile file;
 
 	@Override
