@@ -13,32 +13,33 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
-final class TextSearchRequestorExtension extends TextSearchRequestor {
+import com.gurella.engine.utils.Uuid;
+
+public class RegenerateUuidRequestor extends TextSearchRequestor {
 	private final RefactoringParticipant participant;
 	private final Map<IFile, TextFileChange> changes;
-	private final String newFileName;
+	private final IFile copy;
 
-	TextSearchRequestorExtension(RefactoringParticipant participant, Map<IFile, TextFileChange> changes,
-			String newFileName) {
+	RegenerateUuidRequestor(RefactoringParticipant participant, Map<IFile, TextFileChange> changes, IFile copy) {
 		this.participant = participant;
 		this.changes = changes;
-		this.newFileName = newFileName;
+		this.copy = copy;
 	}
 
 	@Override
 	public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
-		IFile file = matchAccess.getFile();
-		TextFileChange change = changes.get(file);
+		TextFileChange change = changes.get(copy);
 		if (change == null) {
-			TextChange textChange = participant.getTextChange(file);
+			TextChange textChange = participant.getTextChange(copy);
 			if (textChange != null) {
-				return false;
+				change = new TextFileChange(copy.getName(), copy);
+				change.setEdit(new MultiTextEdit());
+				changes.put(copy, change);
 			}
-			change = new TextFileChange(file.getName(), file);
-			change.setEdit(new MultiTextEdit());
-			changes.put(file, change);
 		}
-		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), newFileName);
+
+		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(),
+				Uuid.randomUuidString());
 		change.addEdit(edit);
 		change.addTextEditGroup(new TextEditGroup("Update asset reference", edit));
 		return true;

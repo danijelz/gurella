@@ -67,7 +67,6 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
-import com.gurella.studio.editor.operation.DuplicateAssetOperation;
 import com.gurella.studio.editor.operation.RefractoringOperation;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesStore;
@@ -325,9 +324,6 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		descriptor.setResourcesToCopy(new IResource[] { resource });
 		descriptor.setDestination(destination);
 		executeRefractoringOperation(descriptor, "Copy asset", "Error while copying resource.");
-		
-//		DuplicateAssetOperation operation = new DuplicateAssetOperation(resource, destinationFolder);
-//		editorContext.executeOperation(operation, "Error while duplicating resource.");
 	}
 
 	void rename(IResource resource, String newName) {

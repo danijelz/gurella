@@ -211,7 +211,8 @@ class AssetsMenu {
 
 		private static <T> void addAsset(IFolder parent, String name, T asset) {
 			IFile file = parent.getFile(name);
-			Class<T> expectedType = Values.cast(asset.getClass());
+			@SuppressWarnings("unchecked")
+			Class<T> expectedType = (Class<T>) asset.getClass();
 			String serialized = serialize(file.getName(), expectedType, asset);
 			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
 					.peek(is -> file.create(is, true, new NullProgressMonitor()))

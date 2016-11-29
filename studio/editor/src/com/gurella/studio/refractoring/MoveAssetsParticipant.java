@@ -55,7 +55,7 @@ public class MoveAssetsParticipant extends MoveParticipant {
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new TextSearchRequestorExtension(this, changes, newResourcePath.toString());
+		TextSearchRequestor requestor = new ReplaceAssetNameRequestor(this, changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile(oldResourcePath.toString());
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 

@@ -22,6 +22,7 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+//uuid:\s*[0-9a-fA-F]{32}(?=\s)
 public class CopyAssetsParticipant extends CopyParticipant {
 	private IFile file;
 
@@ -54,7 +55,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new TextSearchRequestorExtension(this, changes, newResourcePath.toString());
+		TextSearchRequestor requestor = new ReplaceAssetNameRequestor(this, changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile("uuid: ..............");
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
