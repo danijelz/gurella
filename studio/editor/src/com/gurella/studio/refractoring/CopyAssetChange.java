@@ -15,13 +15,13 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange;
 import org.eclipse.ltk.core.refactoring.resource.ResourceChange;
 
-public class CopyResourceChange extends ResourceChange {
+public class CopyAssetChange extends ResourceChange {
 	private final IResource source;
 	private final IContainer target;
 
-	private ChangeDescriptor fDescriptor;
+	private ChangeDescriptor descriptor;
 
-	protected CopyResourceChange(IResource source, IContainer target) {
+	protected CopyAssetChange(IResource source, IContainer target) {
 		this.source = source;
 		this.target = target;
 		setValidationMethod(VALIDATE_NOT_DIRTY);
@@ -29,11 +29,11 @@ public class CopyResourceChange extends ResourceChange {
 
 	@Override
 	public ChangeDescriptor getDescriptor() {
-		return fDescriptor;
+		return descriptor;
 	}
 
 	public void setDescriptor(ChangeDescriptor descriptor) {
-		fDescriptor = descriptor;
+		this.descriptor = descriptor;
 	}
 
 	@Override
@@ -58,12 +58,12 @@ public class CopyResourceChange extends ResourceChange {
 		}
 
 		IPath destinationPath = target.getFullPath().append(source.getName());
-		int flags = IResource.KEEP_HISTORY | IResource.SHALLOW;
+		int flags = IResource.KEEP_HISTORY | IResource.SHALLOW | IResource.FORCE;
 		source.copy(destinationPath, flags, SubMonitor.convert(progressMonitor, 2));
 		resourceAtDestination = ResourcesPlugin.getWorkspace().getRoot().findMember(destinationPath);
 
 		progressMonitor.worked(1);
-		return new UndoCopyResourceChange(source, resourceAtDestination, deleteUndo);
+		return new UndoCopyAssetChange(source, resourceAtDestination, deleteUndo);
 	}
 
 	private static Change performDestinationDelete(IResource newResource, IProgressMonitor monitor)

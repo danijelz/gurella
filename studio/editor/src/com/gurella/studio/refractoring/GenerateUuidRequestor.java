@@ -14,7 +14,7 @@ import org.eclipse.text.edits.TextEditGroup;
 import com.gurella.engine.utils.Uuid;
 
 public class GenerateUuidRequestor extends TextSearchRequestor {
-	private Map<IFile, TextFileChange> changes;
+	private final Map<IFile, TextFileChange> changes;
 	private final IFile copy;
 
 	GenerateUuidRequestor(Map<IFile, TextFileChange> changes, IFile copy) {

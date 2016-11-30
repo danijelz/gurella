@@ -12,21 +12,15 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.resource.DeleteResourceChange;
 import org.eclipse.ltk.core.refactoring.resource.ResourceChange;
 
-public class UndoCopyResourceChange extends ResourceChange {
+public class UndoCopyAssetChange extends ResourceChange {
 	private final IResource original;
 	private final IResource copy;
 	private final Change restoreSourceChange;
 
-	protected UndoCopyResourceChange(IResource original, IResource copy, Change restoreSourceChange) {
+	protected UndoCopyAssetChange(IResource original, IResource copy, Change restoreSourceChange) {
 		this.original = original;
 		this.copy = copy;
 		this.restoreSourceChange = restoreSourceChange;
-
-		// We already present a dialog to the user if he
-		// moves read-only resources. Since moving a resource
-		// doesn't do a validate edit (it actually doesn't
-		// change the content we can't check for READ only
-		// here.
 		setValidationMethod(VALIDATE_NOT_DIRTY);
 	}
 
@@ -41,21 +35,18 @@ public class UndoCopyResourceChange extends ResourceChange {
 	}
 
 	private Change performSafely(IProgressMonitor progressMonitor) throws CoreException {
-		progressMonitor.beginTask(getName(), 4);
+		progressMonitor.beginTask(getName(), 2);
 
-		deleteCopy(SubMonitor.convert(progressMonitor, 1));
 		IContainer parent = copy.getParent();
+		deleteCopy(SubMonitor.convert(progressMonitor, 1));
 
-		copy.delete(true, SubMonitor.convert(progressMonitor, 2));
-
-		// restore file at source
 		if (restoreSourceChange != null) {
 			performSourceRestore(SubMonitor.convert(progressMonitor, 1));
 		} else {
 			progressMonitor.worked(1);
 		}
 
-		return new CopyResourceChange(original, parent);
+		return new CopyAssetChange(original, parent);
 	}
 
 	private Change deleteCopy(IProgressMonitor monitor) throws CoreException {

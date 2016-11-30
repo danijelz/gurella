@@ -211,7 +211,7 @@ public class CopyAssetsProcessor extends CopyProcessor {
 
 		RefactoringChangeDescriptor descriptor = new RefactoringChangeDescriptor(createDescriptor());
 		for (int i = 0; i < resourcesToCopy.length; i++) {
-			CopyResourceChange moveChange = new CopyResourceChange(resourcesToCopy[i], destination);
+			CopyAssetChange moveChange = new CopyAssetChange(resourcesToCopy[i], destination);
 			moveChange.setDescriptor(descriptor);
 			compositeChange.add(moveChange);
 		}
@@ -223,7 +223,7 @@ public class CopyAssetsProcessor extends CopyProcessor {
 		if (resourcesToCopy.length == 1) {
 			return String.format("Copy '%s' to '%s'", resourcesToCopy[0].getName(), destination.getName());
 		} else {
-			return String.format("Move %d resources to '%s'", Integer.valueOf(resourcesToCopy.length),
+			return String.format("Copy %d resources to '%s'", Integer.valueOf(resourcesToCopy.length),
 					destination.getName());
 		}
 	}
