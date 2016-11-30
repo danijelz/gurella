@@ -50,6 +50,8 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		if (assetType == null || !assetType.composite) {
 			return null;
 		}
+		
+		System.out.println("Copy asset: " + file.getName());
 
 		final IContainer destination = (IContainer) getArguments().getDestination();
 		IFile copy = destination.getFile(Path.fromPortableString(file.getName()));

@@ -64,9 +64,12 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-		toolkit.disposePrivate();
 		resourceManager.dispose();
 		pluginResources.entrySet().forEach(e -> e.getKey().destroyResource(e.getValue()));
+
+		if (toolkit != null) {
+			toolkit.disposePrivate();
+		}
 	}
 
 	public static InputStream getFileInputStream(String filePath) {
@@ -284,7 +287,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	public static FormToolkit getToolkit() {
-		if(toolkit == null) {
+		if (toolkit == null) {
 			// TODO http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
 			toolkit = new GurellaFormToolkit(UiUtils.getDisplay());
 		}
