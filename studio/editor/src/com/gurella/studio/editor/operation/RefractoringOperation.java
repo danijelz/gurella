@@ -33,14 +33,12 @@ public class RefractoringOperation extends AbstractOperation implements ErrorSta
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while refractoring resource.";
 		return Try.successful(operation).peek(o -> context.workspace.run(o, new NullProgressMonitor()))
-				.map(m -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
+				.map(m -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		String errMsg = "Error while refractoring resource.";
-		return Try.successful(undoManager).peek(m -> m.performRedo(null, monitor)).map(m -> Status.OK_STATUS)
-				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
+		return execute(monitor, info);
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import com.gurella.engine.input.InputActionMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 
+//TODO convert to plugins
 public enum AssetType {
 	texture(Texture.class, "png", "jpg", "jpeg"),
 	textureAtlas(TextureAtlas.class, "atl"),
@@ -35,12 +36,12 @@ public enum AssetType {
 	audioClip(AudioClip.class, "wav", "ogg", "mp3", "scl"),
 	pixmap(Pixmap.class, "png", "bmp", "jpg", "jpeg"),
 	polygonRegion(PolygonRegion.class, "psh"),
-	inputActionMap(InputActionMap.class, "giam"),
-	prefab(SceneNode.class, "pref"),
-	scene(Scene.class, "gscn"),
-	material(MaterialDescriptor.class, "gmat"),
-	shaderTemplate(ShaderTemplate.class, "glslt"),
-	renderTarget(RenderTarget.class, "grt"),
+	inputActionMap(InputActionMap.class, true, "giam"),
+	prefab(SceneNode.class, true, "pref"),
+	scene(Scene.class, true, "gscn"),
+	material(MaterialDescriptor.class, true, "gmat"),
+	shaderTemplate(ShaderTemplate.class, true, "glslt"),
+	renderTarget(RenderTarget.class, true, "grt"),
 	renderProgram(null),
 	spritterAnimation(null),
 	splineAnimation(null),
@@ -63,14 +64,20 @@ public enum AssetType {
 
 	public final Class<?> assetType;
 	public final String[] extensions;
-
+	public final  boolean composite;
+	
 	private AssetType(Class<?> assetType, String... extensions) {
+		this(assetType, false, extensions);
+	}
+
+	private AssetType(Class<?> assetType, boolean composite, String... extensions) {
 		this.assetType = assetType;
 		this.extensions = extensions;
+		this.composite = composite;
 		Arrays.sort(this.extensions);
 	}
 
-	public boolean containsExtension(String extension) {
+	public boolean isValidExtension(String extension) {
 		return Arrays.binarySearch(extensions, extension) >= 0;
 	}
 

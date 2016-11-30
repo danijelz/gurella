@@ -21,6 +21,9 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.Assets;
+
 public class CopyAssetsParticipant extends CopyParticipant {
 	private IFile file;
 
@@ -43,6 +46,11 @@ public class CopyAssetsParticipant extends CopyParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		AssetType assetType = Assets.getAssetType(file.getName());
+		if (assetType == null || !assetType.composite) {
+			return null;
+		}
+
 		final IContainer destination = (IContainer) getArguments().getDestination();
 		IFile copy = destination.getFile(Path.fromPortableString(file.getName()));
 		IResource[] roots = new IResource[] { file };

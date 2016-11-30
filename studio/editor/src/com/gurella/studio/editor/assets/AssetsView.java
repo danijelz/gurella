@@ -249,23 +249,23 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	// TODO create plugin extension
 	private static Inspectable<?> getInspectable(IFile file) {
 		String extension = file.getFileExtension();
-		if (AssetType.texture.containsExtension(extension)) {
+		if (AssetType.texture.isValidExtension(extension)) {
 			return new TextureInspectable(file);
-		} else if (AssetType.pixmap.containsExtension(extension)) {
+		} else if (AssetType.pixmap.isValidExtension(extension)) {
 			return new PixmapInspectable(file);
-		} else if (AssetType.sound.containsExtension(extension)) {
+		} else if (AssetType.sound.isValidExtension(extension)) {
 			return new AudioInspectable(file);
-		} else if (AssetType.textureAtlas.containsExtension(extension)) {
+		} else if (AssetType.textureAtlas.isValidExtension(extension)) {
 			return new TextureAtlasInspectable(file);
-		} else if (AssetType.bitmapFont.containsExtension(extension)) {
+		} else if (AssetType.bitmapFont.isValidExtension(extension)) {
 			return new BitmapFontInspectable(file);
-		} else if (AssetType.model.containsExtension(extension)) {
+		} else if (AssetType.model.isValidExtension(extension)) {
 			return new ModelInspectable(file);
-		} else if (AssetType.polygonRegion.containsExtension(extension)) {
+		} else if (AssetType.polygonRegion.isValidExtension(extension)) {
 			return new PolygonRegionInspectable(file);
-		} else if (AssetType.prefab.containsExtension(extension)) {
+		} else if (AssetType.prefab.isValidExtension(extension)) {
 			return new PrefabInspectable(file);
-		} else if (AssetType.material.containsExtension(extension)) {
+		} else if (AssetType.material.isValidExtension(extension)) {
 			return new MaterialInspectable(file);
 		}
 		return null;

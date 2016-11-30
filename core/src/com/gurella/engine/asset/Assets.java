@@ -1,6 +1,5 @@
 package com.gurella.engine.asset;
 
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import com.badlogic.gdx.Files;
@@ -60,7 +59,7 @@ public class Assets {
 		}
 	}
 
-	public static <T> Class<T> getAssetType(final String fileName) {
+	public static AssetType getAssetType(final String fileName) {
 		String extension = getFileExtension(fileName);
 		if (Values.isBlank(extension)) {
 			return null;
@@ -68,12 +67,18 @@ public class Assets {
 
 		extension = extension.toLowerCase();
 		AssetType[] values = AssetType.values();
-		for (int i = 0; i < values.length; i++) {
-			if (Arrays.binarySearch(values[i].extensions, extension) > -1) {
-				return Values.cast(values[i].assetType);
+		for (int i = 0, n = values.length; i < n; i++) {
+			AssetType type = values[i];
+			if (type.isValidExtension(extension)) {
+				return type;
 			}
 		}
 		return null;
+	}
+
+	public static <T> Class<T> getAssetClass(final String fileName) {
+		AssetType type = getAssetType(fileName);
+		return type == null ? null : Values.cast(type.assetType);
 	}
 
 	public static FileHandle getFileHandle(String path) {

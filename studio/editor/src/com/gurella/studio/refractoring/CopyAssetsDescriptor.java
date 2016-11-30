@@ -1,5 +1,7 @@
 package com.gurella.studio.refractoring;
 
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -46,21 +48,17 @@ public class CopyAssetsDescriptor extends RefactoringDescriptor {
 	}
 
 	public void setResourcePathsToCopy(IPath[] resourcePaths) {
-		if (resourcePaths == null) {
+		if (resourcePaths == null || resourcePaths.length == 0) {
 			throw new IllegalArgumentException("Only arrays with size > 0 are allowed");
 		}
 		resourcePathsToCopy = resourcePaths;
 	}
 
 	public void setResourcesToCopy(IResource[] resources) {
-		if (resources == null) {
+		if (resources == null || resources.length == 0) {
 			throw new IllegalArgumentException("Only arrays with size > 0 are allowed");
 		}
-		IPath[] paths = new IPath[resources.length];
-		for (int i = 0; i < paths.length; i++) {
-			paths[i] = resources[i].getFullPath();
-		}
-		setResourcePathsToCopy(paths);
+		resourcePathsToCopy = Arrays.stream(resources).map(r -> r.getFullPath()).toArray(i -> new IPath[i]);
 	}
 
 	public IPath[] getResourcePathsToCopy() {

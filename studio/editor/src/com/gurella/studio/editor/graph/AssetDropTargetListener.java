@@ -52,7 +52,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		IResource resource = ((AssetSelection) selection).getAssetResource();
 		if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			if (AssetType.prefab.containsExtension(file.getFileExtension())) {
+			if (AssetType.prefab.isValidExtension(file.getFileExtension())) {
 				return file;
 			} else {
 				return getComponentType(file) == null ? null : file;
@@ -65,7 +65,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 	protected boolean isValidAssetExtension(String fileExtension) {
 		return AssetType.isValidExtension(Model.class, fileExtension)
 				|| AssetType.isValidExtension(Texture.class, fileExtension)
-				|| AssetType.prefab.containsExtension(fileExtension);
+				|| AssetType.prefab.isValidExtension(fileExtension);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		}
 
 		TreeItem item = (TreeItem) event.item;
-		boolean isPrefab = AssetType.prefab.containsExtension(file.getFileExtension());
+		boolean isPrefab = AssetType.prefab.isValidExtension(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
 				event.detail = DND.DROP_COPY;
@@ -136,7 +136,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		}
 
 		TreeItem item = (TreeItem) event.item;
-		boolean isPrefab = AssetType.prefab.containsExtension(file.getFileExtension());
+		boolean isPrefab = AssetType.prefab.isValidExtension(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
 				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);

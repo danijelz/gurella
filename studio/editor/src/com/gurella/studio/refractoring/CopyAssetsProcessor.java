@@ -174,8 +174,9 @@ public class CopyAssetsProcessor extends CopyProcessor {
 
 	public RefactoringStatus validateDestination(IContainer destination) {
 		Assert.isNotNull(destination, "container is null"); //$NON-NLS-1$
-		if (destination instanceof IWorkspaceRoot)
+		if (destination instanceof IWorkspaceRoot) {
 			return RefactoringStatus.createFatalErrorStatus("Invalid parent");
+		}
 
 		if (!destination.exists()) {
 			return RefactoringStatus.createFatalErrorStatus("Destination does not exist");
@@ -189,7 +190,7 @@ public class CopyAssetsProcessor extends CopyProcessor {
 						String.format("Destination is inside copied resource '%s'", getPathLabel(path)));
 			}
 			if (path.removeLastSegments(1).equals(destinationPath)) {
-				return RefactoringStatus.createFatalErrorStatus("The destination contains a resource to be moved");
+				return RefactoringStatus.createFatalErrorStatus("The destination contains a resource to be copied");
 			}
 		}
 		return new RefactoringStatus();
@@ -211,9 +212,9 @@ public class CopyAssetsProcessor extends CopyProcessor {
 
 		RefactoringChangeDescriptor descriptor = new RefactoringChangeDescriptor(createDescriptor());
 		for (int i = 0; i < resourcesToCopy.length; i++) {
-			CopyAssetChange moveChange = new CopyAssetChange(resourcesToCopy[i], destination);
-			moveChange.setDescriptor(descriptor);
-			compositeChange.add(moveChange);
+			CopyAssetChange copyChange = new CopyAssetChange(resourcesToCopy[i], destination);
+			copyChange.setDescriptor(descriptor);
+			compositeChange.add(copyChange);
 		}
 
 		return compositeChange;
@@ -236,7 +237,7 @@ public class CopyAssetsProcessor extends CopyProcessor {
 			descriptor.setComment(descriptor.getDescription());
 		} else {
 			String resources = Arrays.stream(resourcesToCopy).map(r -> r.getName()).collect(joining(", "));
-			descriptor.setComment(String.format("Move '%s' to '%s'", resources, destination.getName()));
+			descriptor.setComment(String.format("Copy '%s' to '%s'", resources, destination.getName()));
 		}
 		descriptor.setFlags(STRUCTURAL_CHANGE | MULTI_CHANGE);
 		descriptor.setDestination(destination);

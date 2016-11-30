@@ -57,10 +57,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		Display display = UiUtils.getDisplay();
-		// TODO http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
-		toolkit = new GurellaFormToolkit(display);
-		resourceManager = new DeviceResourceManager(display);
+		resourceManager = new DeviceResourceManager(UiUtils.getDisplay());
 	}
 
 	@Override
@@ -287,6 +284,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	public static FormToolkit getToolkit() {
+		if(toolkit == null) {
+			// TODO http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
+			toolkit = new GurellaFormToolkit(UiUtils.getDisplay());
+		}
 		return toolkit;
 	}
 

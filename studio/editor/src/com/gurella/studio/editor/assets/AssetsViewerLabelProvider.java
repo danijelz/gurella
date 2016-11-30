@@ -23,22 +23,22 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 			String extension = file.getFileExtension();
 			if (Values.isBlank(extension)) {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
-			} else if (AssetType.texture.containsExtension(extension)
-					|| AssetType.pixmap.containsExtension(extension)) {
+			} else if (AssetType.texture.isValidExtension(extension)
+					|| AssetType.pixmap.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/picture.png");
-			} else if (AssetType.sound.containsExtension(extension)) {
+			} else if (AssetType.sound.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/music.png");
-			} else if (AssetType.textureAtlas.containsExtension(extension)) {
+			} else if (AssetType.textureAtlas.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/textureAtlas.gif");
-			} else if (AssetType.polygonRegion.containsExtension(extension)) {
+			} else if (AssetType.polygonRegion.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/textureAtlas.gif");
-			} else if (AssetType.bitmapFont.containsExtension(extension)) {
+			} else if (AssetType.bitmapFont.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/font.png");
-			} else if (AssetType.model.containsExtension(extension)) {
+			} else if (AssetType.model.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/16-cube-green_16x16.png");
-			} else if (AssetType.prefab.containsExtension(extension)) {
+			} else if (AssetType.prefab.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/ice_cube.png");
-			} else if (AssetType.material.containsExtension(extension)) {
+			} else if (AssetType.material.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/material.png");
 			} else {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);

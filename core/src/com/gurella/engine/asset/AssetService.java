@@ -41,14 +41,14 @@ public final class AssetService {
 	}
 
 	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		Class<T> type = getResourceType(fileName);
+		Class<T> type = getAssetType(fileName);
 		loadAsync(fileName, type, callback, priority, false);
 	}
 
-	private static <T> Class<T> getResourceType(String fileName) {
-		Class<T> type = Assets.getAssetType(fileName);
+	private static <T> Class<T> getAssetType(String fileName) {
+		Class<T> type = Assets.getAssetClass(fileName);
 		if (type == null) {
-			throw new GdxRuntimeException("Can't find resource type from file name:" + fileName);
+			throw new GdxRuntimeException("Can't extract asset class from file name: " + fileName);
 		}
 		return type;
 	}
@@ -64,7 +64,7 @@ public final class AssetService {
 	}
 
 	public static <T> T load(String fileName) {
-		Class<T> type = getResourceType(fileName);
+		Class<T> type = getAssetType(fileName);
 		return load(fileName, type, 0, false);
 	}
 
@@ -93,12 +93,12 @@ public final class AssetService {
 	public static <T> T get(String fileName) {
 		return assetRegistry.get(fileName);
 	}
-	
+
 	public static <T> T get(String fileName, String internalId) {
 		return assetRegistry.get(fileName, internalId);
 	}
 
-	//TODO replace with save(T asset, String fileName, AssetPersister persister)
+	// TODO replace with save(T asset, String fileName, AssetPersister persister)
 	public static <T> void put(T asset, String fileName) {
 		assetRegistry.put(asset, fileName);
 	}
