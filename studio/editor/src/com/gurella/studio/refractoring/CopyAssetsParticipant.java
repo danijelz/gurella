@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,12 +47,16 @@ public class CopyAssetsParticipant extends CopyParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		IFolder assetsFolder = file.getProject().getFolder("assets");
+		if (assetsFolder == null || !assetsFolder.exists()) {
+			return null;
+		}
+
 		AssetType assetType = Assets.getAssetType(file.getName());
-		//TODO must be inside assets folder
 		if (assetType == null || !assetType.composite) {
 			return null;
 		}
-		
+
 		System.out.println("Copy asset: " + file.getName());
 
 		final IContainer destination = (IContainer) getArguments().getDestination();
