@@ -47,6 +47,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		AssetType assetType = Assets.getAssetType(file.getName());
+		//TODO must be inside assets folder
 		if (assetType == null || !assetType.composite) {
 			return null;
 		}

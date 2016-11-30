@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -46,22 +45,30 @@ public class RenameAssetParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		//TODO must be inside assets folder
-		if (resource instanceof IFolder && Assets.getAssetType(resource.getName()) == null) {
+		IFolder assetsFolder = resource.getProject().getFolder("assets");
+		if (assetsFolder == null || !assetsFolder.exists()) {
 			return null;
 		}
-		
+
+		if (!"assets".equals(resource.getProjectRelativePath().segment(0))) {
+			return null;
+		}
+
+		if (resource instanceof IFile && Assets.getAssetType(resource.getName()) == null) {
+			return null;
+		}
+
 		System.out.println("Rename asset: " + resource.getName());
 
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		IProject project = resource.getProject();
-		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
-		IResource[] roots = { project };
+		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
+		IResource[] roots = { assetsFolder };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
 		String newName = getArguments().getNewName();
 		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(newName);
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
+
+		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile(oldResourcePath.toString());
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);

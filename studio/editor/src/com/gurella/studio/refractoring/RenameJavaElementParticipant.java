@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,16 +44,22 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		IFolder assetsFolder = element.getResource().getProject().getFolder("assets");
+		if (assetsFolder == null || !assetsFolder.exists()) {
+			return null;
+		}
+
 		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName('.')
 				: element.getElementName();
 		int index = oldName.lastIndexOf(element.getElementName());
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
 		System.out.println("Rename java element: " + oldName + " to " + newName);
 
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		IResource[] roots = { element.getResource().getProject().getFolder("assets") };
+		IResource[] roots = { assetsFolder };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
+
+		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newName);
 		Pattern pattern = Pattern.compile(oldName);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
