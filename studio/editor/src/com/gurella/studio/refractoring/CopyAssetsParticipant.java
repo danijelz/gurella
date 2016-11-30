@@ -66,7 +66,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, new String[] { "*" }, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new GenerateUuidRequestor(changes, copy);
-		Pattern pattern = Pattern.compile("uuid:\\s*[0-9a-fA-F]{32}(?=\\s)");
+		Pattern pattern = Pattern.compile("(?<=uuid:[\\s|\\n]{1,100})([0-9a-fA-F]{32})(?=\\s|\\n|$)");
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {

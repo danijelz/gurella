@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -22,20 +22,18 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-import com.gurella.engine.asset.Assets;
-
-public class MoveAssetsParticipant extends MoveParticipant {
-	private IResource resource;
+public class MoveJavaElementParticipant extends MoveParticipant {
+	private IJavaElement element;
 
 	@Override
 	protected boolean initialize(Object element) {
-		resource = (IResource) element;
+		this.element = (IJavaElement) element;
 		return true;
 	}
 
 	@Override
 	public String getName() {
-		return "Gurella asset move participant";
+		return "Gurella java element move participant";
 	}
 
 	@Override
@@ -46,33 +44,22 @@ public class MoveAssetsParticipant extends MoveParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		IFolder assetsFolder = resource.getProject().getFolder("assets");
+		IFolder assetsFolder = element.getResource().getProject().getFolder("assets");
 		if (assetsFolder == null || !assetsFolder.exists()) {
 			return null;
 		}
-
-		if (!"assets".equals(resource.getProjectRelativePath().segment(0))) {
-			return null;
-		}
-
-		if (resource instanceof IFile && Assets.getAssetType(resource.getName()) == null) {
-			return null;
-		}
-
-		final IContainer destination = (IContainer) getArguments().getDestination();
+		
+		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName('.')
+				: element.getElementName();
+		// TODO Auto-generated method stub
+		String newName = "";
 		IResource[] roots = { assetsFolder };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
-		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
-		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
-		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
-				.append(resource.getName());
-
-		System.out.println("Move asset: " + oldResourcePath + " to " + newResourcePath);
-
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
+
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newResourcePath.toString());
-		Pattern pattern = Pattern.compile(oldResourcePath.toString());
+		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newName);
+		Pattern pattern = Pattern.compile(oldName);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {

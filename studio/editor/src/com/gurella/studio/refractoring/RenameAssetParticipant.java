@@ -58,16 +58,16 @@ public class RenameAssetParticipant extends RenameParticipant {
 			return null;
 		}
 
-		System.out.println("Rename asset: " + resource.getName());
-
-		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
 		IResource[] roots = { assetsFolder };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
+		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
 		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
 		String newName = getArguments().getNewName();
 		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(newName);
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 
+		System.out.println("Rename asset: " + oldResourcePath + " to " + newResourcePath);
+
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile(oldResourcePath.toString());

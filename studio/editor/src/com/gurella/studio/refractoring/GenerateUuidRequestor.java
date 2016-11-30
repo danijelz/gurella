@@ -31,7 +31,7 @@ public class GenerateUuidRequestor extends TextSearchRequestor {
 			changes.put(copy, change);
 		}
 
-		String uuid = "uuid: " + Uuid.randomUuidString();
+		String uuid = Uuid.randomUuidString();
 		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), uuid);
 		change.addEdit(edit);
 		change.addTextEditGroup(new TextEditGroup("Update asset uuid", edit));

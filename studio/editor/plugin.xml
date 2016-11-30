@@ -14,7 +14,7 @@
       </editor>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.RenameAssetsParticipant"
+         id="com.gurella.studio.refractoring.renameParticipants"
          name="Gurella rename participants"
          point="org.eclipse.ltk.core.refactoring.renameParticipants">
       <renameParticipant
@@ -75,8 +75,8 @@
       </renameParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.MoveAssetsParticipant"
-         name="Gurella assets move participant"
+         id="com.gurella.studio.refractoring.moveParticipants"
+         name="Gurella move participants"
          point="org.eclipse.ltk.core.refactoring.moveParticipants">
       <moveParticipant
             class="com.gurella.studio.refractoring.MoveAssetsParticipant"
@@ -95,9 +95,41 @@
             </with>
             <with
                   variable="element">
-               <instanceof
-                     value="org.eclipse.core.resources.IFile">
-               </instanceof>
+               <or>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFile">
+                  </instanceof>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFolder">
+                  </instanceof>
+               </or>
+            </with></enablement>
+      </moveParticipant>
+      <moveParticipant
+            class="com.gurella.studio.refractoring.RenameJavaMoveParticipant"
+            id="com.gurella.studio.refractoring.RenameJavaMoveParticipant"
+            name="Gurella java element move participant">
+         <enablement>
+            <with
+                  variable="affectedNatures">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <equals
+                        value="org.eclipse.jdt.core.javanature">
+                  </equals>
+               </iterate>
+            </with>
+            <with
+                  variable="element">
+               <or>
+                  <instanceof
+                        value="org.eclipse.jdt.core.IType">
+                  </instanceof>
+                  <instanceof
+                        value="org.eclipse.jdt.core.IPackageFragment">
+                  </instanceof>
+               </or>
             </with></enablement>
       </moveParticipant>
    </extension>
