@@ -5,13 +5,12 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -22,20 +21,18 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-import com.gurella.engine.asset.Assets;
-
-public class RenameAssetParticipant extends RenameParticipant {
-	private IResource resource;
+public class RenameJavaElementParticipant extends RenameParticipant {
+	private IJavaElement element;
 
 	@Override
 	protected boolean initialize(Object element) {
-		resource = (IFile) element;
+		this.element = (IJavaElement) element;
 		return true;
 	}
 
 	@Override
 	public String getName() {
-		return "Gurella asset rename participant";
+		return "Gurella java element rename participant";
 	}
 
 	@Override
@@ -46,24 +43,18 @@ public class RenameAssetParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		//TODO must be inside assets folder
-		if (resource instanceof IFolder && Assets.getAssetType(resource.getName()) == null) {
-			return null;
-		}
-		
-		System.out.println("Rename asset: " + resource.getName());
+		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName('.')
+				: element.getElementName();
+		int index = oldName.lastIndexOf(element.getElementName());
+		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
+		System.out.println("Rename java element: " + oldName + " to " + newName);
 
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		IProject project = resource.getProject();
-		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
-		IResource[] roots = { project };
+		IResource[] roots = { element.getResource().getProject().getFolder("assets") };
 		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
-		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
-		String newName = getArguments().getNewName();
-		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(newName);
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
-		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newResourcePath.toString());
-		Pattern pattern = Pattern.compile(oldResourcePath.toString());
+		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newName);
+		Pattern pattern = Pattern.compile(oldName);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
