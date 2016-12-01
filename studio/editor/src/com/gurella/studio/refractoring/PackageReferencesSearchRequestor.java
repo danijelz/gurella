@@ -11,11 +11,11 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
-final class ReferencesSearchRequestor extends TextSearchRequestor {
+public class PackageReferencesSearchRequestor extends TextSearchRequestor {
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
 
-	ReferencesSearchRequestor(Map<IFile, TextFileChange> changes, String replacement) {
+	PackageReferencesSearchRequestor(Map<IFile, TextFileChange> changes, String replacement) {
 		this.changes = changes;
 		this.replacement = replacement;
 	}
@@ -27,6 +27,17 @@ final class ReferencesSearchRequestor extends TextSearchRequestor {
 
 	@Override
 	public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
+		int start = matchAccess.getMatchOffset();
+		int length = matchAccess.getMatchLength();
+		int fileContentLength = matchAccess.getFileContentLength();
+		int end = start + length;
+		if (end < fileContentLength) {
+			char after = matchAccess.getFileContentChar(end);
+			if (Character.isJavaIdentifierPart(after)) {
+				return true;
+			}
+		}
+
 		IFile file = matchAccess.getFile();
 		TextFileChange change;
 		synchronized (changes) {
@@ -39,7 +50,6 @@ final class ReferencesSearchRequestor extends TextSearchRequestor {
 		}
 		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), replacement);
 		change.addEdit(edit);
-		//TODO convert to single change and insert in one group
 		change.addTextEditGroup(new TextEditGroup("Update asset reference", edit));
 		return true;
 	}
