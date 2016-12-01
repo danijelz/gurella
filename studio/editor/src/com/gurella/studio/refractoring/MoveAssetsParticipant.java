@@ -1,7 +1,5 @@
 package com.gurella.studio.refractoring;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
@@ -13,16 +11,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
-import org.eclipse.search.core.text.TextSearchEngine;
-import org.eclipse.search.core.text.TextSearchRequestor;
-import org.eclipse.search.ui.text.FileTextSearchScope;
 
 import com.gurella.engine.asset.Assets;
+import com.gurella.engine.utils.Values;
 
 public class MoveAssetsParticipant extends MoveParticipant {
 	private IResource resource;
@@ -59,9 +53,12 @@ public class MoveAssetsParticipant extends MoveParticipant {
 			return null;
 		}
 
+		IResource[] rootResources = RefractoringUtils.getSearchScopeRootResources(resource.getProject());
+		if (Values.isEmpty(rootResources)) {
+			return null;
+		}
+
 		final IContainer destination = (IContainer) getArguments().getDestination();
-		IResource[] roots = { assetsFolder };
-		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
 		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
 		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
@@ -69,18 +66,7 @@ public class MoveAssetsParticipant extends MoveParticipant {
 
 		System.out.println("Move asset: " + oldResourcePath + " to " + newResourcePath);
 
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newResourcePath.toString());
-		Pattern pattern = Pattern.compile(oldResourcePath.toString());
-		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
-
-		if (changes.isEmpty()) {
-			return null;
-		}
-
-		CompositeChange result = new CompositeChange("Gurella asset references update");
-		changes.values().forEach(result::add);
-		return result;
+		String regEx = Pattern.quote(oldResourcePath.toString());
+		return RefractoringUtils.createChange(monitor, rootResources, regEx, newResourcePath.toString());
 	}
 }

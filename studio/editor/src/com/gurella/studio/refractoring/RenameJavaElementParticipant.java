@@ -1,11 +1,12 @@
 package com.gurella.studio.refractoring;
 
+import static com.gurella.studio.refractoring.RefractoringUtils.getFileNamePatterns;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,6 +22,8 @@ import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
+
+import com.gurella.engine.utils.Values;
 
 public class RenameJavaElementParticipant extends RenameParticipant {
 	private IJavaElement element;
@@ -48,8 +51,8 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 			return null;
 		}
 
-		IFolder assetsFolder = element.getResource().getProject().getFolder("assets");
-		if (assetsFolder == null || !assetsFolder.exists()) {
+		IResource[] rootResources = RefractoringUtils.getSearchScopeRootResources(element.getResource().getProject());
+		if (Values.isEmpty(rootResources)) {
 			return null;
 		}
 
@@ -60,13 +63,11 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 
 		System.out.println("Rename java element: " + oldName + " to " + newName);
 
-		IResource[] roots = { assetsFolder };
-		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newName);
-		Pattern pattern = Pattern.compile(oldName.replace(".", "\\."));
+		Pattern pattern = Pattern.compile(Pattern.quote(oldName));
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {

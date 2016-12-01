@@ -1,7 +1,5 @@
 package com.gurella.studio.refractoring;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
@@ -12,16 +10,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
-import org.eclipse.search.core.text.TextSearchEngine;
-import org.eclipse.search.core.text.TextSearchRequestor;
-import org.eclipse.search.ui.text.FileTextSearchScope;
 
 import com.gurella.engine.asset.Assets;
+import com.gurella.engine.utils.Values;
 
 public class RenameAssetParticipant extends RenameParticipant {
 	private IResource resource;
@@ -58,27 +52,18 @@ public class RenameAssetParticipant extends RenameParticipant {
 			return null;
 		}
 
-		IResource[] roots = { assetsFolder };
-		String[] fileNamePatterns = { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
+		IResource[] rootResources = RefractoringUtils.getSearchScopeRootResources(resource.getProject());
+		if (Values.isEmpty(rootResources)) {
+			return null;
+		}
+
 		IPath assetsFolderPath = assetsFolder.getProjectRelativePath();
 		IPath oldResourcePath = resource.getProjectRelativePath().makeRelativeTo(assetsFolderPath);
 		String newName = getArguments().getNewName();
 		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(newName);
 
 		System.out.println("Rename asset: " + oldResourcePath + " to " + newResourcePath);
-
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newResourcePath.toString());
-		Pattern pattern = Pattern.compile(oldResourcePath.toString());
-		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
-
-		if (changes.isEmpty()) {
-			return null;
-		}
-
-		CompositeChange result = new CompositeChange("Gurella asset references update");
-		changes.values().forEach(result::add);
-		return result;
+		String regEx = "(?<=[:|\\s|\\R]{1}[\\s|\\R]{0,100})" + Pattern.quote(oldResourcePath.toString());
+		return RefractoringUtils.createChange(monitor, rootResources, regEx, newResourcePath.toString());
 	}
 }

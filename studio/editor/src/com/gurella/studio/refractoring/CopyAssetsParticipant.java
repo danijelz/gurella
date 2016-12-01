@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -47,8 +46,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		IFolder assetsFolder = file.getProject().getFolder("assets");
-		if (assetsFolder == null || !assetsFolder.exists()) {
+		if (!"assets".equals(file.getProjectRelativePath().segment(0))) {
 			return null;
 		}
 
@@ -66,7 +64,8 @@ public class CopyAssetsParticipant extends CopyParticipant {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, new String[] { "*" }, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new GenerateUuidRequestor(changes, copy);
-		Pattern pattern = Pattern.compile("(?<=uuid:[\\s|\\n]{1,100})([0-9a-fA-F]{32})(?=\\s|\\n|$)");
+		String regex = "(?<=uuid[\"]{0,1}[\\s|\\R]{0,100}:[\\s|\\R]{1,100})([0-9a-fA-F]{32})(?=\\s|\\R|$)";
+		Pattern pattern = Pattern.compile(regex);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
