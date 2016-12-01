@@ -59,7 +59,7 @@ public class RefractoringUtils {
 	static Change createChange(IProgressMonitor monitor, IResource[] rootResources, String regEx, String replacement) {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, replacement);
+		TextSearchRequestor requestor = new ReferencesSearchRequestor(changes, replacement);
 		Pattern pattern = Pattern.compile(Pattern.quote(regEx));
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 

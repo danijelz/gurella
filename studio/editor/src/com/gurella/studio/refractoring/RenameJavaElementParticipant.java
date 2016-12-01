@@ -1,12 +1,7 @@
 package com.gurella.studio.refractoring;
 
-import static com.gurella.studio.refractoring.RefractoringUtils.getFileNamePatterns;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -14,14 +9,9 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
-import org.eclipse.search.core.text.TextSearchEngine;
-import org.eclipse.search.core.text.TextSearchRequestor;
-import org.eclipse.search.ui.text.FileTextSearchScope;
 
 import com.gurella.engine.utils.Values;
 
@@ -62,20 +52,7 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
 
 		System.out.println("Rename java element: " + oldName + " to " + newName);
-
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
-
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newName);
-		Pattern pattern = Pattern.compile(Pattern.quote(oldName));
-		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
-
-		if (changes.isEmpty()) {
-			return null;
-		}
-
-		CompositeChange result = new CompositeChange("Gurella asset references update");
-		changes.values().forEach(result::add);
-		return result;
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName);
+		return RefractoringUtils.createChange(monitor, rootResources, regex, newName);
 	}
 }
