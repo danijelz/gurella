@@ -60,12 +60,7 @@ public class MoveJavaElementParticipant extends MoveParticipant {
 		String newName = Values.isBlank(destinationName) ? elementName : destinationName + "." + elementName;
 
 		System.out.println("Move java element: " + oldName + " to " + newName);
-		String regEx = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString());
-		return RefractoringUtils.createChange(monitor, rootResources, regEx, newName);
-	}
-	
-	public static void main(String[] args) {
-		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote("img/Testimg.png");
-		System.out.println(Pattern.compile(regex).matcher("img/Testimg.png").find());
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString());
+		return RefractoringUtils.createChange(monitor, rootResources, regex, newName);
 	}
 }

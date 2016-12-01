@@ -57,12 +57,7 @@ public class RefractoringUtils {
 	}
 
 	static Change createChange(IProgressMonitor monitor, IResource[] rootResources, String regEx, String replacement) {
-		return createChange(monitor, rootResources, getFileNamePatterns(), regEx, replacement);
-	}
-
-	static Change createChange(IProgressMonitor monitor, IResource[] rootResources, String[] fileNamePatterns,
-			String regEx, String replacement) {
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, fileNamePatterns, false);
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, replacement);
 		Pattern pattern = Pattern.compile(Pattern.quote(regEx));
