@@ -33,9 +33,20 @@ public class PackageReferencesSearchRequestor extends TextSearchRequestor {
 		int end = start + length;
 		if (end < fileContentLength) {
 			char after = matchAccess.getFileContentChar(end);
-			if (Character.isJavaIdentifierPart(after)) {
-				return true;
+			if (after != '.') {
+				return false;
 			}
+		}
+
+		end++;
+		StringBuilder builder = new StringBuilder(matchAccess.getFileContent(start, length));
+		builder.append('.');
+		while (end < fileContentLength) {
+			char c = matchAccess.getFileContentChar(end);
+			if (!Character.isJavaIdentifierPart(c)) {
+				break;
+			}
+			builder.append(c);
 		}
 
 		IFile file = matchAccess.getFile();
@@ -48,6 +59,7 @@ public class PackageReferencesSearchRequestor extends TextSearchRequestor {
 				changes.put(file, change);
 			}
 		}
+
 		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), replacement);
 		change.addEdit(edit);
 		change.addTextEditGroup(new TextEditGroup("Update asset reference", edit));

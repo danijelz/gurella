@@ -71,4 +71,21 @@ public class RefractoringUtils {
 		changes.values().forEach(result::add);
 		return result;
 	}
+
+	static Change createPackageMoveChange(IProgressMonitor monitor, IResource[] rootResources, String regEx,
+			String replacement) {
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
+		final Map<IFile, TextFileChange> changes = new HashMap<>();
+		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(changes, replacement);
+		Pattern pattern = Pattern.compile(Pattern.quote(regEx));
+		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
+
+		if (changes.isEmpty()) {
+			return null;
+		}
+
+		CompositeChange result = new CompositeChange("Gurella asset references update");
+		changes.values().forEach(result::add);
+		return result;
+	}
 }
