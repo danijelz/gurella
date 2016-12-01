@@ -1,12 +1,7 @@
 package com.gurella.studio.refractoring;
 
-import static com.gurella.studio.refractoring.RefractoringUtils.getFileNamePatterns;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -15,14 +10,9 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
-import org.eclipse.search.core.text.TextSearchEngine;
-import org.eclipse.search.core.text.TextSearchRequestor;
-import org.eclipse.search.ui.text.FileTextSearchScope;
 
 import com.gurella.engine.utils.Values;
 
@@ -64,26 +54,18 @@ public class MoveJavaElementParticipant extends MoveParticipant {
 
 		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName('.')
 				: element.getElementName();
-		String destinationPath = destination instanceof IType ? ((IType) destination).getFullyQualifiedName('.')
+		String destinationName = destination instanceof IType ? ((IType) destination).getFullyQualifiedName('.')
 				: destination.getElementName();
-		String newName = element instanceof IType ? Values.isBlank(destinationPath) ? element.getElementName()
-				: destinationPath + "." + element.getElementName() : destinationPath;
+		String elementName = element.getElementName();
+		String newName = Values.isBlank(destinationName) ? elementName : destinationName + "." + elementName;
 
 		System.out.println("Move java element: " + oldName + " to " + newName);
-
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
-
-		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newName);
-		Pattern pattern = Pattern.compile(Pattern.quote(oldName));
-		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
-
-		if (changes.isEmpty()) {
-			return null;
-		}
-
-		CompositeChange result = new CompositeChange("Gurella asset references update");
-		changes.values().forEach(result::add);
-		return result;
+		String regEx = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString());
+		return RefractoringUtils.createChange(monitor, rootResources, regEx, newName);
+	}
+	
+	public static void main(String[] args) {
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote("img/Testimg.png");
+		System.out.println(Pattern.compile(regex).matcher("img/Testimg.png").find());
 	}
 }
