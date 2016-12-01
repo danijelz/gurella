@@ -106,8 +106,8 @@
             </with></enablement>
       </moveParticipant>
       <moveParticipant
-            class="com.gurella.studio.refractoring.RenameJavaMoveParticipant"
-            id="com.gurella.studio.refractoring.RenameJavaMoveParticipant"
+            class="com.gurella.studio.refractoring.MoveJavaElementParticipant"
+            id="com.gurella.studio.refractoring.MoveJavaElementParticipant"
             name="Gurella java element move participant">
          <enablement>
             <with

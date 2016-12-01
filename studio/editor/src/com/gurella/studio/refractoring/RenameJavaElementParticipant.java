@@ -44,6 +44,10 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		if (RefractoringUtils.qualifiedNamesHandledByProcessor(getProcessor())) {
+			return null;
+		}
+
 		IFolder assetsFolder = element.getResource().getProject().getFolder("assets");
 		if (assetsFolder == null || !assetsFolder.exists()) {
 			return null;
@@ -53,6 +57,7 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 				: element.getElementName();
 		int index = oldName.lastIndexOf(element.getElementName());
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
+
 		System.out.println("Rename java element: " + oldName + " to " + newName);
 
 		IResource[] roots = { assetsFolder };
@@ -60,8 +65,8 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newName);
-		Pattern pattern = Pattern.compile(oldName);
+		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newName);
+		Pattern pattern = Pattern.compile(oldName.replace(".", "\\."));
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {

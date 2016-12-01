@@ -11,11 +11,11 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
-final class RenameAssetRequestor extends TextSearchRequestor {
+final class RenameAssetSearchRequestor extends TextSearchRequestor {
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
 
-	RenameAssetRequestor(Map<IFile, TextFileChange> changes, String replacement) {
+	RenameAssetSearchRequestor(Map<IFile, TextFileChange> changes, String replacement) {
 		this.changes = changes;
 		this.replacement = replacement;
 	}

@@ -28,7 +28,7 @@ public class RenameAssetParticipant extends RenameParticipant {
 
 	@Override
 	protected boolean initialize(Object element) {
-		resource = (IFile) element;
+		resource = (IResource) element;
 		return true;
 	}
 
@@ -69,7 +69,7 @@ public class RenameAssetParticipant extends RenameParticipant {
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new RenameAssetRequestor(changes, newResourcePath.toString());
+		TextSearchRequestor requestor = new RenameAssetSearchRequestor(changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile(oldResourcePath.toString());
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
