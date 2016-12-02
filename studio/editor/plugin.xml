@@ -169,5 +169,19 @@
             id="com.gurella.studio.refractoring.CopyAssetsRefactoringContribution">
       </contribution>
    </extension>
+   <extension
+         id="com.gurella.studio.wizard.wizards"
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.gurella.studio.wizard.gurellaWizardsCategory"
+            name="Gurella">
+      </category>
+      <wizard
+            category="com.gurella.studio.wizard.gurellaWizardsCategory"
+            class="com.gurella.studio.wizard.NewSceneWizard"
+            id="com.gurella.studio.wizard.newSceneWizard"
+            name="New Scene">
+      </wizard>
+   </extension>
 
 </plugin>
