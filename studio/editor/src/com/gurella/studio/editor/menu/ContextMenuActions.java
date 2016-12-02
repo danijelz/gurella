@@ -31,9 +31,20 @@ public class ContextMenuActions {
 	}
 
 	public void addGroup(String name, int priority) {
-		if (!groups.containsKey(name)) {
-			groups.put(name, new MenuGroup(name, priority));
+		MenuGroup parent = groups.get("");
+		StringBuffer buffer = new StringBuffer();
+		for (String part : name.split("\\.")) {
+			buffer.append(buffer.length() == 0 ? part : "." + part);
+			parent = getOrCreateGroup(buffer.toString(), part, priority, parent);
 		}
+	}
+
+	private MenuGroup getOrCreateGroup(String id, String name, int priority, MenuGroup parent) {
+		return groups.computeIfAbsent(id, fk -> new MenuGroup(name, priority));
+	}
+
+	private MenuGroup getGroup(String name) {
+		return groups.getOrDefault(name, groups.get(""));
 	}
 
 	public void addAction(String name, Runnable action) {
@@ -57,7 +68,7 @@ public class ContextMenuActions {
 	}
 
 	public void addAction(String group, String name, int priority, boolean enabled, Runnable action) {
-		Try.ofFailable(() -> groups.get(group)).onSuccess(g -> g.addAction(name, priority, enabled, action))
+		Try.ofFailable(() -> getGroup(group)).onSuccess(g -> g.addAction(name, priority, enabled, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
@@ -79,8 +90,7 @@ public class ContextMenuActions {
 
 	public void addCheckAction(String group, String name, int priority, boolean enabled, boolean checked,
 			Runnable action) {
-		Try.ofFailable(() -> groups.get(group))
-				.onSuccess(g -> g.addCheckAction(name, priority, enabled, checked, action))
+		Try.ofFailable(() -> getGroup(group)).onSuccess(g -> g.addCheckAction(name, priority, enabled, checked, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
