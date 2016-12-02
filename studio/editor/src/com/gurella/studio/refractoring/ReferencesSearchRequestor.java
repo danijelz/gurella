@@ -2,6 +2,7 @@ package com.gurella.studio.refractoring;
 
 import java.util.Map;
 
+import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -12,10 +13,12 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 final class ReferencesSearchRequestor extends TextSearchRequestor {
+	private final boolean txtFilesHandled;
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
 
-	ReferencesSearchRequestor(Map<IFile, TextFileChange> changes, String replacement) {
+	ReferencesSearchRequestor(boolean txtFilesHandled, Map<IFile, TextFileChange> changes, String replacement) {
+		this.txtFilesHandled = txtFilesHandled;
 		this.changes = changes;
 		this.replacement = replacement;
 	}
@@ -23,6 +26,12 @@ final class ReferencesSearchRequestor extends TextSearchRequestor {
 	@Override
 	public boolean canRunInParallel() {
 		return true;
+	}
+
+	@Override
+	public boolean acceptFile(IFile file) throws CoreException {
+		return !(txtFilesHandled
+				&& FileBuffers.getTextFileBufferManager().isTextFileLocation(file.getFullPath(), false));
 	}
 
 	@Override
@@ -37,9 +46,10 @@ final class ReferencesSearchRequestor extends TextSearchRequestor {
 				changes.put(file, change);
 			}
 		}
+
 		ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), replacement);
 		change.addEdit(edit);
-		//TODO convert to single change and insert in one group
+		// TODO convert to single change and insert in one group
 		change.addTextEditGroup(new TextEditGroup("Update asset reference", edit));
 		return true;
 	}

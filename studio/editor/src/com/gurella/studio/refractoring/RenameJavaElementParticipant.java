@@ -1,5 +1,7 @@
 package com.gurella.studio.refractoring;
 
+import static com.gurella.studio.refractoring.RefractoringUtils.qualifiedNamesHandledByProcessor;
+
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IResource;
@@ -37,10 +39,6 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		if (RefractoringUtils.qualifiedNamesHandledByProcessor(getProcessor())) {
-			return null;
-		}
-
 		IResource[] rootResources = RefractoringUtils.getSearchScopeRootResources(element.getResource().getProject());
 		if (Values.isEmpty(rootResources)) {
 			return null;
@@ -51,8 +49,11 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 		int index = oldName.lastIndexOf(element.getElementName());
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
 
+		boolean txtFilesHandled = qualifiedNamesHandledByProcessor(getProcessor());
 		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName);
-		return element instanceof IType ? RefractoringUtils.createChange(monitor, rootResources, regex, newName)
-				: RefractoringUtils.createPackageMoveChange(monitor, rootResources, regex, newName, element);
+		return element instanceof IType
+				? RefractoringUtils.createChange(txtFilesHandled, monitor, rootResources, regex, newName)
+				: RefractoringUtils.createPackageMoveChange(txtFilesHandled, monitor, rootResources, regex, newName,
+						element);
 	}
 }

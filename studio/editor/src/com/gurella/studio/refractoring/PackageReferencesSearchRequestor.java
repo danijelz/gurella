@@ -2,6 +2,7 @@ package com.gurella.studio.refractoring;
 
 import java.util.Map;
 
+import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
@@ -13,12 +14,14 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 public class PackageReferencesSearchRequestor extends TextSearchRequestor {
+	private final boolean txtFilesHandled;
 	private final IJavaElement movedElement;
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
 
-	PackageReferencesSearchRequestor(IJavaElement movedElement, Map<IFile, TextFileChange> changes,
-			String replacement) {
+	PackageReferencesSearchRequestor(boolean txtFilesHandled, IJavaElement movedElement,
+			Map<IFile, TextFileChange> changes, String replacement) {
+		this.txtFilesHandled = txtFilesHandled;
 		this.movedElement = movedElement;
 		this.changes = changes;
 		this.replacement = replacement;
@@ -27,6 +30,12 @@ public class PackageReferencesSearchRequestor extends TextSearchRequestor {
 	@Override
 	public boolean canRunInParallel() {
 		return true;
+	}
+
+	@Override
+	public boolean acceptFile(IFile file) throws CoreException {
+		return !(txtFilesHandled
+				&& FileBuffers.getTextFileBufferManager().isTextFileLocation(file.getFullPath(), false));
 	}
 
 	@Override

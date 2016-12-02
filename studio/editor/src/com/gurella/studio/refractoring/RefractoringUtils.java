@@ -57,10 +57,11 @@ public class RefractoringUtils {
 		return new String[] { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 	}
 
-	static Change createChange(IProgressMonitor monitor, IResource[] rootResources, String regEx, String replacement) {
+	static Change createChange(boolean txtFilesHandled, IProgressMonitor monitor, IResource[] rootResources,
+			String regEx, String replacement) {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new ReferencesSearchRequestor(changes, replacement);
+		TextSearchRequestor requestor = new ReferencesSearchRequestor(txtFilesHandled, changes, replacement);
 		Pattern pattern = Pattern.compile(regEx);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
@@ -73,11 +74,12 @@ public class RefractoringUtils {
 		return result;
 	}
 
-	static Change createPackageMoveChange(IProgressMonitor monitor, IResource[] rootResources, String regEx,
-			String replacement, IJavaElement movedElement) {
+	static Change createPackageMoveChange(boolean txtFilesHandled, IProgressMonitor monitor, IResource[] rootResources,
+			String regEx, String replacement, IJavaElement movedElement) {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(movedElement, changes, replacement);
+		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(txtFilesHandled, movedElement, changes,
+				replacement);
 		Pattern pattern = Pattern.compile(regEx);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 

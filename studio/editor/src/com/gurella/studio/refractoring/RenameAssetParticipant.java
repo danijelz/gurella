@@ -63,6 +63,6 @@ public class RenameAssetParticipant extends RenameParticipant {
 		IPath newResourcePath = oldResourcePath.removeLastSegments(1).append(newName);
 
 		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldResourcePath.toString());
-		return RefractoringUtils.createChange(monitor, rootResources, regex, newResourcePath.toString());
+		return RefractoringUtils.createChange(false, monitor, rootResources, regex, newResourcePath.toString());
 	}
 }

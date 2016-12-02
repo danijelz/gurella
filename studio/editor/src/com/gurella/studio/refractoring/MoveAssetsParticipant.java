@@ -65,6 +65,6 @@ public class MoveAssetsParticipant extends MoveParticipant {
 				.append(resource.getName());
 
 		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldResourcePath.toString());
-		return RefractoringUtils.createChange(monitor, rootResources, regex, newResourcePath.toString());
+		return RefractoringUtils.createChange(false, monitor, rootResources, regex, newResourcePath.toString());
 	}
 }
