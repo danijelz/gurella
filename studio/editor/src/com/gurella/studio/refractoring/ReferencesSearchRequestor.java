@@ -16,6 +16,8 @@ final class ReferencesSearchRequestor extends TextSearchRequestor {
 	private final boolean txtFilesHandled;
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
+	
+	private TextEditGroup textEditGroup;
 
 	ReferencesSearchRequestor(boolean txtFilesHandled, Map<IFile, TextFileChange> changes, String replacement) {
 		this.txtFilesHandled = txtFilesHandled;

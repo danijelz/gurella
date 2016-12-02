@@ -54,6 +54,7 @@ public class RefractoringUtils {
 	}
 
 	static String[] getFileNamePatterns() {
+		//TODO extract info from AssetType
 		return new String[] { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 	}
 
