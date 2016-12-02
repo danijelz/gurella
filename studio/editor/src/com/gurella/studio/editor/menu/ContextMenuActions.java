@@ -15,15 +15,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ContextMenuActions {
+	MenuGroup rootGroup = new MenuGroup("", Integer.MIN_VALUE);
 	private Map<String, MenuGroup> groups = new HashMap<>();
 
 	public ContextMenuActions() {
-		addGroup("", Integer.MIN_VALUE);
+		groups.put("", rootGroup);
 	}
 
 	public void addGroup(String name) {
@@ -31,7 +31,7 @@ public class ContextMenuActions {
 	}
 
 	public void addGroup(String name, int priority) {
-		MenuGroup parent = groups.get("");
+		MenuGroup parent = rootGroup;
 		StringBuffer buffer = new StringBuffer();
 		for (String part : name.split("\\.")) {
 			buffer.append(buffer.length() == 0 ? part : "." + part);
@@ -40,7 +40,7 @@ public class ContextMenuActions {
 	}
 
 	private MenuGroup getOrCreateGroup(String id, String name, int priority, MenuGroup parent) {
-		return groups.computeIfAbsent(id, fk -> new MenuGroup(name, priority));
+		return groups.computeIfAbsent(id, k -> parent.newChild(name, priority));
 	}
 
 	private MenuGroup getGroup(String name) {
@@ -97,45 +97,33 @@ public class ContextMenuActions {
 	void showMenu() {
 		Display display = UiUtils.getDisplay();
 		Menu menu = new Menu(display.getActiveShell(), POP_UP);
-		List<MenuItemDescriptor> descriptors = extractDescritors();
-		descriptors.forEach(d -> createMenuItem(menu, d));
+		rootGroup.actions.stream().sorted().forEachOrdered(d -> createMenuItem(menu, d));
 		menu.setLocation(display.getCursorLocation());
 		menu.setVisible(true);
 	}
 
-	private List<MenuItemDescriptor> extractDescritors() {
-		List<MenuItemDescriptor> descriptors = new ArrayList<>();
-		groups.values().forEach(g -> appendGroup(descriptors, g));
-		Collections.sort(descriptors);
-		return descriptors;
-	}
-
-	private static void appendGroup(List<MenuItemDescriptor> descriptors, MenuGroup group) {
-		if (Values.isBlank(group.name)) {
-			descriptors.addAll(group.actions);
-		} else {
-			descriptors.add(group);
-		}
-	}
-
 	private void createMenuItem(Menu menu, MenuItemDescriptor descriptor) {
 		if (descriptor instanceof MenuAction) {
-			createMenuItem(menu, (MenuAction) descriptor);
+			createActionItem(menu, (MenuAction) descriptor);
 		} else {
-			MenuGroup group = (MenuGroup) descriptor;
-			MenuItem item = new MenuItem(menu, SWT.CASCADE);
-			String name = group.name;
-			item.setText(name);
-			addAccelerator(item, name);
-			Menu childMenu = new Menu(item);
-			item.setMenu(childMenu);
-			List<MenuAction> actions = group.actions;
-			Collections.sort(actions);
-			actions.forEach(d -> createMenuItem(childMenu, d));
+			createGroupItem(menu, descriptor);
 		}
 	}
 
-	protected void createMenuItem(Menu menu, MenuAction action) {
+	private void createGroupItem(Menu menu, MenuItemDescriptor descriptor) {
+		MenuGroup group = (MenuGroup) descriptor;
+		MenuItem item = new MenuItem(menu, SWT.CASCADE);
+		String name = group.name;
+		item.setText(name);
+		addAccelerator(item, name);
+		Menu childMenu = new Menu(item);
+		item.setMenu(childMenu);
+		List<MenuItemDescriptor> actions = group.actions;
+		Collections.sort(actions);
+		actions.forEach(d -> createMenuItem(childMenu, d));
+	}
+
+	protected void createActionItem(Menu menu, MenuAction action) {
 		int style = action.style == ActionStyle.check ? CHECK : PUSH;
 		MenuItem item = new MenuItem(menu, style);
 		String name = action.name;
@@ -158,12 +146,22 @@ public class ContextMenuActions {
 
 	private interface MenuItemDescriptor extends Comparable<MenuItemDescriptor> {
 		int getPriority();
+
+		@Override
+		default int compareTo(MenuItemDescriptor o) {
+			int result = Integer.compare(primaryComparisonValue(this), primaryComparisonValue(o));
+			return result == 0 ? Integer.compare(getPriority(), o.getPriority()) : result;
+		}
+
+		default int primaryComparisonValue(MenuItemDescriptor o) {
+			return o instanceof MenuAction ? 0 : 1;
+		}
 	}
 
 	private static class MenuGroup implements MenuItemDescriptor {
 		String name;
 		int priority;
-		List<MenuAction> actions = new ArrayList<>();
+		List<MenuItemDescriptor> actions = new ArrayList<>();
 
 		MenuGroup(String name, int priority) {
 			this.priority = priority;
@@ -178,14 +176,15 @@ public class ContextMenuActions {
 			actions.add(new MenuAction(name, priority, enabled, checked, action));
 		}
 
-		@Override
-		public int getPriority() {
-			return priority;
+		MenuGroup newChild(String name, int priority) {
+			MenuGroup child = new MenuGroup(name, priority);
+			actions.add(child);
+			return child;
 		}
 
 		@Override
-		public int compareTo(MenuItemDescriptor o) {
-			return Integer.compare(priority, o.getPriority());
+		public int getPriority() {
+			return priority;
 		}
 	}
 
@@ -217,11 +216,6 @@ public class ContextMenuActions {
 		@Override
 		public int getPriority() {
 			return priority;
-		}
-
-		@Override
-		public int compareTo(MenuItemDescriptor o) {
-			return Integer.compare(priority, o.getPriority());
 		}
 	}
 
