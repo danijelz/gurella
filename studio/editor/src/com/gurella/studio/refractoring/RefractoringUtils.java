@@ -54,15 +54,20 @@ public class RefractoringUtils {
 	}
 
 	static String[] getFileNamePatterns() {
-		//TODO extract info from AssetType
+		// TODO extract info from AssetType
 		return new String[] { "*.pref", "*.gscn", "*.gmat", "*.glslt", "*.grt", "*.giam" };
 	}
 
 	static Change createChange(boolean txtFilesHandled, IProgressMonitor monitor, IResource[] rootResources,
 			String regEx, String replacement) {
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new ReferencesSearchRequestor(txtFilesHandled, changes, replacement);
+		return createChange(monitor, rootResources, regEx, requestor, changes);
+	}
+
+	private static Change createChange(IProgressMonitor monitor, IResource[] rootResources, String regEx,
+			TextSearchRequestor requestor, final Map<IFile, TextFileChange> changes) {
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		Pattern pattern = Pattern.compile(regEx);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
@@ -77,19 +82,9 @@ public class RefractoringUtils {
 
 	static Change createPackageMoveChange(boolean txtFilesHandled, IProgressMonitor monitor, IResource[] rootResources,
 			String regEx, String replacement, IJavaElement movedElement) {
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(txtFilesHandled, movedElement, changes,
 				replacement);
-		Pattern pattern = Pattern.compile(regEx);
-		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
-
-		if (changes.isEmpty()) {
-			return null;
-		}
-
-		CompositeChange result = new CompositeChange("Gurella asset references update");
-		changes.values().forEach(result::add);
-		return result;
+		return createChange(monitor, rootResources, regEx, requestor, changes);
 	}
 }
