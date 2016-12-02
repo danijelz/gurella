@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
@@ -12,10 +13,13 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 public class PackageReferencesSearchRequestor extends TextSearchRequestor {
+	private final IJavaElement movedElement;
 	private final Map<IFile, TextFileChange> changes;
 	private final String replacement;
 
-	PackageReferencesSearchRequestor(Map<IFile, TextFileChange> changes, String replacement) {
+	PackageReferencesSearchRequestor(IJavaElement movedElement, Map<IFile, TextFileChange> changes,
+			String replacement) {
+		this.movedElement = movedElement;
 		this.changes = changes;
 		this.replacement = replacement;
 	}
@@ -42,11 +46,15 @@ public class PackageReferencesSearchRequestor extends TextSearchRequestor {
 		StringBuilder builder = new StringBuilder(matchAccess.getFileContent(start, length));
 		builder.append('.');
 		while (end < fileContentLength) {
-			char c = matchAccess.getFileContentChar(end);
+			char c = matchAccess.getFileContentChar(end++);
 			if (!Character.isJavaIdentifierPart(c)) {
 				break;
 			}
 			builder.append(c);
+		}
+
+		if (movedElement.getJavaProject().findType(builder.toString()) == null) {
+			return false;
 		}
 
 		IFile file = matchAccess.getFile();

@@ -46,14 +46,13 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 			return null;
 		}
 
-		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName('.')
+		String oldName = element instanceof IType ? ((IType) element).getFullyQualifiedName()
 				: element.getElementName();
 		int index = oldName.lastIndexOf(element.getElementName());
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
 
-		System.out.println("Rename java element: " + oldName + " to " + newName);
 		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName);
 		return element instanceof IType ? RefractoringUtils.createChange(monitor, rootResources, regex, newName)
-				: RefractoringUtils.createPackageMoveChange(monitor, rootResources, regex, newName);
+				: RefractoringUtils.createPackageMoveChange(monitor, rootResources, regex, newName, element);
 	}
 }

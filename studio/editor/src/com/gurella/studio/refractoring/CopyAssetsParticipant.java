@@ -55,8 +55,6 @@ public class CopyAssetsParticipant extends CopyParticipant {
 			return null;
 		}
 
-		System.out.println("Copy asset: " + file.getName());
-
 		final IContainer destination = (IContainer) getArguments().getDestination();
 		IFile copy = destination.getFile(Path.fromPortableString(file.getName()));
 		IResource[] roots = new IResource[] { file };

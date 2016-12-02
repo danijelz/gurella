@@ -59,9 +59,8 @@ public class MoveJavaElementParticipant extends MoveParticipant {
 		String elementName = element.getElementName();
 		String newName = Values.isBlank(destinationName) ? elementName : destinationName + "." + elementName;
 
-		System.out.println("Move java element: " + oldName + " to " + newName);
 		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString());
-		//TODO doesn't work for packages
-		return RefractoringUtils.createChange(monitor, rootResources, regex, newName);
+		return element instanceof IType ? RefractoringUtils.createChange(monitor, rootResources, regex, newName)
+				: RefractoringUtils.createPackageMoveChange(monitor, rootResources, regex, newName, element);
 	}
 }

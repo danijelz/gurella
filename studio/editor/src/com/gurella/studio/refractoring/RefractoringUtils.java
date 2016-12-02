@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IQualifiedNameUpdating;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
@@ -60,7 +61,7 @@ public class RefractoringUtils {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
 		TextSearchRequestor requestor = new ReferencesSearchRequestor(changes, replacement);
-		Pattern pattern = Pattern.compile(Pattern.quote(regEx));
+		Pattern pattern = Pattern.compile(regEx);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
@@ -73,11 +74,11 @@ public class RefractoringUtils {
 	}
 
 	static Change createPackageMoveChange(IProgressMonitor monitor, IResource[] rootResources, String regEx,
-			String replacement) {
+			String replacement, IJavaElement movedElement) {
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(rootResources, getFileNamePatterns(), false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(changes, replacement);
-		Pattern pattern = Pattern.compile(Pattern.quote(regEx));
+		TextSearchRequestor requestor = new PackageReferencesSearchRequestor(movedElement, changes, replacement);
+		Pattern pattern = Pattern.compile(regEx);
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
