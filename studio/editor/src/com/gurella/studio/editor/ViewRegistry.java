@@ -9,6 +9,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.Dock;
@@ -16,9 +17,9 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
+import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.subscription.ViewOrientationListener;
@@ -38,6 +39,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		this.editor = editor;
 		dock = editor.dock;
 		EventService.subscribe(editor.id, this);
+		Workbench.activate(this);
 
 		dock.addDisposeListener(e -> persistPreferences());
 		preferences = editor.preferencesManager.resourceNode().node(ViewRegistry.class);
@@ -95,7 +97,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	}
 
 	@Override
-	public void contribute(ContextMenuActions actions) {
+	public void contribute(float x, float y, ContextMenuActions actions) {
 		actions.addGroup(viewMenuGroupName, -600);
 		boolean open = isOpen(SceneGraphView.class);
 		actions.addCheckAction(viewMenuGroupName, "Scene", 100, !open, open, () -> openView(SceneGraphView.class));
@@ -137,6 +139,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 	@Override
 	public void onEditorClose() {
+		Workbench.deactivate(this);
 		EventService.unsubscribe(editor.id, this);
 	}
 }

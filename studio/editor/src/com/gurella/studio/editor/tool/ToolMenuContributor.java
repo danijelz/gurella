@@ -6,8 +6,9 @@ import static com.gurella.studio.editor.tool.ToolType.scale;
 import static com.gurella.studio.editor.tool.ToolType.translate;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.menu.ContextMenuActions;
-import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
+import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 
 public class ToolMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
@@ -20,10 +21,11 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 		this.editorId = editorId;
 		this.manager = manager;
 		EventService.subscribe(editorId, this);
+		Workbench.activate(this);
 	}
 
 	@Override
-	public void contribute(ContextMenuActions actions) {
+	public void contribute(float x, float y, ContextMenuActions actions) {
 		actions.addGroup(toolMenuGroupName, -500);
 		ToolType type = manager.getSelectedToolType();
 		boolean selected = type == translate;
@@ -42,6 +44,7 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 
 	@Override
 	public void onEditorClose() {
+		Workbench.deactivate(this);
 		EventService.unsubscribe(editorId, this);
 	}
 }

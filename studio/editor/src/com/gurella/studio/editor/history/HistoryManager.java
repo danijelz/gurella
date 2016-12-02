@@ -17,10 +17,11 @@ import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.menu.ContextMenuActions;
+import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.utils.Try;
 
 public class HistoryManager extends UndoContext implements EditorCloseListener, EditorContextMenuContributor {
@@ -47,10 +48,12 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		historyActionGroup.fillActionBars(site.getActionBars());
 
 		EventService.subscribe(editorId, this);
+		Workbench.activate(this);
 	}
 
 	@Override
 	public void onEditorClose() {
+		Workbench.deactivate(this);
 		EventService.unsubscribe(editorId, this);
 		historyActionGroup.dispose();
 		operationHistory.dispose(this, true, true, true);
@@ -89,7 +92,7 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 	}
 
 	@Override
-	public void contribute(ContextMenuActions actions) {
+	public void contribute(float x, float y, ContextMenuActions actions) {
 		IUndoableOperation undoOperation = operationHistory.getUndoOperation(this);
 		String undo = Optional.ofNullable(undoOperation).map(o -> "&Undo " + o.getLabel()).orElse("&Undo");
 		actions.addAction(undo, -1000, canUndo(), this::undo);

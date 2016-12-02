@@ -12,9 +12,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.menu.ContextMenuActions;
-import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
+import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -32,10 +33,11 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 		this.editorId = editorId;
 		this.manager = manager;
 		EventService.subscribe(editorId, this);
+		Workbench.activate(this);
 	}
 
 	@Override
-	public void contribute(ContextMenuActions actions) {
+	public void contribute(float x, float y, ContextMenuActions actions) {
 		actions.addGroup(cameraMenuGroupName, -800);
 		boolean is2d = manager.is2d();
 		actions.addCheckAction(cameraMenuGroupName, "&2d\t2", 100, !is2d, is2d, () -> manager.switchCamera(camera2d));
@@ -133,6 +135,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 
 	@Override
 	public void onEditorClose() {
+		Workbench.deactivate(this);
 		EventService.unsubscribe(editorId, this);
 	}
 }
