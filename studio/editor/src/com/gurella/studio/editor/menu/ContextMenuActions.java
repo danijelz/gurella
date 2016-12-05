@@ -5,6 +5,7 @@ import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -152,7 +153,7 @@ public class ContextMenuActions {
 		} else if (descriptor instanceof MenuSection) {
 			createSection(menu, (MenuSection) descriptor);
 		} else {
-			createGroupItem(menu, descriptor);
+			createGroupItem(menu, (MenuGroup) descriptor);
 		}
 	}
 
@@ -170,8 +171,7 @@ public class ContextMenuActions {
 	}
 
 	private void createSection(Menu menu, MenuSection section) {
-		List<MenuItemDescriptor> actions = section.actions;
-		if (actions.isEmpty()) {
+		if (section.isEmpty()) {
 			return;
 		}
 
@@ -179,6 +179,7 @@ public class ContextMenuActions {
 			newSection(menu);
 		}
 
+		List<MenuItemDescriptor> actions = section.actions;
 		Collections.sort(actions);
 		actions.forEach(d -> createMenuItem(menu, d));
 	}
@@ -187,8 +188,11 @@ public class ContextMenuActions {
 		return new MenuItem(menu, SWT.SEPARATOR);
 	}
 
-	private void createGroupItem(Menu menu, MenuItemDescriptor descriptor) {
-		MenuGroup group = (MenuGroup) descriptor;
+	private void createGroupItem(Menu menu, MenuGroup group) {
+		if (group.isEmpty()) {
+			return;
+		}
+
 		MenuItem item = new MenuItem(menu, SWT.CASCADE);
 		String name = group.name;
 		item.setText(name);
@@ -220,7 +224,17 @@ public class ContextMenuActions {
 		}
 	}
 
-	private static class MenuGroup implements MenuItemDescriptor {
+	private interface CompositeMenuItemDescriptor extends MenuItemDescriptor {
+		Collection<? extends MenuItemDescriptor> getChildren();
+
+		default boolean isEmpty() {
+			return !getChildren().stream()
+					.filter(d -> d instanceof MenuAction || !((CompositeMenuItemDescriptor) d).isEmpty()).findAny()
+					.isPresent();
+		}
+	}
+
+	private static class MenuGroup implements CompositeMenuItemDescriptor {
 		String name;
 		int priority;
 		Map<String, MenuSection> sections = new HashMap<>();
@@ -254,9 +268,14 @@ public class ContextMenuActions {
 		public int getPriority() {
 			return priority;
 		}
+
+		@Override
+		public Collection<? extends MenuItemDescriptor> getChildren() {
+			return sections.values();
+		}
 	}
 
-	private static class MenuSection implements MenuItemDescriptor {
+	private static class MenuSection implements CompositeMenuItemDescriptor {
 		String name;
 		int priority;
 		List<MenuItemDescriptor> actions = new ArrayList<>();
@@ -277,6 +296,11 @@ public class ContextMenuActions {
 		@Override
 		public int getPriority() {
 			return priority;
+		}
+
+		@Override
+		public Collection<? extends MenuItemDescriptor> getChildren() {
+			return actions;
 		}
 	}
 
