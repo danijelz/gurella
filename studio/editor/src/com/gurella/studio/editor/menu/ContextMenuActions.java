@@ -16,7 +16,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -175,7 +174,7 @@ public class ContextMenuActions {
 			return;
 		}
 
-		if (Values.isNotBlank(section.name)) {
+		if (menu.getItems().length > 0) {
 			newSection(menu);
 		}
 
