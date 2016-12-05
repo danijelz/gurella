@@ -140,8 +140,7 @@ public class ContextMenuActions {
 	void showMenu() {
 		Display display = UiUtils.getDisplay();
 		Menu menu = new Menu(display.getActiveShell(), POP_UP);
-		rootGroup.sections.values().stream().filter(d -> d.isEmpty()).sorted()
-				.forEachOrdered(s -> createSection(menu, s));
+		rootGroup.sections.values().stream().filter(d -> !d.isEmpty()).sorted().forEach(s -> createSection(menu, s));
 		menu.setLocation(display.getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -174,7 +173,7 @@ public class ContextMenuActions {
 			newSection(menu);
 		}
 
-		section.actions.stream().sorted().forEach(d -> createMenuItem(menu, d));
+		section.actions.stream().filter(i -> !i.isEmpty()).sorted().forEach(d -> createMenuItem(menu, d));
 	}
 
 	private static MenuItem newSection(Menu menu) {
@@ -188,7 +187,7 @@ public class ContextMenuActions {
 		addAccelerator(item, name);
 		Menu childMenu = new Menu(item);
 		item.setMenu(childMenu);
-		group.sections.values().stream().sorted().forEach(d -> createMenuItem(childMenu, d));
+		group.sections.values().stream().filter(s -> !s.isEmpty()).sorted().forEach(d -> createMenuItem(childMenu, d));
 	}
 
 	private static void addAccelerator(MenuItem item, String name) {
@@ -213,17 +212,17 @@ public class ContextMenuActions {
 		}
 
 		default boolean isEmpty() {
-			if (this instanceof CompositeMenuItemDescriptor) {
-				return !((CompositeMenuItemDescriptor) this).getChildren().stream().filter(d -> d.isEmpty()).findAny()
-						.isPresent();
-			} else {
-				return false;
-			}
+			return false;
 		}
 	}
 
 	private interface CompositeMenuItemDescriptor extends MenuItemDescriptor {
 		Collection<? extends MenuItemDescriptor> getChildren();
+
+		@Override
+		default boolean isEmpty() {
+			return !getChildren().stream().filter(d -> !d.isEmpty()).findAny().isPresent();
+		}
 	}
 
 	private static class MenuGroup implements CompositeMenuItemDescriptor {
