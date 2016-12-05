@@ -294,7 +294,7 @@ class GraphMenu {
 			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 			subItem.setText("Shape");
 			Menu subMenu = new Menu(menu);
-			subMenu.setEnabled(enabled);
+			subItem.setEnabled(enabled);
 			subItem.setMenu(subMenu);
 
 			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
