@@ -20,9 +20,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 
 public class PolygonRegionInspectableContainer extends InspectableContainer<IFile> {
 	private DefaultBeanEditor<TextureProperties> textureProperties;

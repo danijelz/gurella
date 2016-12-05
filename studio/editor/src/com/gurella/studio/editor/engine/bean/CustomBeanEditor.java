@@ -3,8 +3,8 @@ package com.gurella.studio.editor.engine.bean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
+import com.gurella.studio.editor.ui.bean.BeanEditor;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class CustomBeanEditor<T> extends BeanEditor<T> {

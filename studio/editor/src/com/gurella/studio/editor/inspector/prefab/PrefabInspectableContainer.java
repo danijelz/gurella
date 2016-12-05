@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.inspector.prefab;
 
-import static com.gurella.studio.editor.common.bean.BeanEditorFactory.createEditor;
+import static com.gurella.studio.editor.ui.bean.BeanEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
@@ -66,9 +66,9 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.ui.bean.BeanEditor;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class PrefabInspectableContainer extends InspectableContainer<IFile> {

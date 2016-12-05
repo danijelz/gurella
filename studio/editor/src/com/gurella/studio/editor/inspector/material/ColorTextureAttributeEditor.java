@@ -18,8 +18,8 @@ import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor.TextureAttributeProperties;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.AssetSelectionWidget;
-import com.gurella.studio.editor.common.ColorSelectionWidget;
+import com.gurella.studio.editor.ui.AssetSelectionWidget;
+import com.gurella.studio.editor.ui.ColorSelectionWidget;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ColorTextureAttributeEditor extends Composite {

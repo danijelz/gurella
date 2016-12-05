@@ -40,7 +40,6 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.engine.utils.Sequence;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.dnd.DndAssetPlacementManager;
 import com.gurella.studio.editor.history.HistoryManager;
@@ -50,6 +49,7 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
+import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 

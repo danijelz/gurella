@@ -1,5 +1,7 @@
 package com.gurella.engine.asset;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,27 +18,39 @@ import com.gurella.engine.utils.priority.TypePriorities;
 import com.gurella.engine.utils.priority.TypePriority;
 
 public final class AssetService {
-	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
-
+	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
 	private static final MockAssetManager mockManager = new MockAssetManager();
-	private static final AssetRegistry assetRegistry = new AssetRegistry();
-	private static final RegistryUpdater updateListener = new RegistryUpdater();
+
+	private final AssetRegistry assetRegistry = new AssetRegistry();
+	private final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
+	private final RegistryUpdater updateListener = new RegistryUpdater();
 
 	static {
 		Texture.setAssetManager(mockManager);
 		Cubemap.setAssetManager(mockManager);
-		EventService.subscribe(updateListener);
 	}
 
 	private AssetService() {
+		EventService.subscribe(updateListener);
+	}
+
+	private static AssetService getInstance() {
+		synchronized (instances) {
+			AssetService input = instances.get(Gdx.app);
+			if (input == null) {
+				input = new AssetService();
+				instances.put(Gdx.app, input);
+			}
+			return input;
+		}
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
-		return Values.cast(descriptors.get(fileName));
+		return Values.cast(getInstance().descriptors.get(fileName));
 	}
 
 	public static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		ConfigurableAssetDescriptor<T> descriptor = Values.cast(descriptors.get(fileName));
+		ConfigurableAssetDescriptor<T> descriptor = Values.cast(getInstance().descriptors.get(fileName));
 		return descriptor == null ? null : descriptor.getParameters();
 	}
 
@@ -60,7 +74,7 @@ public final class AssetService {
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
 			boolean sticky) {
 		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
-		assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
+		getInstance().assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
 	public static <T> T load(String fileName) {
@@ -78,40 +92,39 @@ public final class AssetService {
 
 	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
 		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
+		AssetRegistry assetRegistry = getInstance().assetRegistry;
 		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
 		return assetRegistry.finishLoading(fileName);
 	}
 
 	public static boolean isLoaded(String fileName) {
-		return assetRegistry.isLoaded(fileName);
+		return getInstance().assetRegistry.isLoaded(fileName);
 	}
 
 	public static <T> boolean unload(T resource) {
-		return assetRegistry.unload(resource);
+		return getInstance().assetRegistry.unload(resource);
 	}
 
 	public static <T> T get(String fileName) {
-		return assetRegistry.get(fileName);
+		return getInstance().assetRegistry.get(fileName);
 	}
 
 	public static <T> T get(String fileName, String internalId) {
-		return assetRegistry.get(fileName, internalId);
+		return getInstance().assetRegistry.get(fileName, internalId);
 	}
 
 	// TODO replace with save(T asset, String fileName, AssetPersister persister)
 	public static <T> void put(T asset, String fileName) {
-		assetRegistry.put(asset, fileName);
+		getInstance().assetRegistry.put(asset, fileName);
 	}
 
 	public static <T> Array<T> find(Class<T> type, Array<T> out) {
 		// TODO ManagedObject
-		return assetRegistry.getAll(type, out);
+		return getInstance().assetRegistry.getAll(type, out);
 	}
 
 	public static <T> String getFileName(T resource) {
-		synchronized (assetRegistry) {
-			return assetRegistry.getAssetFileName(resource);
-		}
+		return getInstance().assetRegistry.getAssetFileName(resource);
 	}
 
 	public static boolean isManaged(Object obj) {
@@ -119,16 +132,17 @@ public final class AssetService {
 	}
 
 	public static <T> T reload(String fileName, int priority) {
+		AssetRegistry assetRegistry = getInstance().assetRegistry;
 		assetRegistry.reload(fileName, null, priority);
 		return assetRegistry.finishLoading(fileName);
 	}
 
 	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		assetRegistry.reload(fileName, callback, priority);
+		getInstance().assetRegistry.reload(fileName, callback, priority);
 	}
 
 	public static void reloadInvalidated() {
-		assetRegistry.reloadInvalidated();
+		getInstance().assetRegistry.reloadInvalidated();
 	}
 
 	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
@@ -136,12 +150,12 @@ public final class AssetService {
 	private static class RegistryUpdater implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {
-			assetRegistry.update();
+			getInstance().assetRegistry.update();
 		}
 
 		@Override
 		public void debugUpdate() {
-			assetRegistry.update();
+			getInstance().assetRegistry.update();
 		}
 	}
 }

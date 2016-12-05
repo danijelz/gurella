@@ -35,12 +35,12 @@ import com.gurella.engine.asset.properties.G3dModelProperties;
 import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
+import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {

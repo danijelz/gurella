@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.inspector.node;
 
-import static com.gurella.studio.editor.common.bean.BeanEditorFactory.createEditor;
+import static com.gurella.studio.editor.ui.bean.BeanEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
@@ -78,8 +78,6 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.BeanEditor;
-import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
@@ -91,6 +89,8 @@ import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
+import com.gurella.studio.editor.ui.bean.BeanEditor;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.editor.utils.UiUtils;
 

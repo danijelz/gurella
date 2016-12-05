@@ -11,11 +11,11 @@ import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.BeanEditor;
-import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
-import com.gurella.studio.editor.common.bean.BeanEditorFactory;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.ui.bean.BeanEditor;
+import com.gurella.studio.editor.ui.bean.BeanEditorFactory;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent> {

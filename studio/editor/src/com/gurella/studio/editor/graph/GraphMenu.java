@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.managedobject.PrefabReference;
@@ -162,7 +163,8 @@ class GraphMenu {
 			item.setEnabled(nodeSelected && node.getParentNode() != null);
 			addSeparator(menu);
 
-			createShapesSubMenu(menu);
+			createNodeSubMenu(menu, "Add node", null, true);
+			createNodeSubMenu(menu, "Add child node", node, nodeSelected);
 			addSeparator(menu);
 
 			createComponentsSubMenu(menu);
@@ -191,8 +193,7 @@ class GraphMenu {
 				IPath projectAssetPath = new Path(fileName.get()).makeRelativeTo(projectPath);
 				SceneNode prefab = CopyContext.copyObject(node);
 				JsonOutput output = new JsonOutput();
-				SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get())
-						.orElse(null);
+				SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get()).orElse(null);
 				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
@@ -216,35 +217,109 @@ class GraphMenu {
 			}
 		}
 
-		protected void createShapesSubMenu(Menu menu) {
+		protected void createNodeSubMenu(Menu menu, String label, SceneNode parent, boolean enabled) {
 			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
-			subItem.setText("Add node");
+			subItem.setText(label);
 			Menu subMenu = new Menu(menu);
+			subMenu.setEnabled(enabled);
+			subItem.setMenu(subMenu);
+
+			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Sprite");
+			item.addListener(SWT.Selection, e -> addComponentNode("Sprite", TextureComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Model");
+			item.addListener(SWT.Selection, e -> addComponentNode("Model", ModelComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Skybox");
+			item.addListener(SWT.Selection, e -> addComponentNode("Skybox", SkyboxComponent.class, parent));
+			item.setEnabled(enabled);
+
+			addShapesSubmenu(subMenu, parent, enabled);
+			addSeparator(subMenu);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Ortographic camera");
+			item.addListener(SWT.Selection,
+					e -> addComponentNode("Ortographic camera", OrtographicCameraComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Perspective camera");
+			item.addListener(SWT.Selection,
+					e -> addComponentNode("Perspective camera", PerspectiveCameraComponent.class, parent));
+			item.setEnabled(enabled);
+			addSeparator(subMenu);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Directional light");
+			item.addListener(SWT.Selection,
+					e -> addComponentNode("Directional light", DirectionalLightComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Point light");
+			item.addListener(SWT.Selection, e -> addComponentNode("Point light", PointLightComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Spot light");
+			item.addListener(SWT.Selection, e -> addComponentNode("Spot light", SpotLightComponent.class, parent));
+			item.setEnabled(enabled);
+			addSeparator(subMenu);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Audio listener");
+			item.addListener(SWT.Selection,
+					e -> addComponentNode("Audio listener", AudioListenerComponent.class, parent));
+			item.setEnabled(enabled);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Audio source");
+			item.addListener(SWT.Selection, e -> addComponentNode("Audio source", AudioSourceComponent.class, parent));
+			item.setEnabled(enabled);
+			addSeparator(subMenu);
+
+			item = new MenuItem(subMenu, SWT.PUSH);
+			item.setText("Tag");
+			item.addListener(SWT.Selection, e -> addComponentNode("Tag", TagComponent.class, parent));
+			item.setEnabled(enabled);
+		}
+
+		private void addShapesSubmenu(Menu menu, SceneNode parent, boolean enabled) {
+			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
+			subItem.setText("Shape");
+			Menu subMenu = new Menu(menu);
+			subMenu.setEnabled(enabled);
 			subItem.setMenu(subMenu);
 
 			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add sphere");
-			item.addListener(SWT.Selection, e -> addShapeNode("Sphere", new SphereShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Sphere", new SphereShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add box");
-			item.addListener(SWT.Selection, e -> addShapeNode("Box", new BoxShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Box", new BoxShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add cylinder");
-			item.addListener(SWT.Selection, e -> addShapeNode("Cylinder", new CylinderShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Cylinder", new CylinderShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add cone");
-			item.addListener(SWT.Selection, e -> addShapeNode("Cone", new ConeShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Cone", new ConeShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add capsule");
-			item.addListener(SWT.Selection, e -> addShapeNode("Capsule", new CapsuleShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Capsule", new CapsuleShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add rectangle");
-			item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
+			item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel(), parent));
 
 			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add composite");
@@ -254,7 +329,7 @@ class GraphMenu {
 			CompositeShapeModel composite = new CompositeShapeModel();
 			composite.addShape(new CylinderShapeModel(), 0, 1, 0);
 			shapeModel.addShape(composite, 0, 1, 0);
-			item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
+			item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel, parent));
 		}
 
 		private void createComponentsSubMenu(Menu menu) {
@@ -305,13 +380,23 @@ class GraphMenu {
 			item.setEnabled(selection instanceof SceneNode);
 		}
 
-		private void addShapeNode(String name, ShapeModel shapeModel) {
+		private <T extends SceneNodeComponent & Poolable> void addComponentNode(String name, Class<T> componentType,
+				SceneNode parent) {
 			Scene scene = context.getScene();
-			SceneNode node = scene.newNode(name);
+			SceneNode node = parent == null ? scene.newNode(name) : parent.newChild(name);
+			node.newComponent(TransformComponent.class);
+			node.newComponent(componentType);
+			AddNodeOperation operation = new AddNodeOperation(editorId, scene, parent, node);
+			context.executeOperation(operation, "Error while adding node");
+		}
+
+		private void addShapeNode(String name, ShapeModel shapeModel, SceneNode parent) {
+			Scene scene = context.getScene();
+			SceneNode node = parent == null ? scene.newNode(name) : parent.newChild(name);
 			node.newComponent(TransformComponent.class);
 			ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
 			shapeComponent.setShape(shapeModel);
-			AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
+			AddNodeOperation operation = new AddNodeOperation(editorId, scene, parent, node);
 			context.executeOperation(operation, "Error while adding node");
 		}
 

@@ -1,8 +1,8 @@
 package com.gurella.studio.editor.engine.property;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
-import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
+import static com.gurella.studio.editor.ui.property.PropertyEditorData.getDescriptiveName;
+import static com.gurella.studio.editor.ui.property.PropertyEditorFactory.createEditor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -16,14 +16,14 @@ import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.metatype.Property;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.bean.BeanEditorContext;
-import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
-import com.gurella.studio.editor.common.property.PropertyEditor;
-import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.engine.ui.SwtEditorComposite;
 import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext;
+import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
+import com.gurella.studio.editor.ui.property.PropertyEditor;
+import com.gurella.studio.editor.ui.property.PropertyEditorContext;
 
 class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEditorContext<P> {
 	private PropertyEditorContext<?, P> context;
