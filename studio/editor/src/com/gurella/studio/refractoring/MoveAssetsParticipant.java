@@ -64,7 +64,8 @@ public class MoveAssetsParticipant extends MoveParticipant {
 		IPath newResourcePath = destination.getProjectRelativePath().makeRelativeTo(assetsFolderPath)
 				.append(resource.getName());
 
-		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldResourcePath.toString());
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldResourcePath.toString())
+				+ "(?=\"|/|\\s|\\r|\\n|$)";
 		return RefractoringUtils.createChange(false, monitor, rootResources, regex, newResourcePath.toString());
 	}
 }

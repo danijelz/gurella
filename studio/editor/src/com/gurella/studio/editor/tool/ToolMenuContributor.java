@@ -12,6 +12,7 @@ import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 
 public class ToolMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
+	private static final String editorMenuSectionName = "Editor";
 	private static final String toolMenuGroupName = "&Tool";
 
 	private final int editorId;
@@ -26,7 +27,9 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 
 	@Override
 	public void contribute(float x, float y, ContextMenuActions actions) {
-		actions.addGroup(toolMenuGroupName, -500);
+		actions.addSection(editorMenuSectionName, 200);
+
+		actions.addGroup(editorMenuSectionName, toolMenuGroupName, -500);
 		ToolType type = manager.getSelectedToolType();
 		boolean selected = type == translate;
 		actions.addCheckAction(toolMenuGroupName, "&Translate\tT", 100, !selected, selected, () -> select(translate));

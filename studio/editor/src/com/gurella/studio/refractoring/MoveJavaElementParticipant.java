@@ -58,7 +58,8 @@ public class MoveJavaElementParticipant extends MoveParticipant {
 		String newName = Values.isBlank(destinationName) ? elementName : destinationName + "." + elementName;
 
 		boolean txtFilesHandled = qualifiedNamesHandledByProcessor(getProcessor());
-		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString());
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName.toString())
+				+ "(?=\"|\\.|\\s|\\r|\\n|$)";
 		return element instanceof IType
 				? RefractoringUtils.createChange(txtFilesHandled, monitor, rootResources, regex, newName)
 				: RefractoringUtils.createPackageMoveChange(txtFilesHandled, monitor, rootResources, regex, newName,

@@ -20,6 +20,7 @@ import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class CameraMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
+	private static final String cameraMenuSectionName = "Camera";
 	private static final String cameraMenuGroupName = "&Camera";
 	private static final String moveToMenuGroupName = "&Navigate";
 
@@ -38,13 +39,15 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 
 	@Override
 	public void contribute(float x, float y, ContextMenuActions actions) {
-		actions.addGroup(cameraMenuGroupName, -800);
+		actions.addSection(cameraMenuSectionName, 100);
+
+		actions.addGroup(cameraMenuSectionName, cameraMenuGroupName, -800);
 		boolean is2d = manager.is2d();
 		actions.addCheckAction(cameraMenuGroupName, "&2d\t2", 100, !is2d, is2d, () -> manager.switchCamera(camera2d));
 		boolean is3d = manager.is3d();
 		actions.addCheckAction(cameraMenuGroupName, "&3d\t3", 200, !is3d, is3d, () -> manager.switchCamera(camera3d));
 
-		actions.addGroup(moveToMenuGroupName, -700);
+		actions.addGroup(cameraMenuSectionName, moveToMenuGroupName, -700);
 		if (is2d) {
 			actions.addAction(moveToMenuGroupName, "&Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1, 0, 1, 0));
 			actions.addAction(moveToMenuGroupName, "Restore &rotation", 100, () -> setRotation(0));

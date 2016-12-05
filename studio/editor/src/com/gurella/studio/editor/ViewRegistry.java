@@ -27,6 +27,7 @@ import com.gurella.studio.editor.utils.Try;
 
 class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
 		EditorContextMenuContributor, ViewOrientationListener {
+	private static final String editorMenuSectionName = "Editor";
 	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
@@ -98,7 +99,9 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 	@Override
 	public void contribute(float x, float y, ContextMenuActions actions) {
-		actions.addGroup(viewMenuGroupName, -600);
+		actions.addSection(editorMenuSectionName, 200);
+
+		actions.addGroup(editorMenuSectionName, viewMenuGroupName, -600);
 		boolean open = isOpen(SceneGraphView.class);
 		actions.addCheckAction(viewMenuGroupName, "Scene", 100, !open, open, () -> openView(SceneGraphView.class));
 		open = isOpen(InspectorView.class);

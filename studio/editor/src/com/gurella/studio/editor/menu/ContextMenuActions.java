@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -31,73 +32,116 @@ public class ContextMenuActions {
 	}
 
 	public void addGroup(String name, int priority) {
+		addGroup("", name, priority);
+	}
+
+	public void addGroup(String section, String name) {
+		addGroup(section, name, 0);
+	}
+
+	public void addGroup(String section, String name, int priority) {
 		MenuGroup parent = rootGroup;
 		StringBuffer buffer = new StringBuffer();
 		for (String part : name.split("\\.")) {
 			buffer.append(buffer.length() == 0 ? part : "." + part);
-			parent = getOrCreateGroup(buffer.toString(), part, priority, parent);
+			parent = getOrCreateGroup(buffer.toString(), part, section, priority, parent);
 		}
 	}
 
-	private MenuGroup getOrCreateGroup(String id, String name, int priority, MenuGroup parent) {
-		return groups.computeIfAbsent(id, k -> parent.newChild(name, priority));
+	private MenuGroup getOrCreateGroup(String id, String name, String section, int priority, MenuGroup parent) {
+		return groups.computeIfAbsent(id, k -> parent.newChild(section, name, priority));
 	}
 
 	private MenuGroup getGroup(String name) {
-		return groups.getOrDefault(name, groups.get(""));
+		return groups.getOrDefault(name, rootGroup);
+	}
+
+	public void addSection(String name) {
+		addSection("", name, 0);
+	}
+
+	public void addSection(String name, int priority) {
+		addSection("", name, priority);
+	}
+
+	public void addSection(String group, String name) {
+		addSection(group, name, 0);
+	}
+
+	public void addSection(String group, String name, int priority) {
+		MenuGroup parent = getGroup(group);
+		parent.addSection(name, priority);
 	}
 
 	public void addAction(String name, Runnable action) {
-		addAction("", name, 0, true, action);
+		addAction("", "", name, 0, true, action);
 	}
 
 	public void addAction(String group, String name, Runnable action) {
-		addAction(group, name, 0, true, action);
+		addAction(group, "", name, 0, true, action);
+	}
+
+	public void addAction(String group, String section, String name, Runnable action) {
+		addAction(group, section, name, 0, true, action);
 	}
 
 	public void addAction(String name, int priority, Runnable action) {
-		addAction("", name, priority, true, action);
+		addAction("", "", name, priority, true, action);
 	}
 
 	public void addAction(String group, String name, int priority, Runnable action) {
-		addAction(group, name, priority, true, action);
+		addAction(group, "", name, priority, true, action);
+	}
+
+	public void addAction(String group, String section, String name, int priority, Runnable action) {
+		addAction(group, section, name, priority, true, action);
 	}
 
 	public void addAction(String name, int priority, boolean enabled, Runnable action) {
-		addAction("", name, priority, enabled, action);
+		addAction("", "", name, priority, enabled, action);
 	}
 
 	public void addAction(String group, String name, int priority, boolean enabled, Runnable action) {
-		Try.ofFailable(() -> getGroup(group)).onSuccess(g -> g.addAction(name, priority, enabled, action))
+		addAction(group, "", name, priority, enabled, action);
+	}
+
+	public void addAction(String group, String section, String name, int priority, boolean enabled, Runnable action) {
+		Try.ofFailable(() -> getGroup(group)).onSuccess(g -> g.addAction(section, name, priority, enabled, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
 	public void addCheckAction(String name, boolean checked, Runnable action) {
-		addCheckAction("", name, 0, checked, action);
+		addCheckAction("", "", name, 0, true, checked, action);
 	}
 
 	public void addCheckAction(String group, String name, boolean checked, Runnable action) {
-		addCheckAction(group, name, 0, checked, action);
+		addCheckAction(group, "", name, 0, true, checked, action);
 	}
 
 	public void addCheckAction(String name, int priority, boolean checked, Runnable action) {
-		addCheckAction("", name, priority, checked, action);
+		addCheckAction("", "", name, priority, true, checked, action);
 	}
 
 	public void addCheckAction(String group, String name, int priority, boolean checked, Runnable action) {
-		addCheckAction(group, name, priority, true, checked, action);
+		addCheckAction(group, "", name, priority, true, checked, action);
 	}
 
 	public void addCheckAction(String group, String name, int priority, boolean enabled, boolean checked,
 			Runnable action) {
-		Try.ofFailable(() -> getGroup(group)).onSuccess(g -> g.addCheckAction(name, priority, enabled, checked, action))
+		addCheckAction(group, "", name, priority, enabled, checked, action);
+	}
+
+	public void addCheckAction(String group, String section, String name, int priority, boolean enabled,
+			boolean checked, Runnable action) {
+		Try.ofFailable(() -> getGroup(group))
+				.onSuccess(g -> g.addCheckAction(section, name, priority, enabled, checked, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
 	void showMenu() {
 		Display display = UiUtils.getDisplay();
 		Menu menu = new Menu(display.getActiveShell(), POP_UP);
-		rootGroup.actions.stream().sorted().forEachOrdered(d -> createMenuItem(menu, d));
+		rootGroup.sections.values().stream().sorted().forEachOrdered(s -> createSection(menu, s));
 		menu.setLocation(display.getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -105,25 +149,14 @@ public class ContextMenuActions {
 	private void createMenuItem(Menu menu, MenuItemDescriptor descriptor) {
 		if (descriptor instanceof MenuAction) {
 			createActionItem(menu, (MenuAction) descriptor);
+		} else if (descriptor instanceof MenuSection) {
+			createSection(menu, (MenuSection) descriptor);
 		} else {
 			createGroupItem(menu, descriptor);
 		}
 	}
 
-	private void createGroupItem(Menu menu, MenuItemDescriptor descriptor) {
-		MenuGroup group = (MenuGroup) descriptor;
-		MenuItem item = new MenuItem(menu, SWT.CASCADE);
-		String name = group.name;
-		item.setText(name);
-		addAccelerator(item, name);
-		Menu childMenu = new Menu(item);
-		item.setMenu(childMenu);
-		List<MenuItemDescriptor> actions = group.actions;
-		Collections.sort(actions);
-		actions.forEach(d -> createMenuItem(childMenu, d));
-	}
-
-	protected void createActionItem(Menu menu, MenuAction action) {
+	private static void createActionItem(Menu menu, MenuAction action) {
 		int style = action.style == ActionStyle.check ? CHECK : PUSH;
 		MenuItem item = new MenuItem(menu, style);
 		String name = action.name;
@@ -136,7 +169,36 @@ public class ContextMenuActions {
 		}
 	}
 
-	protected void addAccelerator(MenuItem item, String name) {
+	private void createSection(Menu menu, MenuSection section) {
+		List<MenuItemDescriptor> actions = section.actions;
+		if (actions.isEmpty()) {
+			return;
+		}
+
+		if (Values.isNotBlank(section.name)) {
+			newSection(menu);
+		}
+
+		Collections.sort(actions);
+		actions.forEach(d -> createMenuItem(menu, d));
+	}
+
+	private static MenuItem newSection(Menu menu) {
+		return new MenuItem(menu, SWT.SEPARATOR);
+	}
+
+	private void createGroupItem(Menu menu, MenuItemDescriptor descriptor) {
+		MenuGroup group = (MenuGroup) descriptor;
+		MenuItem item = new MenuItem(menu, SWT.CASCADE);
+		String name = group.name;
+		item.setText(name);
+		addAccelerator(item, name);
+		Menu childMenu = new Menu(item);
+		item.setMenu(childMenu);
+		group.sections.values().stream().sorted().forEach(d -> createMenuItem(childMenu, d));
+	}
+
+	private static void addAccelerator(MenuItem item, String name) {
 		int accIndex = name.indexOf('&');
 		if (accIndex >= 0 && accIndex < name.length()) {
 			char acc = name.charAt(accIndex + 1);
@@ -154,18 +216,54 @@ public class ContextMenuActions {
 		}
 
 		default int primaryComparisonValue(MenuItemDescriptor o) {
-			return o instanceof MenuAction ? 0 : 1;
+			return o instanceof MenuAction ? 0 : o instanceof MenuSection ? 1 : 2;
 		}
 	}
 
 	private static class MenuGroup implements MenuItemDescriptor {
 		String name;
 		int priority;
-		List<MenuItemDescriptor> actions = new ArrayList<>();
+		Map<String, MenuSection> sections = new HashMap<>();
 
 		MenuGroup(String name, int priority) {
-			this.priority = priority;
 			this.name = name;
+			this.priority = priority;
+			sections.put("", new MenuSection("", Integer.MIN_VALUE));
+		}
+
+		public void addSection(String name, int priority) {
+			sections.computeIfAbsent(name, n -> new MenuSection(name, priority));
+		}
+
+		void addAction(String section, String name, int priority, boolean enabled, Runnable action) {
+			sections.get(section).addAction(name, priority, enabled, action);
+		}
+
+		void addCheckAction(String section, String name, int priority, boolean enabled, boolean checked,
+				Runnable action) {
+			sections.get(section).addCheckAction(name, priority, enabled, checked, action);
+		}
+
+		MenuGroup newChild(String section, String name, int priority) {
+			MenuGroup child = new MenuGroup(name, priority);
+			sections.get(section).actions.add(child);
+			return child;
+		}
+
+		@Override
+		public int getPriority() {
+			return priority;
+		}
+	}
+
+	private static class MenuSection implements MenuItemDescriptor {
+		String name;
+		int priority;
+		List<MenuItemDescriptor> actions = new ArrayList<>();
+
+		MenuSection(String name, int priority) {
+			this.name = name;
+			this.priority = priority;
 		}
 
 		void addAction(String name, int priority, boolean enabled, Runnable action) {
@@ -174,12 +272,6 @@ public class ContextMenuActions {
 
 		void addCheckAction(String name, int priority, boolean enabled, boolean checked, Runnable action) {
 			actions.add(new MenuAction(name, priority, enabled, checked, action));
-		}
-
-		MenuGroup newChild(String name, int priority) {
-			MenuGroup child = new MenuGroup(name, priority);
-			actions.add(child);
-			return child;
 		}
 
 		@Override

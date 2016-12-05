@@ -50,7 +50,8 @@ public class RenameJavaElementParticipant extends RenameParticipant {
 		String newName = oldName.substring(0, index).concat(getArguments().getNewName());
 
 		boolean txtFilesHandled = qualifiedNamesHandledByProcessor(getProcessor());
-		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName);
+		String regex = "(?<=[[:|\\s|\\r|\\n]{1}[\\s|\\r|\\n]{0,100}]|^)" + Pattern.quote(oldName)
+				+ "(?=\"|\\.|\\s|\\r|\\n|$)";
 		return element instanceof IType
 				? RefractoringUtils.createChange(txtFilesHandled, monitor, rootResources, regex, newName)
 				: RefractoringUtils.createPackageMoveChange(txtFilesHandled, monitor, rootResources, regex, newName,
