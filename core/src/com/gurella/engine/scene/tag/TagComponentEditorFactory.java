@@ -22,7 +22,7 @@ import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 
 public class TagComponentEditorFactory implements BeanEditorFactory<TagComponent> {
-	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Empty name in invalid.");
+	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Empty name is invalid.");
 	private static final Property<String[]> tagsProperty = MetaTypes.getMetaType(TagComponent.class).getProperty("tags");
 
 	@Override
