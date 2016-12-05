@@ -15,12 +15,14 @@ public class Workbench {
 	}
 
 	private static Workbench getInstance() {
-		Workbench input = instances.get(Gdx.app);
-		if (input == null) {
-			input = new Workbench();
-			instances.put(Gdx.app, input);
+		synchronized (instances) {
+			Workbench input = instances.get(Gdx.app);
+			if (input == null) {
+				input = new Workbench();
+				instances.put(Gdx.app, input);
+			}
+			return input;
 		}
-		return input;
 	}
 
 	public static boolean activate(Plugin plugin) {
