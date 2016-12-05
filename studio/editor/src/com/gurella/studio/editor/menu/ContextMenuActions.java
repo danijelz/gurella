@@ -6,7 +6,6 @@ import static org.eclipse.swt.SWT.PUSH;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,7 +140,8 @@ public class ContextMenuActions {
 	void showMenu() {
 		Display display = UiUtils.getDisplay();
 		Menu menu = new Menu(display.getActiveShell(), POP_UP);
-		rootGroup.sections.values().stream().sorted().forEachOrdered(s -> createSection(menu, s));
+		rootGroup.sections.values().stream().filter(d -> d.isEmpty()).sorted()
+				.forEachOrdered(s -> createSection(menu, s));
 		menu.setLocation(display.getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -170,17 +170,11 @@ public class ContextMenuActions {
 	}
 
 	private void createSection(Menu menu, MenuSection section) {
-		if (section.isEmpty()) {
-			return;
-		}
-
 		if (menu.getItems().length > 0) {
 			newSection(menu);
 		}
 
-		List<MenuItemDescriptor> actions = section.actions;
-		Collections.sort(actions);
-		actions.forEach(d -> createMenuItem(menu, d));
+		section.actions.stream().sorted().forEach(d -> createMenuItem(menu, d));
 	}
 
 	private static MenuItem newSection(Menu menu) {
@@ -188,10 +182,6 @@ public class ContextMenuActions {
 	}
 
 	private void createGroupItem(Menu menu, MenuGroup group) {
-		if (group.isEmpty()) {
-			return;
-		}
-
 		MenuItem item = new MenuItem(menu, SWT.CASCADE);
 		String name = group.name;
 		item.setText(name);
@@ -221,16 +211,19 @@ public class ContextMenuActions {
 		default int primaryComparisonValue(MenuItemDescriptor o) {
 			return o instanceof MenuAction ? 0 : o instanceof MenuSection ? 1 : 2;
 		}
+
+		default boolean isEmpty() {
+			if (this instanceof CompositeMenuItemDescriptor) {
+				return !((CompositeMenuItemDescriptor) this).getChildren().stream().filter(d -> d.isEmpty()).findAny()
+						.isPresent();
+			} else {
+				return false;
+			}
+		}
 	}
 
 	private interface CompositeMenuItemDescriptor extends MenuItemDescriptor {
 		Collection<? extends MenuItemDescriptor> getChildren();
-
-		default boolean isEmpty() {
-			return !getChildren().stream()
-					.filter(d -> d instanceof MenuAction || !((CompositeMenuItemDescriptor) d).isEmpty()).findAny()
-					.isPresent();
-		}
 	}
 
 	private static class MenuGroup implements CompositeMenuItemDescriptor {
@@ -241,11 +234,11 @@ public class ContextMenuActions {
 		MenuGroup(String name, int priority) {
 			this.name = name;
 			this.priority = priority;
-			sections.put("", new MenuSection("", Integer.MIN_VALUE));
+			sections.put("", new MenuSection(Integer.MIN_VALUE));
 		}
 
 		public void addSection(String name, int priority) {
-			sections.computeIfAbsent(name, n -> new MenuSection(name, priority));
+			sections.computeIfAbsent(name, n -> new MenuSection(priority));
 		}
 
 		void addAction(String section, String name, int priority, boolean enabled, Runnable action) {
@@ -275,12 +268,10 @@ public class ContextMenuActions {
 	}
 
 	private static class MenuSection implements CompositeMenuItemDescriptor {
-		String name;
 		int priority;
 		List<MenuItemDescriptor> actions = new ArrayList<>();
 
-		MenuSection(String name, int priority) {
-			this.name = name;
+		MenuSection(int priority) {
 			this.priority = priority;
 		}
 
