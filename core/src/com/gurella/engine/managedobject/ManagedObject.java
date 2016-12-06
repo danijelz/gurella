@@ -1,5 +1,7 @@
 package com.gurella.engine.managedobject;
 
+import static com.gurella.engine.managedobject.ManagedObjectState.active;
+
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -139,7 +141,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	void handleDeactivation() {
 		preDeactivation();
 
-		for (int i = 0; i < _children.size; i++) {
+		for (int i = 0, n = _children.size; i < n; i++) {
 			ManagedObject child = _children.get(i);
 			if (child.state == ManagedObjectState.active) {
 				child.handleDeactivation();
@@ -268,21 +270,18 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		if (newParent != null) {
 			newParent._children.add(this);
 			newParent.childAdded(this);
-			updateStateByParent();
 			ManagedObjects.childAdded(newParent, this);
+		}
+
+		boolean activationAllowed = isActivationAllowed();
+		if (state == active && !activationAllowed) {
+			handleDeactivation();
+		} else if (state != active && activationAllowed) {
+			handleActivation();
 		}
 
 		parentChanged(oldParent, newParent);
 		ManagedObjects.parentChanged(this, oldParent, newParent);
-	}
-
-	private void updateStateByParent() {
-		ManagedObjectState parentState = parent.state;
-		if (state == ManagedObjectState.active && parentState != ManagedObjectState.active) {
-			handleDeactivation();
-		} else if (state.ordinal() < ManagedObjectState.active.ordinal() && parentState == ManagedObjectState.active) {
-			handleActivation();
-		}
 	}
 
 	protected void validateReparent(ManagedObject newParent) {

@@ -89,11 +89,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 		return null;
 	}
 
-	public SceneNode getParentNode() {
-		SceneNode node = getNode();
-		return null;// node == null ? null : node.getParent();
-	}
-
 	public <T> T obtainResource(int resourceId) {
 		return null;
 	}
@@ -138,15 +133,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 		return null;
 	}
 
-	public void addTag(Tag tag) {
-	}
-
-	public void removeTag(Tag tag) {
-	}
-
-	public void setLayer(Layer layer) {
-	}
-
 	public void getSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask layers) {
 	}
 
@@ -157,11 +143,5 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask layers) {
-	}
-
-	public void registerListener(Object listener) {
-	}
-
-	public void unregisterListener(Object listener) {
 	}
 }

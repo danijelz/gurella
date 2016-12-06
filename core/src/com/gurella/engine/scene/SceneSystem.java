@@ -19,6 +19,11 @@ public abstract class SceneSystem extends SceneElement {
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
+
+		if (newParent == null) {
+			return;
+		}
+
 		if (newParent.getClass() != Scene.class) {
 			throw new GdxRuntimeException("System can only be added to Scene.");
 		}

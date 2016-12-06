@@ -37,7 +37,7 @@ public class AddComponentOperation extends AbstractOperation {
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		node.removeComponent(component);
+		node.removeComponent(component, false);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);

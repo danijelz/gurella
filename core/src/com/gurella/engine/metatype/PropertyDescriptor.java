@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
 public @interface PropertyDescriptor {
-	// TODO rename
 	@SuppressWarnings("rawtypes")
 	Class<? extends Property> property() default ReflectionProperty.class;
 

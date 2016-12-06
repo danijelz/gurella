@@ -220,6 +220,18 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		}
 	}
 
+	public void removeNode(SceneNode node, boolean destroy) {
+		if (!_nodes.contains(node)) {
+			return;
+		}
+
+		if (destroy) {
+			node.destroy();
+		} else {
+			node.unsetParent();
+		}
+	}
+
 	public SceneNode newNode(String name) {
 		SceneNode node = PoolService.obtain(SceneNode.class);
 		node.name = name;

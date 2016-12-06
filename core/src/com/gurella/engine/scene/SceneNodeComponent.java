@@ -19,6 +19,19 @@ public abstract class SceneNodeComponent extends SceneElement {
 	}
 
 	@Override
+	protected final void validateReparent(ManagedObject newParent) {
+		super.validateReparent(newParent);
+
+		if (newParent == null) {
+			return;
+		}
+
+		if (newParent.getClass() != SceneNode.class) {
+			throw new GdxRuntimeException("Component can only be added to SceneNode.");
+		}
+	}
+
+	@Override
 	protected final boolean isActivationAllowed() {
 		return super.isActivationAllowed() && isParentHierarchyEnabled();
 	}
@@ -59,7 +72,6 @@ public abstract class SceneNodeComponent extends SceneElement {
 
 	@Override
 	protected final void deactivated() {
-		super.deactivated();
 		scene.eventsDispatcher.componentDeactivated(this);
 		if (this instanceof SceneEventSubscription) {
 			EventService.unsubscribe(scene.getInstanceId(), this);
@@ -76,6 +88,10 @@ public abstract class SceneNodeComponent extends SceneElement {
 
 	final void setParent(SceneNode node) {
 		super.setParent(node);
+	}
+	
+	final void unsetParent() {
+		super.setParent(null);
 	}
 
 	@TransientProperty

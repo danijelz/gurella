@@ -54,6 +54,11 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
+
+		if (newParent == null) {
+			return;
+		}
+
 		Class<?> parentType = newParent.getClass();
 		if (parentType != SceneNode.class && parentType != Scene.class) {
 			throw new GdxRuntimeException(
@@ -92,6 +97,10 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 
 	final void setParent(Scene scene) {
 		super.setParent(scene);
+	}
+
+	final void unsetParent() {
+		super.setParent(null);
 	}
 
 	@Override
@@ -141,10 +150,21 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 		child.setParent(this);
 	}
 
-	//TODO public void removeChild(SceneNode2 child, boolean destroy)
 	public void removeChild(SceneNode child) {
 		if (_childNodes.contains(child)) {
 			child.destroy();
+		}
+	}
+
+	public void removeChild(SceneNode child, boolean destroy) {
+		if (!_childNodes.contains(child)) {
+			return;
+		}
+
+		if (destroy) {
+			child.destroy();
+		} else {
+			super.setParent(null);
 		}
 	}
 
@@ -208,11 +228,23 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 		return component;
 	}
 
-	//TODO public void removeComponent(SceneNodeComponent2 component, boolean destroy)
 	public void removeComponent(SceneNodeComponent component) {
 		SceneNodeComponent value = _components.get(component.baseComponentType);
 		if (value == component) {
 			component.destroy();
+		}
+	}
+
+	public void removeComponent(SceneNodeComponent component, boolean destroy) {
+		SceneNodeComponent value = _components.get(component.baseComponentType);
+		if (value != component) {
+			return;
+		}
+
+		if (destroy) {
+			component.destroy();
+		} else {
+			component.unsetParent();
 		}
 	}
 

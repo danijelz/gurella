@@ -35,7 +35,7 @@ public class RemoveNodeOperation extends AbstractOperation {
 		if (parentNode == null) {
 			scene.removeNode(node);
 		} else {
-			parentNode.removeChild(node);
+			parentNode.removeChild(node, false);
 		}
 
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
