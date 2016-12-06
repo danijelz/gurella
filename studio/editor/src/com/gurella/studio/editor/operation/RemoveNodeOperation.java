@@ -33,7 +33,7 @@ public class RemoveNodeOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		if (parentNode == null) {
-			scene.removeNode(node);
+			scene.removeNode(node, false);
 		} else {
 			parentNode.removeChild(node, false);
 		}

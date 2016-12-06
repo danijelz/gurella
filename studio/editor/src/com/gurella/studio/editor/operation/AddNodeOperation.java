@@ -45,7 +45,7 @@ public class AddNodeOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		if (parentNode == null) {
-			scene.removeNode(node);
+			scene.removeNode(node, false);
 		} else {
 			parentNode.removeChild(node, false);
 		}

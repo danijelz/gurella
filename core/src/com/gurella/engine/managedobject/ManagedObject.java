@@ -260,23 +260,26 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		validateReparent(newParent);
 
 		ManagedObject oldParent = parent;
+		parent = newParent;
+
+		boolean activationAllowed = isActivationAllowed();
+		if (state == active && !activationAllowed) {
+			handleDeactivation();
+		}
+
 		if (oldParent != null) {
 			oldParent._children.remove(this);
 			oldParent.childRemoved(this);
 			ManagedObjects.childRemoved(oldParent, this);
 		}
 
-		parent = newParent;
 		if (newParent != null) {
 			newParent._children.add(this);
 			newParent.childAdded(this);
 			ManagedObjects.childAdded(newParent, this);
 		}
 
-		boolean activationAllowed = isActivationAllowed();
-		if (state == active && !activationAllowed) {
-			handleDeactivation();
-		} else if (state != active && activationAllowed) {
+		else if (state != active && activationAllowed) {
 			handleActivation();
 		}
 

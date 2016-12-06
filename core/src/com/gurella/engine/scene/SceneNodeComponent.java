@@ -41,7 +41,8 @@ public abstract class SceneNodeComponent extends SceneElement {
 	}
 
 	public final boolean isParentHierarchyEnabled() {
-		return getNode() == null ? false : getNode().isHierarchyEnabled();
+		SceneNode node = getNode();
+		return node == null ? false : node.isHierarchyEnabled();
 	}
 
 	public final SceneNode getNode() {
