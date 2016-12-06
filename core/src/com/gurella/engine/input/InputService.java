@@ -8,8 +8,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
 
 public class InputService {
-	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 	private static final ObjectMap<Application, ApplicationInput> instances = new ObjectMap<Application, ApplicationInput>();
+	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 
 	private InputService() {
 	}

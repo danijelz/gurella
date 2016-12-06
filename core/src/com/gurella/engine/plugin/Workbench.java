@@ -16,12 +16,12 @@ public class Workbench {
 
 	private static Workbench getInstance() {
 		synchronized (instances) {
-			Workbench input = instances.get(Gdx.app);
-			if (input == null) {
-				input = new Workbench();
-				instances.put(Gdx.app, input);
+			Workbench instance = instances.get(Gdx.app);
+			if (instance == null) {
+				instance = new Workbench();
+				instances.put(Gdx.app, instance);
 			}
-			return input;
+			return instance;
 		}
 	}
 
