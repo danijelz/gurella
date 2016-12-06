@@ -1,9 +1,9 @@
 package com.gurella.engine.scene.ui;
 
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.GridPoint2;
 
 public interface Layout {
-	Vector2 computeSize(CompositeComponent compositeComponent, int wHint, int hHint, boolean flushCache);
+	GridPoint2 computeSize(Composite composite, int wHint, int hHint, boolean flushCache);
 
-	void layout(CompositeComponent compositeComponent, boolean flushCache);
+	void layout(Composite composite, boolean flushCache);
 }
