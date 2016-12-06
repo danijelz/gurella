@@ -140,54 +140,13 @@ public class ContextMenuActions {
 	void showMenu() {
 		Display display = UiUtils.getDisplay();
 		Menu menu = new Menu(display.getActiveShell(), POP_UP);
-		rootGroup.getChildren().stream().filter(d -> !d.isEmpty()).sorted().forEach(s -> createMenuItem(menu, s));
+		rootGroup.createChildItems(menu);
 		menu.setLocation(display.getCursorLocation());
 		menu.setVisible(true);
 	}
 
-	private void createMenuItem(Menu menu, MenuItemDescriptor descriptor) {
-		if (descriptor instanceof MenuAction) {
-			createActionItem(menu, (MenuAction) descriptor);
-		} else if (descriptor instanceof MenuSection) {
-			createSection(menu, (MenuSection) descriptor);
-		} else {
-			createGroupItem(menu, (MenuGroup) descriptor);
-		}
-	}
-
-	private static void createActionItem(Menu menu, MenuAction action) {
-		int style = action.style == ActionStyle.check ? CHECK : PUSH;
-		MenuItem item = new MenuItem(menu, style);
-		String name = action.name;
-		item.setText(name);
-		addAccelerator(item, name);
-		item.addListener(SWT.Selection, e -> action.action.run());
-		item.setEnabled(action.enabled);
-		if (action.style == ActionStyle.check) {
-			item.setSelection(action.checked);
-		}
-	}
-
-	private void createSection(Menu menu, MenuSection section) {
-		if (menu.getItems().length > 0) {
-			newSection(menu);
-		}
-
-		section.getChildren().stream().filter(i -> !i.isEmpty()).sorted().forEach(d -> createMenuItem(menu, d));
-	}
-
 	private static MenuItem newSection(Menu menu) {
 		return new MenuItem(menu, SWT.SEPARATOR);
-	}
-
-	private void createGroupItem(Menu menu, MenuGroup group) {
-		MenuItem item = new MenuItem(menu, SWT.CASCADE);
-		String name = group.name;
-		item.setText(name);
-		addAccelerator(item, name);
-		Menu childMenu = new Menu(item);
-		item.setMenu(childMenu);
-		group.getChildren().stream().filter(s -> !s.isEmpty()).sorted().forEach(d -> createMenuItem(childMenu, d));
 	}
 
 	private static void addAccelerator(MenuItem item, String name) {
@@ -200,6 +159,8 @@ public class ContextMenuActions {
 
 	private interface MenuItemDescriptor extends Comparable<MenuItemDescriptor> {
 		int getPriority();
+
+		void createItem(Menu menu);
 
 		@Override
 		default int compareTo(MenuItemDescriptor o) {
@@ -251,7 +212,7 @@ public class ContextMenuActions {
 
 		MenuGroup newChild(String section, String name, int priority) {
 			MenuGroup child = new MenuGroup(name, priority);
-			sections.get(section).actions.add(child);
+			sections.get(section).items.add(child);
 			return child;
 		}
 
@@ -264,22 +225,36 @@ public class ContextMenuActions {
 		public Collection<? extends MenuItemDescriptor> getChildren() {
 			return sections.values();
 		}
+
+		@Override
+		public void createItem(Menu menu) {
+			MenuItem item = new MenuItem(menu, SWT.CASCADE);
+			item.setText(name);
+			addAccelerator(item, name);
+			Menu childMenu = new Menu(item);
+			item.setMenu(childMenu);
+			createChildItems(childMenu);
+		}
+
+		void createChildItems(Menu menu) {
+			getChildren().stream().filter(s -> !s.isEmpty()).sorted().forEachOrdered(d -> d.createItem(menu));
+		}
 	}
 
 	private static class MenuSection implements CompositeMenuItemDescriptor {
 		int priority;
-		List<MenuItemDescriptor> actions = new ArrayList<>();
+		List<MenuItemDescriptor> items = new ArrayList<>();
 
 		MenuSection(int priority) {
 			this.priority = priority;
 		}
 
 		void addAction(String name, int priority, boolean enabled, Runnable action) {
-			actions.add(new MenuAction(name, priority, enabled, action));
+			items.add(new MenuAction(name, priority, enabled, action));
 		}
 
 		void addCheckAction(String name, int priority, boolean enabled, boolean checked, Runnable action) {
-			actions.add(new MenuAction(name, priority, enabled, checked, action));
+			items.add(new MenuAction(name, priority, enabled, checked, action));
 		}
 
 		@Override
@@ -289,7 +264,16 @@ public class ContextMenuActions {
 
 		@Override
 		public Collection<? extends MenuItemDescriptor> getChildren() {
-			return actions;
+			return items;
+		}
+
+		@Override
+		public void createItem(Menu menu) {
+			if (menu.getItems().length > 0) {
+				newSection(menu);
+			}
+
+			items.stream().filter(i -> !i.isEmpty()).sorted().forEachOrdered(d -> d.createItem(menu));
 		}
 	}
 
@@ -321,6 +305,19 @@ public class ContextMenuActions {
 		@Override
 		public int getPriority() {
 			return priority;
+		}
+
+		@Override
+		public void createItem(Menu menu) {
+			int style = this.style == ActionStyle.check ? CHECK : PUSH;
+			MenuItem item = new MenuItem(menu, style);
+			item.setText(name);
+			addAccelerator(item, name);
+			item.addListener(SWT.Selection, e -> action.run());
+			item.setEnabled(enabled);
+			if (this.style == ActionStyle.check) {
+				item.setSelection(checked);
+			}
 		}
 	}
 
