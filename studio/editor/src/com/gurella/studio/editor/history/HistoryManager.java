@@ -33,6 +33,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
@@ -123,7 +124,8 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 
 	private void run() throws CoreException {
 		GurellaStudioPlugin.locateFile("lib/gdx-1.9.4.jar");
-		IJavaProject javaProject = SceneEditorRegistry.getContext(editorId).javaProject;
+		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
+		IJavaProject javaProject = context.javaProject;
 		IVMInstall vm = JavaRuntime.getVMInstall(javaProject);
 		if (vm == null) {
 			vm = JavaRuntime.getDefaultVMInstall();
@@ -137,7 +139,8 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		String osString = Path.fromPortableString(absolutePath).toOSString();
 		IVMRunner vmr = vm.getVMRunner(ILaunchManager.RUN_MODE);
 		String[] cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-		VMRunnerConfiguration config = new VMRunnerConfiguration("", cp);
+		VMRunnerConfiguration config = new VMRunnerConfiguration("test.TestApplication", cp);
+		config.setWorkingDirectory(context.project.getLocation().toOSString());
 		ILaunch launch = new Launch(null, ILaunchManager.RUN_MODE, null);
 		vmr.run(config, launch, statusLineManager.getProgressMonitor());
 	}
