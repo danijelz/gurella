@@ -10,6 +10,7 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.UndoContext;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.Launch;
@@ -126,11 +127,8 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		}
 
 		GurellaStudioPlugin.locateFile("lib/gdx-1.9.4.jar");
-		String absolutePath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-		getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-		absolutePath = absolutePath.substring(0, absolutePath.lastIndexOf("/"));
-		absolutePath = absolutePath.replaceAll("%20", " "); // Surely need to do this here
-
+		String absolutePath = GurellaStudioPlugin.getDefault().getBundle().getLocation();
+		String osString = Path.fromPortableString(absolutePath).toOSString();
 		IVMRunner vmr = vm.getVMRunner(ILaunchManager.RUN_MODE);
 		String[] cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
 		VMRunnerConfiguration config = new VMRunnerConfiguration("", cp);
