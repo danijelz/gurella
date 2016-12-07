@@ -133,13 +133,15 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		preferencesManager = new PreferencesManager(this);
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		applicationListener = new SceneEditorApplicationListener(id);
 		initGdxApplication();
 		EventService.subscribe(id, this);
-		
-		historyManager = new HistoryManager(this);
+
 		sceneContext = new SceneEditorContext(this);
+		SceneEditorRegistry.put(this, dock, application, sceneContext);
+
+		historyManager = new HistoryManager(this);
 		viewRegistry = new ViewRegistry(this);
 		dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
 
@@ -155,7 +157,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 			application = new SwtLwjglApplication(internalPath, dock.getCenter(), applicationListener);
 		}
 
-		SceneEditorRegistry.put(this, dock, application, sceneContext);
 	}
 
 	@Override
