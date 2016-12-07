@@ -3,12 +3,14 @@ package com.gurella.studio.editor.history;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.UndoContext;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunch;
@@ -25,6 +27,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.operations.RedoActionHandler;
 import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
+import org.osgi.framework.Bundle;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
@@ -125,9 +128,12 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		if (vm == null) {
 			vm = JavaRuntime.getDefaultVMInstall();
 		}
+		
+		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
+		File file = Try.successful(bundle).map(b -> FileLocator.getBundleFile(b)).getUnchecked();
 
-		GurellaStudioPlugin.locateFile("lib/gdx-1.9.4.jar");
-		String absolutePath = GurellaStudioPlugin.getDefault().getBundle().getLocation();
+		GurellaStudioPlugin.locateFile("lib").exists();
+		String absolutePath = file.getAbsolutePath();
 		String osString = Path.fromPortableString(absolutePath).toOSString();
 		IVMRunner vmr = vm.getVMRunner(ILaunchManager.RUN_MODE);
 		String[] cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
