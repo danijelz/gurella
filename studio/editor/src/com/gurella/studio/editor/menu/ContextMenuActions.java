@@ -162,6 +162,8 @@ public class ContextMenuActions {
 
 		void createItem(Menu menu);
 
+		boolean isEmpty();
+
 		@Override
 		default int compareTo(MenuItemDescriptor o) {
 			int result = Integer.compare(primaryComparisonValue(this), primaryComparisonValue(o));
@@ -170,10 +172,6 @@ public class ContextMenuActions {
 
 		default int primaryComparisonValue(MenuItemDescriptor o) {
 			return o instanceof MenuAction ? 0 : o instanceof MenuSection ? 1 : 2;
-		}
-
-		default boolean isEmpty() {
-			return false;
 		}
 	}
 
@@ -305,6 +303,11 @@ public class ContextMenuActions {
 		@Override
 		public int getPriority() {
 			return priority;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return false;
 		}
 
 		@Override
