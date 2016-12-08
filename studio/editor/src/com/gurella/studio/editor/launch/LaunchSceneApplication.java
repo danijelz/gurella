@@ -18,6 +18,7 @@ public class LaunchSceneApplication {
 		cfg.initialBackgroundColor = Color.BLACK;
 		
 		String initialScenePath = System.getProperty("gurellaDebugScene");
+		System.out.println(initialScenePath);
 		new LwjglApplication(new Application(new ApplicationConfig(initialScenePath)), cfg);
 	}
 }

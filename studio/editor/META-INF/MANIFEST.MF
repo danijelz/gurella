@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  org.eclipse.ltk.core.refactoring;bundle-version="3.7.0",
  org.eclipse.ltk.ui.refactoring;bundle-version="3.8.0",
  org.eclipse.search;bundle-version="3.11.0",
- org.eclipse.debug.core;bundle-version="3.10.100"
+ org.eclipse.debug.core;bundle-version="3.10.100",
+ org.eclipse.ui.console;bundle-version="3.6.200",
+ org.eclipse.debug.ui;bundle-version="3.11.201"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
