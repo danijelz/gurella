@@ -59,10 +59,10 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 	}
 
 	private void runSafely(String mode) {
-		Try.successful(this).peek(t -> t.run2(mode)).onFailure(e -> showError(e, "Error while running scene."));
+		Try.successful(this).peek(t -> t.run(mode)).onFailure(e -> showError(e, "Error while running scene."));
 	}
 
-	private void run2(String mode) throws CoreException {
+	private void run(String mode) throws CoreException {
 		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
 		IJavaProject javaProject = context.javaProject;
 		DebugPlugin plugin = DebugPlugin.getDefault();

@@ -3,6 +3,8 @@
 <plugin>
 
    <extension
+         id="com.gurella.studio.editor.editors"
+         name="Gurella Editors"
          point="org.eclipse.ui.editors">
       <editor
             name="Gurella scene editor"
@@ -10,7 +12,7 @@
             icon="icons/sample.gif"
             contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
             class="com.gurella.studio.editor.SceneEditor"
-            id="com.gurella.studio.editor.GurellaEditor">
+            id="com.gurella.studio.editor.sceneEditor">
       </editor>
    </extension>
    <extension
@@ -134,8 +136,8 @@
       </moveParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.CopyAssetsParticipant"
-         name="Gurella assets copy participant"
+         id="com.gurella.studio.refractoring.copyParticipants"
+         name="Gurella copy participants"
          point="org.eclipse.ltk.core.refactoring.copyParticipants">
       <copyParticipant
             class="com.gurella.studio.refractoring.CopyAssetsParticipant"
@@ -161,8 +163,8 @@
       </copyParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.CopyAssetsRefactoringContribution"
-         name="Gurella copy assets contribution"
+         id="com.gurella.studio.refractoring.refactoringContributions"
+         name="Gurella refractoring contributions"
          point="org.eclipse.ltk.core.refactoring.refactoringContributions">
       <contribution
             class="com.gurella.studio.refractoring.CopyAssetsRefactoringContribution"
@@ -171,6 +173,7 @@
    </extension>
    <extension
          id="com.gurella.studio.wizard.wizards"
+         name="Gurella"
          point="org.eclipse.ui.newWizards">
       <category
             id="com.gurella.studio.wizard.gurellaWizardsCategory"
@@ -182,6 +185,25 @@
             id="com.gurella.studio.wizard.newSceneWizard"
             name="New Scene">
       </wizard>
+   </extension>
+   <extension
+         id="com.gurella.studio.launch.launchShortcuts"
+         name="Gurella Launch Shortucts"
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="com.gurella.studio.launch.LaunchSceneShortcut"
+            id="com.gurella.studio.launch.launchSceneShortcut"
+            label="Launch Scene"
+            modes="run,debug">
+         <enablement>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="com.gurella.studio.editor.sceneEditor">
+               </equals>
+            </with>
+         </enablement>
+      </shortcut>
    </extension>
 
 </plugin>
