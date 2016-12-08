@@ -2,7 +2,11 @@ package com.gurella.studio.editor.launch;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ID_JAVA_APPLICATION;
 import static org.eclipse.jdt.launching.JavaRuntime.newStringVariableClasspathEntry;
 
@@ -13,19 +17,14 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.Launch;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
-import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.ui.IEditorSite;
 import org.osgi.framework.Bundle;
@@ -63,65 +62,40 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 		Try.successful(this).peek(t -> t.run2(mode)).onFailure(e -> showError(e, "Error while running scene."));
 	}
 
-	private void run(String mode) throws CoreException {
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		IJavaProject javaProject = context.javaProject;
-		IVMInstall vm = JavaRuntime.getVMInstall(javaProject);
-		if (vm == null) {
-			vm = JavaRuntime.getDefaultVMInstall();
-		}
-
-		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
-		File bundleFile = Try.successful(bundle).map(b -> FileLocator.getBundleFile(b)).getUnchecked();
-		if (bundleFile.isDirectory()
-				&& Arrays.stream(bundleFile.list()).filter(n -> "bin".equals(n)).findAny().isPresent()) {
-			bundleFile = new File(bundleFile, "bin");
-		}
-
-		IVMRunner vmr = vm.getVMRunner(mode);
-		String[] cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-
-		List<String> cpList = new ArrayList<>();
-		cpList.addAll(Arrays.asList(cp));
-		cpList.add(bundleFile.getAbsolutePath());
-		cpList.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-
-		String main = LaunchSceneApplication.class.getName();
-		VMRunnerConfiguration config = new VMRunnerConfiguration(main, cpList.toArray(new String[cpList.size()]));
-		config.setWorkingDirectory(context.project.getLocation().toOSString());
-		String scenePath = context.sceneResource.getProjectRelativePath().removeFirstSegments(1).toString();
-		config.setVMArguments(new String[] { "-DgurellaDebugScene=" + scenePath });
-		ILaunch launch = new Launch(null, mode, null);
-		vmr.run(config, launch, statusLineManager.getProgressMonitor());
-
-		// IProcess process = launch.getProcesses()[0];
-		// IConsole console = DebugUITools.getConsole(process);
-	}
-
 	private void run2(String mode) throws CoreException {
 		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
 		IJavaProject javaProject = context.javaProject;
 		DebugPlugin plugin = DebugPlugin.getDefault();
 		ILaunchManager lm = plugin.getLaunchManager();
-		ILaunchConfigurationType t = lm.getLaunchConfigurationType(ID_JAVA_APPLICATION);
+		ILaunchConfigurationType type = lm.getLaunchConfigurationType(ID_JAVA_APPLICATION);
 
-		ILaunchConfigurationWorkingCopy wc = t.newInstance(null, "Run ");
+		ILaunchConfigurationWorkingCopy wc = type.newInstance(null, "Run ");
 		wc.setAttribute(ATTR_PROJECT_NAME, javaProject.getElementName());
-
-		String main = LaunchSceneApplication.class.getName();
-		wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, main);
-
-		String scenePath = context.sceneResource.getProjectRelativePath().removeFirstSegments(1).toString();
-		wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "-DgurellaDebugScene=" + scenePath);
-
-		wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_CLASSPATH, getClasspath(javaProject));
-		wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH, false);
+		wc.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
+		wc.setAttribute(ATTR_VM_ARGUMENTS, "-DgurellaDebugScene=" + getScenePath(context));
+		wc.setAttribute(ATTR_CLASSPATH, getClasspath(javaProject));
+		wc.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 
 		ILaunchConfiguration config = wc.doSave();
-		config.launch(mode, statusLineManager.getProgressMonitor());
+		IProgressMonitor monitor = statusLineManager.getProgressMonitor();
+		config.launch(mode, monitor);
+		monitor.done();
+	}
+
+	private static String getScenePath(SceneEditorContext context) {
+		// TODO should find safer way to assets relative path
+		return context.sceneResource.getProjectRelativePath().removeFirstSegments(1).toString();
 	}
 
 	private static List<String> getClasspath(IJavaProject javaProject) throws CoreException {
+		List<String> cp = new ArrayList<>();
+		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
+		cp.add(getBundleClasspath());
+		cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
+		return cp.stream().sequential().map(e -> getClasspathMemento(e)).collect(toList());
+	}
+
+	private static String getBundleClasspath() {
 		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
 		File bundleFile = Try.successful(bundle).map(b -> FileLocator.getBundleFile(b)).getUnchecked();
 		if (bundleFile.isDirectory()) {
@@ -130,11 +104,7 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 				bundleFile = targetDir;
 			}
 		}
-		List<String> cp = new ArrayList<>();
-		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
-		cp.add(bundleFile.getAbsolutePath());
-		cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-		return cp.stream().sequential().map(e -> getClasspathMemento(e)).collect(toList());
+		return bundleFile.getAbsolutePath();
 	}
 
 	private static String getClasspathMemento(String e) {
