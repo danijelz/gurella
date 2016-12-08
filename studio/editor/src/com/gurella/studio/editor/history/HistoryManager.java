@@ -3,38 +3,22 @@ package com.gurella.studio.editor.history;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
-import java.io.File;
 import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.UndoContext;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.Launch;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMRunner;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.operations.RedoActionHandler;
 import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
-import org.osgi.framework.Bundle;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
-import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
@@ -116,32 +100,5 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		IUndoableOperation redoOperation = operationHistory.getRedoOperation(this);
 		String redo = Optional.ofNullable(redoOperation).map(o -> "&Redo " + o.getLabel()).orElse("&Redo");
 		actions.addAction(redo, -900, canRedo(), this::redo);
-
-		actions.addSection("run");
-		actions.addAction("", "run", "Run", -800, () -> Try.successful(this).peek(t -> t.run())
-				.onFailure(e -> GurellaStudioPlugin.showError(e, "Error while running scene.")));
-	}
-
-	private void run() throws CoreException {
-		GurellaStudioPlugin.locateFile("lib/gdx-1.9.4.jar");
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		IJavaProject javaProject = context.javaProject;
-		IVMInstall vm = JavaRuntime.getVMInstall(javaProject);
-		if (vm == null) {
-			vm = JavaRuntime.getDefaultVMInstall();
-		}
-		
-		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
-		File file = Try.successful(bundle).map(b -> FileLocator.getBundleFile(b)).getUnchecked();
-
-		GurellaStudioPlugin.locateFile("lib").exists();
-		String absolutePath = file.getAbsolutePath();
-		String osString = Path.fromPortableString(absolutePath).toOSString();
-		IVMRunner vmr = vm.getVMRunner(ILaunchManager.RUN_MODE);
-		String[] cp = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-		VMRunnerConfiguration config = new VMRunnerConfiguration("test.TestApplication", cp);
-		config.setWorkingDirectory(context.project.getLocation().toOSString());
-		ILaunch launch = new Launch(null, ILaunchManager.RUN_MODE, null);
-		vmr.run(config, launch, statusLineManager.getProgressMonitor());
 	}
 }

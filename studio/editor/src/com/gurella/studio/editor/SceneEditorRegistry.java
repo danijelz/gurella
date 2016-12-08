@@ -16,17 +16,15 @@ public class SceneEditorRegistry {
 	private static final IntMap<SceneEditor> idToEditor = new IntMap<>();
 	private static final ObjectIntMap<Dock> partControlToEditorId = new ObjectIntMap<>();
 	private static final ObjectIntMap<SwtLwjglApplication> gdxAppToEditorId = new ObjectIntMap<>();
-	private static final IntMap<SceneEditorContext> idToContext = new IntMap<>();
 
 	private SceneEditorRegistry() {
 	}
 
-	static void put(SceneEditor editor, Dock dock, SwtLwjglApplication application, SceneEditorContext context) {
+	static void put(SceneEditor editor, Dock dock, SwtLwjglApplication application) {
 		int id = editor.id;
 		idToEditor.put(id, editor);
 		partControlToEditorId.put(dock, id);
 		gdxAppToEditorId.put(application, id);
-		idToContext.put(id, context);
 	}
 
 	static void remove(SceneEditor editor) {
@@ -34,7 +32,6 @@ public class SceneEditorRegistry {
 		idToEditor.remove(id);
 		partControlToEditorId.remove(partControlToEditorId.findKey(id), invalidId);
 		gdxAppToEditorId.remove(gdxAppToEditorId.findKey(id), invalidId);
-		idToContext.remove(id);
 	}
 
 	static int getEditorId(Control control) {
@@ -65,8 +62,9 @@ public class SceneEditorRegistry {
 			return null;
 		}
 	}
-	
+
 	public static SceneEditorContext getContext(int editorId) {
-		return idToContext.get(editorId);
+		SceneEditor sceneEditor = idToEditor.get(editorId);
+		return sceneEditor == null ? null : sceneEditor.sceneContext;
 	}
 }

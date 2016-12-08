@@ -43,6 +43,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.dnd.DndAssetPlacementManager;
 import com.gurella.studio.editor.history.HistoryManager;
+import com.gurella.studio.editor.launch.LaunchManager;
 import com.gurella.studio.editor.preferences.PreferencesManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -62,6 +63,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	ViewRegistry viewRegistry;
 	DndAssetPlacementManager dndAssetPlacementManager;
 	HistoryManager historyManager;
+	LaunchManager launchManager;
 	SceneEditorContext sceneContext;
 	PreferencesManager preferencesManager;
 
@@ -69,6 +71,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	private SceneEditorApplicationListener applicationListener;
 
 	private boolean dirty;
+
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -136,12 +139,12 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		applicationListener = new SceneEditorApplicationListener(id);
 		initGdxApplication();
+		SceneEditorRegistry.put(this, dock, application);
 		EventService.subscribe(id, this);
 
-		sceneContext = new SceneEditorContext(this);
-		SceneEditorRegistry.put(this, dock, application, sceneContext);
-
 		historyManager = new HistoryManager(this);
+		launchManager = new LaunchManager(this);
+		sceneContext = new SceneEditorContext(this);
 		viewRegistry = new ViewRegistry(this);
 		dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
 
