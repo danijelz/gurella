@@ -78,7 +78,7 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 
 		ILaunchConfiguration config = wc.doSave();
 		IProgressMonitor monitor = statusLineManager.getProgressMonitor();
-		config.launch(mode, monitor);
+		config.launch(mode, monitor, true);
 		monitor.done();
 	}
 
