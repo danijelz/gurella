@@ -14,7 +14,6 @@ public class LaunchSceneTabGroup extends AbstractLaunchConfigurationTabGroup {
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
 		setTabs(new ILaunchConfigurationTab[] { new SelectSceneTab(), new JavaArgumentsTab(), new JavaJRETab(),
-				new JavaClasspathTab(), new SourceLookupTab(), new EnvironmentTab(), new CommonTab(),
-				new CommonTab() });
+				new JavaClasspathTab(), new SourceLookupTab(), new EnvironmentTab(), new CommonTab() });
 	}
 }
