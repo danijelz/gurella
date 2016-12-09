@@ -15,12 +15,12 @@ import com.gurella.studio.editor.SceneEditorContext;
 class MoveAssetDropTargetListener extends DropTargetAdapter {
 	private final AssetsView view;
 	private final SceneEditorContext context;
-	private final IResource sceneResource;
+	private final IFile sceneFile;
 
 	MoveAssetDropTargetListener(AssetsView view) {
 		this.view = view;
 		this.context = view.editorContext;
-		this.sceneResource = context.sceneResource;
+		this.sceneFile = context.sceneFile;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 		}
 
 		IResource resource = getTransferingResource();
-		if (resource == null || resource == data || sceneResource.equals(resource)) {
+		if (resource == null || resource == data || sceneFile.equals(resource)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
@@ -90,7 +90,7 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 
 		IFolder folder = (IFolder) data;
 		IResource resource = getTransferingResource();
-		if (resource == null || resource == folder || sceneResource.equals(resource)) {
+		if (resource == null || resource == folder || sceneFile.equals(resource)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}

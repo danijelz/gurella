@@ -7,7 +7,6 @@ import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_D
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ID_JAVA_APPLICATION;
 import static org.eclipse.jdt.launching.JavaRuntime.newStringVariableClasspathEntry;
 
 import java.io.File;
@@ -47,12 +46,12 @@ public class SceneLauncher {
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(SceneEditorContext context) throws CoreException {
-		DebugPlugin plugin = DebugPlugin.getDefault();
-		ILaunchManager manager = plugin.getLaunchManager();
-		ILaunchConfigurationType type = manager.getLaunchConfigurationType(ID_JAVA_APPLICATION);
+		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType type = manager
+				.getLaunchConfigurationType("com.gurella.studio.launch.launchSceneConfigurationType");
 		IJavaProject javaProject = context.javaProject;
 		// TODO should find safer way to assets relative path
-		IPath path = context.sceneResource.getProjectRelativePath().removeFirstSegments(1);
+		IPath path = context.sceneFile.getProjectRelativePath().removeFirstSegments(1);
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
 		String projectName = javaProject.getElementName();

@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IUndoableOperation;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
@@ -35,7 +35,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 
 	public final IEditorSite editorSite;
 	public final IPathEditorInput editorInput;
-	public final IResource sceneResource;
+	public final IFile sceneFile;
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
@@ -51,9 +51,9 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 
 		editorSite = editor.getEditorSite();
 		editorInput = (IPathEditorInput) editor.getEditorInput();
-		sceneResource = editorInput.getAdapter(IResource.class);
-		workspace = sceneResource.getWorkspace();
-		project = sceneResource.getProject();
+		sceneFile = editorInput.getAdapter(IFile.class);
+		workspace = sceneFile.getWorkspace();
+		project = sceneFile.getProject();
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;

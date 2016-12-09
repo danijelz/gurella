@@ -93,8 +93,8 @@ class AssetsMenu {
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Delete");
 			item.addListener(SWT.Selection, e -> view.delete(selection));
-			IResource sceneResource = view.editorContext.sceneResource;
-			item.setEnabled(selected && !selection.equals(sceneResource));
+			IFile sceneFile = view.editorContext.sceneFile;
+			item.setEnabled(selected && !selection.equals(sceneFile));
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Rename");

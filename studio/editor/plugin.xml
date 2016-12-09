@@ -235,5 +235,13 @@
             type="com.gurella.studio.launch.launchSceneConfigurationType">
       </launchConfigurationTabGroup>
    </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="com.gurella.studio.launch.launchSceneConfigurationType"
+            icon="icons/Umbrella-16.png"
+            id="com.gurella.studio.launch.launchSceneConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
 
 </plugin>
