@@ -164,6 +164,7 @@ class AssetsMenu {
 
 			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 			subItem.setText("New");
+			subItem.setEnabled(enabled);
 			Menu subMenu = new Menu(menu);
 			subItem.setMenu(subMenu);
 

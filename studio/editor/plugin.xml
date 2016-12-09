@@ -9,7 +9,7 @@
       <editor
             name="Gurella scene editor"
             extensions="gscn"
-            icon="icons/sample.gif"
+            icon="icons/Umbrella-16.png"
             contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
             class="com.gurella.studio.editor.SceneEditor"
             id="com.gurella.studio.editor.sceneEditor">
@@ -182,6 +182,7 @@
       <wizard
             category="com.gurella.studio.wizard.gurellaWizardsCategory"
             class="com.gurella.studio.wizard.NewSceneWizard"
+            icon="icons/Umbrella-16.png"
             id="com.gurella.studio.wizard.newSceneWizard"
             name="New Scene">
       </wizard>
@@ -192,6 +193,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="com.gurella.studio.launch.LaunchSceneShortcut"
+            icon="icons/Umbrella-16.png"
             id="com.gurella.studio.launch.launchSceneShortcut"
             label="Launch Scene"
             modes="run,debug">

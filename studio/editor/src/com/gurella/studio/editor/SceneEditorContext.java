@@ -63,30 +63,17 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		unloadAssets();
+		unloadAll();
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		String msg = "Error closing java project";
 		Try.successful(Optional.ofNullable(javaProject)).filter(o -> o.isPresent()).map(o -> o.get())
 				.peek(t -> t.close()).onFailure(e -> log(e, msg));
 	}
 
-	private void unloadAssets() {
+	private void unloadAll() {
 		for (Entry<String, Object> entry : editedAssets.entrySet()) {
 			Object asset = entry.getValue();
 			AssetService.unload(asset);
-		}
-	}
-
-	void persist(IProgressMonitor monitor) {
-		for (Entry<String, Object> entry : editedAssets.entrySet()) {
-			String fileName = entry.getKey();
-			Object asset = entry.getValue();
-			AssetPersister<Object> persister = AssetPersisters.get(asset);
-			if (persister == null) {
-				// TODO exception?
-			} else {
-				persister.persist(fileName, asset);
-			}
 		}
 	}
 
@@ -97,6 +84,10 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	@Override
 	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
+	}
+
+	public IProgressMonitor getProgressMonitor() {
+		return editorSite.getActionBars().getStatusLineManager().getProgressMonitor();
 	}
 
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {
@@ -116,6 +107,19 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		Object asset = editedAssets.remove(fileName);
 		if (asset != null) {
 			AssetService.unload(fileName);
+		}
+	}
+
+	void persist(IProgressMonitor monitor) {
+		for (Entry<String, Object> entry : editedAssets.entrySet()) {
+			String fileName = entry.getKey();
+			Object asset = entry.getValue();
+			AssetPersister<Object> persister = AssetPersisters.get(asset);
+			if (persister == null) {
+				// TODO exception?
+			} else {
+				persister.persist(fileName, asset);
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.launch;
+package com.gurella.studio.launch;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
