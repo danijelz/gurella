@@ -195,14 +195,24 @@
             id="com.gurella.studio.launch.launchSceneShortcut"
             label="Launch Scene"
             modes="run,debug">
-         <enablement>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="com.gurella.studio.editor.sceneEditor">
-               </equals>
-            </with>
-         </enablement>
+         <contextualLaunch>
+            <contextLabel
+                  label="Run Scene"
+                  mode="run">
+            </contextLabel>
+            <contextLabel
+                  label="Debug Scene"
+                  mode="debug">
+            </contextLabel>
+            <enablement>
+               <with
+                     variable="activeEditorId">
+                  <equals
+                        value="com.gurella.studio.editor.sceneEditor">
+                  </equals>
+               </with>
+            </enablement>
+         </contextualLaunch>
       </shortcut>
    </extension>
    <extension
