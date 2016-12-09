@@ -208,12 +208,20 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="com.gurella.studio.launch.SceneLaunchConfigurationDelegate"
+            delegate="com.gurella.studio.launch.LaunchSceneConfigurationDelegate"
             delegateName="Gurella Scene Delegate"
             id="com.gurella.studio.launch.launchSceneConfigurationType"
             modes="run,debug"
             name="Gurella Scene">
       </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="com.gurella.studio.launch.LaunchSceneTabGroup"
+            id="com.gurella.studio.launch.launchSceneTabGroup"
+            type="com.gurella.studio.launch.launchSceneConfigurationType">
+      </launchConfigurationTabGroup>
    </extension>
 
 </plugin>
