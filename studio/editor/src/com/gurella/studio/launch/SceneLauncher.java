@@ -33,9 +33,11 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneLauncher {
+	public static final String LAUNCH_SCENE_CONFIGURATION_TYPE = "com.gurella.studio.launch.launchSceneConfigurationType";
+
 	public static void launch(SceneEditor sceneEditor, String mode) {
 		Try.successful(null).peek(n -> _launch(sceneEditor, mode))
-				.onFailure(e -> showError(e, "Error while running scene."));
+				.onFailure(e -> showError(e, "Error while trying to run a scene."));
 	}
 
 	private static void _launch(SceneEditor sceneEditor, String mode) throws CoreException {
@@ -47,27 +49,21 @@ public class SceneLauncher {
 
 	private static ILaunchConfiguration getLaunchConfiguration(SceneEditorContext context) throws CoreException {
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType type = manager
-				.getLaunchConfigurationType("com.gurella.studio.launch.launchSceneConfigurationType");
-		IJavaProject javaProject = context.javaProject;
+		ILaunchConfigurationType type = manager.getLaunchConfigurationType(LAUNCH_SCENE_CONFIGURATION_TYPE);
 		// TODO should find safer way to assets relative path
 		IPath path = context.sceneFile.getProjectRelativePath().removeFirstSegments(1);
+		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
+		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName()))
+				.forEach(c -> Try.successful(c).peek(tc -> tc.delete()));
+
+		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
 		String main = LaunchSceneApplication.class.getName();
 		String vmArguments = "-DgurellaDebugScene=" + path.toString();
 
-		for (ILaunchConfiguration config : configs) {
-			if (config.getAttribute(ATTR_PROJECT_NAME, "").equals(projectName)
-					&& config.getAttribute(ATTR_MAIN_TYPE_NAME, "").equals(main)
-					&& config.getAttribute(ATTR_VM_ARGUMENTS, "").equals(vmArguments)) {
-				return config;
-			}
-		}
-
-		String sceneName = path.removeFileExtension().lastSegment();
-		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, "Scene - " + sceneName);
+		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, sceneName);
 		workingCopy.setAttribute(ATTR_PROJECT_NAME, projectName);
 		workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, main);
 		workingCopy.setAttribute(ATTR_VM_ARGUMENTS, vmArguments);
