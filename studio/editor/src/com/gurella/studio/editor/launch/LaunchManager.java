@@ -26,7 +26,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.ui.IEditorSite;
 import org.osgi.framework.Bundle;
 
 import com.gurella.engine.plugin.Workbench;
@@ -46,8 +45,7 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 
 	public LaunchManager(SceneEditor editor) {
 		editorId = editor.id;
-		IEditorSite site = (IEditorSite) editor.getSite();
-		statusLineManager = site.getActionBars().getStatusLineManager();
+		statusLineManager = editor.getEditorSite().getActionBars().getStatusLineManager();
 		Workbench.activate(this);
 	}
 
