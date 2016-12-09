@@ -1,9 +1,16 @@
 package com.gurella.studio.launch;
 
+//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
+//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
+//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -36,12 +43,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
 
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -115,7 +116,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		// configuration.setAttribute(ATTR_MAIN_TYPE_NAME, main);
 		// configuration.setAttribute(ATTR_VM_ARGUMENTS, vmArguments);
 		// configuration.setAttribute(ATTR_CLASSPATH, getClasspath(javaProject));
-		// configuration.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
+		configuration.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 
 		// TODO Auto-generated method stub
 	}
@@ -131,24 +132,36 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 					if (obj instanceof IJavaElement) {
 						return (IJavaElement) obj;
 					}
+
 					if (obj instanceof IResource) {
 						IJavaElement je = JavaCore.create((IResource) obj);
 						if (je == null) {
 							IProject pro = ((IResource) obj).getProject();
 							je = JavaCore.create(pro);
 						}
+
 						if (je != null) {
 							return je;
 						}
 					}
 				}
 			}
+
 			IEditorPart part = page.getActiveEditor();
 			if (part != null) {
 				IEditorInput input = part.getEditorInput();
-				return input.getAdapter(IJavaElement.class);
+				IJavaElement javaElement = input.getAdapter(IJavaElement.class);
+				if (javaElement != null) {
+					return javaElement;
+				}
+
+				IResource resource = input.getAdapter(IResource.class);
+				if (resource != null) {
+					return JavaCore.create(resource.getProject());
+				}
 			}
 		}
+
 		return null;
 	}
 
@@ -175,12 +188,22 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
-		// updateProjectFromConfig(configuration);
+		updateProjectFromConfig(configuration);
 		// setCurrentLaunchConfiguration(configuration);
 		// updateMainTypeFromConfig(configuration);
 		// updateStopInMainFromConfig(configuration);
 		// updateInheritedMainsFromConfig(configuration);
 		// updateExternalJars(configuration);
+	}
+
+	private void updateProjectFromConfig(ILaunchConfiguration config) {
+		String projectName = "";
+		try {
+			projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
+		} catch (CoreException ce) {
+			setErrorMessage(ce.getStatus().getMessage());
+		}
+		fProjText.setText(projectName);
 	}
 
 	@Override
@@ -248,7 +271,6 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	}
 
 	private class WidgetListener implements ModifyListener, SelectionListener {
-
 		@Override
 		public void modifyText(ModifyEvent e) {
 			updateLaunchConfigurationDialog();
