@@ -194,7 +194,9 @@
             delegateName="Gurella Scene Delegate"
             id="com.gurella.studio.launch.launchSceneConfigurationType"
             modes="run,debug"
-            name="Gurella Scene">
+            name="Gurella Scene"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
       </launchConfigurationType>
    </extension>
    <extension
