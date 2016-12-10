@@ -73,6 +73,10 @@ public class SceneLauncher {
 		return config;
 	}
 
+	static List<String> computeClasspath(IJavaProject javaProject) {
+		return Try.ofFailable(() -> getClasspath(javaProject)).getUnchecked();
+	}
+
 	private static List<String> getClasspath(IJavaProject javaProject) throws CoreException {
 		List<String> cp = new ArrayList<>();
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));

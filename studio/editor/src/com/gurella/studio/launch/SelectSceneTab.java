@@ -1,16 +1,21 @@
 package com.gurella.studio.launch;
 
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
 //import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 //import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 //import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 //import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -19,12 +24,15 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.debug.ui.launcher.LauncherMessages;
+import org.eclipse.jdt.internal.launching.JavaMigrationDelegate;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -207,9 +215,25 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO Auto-generated method stub
+	public void performApply(ILaunchConfigurationWorkingCopy config) {
+		config.setAttribute(ATTR_PROJECT_NAME, fProjText.getText().trim());
+		config.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
+		config.setAttribute(ATTR_CLASSPATH, SceneLauncher.computeClasspath(getJavaProject()));
+		config.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
+		mapResources(config);
 	}
+	
+	protected void mapResources(ILaunchConfigurationWorkingCopy config)  {
+		try {
+		//CONTEXTLAUNCHING
+			IJavaProject javaProject = getJavaProject();
+			if (javaProject != null && javaProject.exists() && javaProject.isOpen()) {
+				JavaMigrationDelegate.updateResourceMapping(config);
+			}
+		} catch(CoreException ce) {
+			setErrorMessage(ce.getStatus().getMessage());
+		}
+	}	
 
 	@Override
 	public String getName() {
@@ -268,6 +292,38 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 
 	private static IJavaModel getJavaModel() {
 		return JavaCore.create(getWorkspaceRoot());
+	}
+	
+	@Override
+	public boolean isValid(ILaunchConfiguration config) {
+		setErrorMessage(null);
+		setMessage(null);
+		String name = fProjText.getText().trim();
+		if (name.length() > 0) {
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IStatus status = workspace.validateName(name, IResource.PROJECT);
+			if (status.isOK()) {
+				IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+				if (!project.exists()) {
+					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_20, new String[] {name})); 
+					return false;
+				}
+				if (!project.isOpen()) {
+					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_21, new String[] {name})); 
+					return false;
+				}
+			}
+			else {
+				setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_19, new String[]{status.getMessage()})); 
+				return false;
+			}
+		}
+		name = fMainText.getText().trim();
+		if (name.length() == 0) {
+			setErrorMessage(LauncherMessages.JavaMainTab_Main_type_not_specified_16); 
+			return false;
+		}
+		return true;
 	}
 
 	private class WidgetListener implements ModifyListener, SelectionListener {
