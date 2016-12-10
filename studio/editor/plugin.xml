@@ -211,11 +211,11 @@
             modes="run,debug">
          <contextualLaunch>
             <contextLabel
-                  label="Run Scene"
+                  label="Gurella Scene"
                   mode="run">
             </contextLabel>
             <contextLabel
-                  label="Debug Scene"
+                  label="Gurella Scene"
                   mode="debug">
             </contextLabel>
             <enablement>

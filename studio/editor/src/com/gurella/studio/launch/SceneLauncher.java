@@ -55,8 +55,8 @@ public class SceneLauncher {
 		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName()))
-				.forEach(c -> Try.successful(c).peek(tc -> tc.delete()));
+		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).map(c -> Try.successful(c))
+				.forEach(t -> t.peek(tc -> tc.delete()));
 
 		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
