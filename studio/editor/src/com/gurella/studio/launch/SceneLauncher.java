@@ -1,6 +1,7 @@
 package com.gurella.studio.launch;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.launch.SceneLauncherConstants.LAUNCH_SCENE_CONFIGURATION_TYPE;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
@@ -33,8 +34,6 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneLauncher {
-	public static final String LAUNCH_SCENE_CONFIGURATION_TYPE = "com.gurella.studio.launch.launchSceneConfigurationType";
-
 	public static void launch(SceneEditor sceneEditor, String mode) {
 		Try.successful(null).peek(n -> _launch(sceneEditor, mode))
 				.onFailure(e -> showError(e, "Error while trying to run a scene."));

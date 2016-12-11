@@ -1,12 +1,8 @@
 package com.gurella.studio.launch;
 
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-//import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
 import org.eclipse.core.resources.IProject;
@@ -26,7 +22,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.debug.ui.launcher.LauncherMessages;
 import org.eclipse.jdt.internal.launching.JavaMigrationDelegate;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -116,17 +111,11 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		if (javaElement != null) {
 			initializeJavaProject(javaElement, configuration);
 		} else {
-			configuration.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
+			configuration.setAttribute(ATTR_PROJECT_NAME, "");
 		}
-		// initializeMainTypeAndName(javaElement, configuration);
-
-		// configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
-		// configuration.setAttribute(ATTR_MAIN_TYPE_NAME, main);
-		// configuration.setAttribute(ATTR_VM_ARGUMENTS, vmArguments);
-		// configuration.setAttribute(ATTR_CLASSPATH, getClasspath(javaProject));
+		configuration.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
 		configuration.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
-
-		// TODO Auto-generated method stub
+		// initializeMainTypeAndName(javaElement, configuration);
 	}
 
 	private static IJavaElement getContext() {
@@ -191,7 +180,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		if (javaProject != null && javaProject.exists()) {
 			name = javaProject.getElementName();
 		}
-		config.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, name);
+		config.setAttribute(ATTR_PROJECT_NAME, name);
 	}
 
 	@Override
@@ -207,7 +196,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	private void updateProjectFromConfig(ILaunchConfiguration config) {
 		String projectName = "";
 		try {
-			projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
+			projectName = config.getAttribute(ATTR_PROJECT_NAME, projectName);
 		} catch (CoreException ce) {
 			setErrorMessage(ce.getStatus().getMessage());
 		}
@@ -222,18 +211,17 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		config.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 		mapResources(config);
 	}
-	
-	protected void mapResources(ILaunchConfigurationWorkingCopy config)  {
+
+	protected void mapResources(ILaunchConfigurationWorkingCopy config) {
 		try {
-		//CONTEXTLAUNCHING
 			IJavaProject javaProject = getJavaProject();
 			if (javaProject != null && javaProject.exists() && javaProject.isOpen()) {
 				JavaMigrationDelegate.updateResourceMapping(config);
 			}
-		} catch(CoreException ce) {
+		} catch (CoreException ce) {
 			setErrorMessage(ce.getStatus().getMessage());
 		}
-	}	
+	}
 
 	@Override
 	public String getName() {
@@ -293,7 +281,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	private static IJavaModel getJavaModel() {
 		return JavaCore.create(getWorkspaceRoot());
 	}
-	
+
 	@Override
 	public boolean isValid(ILaunchConfiguration config) {
 		setErrorMessage(null);
@@ -303,26 +291,27 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IStatus status = workspace.validateName(name, IResource.PROJECT);
 			if (status.isOK()) {
-				IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 				if (!project.exists()) {
-					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_20, new String[] {name})); 
+					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_20, new String[] { name }));
 					return false;
 				}
 				if (!project.isOpen()) {
-					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_21, new String[] {name})); 
+					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_21, new String[] { name }));
 					return false;
 				}
-			}
-			else {
-				setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_19, new String[]{status.getMessage()})); 
+			} else {
+				setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_19, new String[] { status.getMessage() }));
 				return false;
 			}
 		}
-		name = fMainText.getText().trim();
-		if (name.length() == 0) {
-			setErrorMessage(LauncherMessages.JavaMainTab_Main_type_not_specified_16); 
-			return false;
-		}
+
+		//TODO
+		//		name = fMainText.getText().trim();
+		//		if (name.length() == 0) {
+		//			setErrorMessage(LauncherMessages.JavaMainTab_Main_type_not_specified_16);
+		//			return false;
+		//		}
 		return true;
 	}
 
@@ -334,7 +323,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
-			/* do nothing */}
+		}
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
