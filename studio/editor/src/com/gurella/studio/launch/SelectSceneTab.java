@@ -1,5 +1,6 @@
 package com.gurella.studio.launch;
 
+import static com.gurella.studio.launch.SceneLauncherConstants.ATTR_SCENE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
@@ -20,7 +21,6 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.debug.ui.launcher.LauncherMessages;
 import org.eclipse.jdt.internal.launching.JavaMigrationDelegate;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -63,7 +63,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		createProjectEditor(comp);
 		createVerticalSpacer(comp, 1);
 		setControl(comp);
-		// TODO Auto-generated method stub
+		createMainTypeEditor(comp);
 	}
 
 	private static Composite createComposite(Composite parent, Font font, int columns, int hspan, int fill) {
@@ -105,17 +105,26 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		return t;
 	}
 
+	protected void createMainTypeEditor(Composite parent) {
+		Group group = createGroup(parent, "&Scene", 2, 1, GridData.FILL_HORIZONTAL);
+		fMainText = createSingleText(group, 1);
+		fMainText.addModifyListener(e -> updateLaunchConfigurationDialog());
+		ControlAccessibleListener.addListener(fMainText, group.getText());
+		fSearchButton = createPushButton(group, "&Search...", null);
+		fSearchButton.addListener(SWT.Selection, e -> handleSearchButtonSelected());
+	}
+
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
+		configuration.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 		IJavaElement javaElement = getContext();
 		if (javaElement != null) {
 			initializeJavaProject(javaElement, configuration);
 		} else {
 			configuration.setAttribute(ATTR_PROJECT_NAME, "");
 		}
-		configuration.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
-		configuration.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
-		// initializeMainTypeAndName(javaElement, configuration);
+		//TODO initializeMainTypeAndName(javaElement, configuration);
 	}
 
 	private static IJavaElement getContext() {
@@ -186,11 +195,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		updateProjectFromConfig(configuration);
-		// setCurrentLaunchConfiguration(configuration);
-		// updateMainTypeFromConfig(configuration);
-		// updateStopInMainFromConfig(configuration);
-		// updateInheritedMainsFromConfig(configuration);
-		// updateExternalJars(configuration);
+		updateSceneFromConfig(configuration);
 	}
 
 	private void updateProjectFromConfig(ILaunchConfiguration config) {
@@ -203,9 +208,20 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		fProjText.setText(projectName);
 	}
 
+	protected void updateSceneFromConfig(ILaunchConfiguration config) {
+		String sceneName = "";
+		try {
+			sceneName = config.getAttribute(ATTR_SCENE_NAME, sceneName);
+		} catch (CoreException ce) {
+			setErrorMessage(ce.getStatus().getMessage());
+		}
+		fMainText.setText(sceneName);
+	}
+
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy config) {
 		config.setAttribute(ATTR_PROJECT_NAME, fProjText.getText().trim());
+		config.setAttribute(ATTR_SCENE_NAME, fMainText.getText().trim());
 		config.setAttribute(ATTR_MAIN_TYPE_NAME, LaunchSceneApplication.class.getName());
 		config.setAttribute(ATTR_CLASSPATH, SceneLauncher.computeClasspath(getJavaProject()));
 		config.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
@@ -221,6 +237,10 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 		} catch (CoreException ce) {
 			setErrorMessage(ce.getStatus().getMessage());
 		}
+	}
+
+	private void handleSearchButtonSelected() {
+
 	}
 
 	@Override
@@ -293,25 +313,24 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 			if (status.isOK()) {
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 				if (!project.exists()) {
-					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_20, new String[] { name }));
+					setErrorMessage(NLS.bind("Project {0} does not exist", new String[] { name }));
 					return false;
 				}
 				if (!project.isOpen()) {
-					setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_21, new String[] { name }));
+					setErrorMessage(NLS.bind("Project {0} is closed", new String[] { name }));
 					return false;
 				}
 			} else {
-				setErrorMessage(NLS.bind(LauncherMessages.JavaMainTab_19, new String[] { status.getMessage() }));
+				setErrorMessage(NLS.bind("Illegal project name: {0}", new String[] { status.getMessage() }));
 				return false;
 			}
 		}
 
-		//TODO
-		//		name = fMainText.getText().trim();
-		//		if (name.length() == 0) {
-		//			setErrorMessage(LauncherMessages.JavaMainTab_Main_type_not_specified_16);
-		//			return false;
-		//		}
+		name = fMainText.getText().trim();
+		if (name.length() == 0) {
+			setErrorMessage("Scene not specified");
+			return false;
+		}
 		return true;
 	}
 
