@@ -6,12 +6,15 @@ import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_D
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -46,6 +49,9 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
+import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
+import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -240,7 +246,19 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	}
 
 	private void handleSearchButtonSelected() {
+		IJavaProject javaProject = getJavaProject();
+		IProject project = javaProject.getProject();
+		IFolder assetsFolder = project.getFolder("assets");
 
+		FilteredResourcesSelectionDialog dialog = new FilteredResourcesSelectionDialog(getShell(), false, project,
+				IResource.FILE);
+		dialog.setInitialPattern("*.gscn", FilteredItemsSelectionDialog.CARET_BEGINNING);
+
+		if (dialog.open() == ResourceSelectionDialog.OK) {
+			IFile file = (IFile) dialog.getResult()[0];
+			IPath relative = file.getLocation().makeRelativeTo(assetsFolder.getLocation());
+			fMainText.setText(relative.toString());
+		}
 	}
 
 	@Override
