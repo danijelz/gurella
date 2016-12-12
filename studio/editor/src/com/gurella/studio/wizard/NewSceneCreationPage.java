@@ -16,8 +16,7 @@ public class NewSceneCreationPage extends WizardNewFileCreationPage {
 
 	@Override
 	protected InputStream getInitialContents() {
-		String scene = newScene();
-		return new ByteArrayInputStream(Try.ofFailable(() -> scene.getBytes("UTF-8")).getUnchecked());
+		return new ByteArrayInputStream(Try.ofFailable(() -> newScene().getBytes("UTF-8")).getUnchecked());
 	}
 
 	private static String newScene() {
