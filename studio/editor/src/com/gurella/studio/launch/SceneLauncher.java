@@ -7,7 +7,6 @@ import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_C
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS;
 import static org.eclipse.jdt.launching.JavaRuntime.newStringVariableClasspathEntry;
 
 import java.io.File;
@@ -60,12 +59,11 @@ public class SceneLauncher {
 		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
 		String main = LaunchSceneApplication.class.getName();
-		String vmArguments = "-DgurellaDebugScene=" + path.toString();
 
 		ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, sceneName);
 		workingCopy.setAttribute(ATTR_PROJECT_NAME, projectName);
 		workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, main);
-		workingCopy.setAttribute(ATTR_VM_ARGUMENTS, vmArguments);
+		workingCopy.setAttribute(SceneLauncherConstants.ATTR_SCENE_NAME, path.toString());
 		workingCopy.setAttribute(ATTR_CLASSPATH, getClasspath(javaProject));
 		workingCopy.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 		ILaunchConfiguration config = workingCopy.doSave();

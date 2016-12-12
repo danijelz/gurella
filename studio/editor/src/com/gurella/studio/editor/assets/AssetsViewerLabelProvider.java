@@ -40,6 +40,8 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 				return GurellaStudioPlugin.getImage("icons/ice_cube.png");
 			} else if (AssetType.material.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/material.png");
+			}  else if (AssetType.scene.isValidExtension(extension)) {
+				return GurellaStudioPlugin.getImage("icons/Umbrella-16.png");
 			} else {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
 			}
