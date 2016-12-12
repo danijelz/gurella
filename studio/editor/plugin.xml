@@ -7,12 +7,13 @@
          name="Gurella Editors"
          point="org.eclipse.ui.editors">
       <editor
-            name="Gurella scene editor"
+            class="com.gurella.studio.editor.SceneEditor"
+            contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
+            default="true"
             extensions="gscn"
             icon="icons/Umbrella-16.png"
-            contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
-            class="com.gurella.studio.editor.SceneEditor"
-            id="com.gurella.studio.editor.sceneEditor">
+            id="com.gurella.studio.editor.sceneEditor"
+            name="Gurella scene editor">
       </editor>
    </extension>
    <extension
