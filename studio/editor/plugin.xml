@@ -187,6 +187,18 @@
             id="com.gurella.studio.wizard.newSceneWizard"
             name="New Scene">
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="com.gurella.studio.wizard.gurellaWizardsCategory"
+            class="com.gurella.studio.wizard.NewProjectWizard"
+            descriptionImage="icons/Umbrella.png"
+            finalPerspective="org.eclipse.jdt.ui.JavaPerspective"
+            hasPages="true"
+            icon="icons/Umbrella-16.png"
+            id="com.gurella.studio.wizard.newProjectWizard"
+            name="New Gurella Project"
+            project="true">
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
