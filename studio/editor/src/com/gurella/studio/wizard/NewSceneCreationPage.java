@@ -1,18 +1,12 @@
 package com.gurella.studio.wizard;
 
-import static com.gurella.studio.editor.utils.PrettyPrintSerializer.serialize;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
-import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
-import com.gurella.engine.scene.light.DirectionalLightComponent;
-import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.utils.Uuid;
 import com.gurella.studio.editor.utils.Try;
 
 public class NewSceneCreationPage extends WizardNewFileCreationPage {
@@ -22,18 +16,54 @@ public class NewSceneCreationPage extends WizardNewFileCreationPage {
 
 	@Override
 	protected InputStream getInitialContents() {
-		String serialized = serialize("", Scene.class, newScene());
-		return new ByteArrayInputStream(Try.ofFailable(() -> serialized.getBytes("UTF-8")).getUnchecked());
+		String scene = newScene();
+		return new ByteArrayInputStream(Try.ofFailable(() -> scene.getBytes("UTF-8")).getUnchecked());
 	}
 
-	private static Scene newScene() {
-		Scene scene = new Scene();
-		SceneNode node = scene.newNode("Main camera");
-		node.newComponent(TransformComponent.class);
-		node.newComponent(PerspectiveCameraComponent.class);
-		node = scene.newNode("Directional light");
-		node.newComponent(TransformComponent.class);
-		node.newComponent(DirectionalLightComponent.class);
-		return scene;
+	private static String newScene() {
+		// @formatter:off
+		return "{\r\n" + 
+				"0: {\r\n" + 
+				"	uuid: " + 
+				 Uuid.randomUuidString() + 
+				"\r\n	nodes: {\r\n" + 
+				"		elements: [ 2, 1, 2 ]\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"1: {\r\n" + 
+				"	#: com.gurella.engine.scene.SceneNode\r\n" + 
+				"	uuid: " + 
+				 Uuid.randomUuidString() + 
+				"\r\n	name: Main camera\r\n" + 
+				"	components: {\r\n" + 
+				"		elements: [ 2, 3, 4 ]\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"2: {\r\n" + 
+				"	#: com.gurella.engine.scene.SceneNode\r\n" + 
+				"	uuid: " + 
+				 Uuid.randomUuidString() + 
+				"\r\n	name: Directional light\r\n" + 
+				"	components: {\r\n" + 
+				"		elements: [ 2, 5, 6 ]\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"3: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: " + 
+				 Uuid.randomUuidString() + 
+				" }\r\n" + 
+				"4: {\r\n" + 
+				"	#: com.gurella.engine.scene.camera.PerspectiveCameraComponent\r\n" + 
+				"	uuid: " + 
+				 Uuid.randomUuidString() + 
+				"\r\n	viewport: {}\r\n" + 
+				"}\r\n" + 
+				"5: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: " + 
+				 Uuid.randomUuidString() + 
+				" }\r\n" + 
+				"6: { #: com.gurella.engine.scene.light.DirectionalLightComponent, uuid: " + 
+				 Uuid.randomUuidString() + 
+				" }\r\n" + 
+				"}";
+		// @formatter:on
 	}
 }

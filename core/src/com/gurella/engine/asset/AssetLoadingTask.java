@@ -281,7 +281,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		PoolService.freeAll(dependencies);
 		dependencies.clear();
 
-		for (int i = 0; i < concurentTasks.size; i++) {
+		for (int i = 0, n= concurentTasks.size; i < n; i++) {
 			concurentTasks.get(i).free();
 		}
 		concurentTasks.clear();
