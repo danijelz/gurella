@@ -38,8 +38,7 @@ Bundle-ClassPath: .,
  lib/jlayer-1.0.1-gdx.jar,
  lib/jorbis-0.0.17.jar,
  lib/gdx-box2d-1.9.4.jar,
- lib/gdx-box2d-platform-1.9.4-natives-desktop.jar,
- lib/gdx-setup.jar
+ lib/gdx-box2d-platform-1.9.4-natives-desktop.jar
 Export-Package: com.badlogic.gdx,
  com.badlogic.gdx.assets,
  com.badlogic.gdx.assets.loaders,

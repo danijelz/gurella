@@ -8,7 +8,6 @@ import java.io.File;
  * @author Tomski
  */
 public class TemporaryProjectFile extends ProjectFile {
-	/** The temporary file **/
 	public File file;
 
 	public TemporaryProjectFile(File file, String outputString, boolean isTemplate) {

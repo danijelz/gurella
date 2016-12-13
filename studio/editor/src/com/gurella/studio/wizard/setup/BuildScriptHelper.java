@@ -123,14 +123,10 @@ public class BuildScriptHelper {
 	}
 
 	private static int clamp(int indent) {
-		if (indent < 0) {
-			return 0;
-		}
-		return indent;
+		return indent < 0 ? 0 : indent;
 	}
 
 	static class StringUtils {
-
 		public static int countMatches(String input, char match) {
 			int count = 0;
 			for (int i = 0; i < input.length(); i++) {

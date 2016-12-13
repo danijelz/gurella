@@ -16,7 +16,7 @@ public class ProjectFile {
 	/** whether to replace values in this file **/
 	public boolean isTemplate;
 	/** If the resource is from resource directory, or working dir **/
-	public String resourceLoc = "/com/badlogic/gdx/setup/resources/";
+	public String resourceLoc = "setup/";
 	
 	public ProjectFile(String name) {
 		this.resourceName = name;

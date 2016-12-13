@@ -1,6 +1,5 @@
 package com.gurella.studio.wizard;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
@@ -23,13 +21,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import com.badlogic.gdx.setup.Dependency;
-import com.badlogic.gdx.setup.DependencyBank;
-import com.badlogic.gdx.setup.DependencyBank.ProjectDependency;
-import com.badlogic.gdx.setup.DependencyBank.ProjectType;
-import com.badlogic.gdx.setup.Executor.CharCallback;
-import com.badlogic.gdx.setup.GdxSetup;
-import com.badlogic.gdx.setup.ProjectBuilder;
+import com.gurella.studio.wizard.setup.Dependency;
+import com.gurella.studio.wizard.setup.DependencyBank;
+import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
+import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
+import com.gurella.studio.wizard.setup.Executor.CharCallback;
+import com.gurella.studio.wizard.setup.GdxSetup;
+import com.gurella.studio.wizard.setup.ProjectBuilder;
+
 
 public class NewProjectWizard extends Wizard implements INewWizard {
 	private IWorkbench workbench;
@@ -67,7 +66,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		final String name = "projectname";
 		final String pack = "com.packagename";
 		final String clazz = "TestApp";
-		final String destination = "/media/danijel/data/testproj/";
+		//final String destination = "/media/danijel/data/testproj/";
+		final String destination = "D:\\gurella\\testproj";
 		final String sdkLocation = "sdk";
 //		if (!GdxSetup.isSdkLocationValid(sdkLocation) && modules.contains(ProjectType.ANDROID)) {
 //			JOptionPane

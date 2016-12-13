@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 import com.gurella.studio.wizard.setup.Executor.CharCallback;
 
@@ -398,9 +399,10 @@ public class GdxSetup {
 		try {
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024 * 10];
-			in = GdxSetup.class.getResourceAsStream(path + resource);
-			if (in == null)
+			in = GurellaStudioPlugin.getFileInputStream(path + resource);
+			if (in == null) {
 				throw new RuntimeException("Couldn't read resource '" + resource + "'");
+			}
 			int read = 0;
 			while ((read = in.read(buffer)) > 0) {
 				bytes.write(buffer, 0, read);
@@ -423,8 +425,6 @@ public class GdxSetup {
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024 * 10];
 			in = new FileInputStream(file);
-			if (in == null)
-				throw new RuntimeException("Couldn't read resource '" + file.getAbsoluteFile() + "'");
 			int read = 0;
 			while ((read = in.read(buffer)) > 0) {
 				bytes.write(buffer, 0, read);
