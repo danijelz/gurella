@@ -1,5 +1,6 @@
 package com.gurella.studio.wizard;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,14 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(bank.getDependency(ProjectDependency.GDX));
 		dependencies.add(bank.getDependency(ProjectDependency.BULLET));
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
+		
+		builder.buildProject(modules, dependencies);
+		try {
+			builder.build();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		final String name = "projectname";
 		final String pack = "com.packagename";

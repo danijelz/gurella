@@ -73,7 +73,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	public static InputStream getFileInputStream(String filePath) {
-		return Try.ofFailable(() -> FileLocator.openStream(plugin.getBundle(), locatePath(filePath), false))
+		return Try.ofFailable(() -> FileLocator.openStream(plugin.getBundle(), new Path(filePath), false))
 				.orElse(null);
 	}
 
