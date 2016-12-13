@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.DependencyBank;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
@@ -161,7 +162,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 //			}
 //		}
 		
-		boolean offline = false;
+		boolean offline = true;
 		final List<String> gradleArgs = new ArrayList<String>();
 	    gradleArgs.add("--no-daemon");
 	    gradleArgs.add("eclipse");
@@ -173,11 +174,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		IWorkspaceRunnable op = new IWorkspaceRunnable() {
 			@Override
 			public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+				long millis = System.currentTimeMillis();
+				System.out.println("Generating app in " + destination);
 				new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new CharCallback() {
 					@Override
 					public void character(char c) {
+						System.out.print(c);
 					}
 				}, gradleArgs);
+				System.out.println("Done! " + String.valueOf(System.currentTimeMillis() - millis));
 			}
 		};
 		
