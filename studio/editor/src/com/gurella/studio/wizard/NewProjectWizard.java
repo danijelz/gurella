@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.DependencyBank;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
