@@ -2,8 +2,9 @@ package com.gurella.studio.wizard;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -13,7 +14,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -36,6 +36,7 @@ import com.gurella.studio.wizard.setup.ProjectBuilder;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
 	private static final String gradleNature = "org.eclipse.buildship.core.gradleprojectnature";
+	private static final String gradleBuildConfiguration = "org.eclipse.buildship.core.gradleprojectbuilder";
 
 	private IWorkbench workbench;
 	private IStructuredSelection selection;
@@ -88,8 +89,19 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		builder.build();
 		buildProjects(builder);
 
-		openProject(page.getProjectLocation(), "core");
-		openProject(page.getProjectLocation(), "desktop");
+		String projectLocation = page.getProjectLocation();
+		createProject(projectLocation);
+		openProject(projectLocation, "core");
+		openProject(projectLocation, "desktop");
+	}
+
+	private void createProject(String projectLocation) throws URISyntaxException, CoreException {
+		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IProjectDescription description = workspace.newProjectDescription(page.getProjectName());
+		description.setLocationURI(new URI(projectLocation));
+		IProject project = workspace.getRoot().getProject(description.getName());
+		project.create(description, null);
+		project.open(null);
 	}
 
 	private static void openProject(String path, String name) throws CoreException {
@@ -101,14 +113,19 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		project.create(description, null);
 		project.open(null);
 
-		description = project.getDescription();
-		if (!description.hasNature(gradleNature)) {
-			List<String> natures = new ArrayList<>();
-			natures.addAll(Arrays.asList(description.getNatureIds()));
-			natures.add(gradleNature);
-			description.setNatureIds(natures.toArray(new String[natures.size()]));
-		}
-		project.setDescription(description, new NullProgressMonitor());
+		// boolean save = false;
+		// description = project.getDescription();
+		// if (!description.hasNature(gradleNature)) {
+		// save = true;
+		// List<String> natures = new ArrayList<>();
+		// natures.addAll(Arrays.asList(description.getNatureIds()));
+		// natures.add(gradleNature);
+		// description.setNatureIds(natures.toArray(new String[natures.size()]));
+		// }
+		//
+		// if (save) {
+		// project.setDescription(description, new NullProgressMonitor());
+		// }
 	}
 
 	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
