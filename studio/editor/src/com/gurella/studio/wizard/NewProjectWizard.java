@@ -29,7 +29,7 @@ import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.DependencyBank;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
-import com.gurella.studio.wizard.setup.Executor.CharCallback;
+import com.gurella.studio.wizard.setup.Executor.LogCallback;
 import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
 
@@ -53,7 +53,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		DependencyBank bank = new DependencyBank();
-		ProjectBuilder builder = new ProjectBuilder(bank);
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
 		modules.add(ProjectType.DESKTOP);
@@ -66,7 +65,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(bank.getDependency(ProjectDependency.BULLET));
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
 
-		builder.buildProject(modules, dependencies);
+		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
 		boolean success = Try.successful(builder).peek(b -> b.build()).onSuccess(b -> buildProjects(b))
 				.onFailure(e -> handleFinishException(new InvocationTargetException(e))).isSuccess();
 		if (!success) {
@@ -240,10 +239,10 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 			long millis = System.currentTimeMillis();
 			System.out.println("Generating app in " + destination);
-			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new CharCallback() {
+			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new LogCallback() {
 				@Override
-				public void character(char c) {
-					System.out.print(c);
+				public void log(String log) {
+					System.out.print(log);
 				}
 			}, gradleArgs);
 			System.out.println("Done! " + String.valueOf(System.currentTimeMillis() - millis));

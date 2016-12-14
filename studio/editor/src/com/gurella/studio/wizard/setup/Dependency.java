@@ -1,8 +1,9 @@
 package com.gurella.studio.wizard.setup;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 
@@ -24,12 +25,10 @@ public class Dependency {
 	}
 
 	public List<String> getIncompatibilities(ProjectType type) {
-		List<String> incompat = new ArrayList<String>();
-		String[] subArray = subDependencyMap.get(type);
-		if (subArray == null) {
-			incompat.add("Dependency " + name + " is not compatible with sub module " + type.getName().toUpperCase());
-		}
-		return incompat;
+		return subDependencyMap.get(type) == null
+				? Collections.singletonList(
+						"Dependency " + name + " is not compatible with sub module " + type.getName().toUpperCase())
+				: Collections.emptyList();
 	}
 
 	public String[] getGwtInherits() {
@@ -42,12 +41,8 @@ public class Dependency {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Dependency) {
-			if (((Dependency) obj).getName().equals(getName())) {
-				return true;
-			}
-		}
-		return false;
+		return Optional.ofNullable(obj).filter(Dependency.class::isInstance).map(Dependency.class::cast)
+				.filter(d -> d.getName().equals(getName())).isPresent();
 	}
 
 	@Override

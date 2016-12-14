@@ -1,5 +1,7 @@
 package com.gurella.studio.wizard.setup;
 
+import static com.gurella.studio.wizard.setup.DependencyBank.ProjectType.DESKTOP;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -11,13 +13,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 import javax.swing.JOptionPane;
 
@@ -25,7 +26,7 @@ import com.badlogic.gdx.utils.StreamUtils;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
-import com.gurella.studio.wizard.setup.Executor.CharCallback;
+import com.gurella.studio.wizard.setup.Executor.LogCallback;
 
 /**
  * Command line tool to generate libgdx projects
@@ -39,11 +40,8 @@ public class GdxSetup {
 	}
 
 	public static boolean isEmptyDirectory(String destination) {
-		if (new File(destination).exists()) {
-			return new File(destination).list().length == 0;
-		} else {
-			return true;
-		}
+		File file = new File(destination);
+		return file.exists() ? file.list().length == 0 : true;
 	}
 
 	public static boolean isSdkUpToDate(String sdkLocation) {
@@ -61,6 +59,7 @@ public class GdxSetup {
 					+ DependencyBank.androidAPILevel);
 			return false;
 		}
+
 		String newestLocalTool = getLatestTools(buildTools);
 		int[] localToolVersion = convertTools(newestLocalTool);
 		int[] targetToolVersion = convertTools(DependencyBank.buildToolsVersion);
@@ -200,11 +199,7 @@ public class GdxSetup {
 	}
 
 	private static boolean versionsEqual(int[] testVersion, int[] targetVersion) {
-		for (int i = 0; i < 3; i++) {
-			if (testVersion[i] != targetVersion[i])
-				return false;
-		}
-		return true;
+		return !IntStream.range(0, 3).filter(i -> testVersion[i] != targetVersion[i]).findAny().isPresent();
 	}
 
 	private static boolean compareVersions(int[] version, int[] testVersion) {
@@ -238,7 +233,7 @@ public class GdxSetup {
 	}
 
 	public void build(ProjectBuilder builder, String outputDir, String appName, String packageName, String mainClass,
-			String sdkLocation, CharCallback callback, List<String> gradleArgs) {
+			String sdkLocation, LogCallback callback, List<String> gradleArgs) {
 		Project project = new Project();
 
 		String packageDir = packageName.replace('.', '/');
@@ -262,23 +257,23 @@ public class GdxSetup {
 		project.files.add(new ProjectFile("core/build.gradle"));
 		project.files
 				.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
-		if (builder.modules.contains(ProjectType.HTML)) {
+		if (builder.projects.contains(ProjectType.HTML)) {
 			project.files.add(new ProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true));
 		}
 
 		// desktop project
-		if (builder.modules.contains(ProjectType.DESKTOP)) {
+		if (builder.projects.contains(ProjectType.DESKTOP)) {
 			project.files.add(new ProjectFile("desktop/build.gradle"));
 			project.files.add(new ProjectFile("desktop/src/DesktopLauncher",
 					"desktop/src/" + packageDir + "/desktop/DesktopLauncher.java", true));
 		}
 
 		// Assets
-		String assetPath = builder.modules.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
+		String assetPath = builder.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
 		project.files.add(new ProjectFile("android/assets/badlogic.jpg", assetPath + "/badlogic.jpg", false));
 
 		// android project
-		if (builder.modules.contains(ProjectType.ANDROID)) {
+		if (builder.projects.contains(ProjectType.ANDROID)) {
 			project.files.add(new ProjectFile("android/res/values/strings.xml"));
 			project.files.add(new ProjectFile("android/res/values/styles.xml", false));
 			project.files.add(new ProjectFile("android/res/drawable-hdpi/ic_launcher.png", false));
@@ -297,7 +292,7 @@ public class GdxSetup {
 		}
 
 		// html project
-		if (builder.modules.contains(ProjectType.HTML)) {
+		if (builder.projects.contains(ProjectType.HTML)) {
 			project.files.add(new ProjectFile("html/build.gradle"));
 			project.files.add(new ProjectFile("html/src/HtmlLauncher",
 					"html/src/" + packageDir + "/client/HtmlLauncher.java", true));
@@ -316,7 +311,7 @@ public class GdxSetup {
 		}
 
 		// ios robovm
-		if (builder.modules.contains(ProjectType.IOS)) {
+		if (builder.projects.contains(ProjectType.IOS)) {
 			project.files
 					.add(new ProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true));
 			project.files.add(new ProjectFile("ios/data/Default.png", false));
@@ -337,7 +332,7 @@ public class GdxSetup {
 			project.files.add(new ProjectFile("ios/robovm.xml", true));
 		}
 
-		if (builder.modules.contains(ProjectType.IOSMOE)) {
+		if (builder.projects.contains(ProjectType.IOSMOE)) {
 			project.files.add(new ProjectFile("ios-moe/resources/Default.png", false));
 			project.files.add(new ProjectFile("ios-moe/resources/Default@2x.png", false));
 			project.files.add(new ProjectFile("ios-moe/resources/Default@2x~ipad.png", false));
@@ -373,46 +368,35 @@ public class GdxSetup {
 		values.put("%BUILD_TOOLS_VERSION%", DependencyBank.buildToolsVersion);
 		values.put("%API_LEVEL%", DependencyBank.androidAPILevel);
 		values.put("%GWT_VERSION%", DependencyBank.gwtVersion);
-		if (builder.modules.contains(ProjectType.HTML)) {
+		if (builder.projects.contains(ProjectType.HTML)) {
 			values.put("%GWT_INHERITS%", parseGwtInherits(builder));
 		}
 
 		copyAndReplace(outputDir, project, values);
-
 		builder.cleanUp();
 
 		// HACK executable flag isn't preserved for whatever reason...
 		new File(outputDir, "gradlew").setExecutable(true);
-
-		Executor.execute(new File(outputDir), "gradlew.bat", "gradlew",
-				"clean" + parseGradleArgs(builder.modules, gradleArgs), callback);
+		String args = "clean" + parseGradleArgs(builder.projects, gradleArgs);
+		Executor.execute(new File(outputDir), args, callback);
 	}
 
 	private static void copyAndReplace(String outputDir, Project project, Map<String, String> values) {
 		File out = new File(outputDir);
-		if (!out.exists() && !out.mkdirs()) {
-			throw new RuntimeException("Couldn't create output directory '" + out.getAbsolutePath() + "'");
-		}
-
-		for (ProjectFile file : project.files) {
-			copyFile(file, out, values);
-		}
+		Optional.of(out).filter(o -> o.exists() || o.mkdirs()).orElseThrow(
+				() -> new RuntimeException("Couldn't create output directory '" + out.getAbsolutePath() + "'"));
+		project.files.forEach(f -> copyFile(f, out, values));
 	}
 
 	private static byte[] readResource(String resource, String path) {
 		InputStream in = null;
 		try {
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024 * 10];
 			in = GurellaStudioPlugin.getFileInputStream(path + resource);
 			if (in == null) {
 				throw new RuntimeException("Couldn't read resource '" + resource + "'");
 			}
-			int read = 0;
-			while ((read = in.read(buffer)) > 0) {
-				bytes.write(buffer, 0, read);
-			}
-			return bytes.toByteArray();
+			return readBytes(in, bytes);
 		} catch (IOException e) {
 			throw new RuntimeException("Couldn't read resource '" + resource + "'", e);
 		} finally {
@@ -420,17 +404,21 @@ public class GdxSetup {
 		}
 	}
 
+	private static byte[] readBytes(InputStream in, ByteArrayOutputStream bytes) throws IOException {
+		int read = 0;
+		byte[] buffer = new byte[1024 * 10];
+		while ((read = in.read(buffer)) > 0) {
+			bytes.write(buffer, 0, read);
+		}
+		return bytes.toByteArray();
+	}
+
 	private static byte[] readResource(File file) {
 		InputStream in = null;
 		try {
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024 * 10];
 			in = new FileInputStream(file);
-			int read = 0;
-			while ((read = in.read(buffer)) > 0) {
-				bytes.write(buffer, 0, read);
-			}
-			return bytes.toByteArray();
+			return readBytes(in, bytes);
 		} catch (Throwable e) {
 			throw new RuntimeException("Couldn't read resource '" + file.getAbsoluteFile() + "'", e);
 		} finally {
@@ -439,19 +427,11 @@ public class GdxSetup {
 	}
 
 	private static String readResourceAsString(String resource, String path) {
-		try {
-			return new String(readResource(resource, path), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		return Try.ofFailable(() -> new String(readResource(resource, path), "UTF-8")).getUnchecked();
 	}
 
 	private static String readResourceAsString(File file) {
-		try {
-			return new String(readResource(file), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		return Try.ofFailable(() -> new String(readResource(file), "UTF-8")).getUnchecked();
 	}
 
 	private static void writeFile(File outFile, byte[] bytes) {
@@ -525,15 +505,9 @@ public class GdxSetup {
 			return "";
 		}
 
-		StringBuilder argString = new StringBuilder();
-		for (String argument : args) {
-			if (argument.equals("afterEclipseImport") && !modules.contains(ProjectType.DESKTOP)) {
-				continue;
-			}
-			argString.append(" ");
-			argString.append(argument);
-		}
-
-		return argString.toString();
+		StringBuilder builder = new StringBuilder();
+		boolean desktop = modules.contains(DESKTOP);
+		args.stream().filter(a -> desktop || !a.equals("afterEclipseImport")).forEach(a -> builder.append(" " + a));
+		return builder.toString();
 	}
 }
