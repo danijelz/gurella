@@ -1,15 +1,19 @@
 package com.gurella.studio.wizard;
 
-import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter;
@@ -63,8 +67,30 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
 
 		builder.buildProject(modules, dependencies);
-		return Try.successful(builder).peek(b -> b.build()).onSuccess(b -> buildProjects(b))
+		boolean success = Try.successful(builder).peek(b -> b.build()).onSuccess(b -> buildProjects(b))
 				.onFailure(e -> handleFinishException(new InvocationTargetException(e))).isSuccess();
+		if (!success) {
+			return false;
+		}
+
+		try {
+			openProject(page.getProjectLocation(), "core");
+			openProject(page.getProjectLocation(), "desktop");
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return true;
+	}
+
+	private static void openProject(String path, String name) throws CoreException {
+		Path descriptionFile = new Path(path + File.separator + name + File.separator + ".project");
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IProjectDescription description = workspace.loadProjectDescription(descriptionFile);
+		IProject project = workspace.getRoot().getProject(description.getName());
+		project.create(description, null);
+		project.open(null);
 	}
 
 	private boolean buildProjects(ProjectBuilder builder) {
@@ -162,33 +188,10 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		// }
 		// }
 
-		boolean offline = true;
-		final List<String> gradleArgs = new ArrayList<String>();
-		gradleArgs.add("--no-daemon");
-		gradleArgs.add("eclipse");
-		gradleArgs.add("afterEclipseImport");
-		if (offline) {
-			gradleArgs.add("--offline");
-		}
-
-		IWorkspaceRunnable op = new IWorkspaceRunnable() {
-			@Override
-			public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-				long millis = System.currentTimeMillis();
-				System.out.println("Generating app in " + destination);
-				new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new CharCallback() {
-					@Override
-					public void character(char c) {
-						System.out.print(c);
-					}
-				}, gradleArgs);
-				System.out.println("Done! " + String.valueOf(System.currentTimeMillis() - millis));
-			}
-		};
-
 		try {
 			Job job = Job.getJobManager().currentJob();
 			ISchedulingRule rule = job == null ? null : job.getRule();
+			IWorkspaceRunnable op = new BuildProjectsRunnable(builder, destination, pack, name, clazz, sdkLocation);
 			IRunnableWithProgress runnable = rule != null ? new WorkbenchRunnableAdapter(op, rule, true)
 					: new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot());
 			getContainer().run(true, true, runnable);
@@ -203,5 +206,47 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 	private void handleFinishException(InvocationTargetException e) {
 		ExceptionHandler.handle(e, getShell(), "New", "Creation of element failed.");
+	}
+
+	private static final class BuildProjectsRunnable implements IWorkspaceRunnable {
+		private final ProjectBuilder builder;
+		private final String destination;
+		private final String pack;
+		private final String name;
+		private final String clazz;
+		private final String sdkLocation;
+
+		private BuildProjectsRunnable(ProjectBuilder builder, String destination, String pack, String name,
+				String clazz, String sdkLocation) {
+			this.builder = builder;
+			this.destination = destination;
+			this.pack = pack;
+			this.name = name;
+			this.clazz = clazz;
+			this.sdkLocation = sdkLocation;
+		}
+
+		@Override
+		public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+
+			boolean offline = true;
+			final List<String> gradleArgs = new ArrayList<String>();
+			gradleArgs.add("--no-daemon");
+			gradleArgs.add("eclipse");
+			gradleArgs.add("afterEclipseImport");
+			if (offline) {
+				gradleArgs.add("--offline");
+			}
+
+			long millis = System.currentTimeMillis();
+			System.out.println("Generating app in " + destination);
+			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new CharCallback() {
+				@Override
+				public void character(char c) {
+					System.out.print(c);
+				}
+			}, gradleArgs);
+			System.out.println("Done! " + String.valueOf(System.currentTimeMillis() - millis));
+		}
 	}
 }
