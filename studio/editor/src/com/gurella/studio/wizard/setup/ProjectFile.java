@@ -9,8 +9,6 @@ package com.gurella.studio.wizard.setup;
  *
  */
 public class ProjectFile {
-	/** If the resource is from resource directory, or working dir **/
-	public static final String resourceLoc = "setup/";
 	/** the name of the template resource, relative to resourceLoc **/
 	public String resourceName;
 	/** the name of the output file, including directories, relative to the project dir **/

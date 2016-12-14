@@ -1,9 +1,15 @@
 package com.gurella.studio.wizard.setup;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 
 public class BuildScriptHelper {
@@ -65,9 +71,8 @@ public class BuildScriptHelper {
 			throws IOException {
 		space(wr);
 		write(wr, "project(\":" + project.getName() + "\") {");
-		for (String plugin : project.getPlugins()) {
-			write(wr, "apply plugin: \"" + plugin + "\"");
-		}
+		Arrays.stream(project.getPlugins())
+				.forEachOrdered(p -> Try.successful(p).peek(tp -> write(wr, "apply plugin: \"" + tp + "\"")));
 		space(wr);
 		addConfigurations(project, wr);
 		space(wr);
@@ -82,11 +87,14 @@ public class BuildScriptHelper {
 			write(wr, "compile project(\":" + ProjectType.CORE.getName() + "\")");
 		}
 		for (Dependency dep : dependencyList) {
-			if (dep.getDependencies(project) == null)
+			if (dep.getDependencies(project) == null) {
 				continue;
+			}
+
 			for (String moduleDependency : dep.getDependencies(project)) {
-				if (moduleDependency == null)
+				if (moduleDependency == null) {
 					continue;
+				}
 				if ((project.equals(ProjectType.ANDROID) || project.equals(ProjectType.IOSMOE))
 						&& moduleDependency.contains("native")) {
 					write(wr, "natives \"" + moduleDependency + "\"");
@@ -105,15 +113,15 @@ public class BuildScriptHelper {
 	}
 
 	private static void write(BufferedWriter wr, String input) throws IOException {
-		int delta = StringUtils.countMatches(input, '{') - StringUtils.countMatches(input, '}');
+		int delta = countMatches(input, '{') - countMatches(input, '}');
 		indent += delta *= 4;
 		indent = clamp(indent);
 		if (delta > 0) {
-			wr.write(StringUtils.repeat(" ", clamp(indent - 4)) + input + "\n");
+			wr.write(repeat(" ", clamp(indent - 4)) + input + "\n");
 		} else if (delta < 0) {
-			wr.write(StringUtils.repeat(" ", clamp(indent)) + input + "\n");
+			wr.write(repeat(" ", clamp(indent)) + input + "\n");
 		} else {
-			wr.write(StringUtils.repeat(" ", indent) + input + "\n");
+			wr.write(repeat(" ", indent) + input + "\n");
 		}
 	}
 
@@ -125,23 +133,11 @@ public class BuildScriptHelper {
 		return indent < 0 ? 0 : indent;
 	}
 
-	static class StringUtils {
-		public static int countMatches(String input, char match) {
-			int count = 0;
-			for (int i = 0; i < input.length(); i++) {
-				if (input.charAt(i) == match) {
-					count++;
-				}
-			}
-			return count;
-		}
+	public static int countMatches(String input, char match) {
+		return (int) input.chars().filter(c -> c == match).count();
+	}
 
-		public static String repeat(String toRepeat, int count) {
-			String repeat = "";
-			for (int i = 0; i < count; i++) {
-				repeat += toRepeat;
-			}
-			return repeat;
-		}
+	public static String repeat(String toRepeat, int count) {
+		return IntStream.range(0, count).mapToObj(i -> toRepeat).collect(joining());
 	}
 }

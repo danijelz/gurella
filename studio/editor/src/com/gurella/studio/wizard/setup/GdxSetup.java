@@ -1,6 +1,7 @@
 package com.gurella.studio.wizard.setup;
 
 import static com.gurella.studio.wizard.setup.DependencyBank.ProjectType.DESKTOP;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -35,6 +36,8 @@ import com.gurella.studio.wizard.setup.Executor.LogCallback;
  * @author Tomski
  */
 public class GdxSetup {
+	private static final String resourceLoc = "setup/";
+	
 	public static boolean isSdkLocationValid(String sdkLocation) {
 		return new File(sdkLocation, "tools").exists() && new File(sdkLocation, "platforms").exists();
 	}
@@ -461,7 +464,7 @@ public class GdxSetup {
 			if (file instanceof TemporaryProjectFile) {
 				txt = readResourceAsString(((TemporaryProjectFile) file).file);
 			} else {
-				txt = readResourceAsString(file.resourceName, file.resourceLoc);
+				txt = readResourceAsString(file.resourceName, resourceLoc);
 			}
 			txt = replace(txt, values);
 			writeFile(outFile, txt);
@@ -469,7 +472,7 @@ public class GdxSetup {
 			if (file instanceof TemporaryProjectFile) {
 				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
 			} else {
-				writeFile(outFile, readResource(file.resourceName, file.resourceLoc));
+				writeFile(outFile, readResource(file.resourceName, resourceLoc));
 			}
 		}
 	}
@@ -505,9 +508,7 @@ public class GdxSetup {
 			return "";
 		}
 
-		StringBuilder builder = new StringBuilder();
 		boolean desktop = modules.contains(DESKTOP);
-		args.stream().filter(a -> desktop || !a.equals("afterEclipseImport")).forEach(a -> builder.append(" " + a));
-		return builder.toString();
+		return args.stream().filter(a -> desktop || !a.equals("afterEclipseImport")).collect(joining(" ", " ", ""));
 	}
 }

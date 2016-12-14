@@ -3,6 +3,7 @@ package com.gurella.studio.wizard;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -12,6 +13,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -24,7 +26,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.DependencyBank;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
@@ -34,6 +35,8 @@ import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
+	private static final String gradleNature = "org.eclipse.buildship.core.gradleprojectnature";
+
 	private IWorkbench workbench;
 	private IStructuredSelection selection;
 	private NewProjectWizardPage page;
@@ -52,6 +55,22 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 	@Override
 	public boolean performFinish() {
+		try {
+			performFinishSafely();
+			return true;
+		} catch (CoreException e) {
+			ExceptionHandler.handle(e, getShell(), "New", "Creation of project failed.");
+		} catch (InvocationTargetException e) {
+			ExceptionHandler.handle(e, getShell(), "New", "Creation of project failed.");
+		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			ExceptionHandler.handle(new InvocationTargetException(e), getShell(), "New", "Creation of project failed.");
+		}
+
+		return false;
+	}
+
+	private void performFinishSafely() throws Exception {
 		DependencyBank bank = new DependencyBank();
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
@@ -66,33 +85,33 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
 
 		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
-		boolean success = Try.successful(builder).peek(b -> b.build()).onSuccess(b -> buildProjects(b))
-				.onFailure(e -> handleFinishException(new InvocationTargetException(e))).isSuccess();
-		if (!success) {
-			return false;
-		}
+		builder.build();
+		buildProjects(builder);
 
-		try {
-			openProject(page.getProjectLocation(), "core");
-			openProject(page.getProjectLocation(), "desktop");
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		return true;
+		openProject(page.getProjectLocation(), "core");
+		openProject(page.getProjectLocation(), "desktop");
 	}
 
 	private static void openProject(String path, String name) throws CoreException {
 		Path descriptionFile = new Path(path + File.separator + name + File.separator + ".project");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProjectDescription description = workspace.loadProjectDescription(descriptionFile);
+
 		IProject project = workspace.getRoot().getProject(description.getName());
 		project.create(description, null);
 		project.open(null);
+
+		description = project.getDescription();
+		if (!description.hasNature(gradleNature)) {
+			List<String> natures = new ArrayList<>();
+			natures.addAll(Arrays.asList(description.getNatureIds()));
+			natures.add(gradleNature);
+			description.setNatureIds(natures.toArray(new String[natures.size()]));
+		}
+		project.setDescription(description, new NullProgressMonitor());
 	}
 
-	private boolean buildProjects(ProjectBuilder builder) {
+	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
 		final String name = page.getProjectName();
 		final String destination = page.getProjectLocation();
 
@@ -187,27 +206,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		// }
 		// }
 
-		try {
-			Job job = Job.getJobManager().currentJob();
-			ISchedulingRule rule = job == null ? null : job.getRule();
-			IWorkspaceRunnable op = new BuildProjectsRunnable(builder, destination, pack, name, clazz, sdkLocation);
-			IRunnableWithProgress runnable = rule != null ? new WorkbenchRunnableAdapter(op, rule, true)
-					: new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot());
-			getContainer().run(true, true, runnable);
-		} catch (InvocationTargetException e) {
-			handleFinishException(e);
-			return false;
-		} catch (InterruptedException e) {
-			return false;
-		}
-		return true;
+		Job job = Job.getJobManager().currentJob();
+		ISchedulingRule rule = job == null ? null : job.getRule();
+		IWorkspaceRunnable op = new BuildProjectsRunnable(builder, destination, pack, name, clazz, sdkLocation);
+		IRunnableWithProgress runnable = rule != null ? new WorkbenchRunnableAdapter(op, rule, true)
+				: new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot());
+		getContainer().run(true, true, runnable);
 	}
 
-	private void handleFinishException(InvocationTargetException e) {
-		ExceptionHandler.handle(e, getShell(), "New", "Creation of element failed.");
-	}
-
-	private static final class BuildProjectsRunnable implements IWorkspaceRunnable {
+	private static final class BuildProjectsRunnable implements IWorkspaceRunnable, LogCallback {
 		private final ProjectBuilder builder;
 		private final String destination;
 		private final String pack;
@@ -227,7 +234,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		@Override
 		public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-
 			boolean offline = true;
 			final List<String> gradleArgs = new ArrayList<String>();
 			gradleArgs.add("--no-daemon");
@@ -238,14 +244,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			}
 
 			long millis = System.currentTimeMillis();
-			System.out.println("Generating app in " + destination);
-			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, new LogCallback() {
-				@Override
-				public void log(String log) {
-					System.out.print(log);
-				}
-			}, gradleArgs);
-			System.out.println("Done! " + String.valueOf(System.currentTimeMillis() - millis));
+			log("Generating app in " + destination + "\n");
+			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, this, gradleArgs);
+			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
+		}
+
+		@Override
+		public void log(String log) {
+			// TODO log to text
+			System.out.print(log);
 		}
 	}
 }

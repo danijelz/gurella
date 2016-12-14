@@ -1,5 +1,6 @@
 package com.gurella.studio.wizard.setup;
 
+import static com.gurella.studio.wizard.setup.BuildScriptHelper.addProject;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedWriter;
@@ -8,8 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 
 public class ProjectBuilder {
@@ -46,15 +47,8 @@ public class ProjectBuilder {
 		try {
 			FileWriter settingsWriter = new FileWriter(settingsFile.getAbsoluteFile());
 			BufferedWriter settingsBw = new BufferedWriter(settingsWriter);
-			//projects.stream().sequential().map(p -> "'" + p.getName() + "'").collect(joining(", "));
-			StringBuilder settingsContents = new StringBuilder("include ");
-			for (ProjectType module : projects) {
-				settingsContents.append("'" + module.getName() + "'");
-				if (projects.indexOf(module) != projects.size() - 1) {
-					settingsContents.append(", ");
-				}
-			}
-			settingsBw.write(settingsContents.toString());
+			settingsBw.write(projects.stream().sequential().map(p -> "'" + p.getName() + "'")
+					.collect(joining(", ", "include ", "")));
 			settingsBw.close();
 			settingsWriter.close();
 
@@ -63,9 +57,7 @@ public class ProjectBuilder {
 
 			BuildScriptHelper.addBuildScript(projects, buildBw);
 			BuildScriptHelper.addAllProjects(buildBw);
-			for (ProjectType module : projects) {
-				BuildScriptHelper.addProject(module, dependencies, buildBw);
-			}
+			projects.forEach(p -> Try.successful(p).peek(tp -> addProject(tp, dependencies, buildBw)));
 
 			// Add task here for now
 			buildBw.write("\n");
