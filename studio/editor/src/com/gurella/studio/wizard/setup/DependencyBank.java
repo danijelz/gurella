@@ -3,7 +3,6 @@ package com.gurella.studio.wizard.setup;
 import java.util.HashMap;
 
 public class DependencyBank {
-
 	//Versions
 	static String libgdxVersion = "1.9.5";
 	//Temporary snapshot version, we need a more dynamic solution for pointing to the latest nightly
@@ -235,5 +234,4 @@ public class DependencyBank {
 			return plugins;
 		}
 	}
-
 }

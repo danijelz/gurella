@@ -135,23 +135,20 @@ public class NewProjectWizardPage extends WizardPage {
 	}
 
 	public void setProjectName(String name) {
-		if (name == null)
+		if (name == null) {
 			throw new IllegalArgumentException();
+		}
 
 		fNameGroup.setName(name);
 	}
 
-	public URI getProjectLocationURI() {
-		if (fLocationGroup.isUseDefaultSelected()) {
-			return null;
-		}
-		return null;//URIUtil.toURI(fLocationGroup.getLocation());
+	public String getProjectLocation() {
+		return fLocationGroup.getLocation().toOSString();
 	}
 
 	public void setProjectLocationURI(URI uri) {
-		//IPath path= uri != null ? URIUtil.toPath(uri) : null;
-		IPath path= null;
-		fLocationGroup.setLocation(path);
+		//TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
+		fLocationGroup.setLocation(null);
 	}
 
 	private final class NameGroup extends Observable implements IDialogFieldListener {
@@ -160,7 +157,7 @@ public class NewProjectWizardPage extends WizardPage {
 		public NameGroup() {
 			// text field for project name
 			fNameField = new StringDialogField();
-			fNameField.setLabelText(NewWizardMessages.NewJavaProjectWizardPageOne_NameGroup_label_text);
+			fNameField.setLabelText("&Project name:");
 			fNameField.setDialogFieldListener(this);
 		}
 
@@ -210,12 +207,12 @@ public class NewProjectWizardPage extends WizardPage {
 		public LocationGroup() {
 			fUseDefaults = new SelectionButtonDialogField(SWT.CHECK);
 			fUseDefaults.setDialogFieldListener(this);
-			fUseDefaults.setLabelText(NewWizardMessages.NewJavaProjectWizardPageOne_LocationGroup_location_desc);
+			fUseDefaults.setLabelText("Use &default location");
 
 			fLocation = new StringButtonDialogField(this);
 			fLocation.setDialogFieldListener(this);
-			fLocation.setLabelText(NewWizardMessages.NewJavaProjectWizardPageOne_LocationGroup_locationLabel_desc);
-			fLocation.setButtonLabel(NewWizardMessages.NewJavaProjectWizardPageOne_LocationGroup_browseButton_desc);
+			fLocation.setLabelText("&Location:");
+			fLocation.setButtonLabel("B&rowse...");
 
 			fUseDefaults.setSelection(true);
 
@@ -232,7 +229,7 @@ public class NewProjectWizardPage extends WizardPage {
 			fLocation.doFillIntoGrid(locationComposite, numColumns);
 			LayoutUtil.setHorizontalGrabbing(fLocation.getTextControl(null));
 			BidiUtils.applyBidiProcessing(fLocation.getTextControl(null),
-					/* StructuredTextTypeHandlerFactory.FILE */"file");
+					/*TODO StructuredTextTypeHandlerFactory.FILE */"file");
 
 			return locationComposite;
 		}
@@ -279,7 +276,7 @@ public class NewProjectWizardPage extends WizardPage {
 		@Override
 		public void changeControlPressed(DialogField field) {
 			final DirectoryDialog dialog = new DirectoryDialog(getShell());
-			dialog.setMessage(NewWizardMessages.NewJavaProjectWizardPageOne_directory_message);
+			dialog.setMessage("Choose a directory for the project contents:");
 			String directoryName = fLocation.getText().trim();
 			if (directoryName.length() == 0) {
 				String prevLocation = JavaPlugin.getDefault().getDialogSettings().get(DIALOGSTORE_LAST_EXTERNAL_LOC);

@@ -7,7 +7,6 @@ import java.util.List;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 
 public class BuildScriptHelper {
-
 	private static int indent = 0;
 
 	public static void addBuildScript(List<ProjectType> projects, BufferedWriter wr) throws IOException {

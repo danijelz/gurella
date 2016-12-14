@@ -12,13 +12,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import com.badlogic.gdx.utils.StreamUtils;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 import com.gurella.studio.wizard.setup.Executor.CharCallback;
 
@@ -411,11 +416,7 @@ public class GdxSetup {
 		} catch (IOException e) {
 			throw new RuntimeException("Couldn't read resource '" + resource + "'", e);
 		} finally {
-			if (in != null)
-				try {
-					in.close();
-				} catch (IOException e) {
-				}
+			StreamUtils.closeQuietly(in);
 		}
 	}
 
@@ -433,11 +434,7 @@ public class GdxSetup {
 		} catch (Throwable e) {
 			throw new RuntimeException("Couldn't read resource '" + file.getAbsoluteFile() + "'", e);
 		} finally {
-			if (in != null)
-				try {
-					in.close();
-				} catch (IOException e) {
-				}
+			StreamUtils.closeQuietly(in);
 		}
 	}
 
@@ -459,27 +456,18 @@ public class GdxSetup {
 
 	private static void writeFile(File outFile, byte[] bytes) {
 		OutputStream out = null;
-
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(outFile));
 			out.write(bytes);
 		} catch (IOException e) {
 			throw new RuntimeException("Couldn't write file '" + outFile.getAbsolutePath() + "'", e);
 		} finally {
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-				}
+			StreamUtils.closeQuietly(out);
 		}
 	}
 
 	private static void writeFile(File outFile, String text) {
-		try {
-			writeFile(outFile, text.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		writeFile(outFile, Try.ofFailable(() -> text.getBytes("UTF-8")).getUnchecked());
 	}
 
 	private static void copyFile(ProjectFile file, File out, Map<String, String> values) {
@@ -488,11 +476,9 @@ public class GdxSetup {
 			throw new RuntimeException("Couldn't create dir '" + outFile.getAbsolutePath() + "'");
 		}
 
-		boolean isTemp = file instanceof TemporaryProjectFile ? true : false;
-
 		if (file.isTemplate) {
 			String txt;
-			if (isTemp) {
+			if (file instanceof TemporaryProjectFile) {
 				txt = readResourceAsString(((TemporaryProjectFile) file).file);
 			} else {
 				txt = readResourceAsString(file.resourceName, file.resourceLoc);
@@ -500,7 +486,7 @@ public class GdxSetup {
 			txt = replace(txt, values);
 			writeFile(outFile, txt);
 		} else {
-			if (isTemp) {
+			if (file instanceof TemporaryProjectFile) {
 				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
 			} else {
 				writeFile(outFile, readResource(file.resourceName, file.resourceLoc));
@@ -509,16 +495,20 @@ public class GdxSetup {
 	}
 
 	private static String replace(String txt, Map<String, String> values) {
-		for (String key : values.keySet()) {
-			String value = values.get(key);
-			txt = txt.replace(key, value);
+		String result = txt;
+		for (Entry<String, String> entry : values.entrySet()) {
+			result = result.replace(entry.getKey(), entry.getValue());
 		}
-		return txt;
+		return result;
 	}
 
 	private static String parseGwtInherits(ProjectBuilder builder) {
-		String parsed = "";
+		// StringBuilder stringBuilder = new StringBuilder();
+		// builder.dependencies.stream().sequential().filter(d -> d.getGwtInherits() != null)
+		// .flatMap(d -> Arrays.stream(d.getGwtInherits()))
+		// .forEach(i -> stringBuilder.append("\t<inherits name='" + i + "' />\n"));
 
+		String parsed = "";
 		for (Dependency dep : builder.dependencies) {
 			if (dep.getGwtInherits() != null) {
 				for (String inherit : dep.getGwtInherits()) {
@@ -531,14 +521,19 @@ public class GdxSetup {
 	}
 
 	private static String parseGradleArgs(List<ProjectType> modules, List<String> args) {
-		String argString = "";
-		if (args == null)
-			return argString;
-		for (String argument : args) {
-			if (argument.equals("afterEclipseImport") && !modules.contains(ProjectType.DESKTOP))
-				continue;
-			argString += " " + argument;
+		if (args == null) {
+			return "";
 		}
-		return argString;
+
+		StringBuilder argString = new StringBuilder();
+		for (String argument : args) {
+			if (argument.equals("afterEclipseImport") && !modules.contains(ProjectType.DESKTOP)) {
+				continue;
+			}
+			argString.append(" ");
+			argString.append(argument);
+		}
+
+		return argString.toString();
 	}
 }
