@@ -35,17 +35,10 @@ import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
-	private static final String gradleNature = "org.eclipse.buildship.core.gradleprojectnature";
-	private static final String gradleBuildConfiguration = "org.eclipse.buildship.core.gradleprojectbuilder";
-
-	private IWorkbench workbench;
-	private IStructuredSelection selection;
 	private NewProjectWizardPage page;
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		this.workbench = workbench;
-		this.selection = selection;
 	}
 
 	@Override
