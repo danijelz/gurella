@@ -1,7 +1,6 @@
 package com.gurella.studio.wizard.setup;
 
 import static com.gurella.studio.wizard.setup.DependencyBank.ProjectType.DESKTOP;
-import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -14,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ import com.gurella.studio.wizard.setup.Executor.LogCallback;
  */
 public class GdxSetup {
 	private static final String resourceLoc = "setup/";
-	
+
 	public static boolean isSdkLocationValid(String sdkLocation) {
 		return new File(sdkLocation, "tools").exists() && new File(sdkLocation, "platforms").exists();
 	}
@@ -236,7 +236,7 @@ public class GdxSetup {
 	}
 
 	public void build(ProjectBuilder builder, String outputDir, String appName, String packageName, String mainClass,
-			String sdkLocation, LogCallback callback, List<String> gradleArgs) {
+			String sdkLocation, LogCallback callback) {
 		Project project = new Project();
 
 		String packageDir = packageName.replace('.', '/');
@@ -380,8 +380,7 @@ public class GdxSetup {
 
 		// HACK executable flag isn't preserved for whatever reason...
 		new File(outputDir, "gradlew").setExecutable(true);
-		String args = "clean" + parseGradleArgs(builder.projects, gradleArgs);
-		Executor.execute(new File(outputDir), args, callback);
+		Executor.execute(new File(outputDir), getGradleArgs(builder.projects), callback);
 	}
 
 	private static void copyAndReplace(String outputDir, Project project, Map<String, String> values) {
@@ -503,12 +502,19 @@ public class GdxSetup {
 		return parsed;
 	}
 
-	private static String parseGradleArgs(List<ProjectType> modules, List<String> args) {
-		if (args == null) {
-			return "";
+	private static List<String> getGradleArgs(List<ProjectType> modules) {
+		final List<String> gradleArgs = new ArrayList<String>();
+		gradleArgs.add("clean");
+		gradleArgs.add("--no-daemon");
+		gradleArgs.add("eclipse");
+		if (modules.contains(DESKTOP)) {
+			gradleArgs.add("afterEclipseImport");
+		}
+		boolean offline = true;
+		if (offline) {
+			gradleArgs.add("--offline");
 		}
 
-		boolean desktop = modules.contains(DESKTOP);
-		return args.stream().filter(a -> desktop || !a.equals("afterEclipseImport")).collect(joining(" ", " ", ""));
+		return gradleArgs;
 	}
 }

@@ -52,6 +52,8 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
+import com.gurella.studio.GurellaStudioPlugin;
+
 public class NewProjectWizardPage extends WizardPage {
 	private final NameGroup fNameGroup;
 	private final LocationGroup fLocationGroup;
@@ -68,7 +70,7 @@ public class NewProjectWizardPage extends WizardPage {
 		fNameGroup = new NameGroup();
 		fLocationGroup = new LocationGroup();
 		fDetectGroup = new DetectGroup();
-		fWorkingSetGroup= new WorkingSetGroup();
+		fWorkingSetGroup = new WorkingSetGroup();
 
 		// establish connections
 		fNameGroup.addObserver(fLocationGroup);
@@ -103,8 +105,8 @@ public class NewProjectWizardPage extends WizardPage {
 
 		Control locationControl = createLocationControl(composite);
 		locationControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		Control workingSetControl= createWorkingSetControl(composite);
+
+		Control workingSetControl = createWorkingSetControl(composite);
 		workingSetControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Control infoControl = createInfoControl(composite);
@@ -133,7 +135,7 @@ public class NewProjectWizardPage extends WizardPage {
 	protected Control createLocationControl(Composite composite) {
 		return fLocationGroup.createControl(composite);
 	}
-	
+
 	protected Control createWorkingSetControl(Composite composite) {
 		return fWorkingSetGroup.createControl(composite);
 	}
@@ -170,7 +172,7 @@ public class NewProjectWizardPage extends WizardPage {
 		// TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
 		fLocationGroup.setLocation(null);
 	}
-	
+
 	public IWorkingSet[] getWorkingSets() {
 		return fWorkingSetGroup.getSelectedWorkingSets();
 	}
@@ -178,7 +180,8 @@ public class NewProjectWizardPage extends WizardPage {
 	/**
 	 * Sets the working sets to which the new project should be added.
 	 *
-	 * @param workingSets the initial selected working sets
+	 * @param workingSets
+	 *            the initial selected working sets
 	 */
 	public void setWorkingSets(IWorkingSet[] workingSets) {
 		if (workingSets == null) {
@@ -424,10 +427,6 @@ public class NewProjectWizardPage extends WizardPage {
 			}
 		}
 
-		public boolean mustDetect() {
-			return fDetect;
-		}
-
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			widgetDefaultSelected(e);
@@ -457,7 +456,7 @@ public class NewProjectWizardPage extends WizardPage {
 			// check whether the project name field is empty
 			if (name.length() == 0) {
 				setErrorMessage(null);
-				setMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_enterProjectName);
+				setMessage("Enter a project name.");
 				setPageComplete(false);
 				return;
 			}
@@ -473,7 +472,7 @@ public class NewProjectWizardPage extends WizardPage {
 			// check whether project already exists
 			final IProject handle = workspace.getRoot().getProject(name);
 			if (handle.exists()) {
-				setErrorMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_projectAlreadyExists);
+				setErrorMessage("A project with this name already exists.");
 				setPageComplete(false);
 				return;
 			}
@@ -485,13 +484,12 @@ public class NewProjectWizardPage extends WizardPage {
 					String canonicalPath = projectLocation.toFile().getCanonicalPath();
 					projectLocation = new Path(canonicalPath);
 				} catch (IOException e) {
-					JavaPlugin.log(e);
+					GurellaStudioPlugin.log(e, "");
 				}
 
 				String existingName = projectLocation.lastSegment();
 				if (!existingName.equals(fNameGroup.getName())) {
-					setErrorMessage(Messages.format(
-							NewWizardMessages.NewJavaProjectWizardPageOne_Message_invalidProjectNameForWorkspaceRoot,
+					setErrorMessage(Messages.format("The name of the new project must be ''{0}''",
 							BasicElementLabels.getResourceName(existingName)));
 					setPageComplete(false);
 					return;
@@ -504,14 +502,14 @@ public class NewProjectWizardPage extends WizardPage {
 			// check whether location is empty
 			if (location.length() == 0) {
 				setErrorMessage(null);
-				setMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_enterLocation);
+				setMessage("Enter a location for the project.");
 				setPageComplete(false);
 				return;
 			}
 
 			// check whether the location is a syntactically correct path
 			if (!Path.EMPTY.isValidPath(location)) {
-				setErrorMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_invalidDirectory);
+				setErrorMessage("Invalid project contents directory");
 				setPageComplete(false);
 				return;
 			}
@@ -522,8 +520,7 @@ public class NewProjectWizardPage extends WizardPage {
 				if (!projectPath.toFile().exists()) {
 					// check non-existing external location
 					if (!canCreate(projectPath.toFile())) {
-						setErrorMessage(
-								NewWizardMessages.NewJavaProjectWizardPageOne_Message_cannotCreateAtExternalLocation);
+						setErrorMessage("Cannot create project content at the given external location.");
 						setPageComplete(false);
 						return;
 					}
@@ -539,19 +536,20 @@ public class NewProjectWizardPage extends WizardPage {
 			}
 
 			setPageComplete(true);
-
 			setErrorMessage(null);
 			setMessage(null);
 		}
 
 		private boolean canCreate(File file) {
-			while (!file.exists()) {
-				file = file.getParentFile();
-				if (file == null)
+			File temp = file;
+			while (!temp.exists()) {
+				temp = temp.getParentFile();
+				if (temp == null) {
 					return false;
+				}
 			}
 
-			return file.canWrite();
+			return temp.canWrite();
 		}
 	}
 
@@ -567,7 +565,7 @@ public class NewProjectWizardPage extends WizardPage {
 		public Control createControl(Composite composite) {
 			Group workingSetGroup = new Group(composite, SWT.NONE);
 			workingSetGroup.setFont(composite.getFont());
-			workingSetGroup.setText(NewWizardMessages.NewJavaProjectWizardPageOne_WorkingSets_group);
+			workingSetGroup.setText("Working sets");
 			workingSetGroup.setLayout(new GridLayout(1, false));
 			fWorkingSetBlock.createContent(workingSetGroup);
 			return workingSetGroup;

@@ -22,14 +22,15 @@ public class ProjectBuilder {
 	File settingsFile;
 	File buildFile;
 
-	public ProjectBuilder(DependencyBank bank, List<ProjectType> projects, List<Dependency> dependencies) {
+	public ProjectBuilder(DependencyBank bank, List<ProjectType> projects, List<Dependency> dependencies) throws IOException {
 		this.bank = bank;
 		this.projects = projects;
 		this.dependencies = dependencies;
 		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
+		build();
 	}
 
-	public boolean build() throws IOException {
+	private void build() throws IOException {
 		settingsFile = File.createTempFile("libgdx-setup-settings", ".gradle");
 		if (!settingsFile.exists()) {
 			settingsFile.createNewFile();
@@ -44,8 +45,7 @@ public class ProjectBuilder {
 
 		FileWriter settingsWriter = new FileWriter(settingsFile.getAbsoluteFile());
 		BufferedWriter settingsBw = new BufferedWriter(settingsWriter);
-		settingsBw.write(projects.stream().sequential().map(p -> "'" + p.getName() + "'")
-				.collect(joining(", ", "include ", "")));
+		settingsBw.write(projects.stream().map(p -> "'" + p.getName() + "'").collect(joining(", ", "include ", "")));
 		settingsBw.close();
 		settingsWriter.close();
 
@@ -58,7 +58,6 @@ public class ProjectBuilder {
 
 		buildBw.close();
 		buildWriter.close();
-		return true;
 	}
 
 	public void cleanUp() {

@@ -1,11 +1,13 @@
 package com.gurella.studio.wizard.setup;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.stream.IntStream;
+import java.util.List;
 
 public class Executor {
 	/**
@@ -13,19 +15,15 @@ public class Executor {
 	 * 
 	 * @return whether the Ant succeeded
 	 */
-	public static boolean execute(File workingDir, String parameters, LogCallback callback) {
+	public static boolean execute(File workingDir, List<String> commands, LogCallback callback) {
 		String file = System.getProperty("os.name").contains("Windows") ? "gradlew.bat" : "gradlew";
 		String exec = workingDir.getAbsolutePath() + "/" + file;
-		callback.log("Executing '" + exec + " " + parameters + "'\n");
-
-		String[] params = parameters.split(" ");
-		String[] commands = new String[params.length + 1];
-		commands[0] = exec;
-		IntStream.range(0, params.length).forEach(i -> commands[i + 1] = params[i]);
+		commands.add(0, exec);
+		callback.log("Executing '" + commands.stream().collect(joining(" ")) + "'\n");
 		return startProcess(commands, workingDir, callback);
 	}
 
-	private static boolean startProcess(String[] commands, File directory, final LogCallback callback) {
+	private static boolean startProcess(List<String> commands, File directory, final LogCallback callback) {
 		try {
 			final Process process = new ProcessBuilder(commands).redirectErrorStream(true).directory(directory).start();
 			Thread t = new Thread(new StartProcessRunnable(process, callback));
@@ -61,5 +59,4 @@ public class Executor {
 	public interface LogCallback {
 		public void log(String log);
 	}
-
 }

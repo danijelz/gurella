@@ -73,7 +73,9 @@ public class BuildScriptHelper {
 		Arrays.stream(project.getPlugins())
 				.forEachOrdered(p -> Try.successful(p).peek(tp -> write(wr, "apply plugin: \"" + tp + "\"")));
 		space(wr);
-		addConfigurations(project, wr);
+		if (project.equals(ProjectType.ANDROID) || project.equals(ProjectType.IOSMOE)) {
+			write(wr, "configurations { natives }");
+		}
 		space(wr);
 		addDependencies(project, dependencies, wr);
 		write(wr, "}");
@@ -103,12 +105,6 @@ public class BuildScriptHelper {
 			}
 		}
 		write(wr, "}");
-	}
-
-	private static void addConfigurations(ProjectType project, BufferedWriter wr) throws IOException {
-		if (project.equals(ProjectType.ANDROID) || project.equals(ProjectType.IOSMOE)) {
-			write(wr, "configurations { natives }");
-		}
 	}
 
 	private static void write(BufferedWriter wr, String input) throws IOException {

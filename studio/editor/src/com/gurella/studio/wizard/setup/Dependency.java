@@ -6,25 +6,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 
 public class Dependency {
-	private HashMap<ProjectType, String[]> subDependencyMap = new HashMap<ProjectType, String[]>();
+	private HashMap<ProjectType, String[]> subDependencies = new HashMap<ProjectType, String[]>();
 	private String[] gwtInherits;
 	private String name;
 
-	public Dependency(String name, String[] gwtInherits, String[]... subDependencies) {
-		this.name = name;
-		this.gwtInherits = gwtInherits;
-		Stream.of(ProjectType.values()).forEach(p -> subDependencyMap.put(p, subDependencies[p.ordinal()]));
+	public Dependency(ProjectDependency dependency) {
+		this.name = dependency.name();
+		this.gwtInherits = dependency.getGwtInherits();
+		Stream.of(ProjectType.values()).forEach(p -> subDependencies.put(p, dependency.getDependencies(p)));
 	}
 
 	public String[] getDependencies(ProjectType type) {
-		return subDependencyMap.get(type);
+		return subDependencies.get(type);
 	}
 
 	public List<String> getIncompatibilities(ProjectType type) {
-		if (subDependencyMap.get(type) == null) {
+		if (subDependencies.get(type) == null) {
 			String typeName = type.getName().toUpperCase();
 			return Collections.singletonList("Dependency " + name + " is not compatible with sub module " + typeName);
 		} else {

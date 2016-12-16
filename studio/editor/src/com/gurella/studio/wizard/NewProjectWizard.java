@@ -86,7 +86,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
 
 		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
-		builder.build();
 		buildProjects(builder);
 
 		String projectLocation = page.getProjectLocation();
@@ -103,20 +102,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		IProject project = workspace.getRoot().getProject(description.getName());
 		project.create(description, null);
 		project.open(null);
-
-		// boolean save = false;
-		// description = project.getDescription();
-		// if (!description.hasNature(gradleNature)) {
-		// save = true;
-		// List<String> natures = new ArrayList<>();
-		// natures.addAll(Arrays.asList(description.getNatureIds()));
-		// natures.add(gradleNature);
-		// description.setNatureIds(natures.toArray(new String[natures.size()]));
-		// }
-		//
-		// if (save) {
-		// project.setDescription(description, new NullProgressMonitor());
-		// }
 	}
 
 	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
@@ -242,18 +227,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		@Override
 		public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-			boolean offline = true;
-			final List<String> gradleArgs = new ArrayList<String>();
-			gradleArgs.add("--no-daemon");
-			gradleArgs.add("eclipse");
-			gradleArgs.add("afterEclipseImport");
-			if (offline) {
-				gradleArgs.add("--offline");
-			}
-
 			long millis = System.currentTimeMillis();
 			log("Generating app in " + destination + "\n");
-			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, this, gradleArgs);
+			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, this);
 			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
 		}
 
