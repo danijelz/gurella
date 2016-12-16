@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
+import org.eclipse.jdt.internal.ui.workingsets.IWorkingSetIDs;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.Dialog;
@@ -44,15 +45,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 public class NewProjectWizardPage extends WizardPage {
 	private final NameGroup fNameGroup;
 	private final LocationGroup fLocationGroup;
 	private final DetectGroup fDetectGroup;
 	private final Validator fValidator;
+	private final WorkingSetGroup fWorkingSetGroup;
 
 	public NewProjectWizardPage() {
 		super("NewProjectWizardPage");
@@ -63,6 +68,7 @@ public class NewProjectWizardPage extends WizardPage {
 		fNameGroup = new NameGroup();
 		fLocationGroup = new LocationGroup();
 		fDetectGroup = new DetectGroup();
+		fWorkingSetGroup= new WorkingSetGroup();
 
 		// establish connections
 		fNameGroup.addObserver(fLocationGroup);
@@ -75,9 +81,10 @@ public class NewProjectWizardPage extends WizardPage {
 		fValidator = new Validator();
 		fNameGroup.addObserver(fValidator);
 		fLocationGroup.addObserver(fValidator);
-		
+
 		setProjectName(""); //$NON-NLS-1$
 		setProjectLocationURI(null);
+		setWorkingSets(new IWorkingSet[0]);
 
 		JavaRuntime.getDefaultVMInstall();
 	}
@@ -86,37 +93,39 @@ public class NewProjectWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 
-		final Composite composite= new Composite(parent, SWT.NULL);
+		final Composite composite = new Composite(parent, SWT.NULL);
 		composite.setFont(parent.getFont());
 		composite.setLayout(initGridLayout(new GridLayout(1, false), true));
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
-		// create UI elements
-		Control nameControl= createNameControl(composite);
+		Control nameControl = createNameControl(composite);
 		nameControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Control locationControl= createLocationControl(composite);
+		Control locationControl = createLocationControl(composite);
 		locationControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		Control workingSetControl= createWorkingSetControl(composite);
+		workingSetControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Control infoControl= createInfoControl(composite);
+		Control infoControl = createInfoControl(composite);
 		infoControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		setControl(composite);
 	}
-	
+
 	private GridLayout initGridLayout(GridLayout layout, boolean margins) {
-		layout.horizontalSpacing= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		layout.verticalSpacing= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
 		if (margins) {
-			layout.marginWidth= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-			layout.marginHeight= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
+			layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
+			layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		} else {
-			layout.marginWidth= 0;
-			layout.marginHeight= 0;
+			layout.marginWidth = 0;
+			layout.marginHeight = 0;
 		}
 		return layout;
 	}
-	
+
 	protected Control createNameControl(Composite composite) {
 		return fNameGroup.createControl(composite);
 	}
@@ -124,10 +133,21 @@ public class NewProjectWizardPage extends WizardPage {
 	protected Control createLocationControl(Composite composite) {
 		return fLocationGroup.createControl(composite);
 	}
-
+	
+	protected Control createWorkingSetControl(Composite composite) {
+		return fWorkingSetGroup.createControl(composite);
+	}
 
 	protected Control createInfoControl(Composite composite) {
 		return fDetectGroup.createControl(composite);
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			fNameGroup.postSetFocus();
+		}
 	}
 
 	public String getProjectName() {
@@ -147,8 +167,24 @@ public class NewProjectWizardPage extends WizardPage {
 	}
 
 	public void setProjectLocationURI(URI uri) {
-		//TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
+		// TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
 		fLocationGroup.setLocation(null);
+	}
+	
+	public IWorkingSet[] getWorkingSets() {
+		return fWorkingSetGroup.getSelectedWorkingSets();
+	}
+
+	/**
+	 * Sets the working sets to which the new project should be added.
+	 *
+	 * @param workingSets the initial selected working sets
+	 */
+	public void setWorkingSets(IWorkingSet[] workingSets) {
+		if (workingSets == null) {
+			throw new IllegalArgumentException();
+		}
+		fWorkingSetGroup.setWorkingSets(workingSets);
 	}
 
 	private final class NameGroup extends Observable implements IDialogFieldListener {
@@ -229,7 +265,7 @@ public class NewProjectWizardPage extends WizardPage {
 			fLocation.doFillIntoGrid(locationComposite, numColumns);
 			LayoutUtil.setHorizontalGrabbing(fLocation.getTextControl(null));
 			BidiUtils.applyBidiProcessing(fLocation.getTextControl(null),
-					/*TODO StructuredTextTypeHandlerFactory.FILE */"file");
+					/* TODO StructuredTextTypeHandlerFactory.FILE */"file");
 
 			return locationComposite;
 		}
@@ -321,7 +357,6 @@ public class NewProjectWizardPage extends WizardPage {
 	}
 
 	private final class DetectGroup extends Observable implements Observer, SelectionListener {
-
 		private Link fHintText;
 		private Label fIcon;
 		private boolean fDetect;
@@ -410,14 +445,14 @@ public class NewProjectWizardPage extends WizardPage {
 					.open();
 		}
 	}
-	
+
 	private final class Validator implements Observer {
 		@Override
 		public void update(Observable o, Object arg) {
 
-			final IWorkspace workspace= JavaPlugin.getWorkspace();
+			final IWorkspace workspace = JavaPlugin.getWorkspace();
 
-			final String name= fNameGroup.getName();
+			final String name = fNameGroup.getName();
 
 			// check whether the project name field is empty
 			if (name.length() == 0) {
@@ -428,7 +463,7 @@ public class NewProjectWizardPage extends WizardPage {
 			}
 
 			// check whether the project name is valid
-			final IStatus nameStatus= workspace.validateName(name, IResource.PROJECT);
+			final IStatus nameStatus = workspace.validateName(name, IResource.PROJECT);
 			if (!nameStatus.isOK()) {
 				setErrorMessage(nameStatus.getMessage());
 				setPageComplete(false);
@@ -436,33 +471,35 @@ public class NewProjectWizardPage extends WizardPage {
 			}
 
 			// check whether project already exists
-			final IProject handle= workspace.getRoot().getProject(name);
+			final IProject handle = workspace.getRoot().getProject(name);
 			if (handle.exists()) {
 				setErrorMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_projectAlreadyExists);
 				setPageComplete(false);
 				return;
 			}
 
-			IPath projectLocation= ResourcesPlugin.getWorkspace().getRoot().getLocation().append(name);
+			IPath projectLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation().append(name);
 			if (projectLocation.toFile().exists()) {
 				try {
-					//correct casing
-					String canonicalPath= projectLocation.toFile().getCanonicalPath();
-					projectLocation= new Path(canonicalPath);
+					// correct casing
+					String canonicalPath = projectLocation.toFile().getCanonicalPath();
+					projectLocation = new Path(canonicalPath);
 				} catch (IOException e) {
 					JavaPlugin.log(e);
 				}
 
-				String existingName= projectLocation.lastSegment();
+				String existingName = projectLocation.lastSegment();
 				if (!existingName.equals(fNameGroup.getName())) {
-					setErrorMessage(Messages.format(NewWizardMessages.NewJavaProjectWizardPageOne_Message_invalidProjectNameForWorkspaceRoot, BasicElementLabels.getResourceName(existingName)));
+					setErrorMessage(Messages.format(
+							NewWizardMessages.NewJavaProjectWizardPageOne_Message_invalidProjectNameForWorkspaceRoot,
+							BasicElementLabels.getResourceName(existingName)));
 					setPageComplete(false);
 					return;
 				}
 
 			}
 
-			final String location= fLocationGroup.getLocation().toOSString();
+			final String location = fLocationGroup.getLocation().toOSString();
 
 			// check whether location is empty
 			if (location.length() == 0) {
@@ -479,21 +516,22 @@ public class NewProjectWizardPage extends WizardPage {
 				return;
 			}
 
-			IPath projectPath= null;
+			IPath projectPath = null;
 			if (!fLocationGroup.isUseDefaultSelected()) {
-				projectPath= Path.fromOSString(location);
+				projectPath = Path.fromOSString(location);
 				if (!projectPath.toFile().exists()) {
 					// check non-existing external location
 					if (!canCreate(projectPath.toFile())) {
-						setErrorMessage(NewWizardMessages.NewJavaProjectWizardPageOne_Message_cannotCreateAtExternalLocation);
+						setErrorMessage(
+								NewWizardMessages.NewJavaProjectWizardPageOne_Message_cannotCreateAtExternalLocation);
 						setPageComplete(false);
 						return;
 					}
 				}
 			}
-			
+
 			// validate the location
-			final IStatus locationStatus= workspace.validateProjectLocation(handle, projectPath);
+			final IStatus locationStatus = workspace.validateProjectLocation(handle, projectPath);
 			if (!locationStatus.isOK()) {
 				setErrorMessage(locationStatus.getMessage());
 				setPageComplete(false);
@@ -508,12 +546,39 @@ public class NewProjectWizardPage extends WizardPage {
 
 		private boolean canCreate(File file) {
 			while (!file.exists()) {
-				file= file.getParentFile();
+				file = file.getParentFile();
 				if (file == null)
 					return false;
 			}
 
 			return file.canWrite();
+		}
+	}
+
+	private final class WorkingSetGroup {
+		private WorkingSetConfigurationBlock fWorkingSetBlock;
+
+		public WorkingSetGroup() {
+			String[] workingSetIds = new String[] { IWorkingSetIDs.JAVA, IWorkingSetIDs.RESOURCE };
+			fWorkingSetBlock = new WorkingSetConfigurationBlock(workingSetIds,
+					JavaPlugin.getDefault().getDialogSettings());
+		}
+
+		public Control createControl(Composite composite) {
+			Group workingSetGroup = new Group(composite, SWT.NONE);
+			workingSetGroup.setFont(composite.getFont());
+			workingSetGroup.setText(NewWizardMessages.NewJavaProjectWizardPageOne_WorkingSets_group);
+			workingSetGroup.setLayout(new GridLayout(1, false));
+			fWorkingSetBlock.createContent(workingSetGroup);
+			return workingSetGroup;
+		}
+
+		public void setWorkingSets(IWorkingSet[] workingSets) {
+			fWorkingSetBlock.setWorkingSets(workingSets);
+		}
+
+		public IWorkingSet[] getSelectedWorkingSets() {
+			return fWorkingSetBlock.getSelectedWorkingSets();
 		}
 	}
 }

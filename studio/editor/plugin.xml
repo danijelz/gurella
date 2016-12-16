@@ -3,7 +3,7 @@
 <plugin>
 
    <extension
-         id="com.gurella.studio.editor.editors"
+         id="com.gurella.studio.editor"
          name="Gurella Editors"
          point="org.eclipse.ui.editors">
       <editor
@@ -11,18 +11,18 @@
             contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
             default="true"
             extensions="gscn"
-            icon="icons/Umbrella-16.png"
+            icon="icons/logo16.png"
             id="com.gurella.studio.editor.sceneEditor"
             name="Gurella scene editor">
       </editor>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.renameParticipants"
+         id="com.gurella.studio.refractoring.renameParticipant"
          name="Gurella rename participants"
          point="org.eclipse.ltk.core.refactoring.renameParticipants">
       <renameParticipant
             class="com.gurella.studio.refractoring.RenameAssetParticipant"
-            id="com.gurella.studio.refractoring.RenameAssetParticipant"
+            id="com.gurella.studio.refractoring.renameParticipant.renameAssetParticipant"
             name="Gurella asset rename participant">
          <enablement>
             <with
@@ -50,7 +50,7 @@
       </renameParticipant>
       <renameParticipant
             class="com.gurella.studio.refractoring.RenameJavaElementParticipant"
-            id="com.gurella.studio.refractoring.RenameJavaElementParticipant"
+            id="com.gurella.studio.refractoring.renameParticipant.renameJavaElementParticipant"
             name="Gurella java element rename participant">
          <enablement>
             <with
@@ -78,12 +78,12 @@
       </renameParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.moveParticipants"
+         id="com.gurella.studio.refractoring.moveParticipant"
          name="Gurella move participants"
          point="org.eclipse.ltk.core.refactoring.moveParticipants">
       <moveParticipant
             class="com.gurella.studio.refractoring.MoveAssetsParticipant"
-            id="com.gurella.studio.refractoring.MoveAssetsParticipant"
+            id="com.gurella.studio.refractoring.moveParticipant.moveAssetsParticipant"
             name="Gurella assets move participant">
          <enablement>
             <with
@@ -110,7 +110,7 @@
       </moveParticipant>
       <moveParticipant
             class="com.gurella.studio.refractoring.MoveJavaElementParticipant"
-            id="com.gurella.studio.refractoring.MoveJavaElementParticipant"
+            id="com.gurella.studio.refractoring.moveParticipant.moveJavaElementParticipant"
             name="Gurella java element move participant">
          <enablement>
             <with
@@ -137,12 +137,12 @@
       </moveParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.copyParticipants"
+         id="com.gurella.studio.refractoring.copyParticipant"
          name="Gurella copy participants"
          point="org.eclipse.ltk.core.refactoring.copyParticipants">
       <copyParticipant
             class="com.gurella.studio.refractoring.CopyAssetsParticipant"
-            id="com.gurella.studio.refractoring.CopyAssetsParticipant"
+            id="com.gurella.studio.refractoring.copyParticipant.copyAssetsParticipant"
             name="Gurella assets copy participant"
             processOnCancel="false">
          <enablement>
@@ -164,16 +164,16 @@
       </copyParticipant>
    </extension>
    <extension
-         id="com.gurella.studio.refractoring.refactoringContributions"
+         id="com.gurella.studio.refractoring.refactoringContribution"
          name="Gurella refractoring contributions"
          point="org.eclipse.ltk.core.refactoring.refactoringContributions">
       <contribution
             class="com.gurella.studio.refractoring.CopyAssetsRefactoringContribution"
-            id="com.gurella.studio.refractoring.CopyAssetsRefactoringContribution">
+            id="com.gurella.studio.refractoring.refactoringContribution.copyAssetsRefactoringContribution">
       </contribution>
    </extension>
    <extension
-         id="com.gurella.studio.wizard.wizards"
+         id="com.gurella.studio.wizard"
          name="Gurella"
          point="org.eclipse.ui.newWizards">
       <category
@@ -183,7 +183,8 @@
       <wizard
             category="com.gurella.studio.wizard.gurellaWizardsCategory"
             class="com.gurella.studio.wizard.NewSceneWizard"
-            icon="icons/Umbrella-16.png"
+            hasPages="true"
+            icon="icons/logo16.png"
             id="com.gurella.studio.wizard.newSceneWizard"
             name="New Scene">
       </wizard>
@@ -191,10 +192,9 @@
             canFinishEarly="false"
             category="com.gurella.studio.wizard.gurellaWizardsCategory"
             class="com.gurella.studio.wizard.NewProjectWizard"
-            descriptionImage="icons/Umbrella.png"
             finalPerspective="org.eclipse.jdt.ui.JavaPerspective"
             hasPages="true"
-            icon="icons/Umbrella-16.png"
+            icon="icons/logo16.png"
             id="com.gurella.studio.wizard.newProjectWizard"
             name="New Gurella Project"
             project="true">
@@ -213,13 +213,13 @@
       </launchConfigurationType>
    </extension>
    <extension
-         id="com.gurella.studio.launch.launchShortcuts"
+         id="com.gurella.studio.launch.launchShortcut"
          name="Gurella Launch Shortucts"
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="com.gurella.studio.launch.LaunchSceneShortcut"
-            icon="icons/Umbrella-16.png"
-            id="com.gurella.studio.launch.launchSceneShortcut"
+            icon="icons/logo16.png"
+            id="com.gurella.studio.launch.launchShortcut.launchSceneShortcut"
             label="Launch Scene"
             modes="run,debug">
          <contextualLaunch>
@@ -254,7 +254,7 @@
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             configTypeID="com.gurella.studio.launch.launchSceneConfigurationType"
-            icon="icons/Umbrella-16.png"
+            icon="icons/logo16.png"
             id="com.gurella.studio.launch.launchSceneConfigurationTypeImage">
       </launchConfigurationTypeImage>
    </extension>

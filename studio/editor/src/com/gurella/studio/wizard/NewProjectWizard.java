@@ -90,18 +90,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		buildProjects(builder);
 
 		String projectLocation = page.getProjectLocation();
-		createProject(projectLocation);
+		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
 		openProject(projectLocation, "desktop");
-	}
-
-	private void createProject(String projectLocation) throws URISyntaxException, CoreException {
-		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IProjectDescription description = workspace.newProjectDescription(page.getProjectName());
-		description.setLocationURI(new URI(projectLocation));
-		IProject project = workspace.getRoot().getProject(description.getName());
-		project.create(description, null);
-		project.open(null);
 	}
 
 	private static void openProject(String path, String name) throws CoreException {

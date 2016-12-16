@@ -26,9 +26,7 @@ public class ProjectBuilder {
 		this.bank = bank;
 		this.projects = projects;
 		this.dependencies = dependencies;
-
-		dependencies.stream()
-				.forEach(d -> projects.stream().forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
+		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
 	}
 
 	public boolean build() throws IOException {
@@ -44,34 +42,23 @@ public class ProjectBuilder {
 		}
 		buildFile.setWritable(true);
 
-		try {
-			FileWriter settingsWriter = new FileWriter(settingsFile.getAbsoluteFile());
-			BufferedWriter settingsBw = new BufferedWriter(settingsWriter);
-			settingsBw.write(projects.stream().sequential().map(p -> "'" + p.getName() + "'")
-					.collect(joining(", ", "include ", "")));
-			settingsBw.close();
-			settingsWriter.close();
+		FileWriter settingsWriter = new FileWriter(settingsFile.getAbsoluteFile());
+		BufferedWriter settingsBw = new BufferedWriter(settingsWriter);
+		settingsBw.write(projects.stream().sequential().map(p -> "'" + p.getName() + "'")
+				.collect(joining(", ", "include ", "")));
+		settingsBw.close();
+		settingsWriter.close();
 
-			FileWriter buildWriter = new FileWriter(buildFile.getAbsoluteFile());
-			BufferedWriter buildBw = new BufferedWriter(buildWriter);
+		FileWriter buildWriter = new FileWriter(buildFile.getAbsoluteFile());
+		BufferedWriter buildBw = new BufferedWriter(buildWriter);
 
-			BuildScriptHelper.addBuildScript(projects, buildBw);
-			BuildScriptHelper.addAllProjects(buildBw);
-			projects.forEach(p -> Try.successful(p).peek(tp -> addProject(tp, dependencies, buildBw)));
+		BuildScriptHelper.addBuildScript(projects, buildBw);
+		BuildScriptHelper.addAllProjects(buildBw);
+		projects.forEach(p -> Try.successful(p).peek(tp -> addProject(tp, dependencies, buildBw)));
 
-			// Add task here for now
-			buildBw.write("\n");
-			buildBw.write("tasks.eclipse.doLast {\n");
-			buildBw.write("    delete \".project\"\n");
-			buildBw.write("}");
-
-			buildBw.close();
-			buildWriter.close();
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+		buildBw.close();
+		buildWriter.close();
+		return true;
 	}
 
 	public void cleanUp() {

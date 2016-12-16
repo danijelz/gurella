@@ -9,8 +9,8 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.studio.editor.utils.Try;
 
-public class NewSceneCreationPage extends WizardNewFileCreationPage {
-	public NewSceneCreationPage(String pageName, IStructuredSelection selection) {
+public class NewScenePage extends WizardNewFileCreationPage {
+	public NewScenePage(String pageName, IStructuredSelection selection) {
 		super(pageName, selection);
 	}
 

@@ -11,14 +11,15 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 
 public class NewSceneWizard extends BasicNewResourceWizard {
-	private NewSceneCreationPage mainPage;
+	private NewScenePage mainPage;
 
 	@Override
 	public void addPages() {
 		super.addPages();
-		mainPage = new NewSceneCreationPage("newFilePage1", getSelection());//$NON-NLS-1$
+		mainPage = new NewScenePage("newScenePage", getSelection());//$NON-NLS-1$
 		mainPage.setTitle("Scene");
 		mainPage.setDescription("Create a new scene.");
 		mainPage.setFileExtension("gscn");
@@ -47,19 +48,19 @@ public class NewSceneWizard extends BasicNewResourceWizard {
 		}
 
 		selectAndReveal(file);
-
-		IWorkbenchWindow dw = getWorkbench().getActiveWorkbenchWindow();
-		try {
-			if (dw != null) {
-				IWorkbenchPage page = dw.getActivePage();
-				if (page != null) {
-					IDE.openEditor(page, file, true);
-				}
-			}
-		} catch (PartInitException e) {
-			GurellaStudioPlugin.showError(e, "Problems Opening Editor");
-		}
+		Try.successful(file).peek(f -> openEditor(f))
+				.onFailure(e -> GurellaStudioPlugin.showError(e, "Problems Opening Editor"));
 
 		return true;
+	}
+
+	private void openEditor(IFile file) throws PartInitException {
+		IWorkbenchWindow dw = getWorkbench().getActiveWorkbenchWindow();
+		if (dw != null) {
+			IWorkbenchPage page = dw.getActivePage();
+			if (page != null) {
+				IDE.openEditor(page, file, true);
+			}
+		}
 	}
 }
