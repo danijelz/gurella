@@ -53,7 +53,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	@Override
 	public EditorEventListener[] getListeners(EditorEventType eventType) {
 		Listener[] listeners = widget.getListeners(toSwtConstant(eventType));
-		return Arrays.stream(listeners).sequential().filter(l -> l instanceof SwtListenerBridge)
+		return Arrays.stream(listeners).filter(l -> l instanceof SwtListenerBridge)
 				.map(l -> ((SwtListenerBridge) l).listener).toArray(i -> new EditorEventListener[i]);
 	}
 

@@ -485,10 +485,10 @@ public class GdxSetup {
 	}
 
 	private static String parseGwtInherits(ProjectBuilder builder) {
-		// StringBuilder stringBuilder = new StringBuilder();
-		// builder.dependencies.stream().sequential().filter(d -> d.getGwtInherits() != null)
-		// .flatMap(d -> Arrays.stream(d.getGwtInherits()))
-		// .forEach(i -> stringBuilder.append("\t<inherits name='" + i + "' />\n"));
+		//		 StringBuilder stringBuilder = new StringBuilder();
+		//		 builder.dependencies.stream().filter(d -> d.getGwtInherits() != null)
+		//		 .flatMap(d -> Arrays.stream(d.getGwtInherits()))
+		//		 .forEach(i -> stringBuilder.append("\t<inherits name='" + i + "' />\n"));
 
 		String parsed = "";
 		for (Dependency dep : builder.dependencies) {

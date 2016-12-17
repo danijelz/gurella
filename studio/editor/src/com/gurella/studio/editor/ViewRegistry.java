@@ -51,9 +51,10 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 			openView(AssetsView.class);
 			openView(InspectorView.class);
 		} else {
-			Arrays.stream(openViews.split(",")).sequential().filter(Values::isNotBlank)
+			Arrays.stream(openViews.split(",")).filter(Values::isNotBlank)
 					.map(t -> Try.ofFailable(() -> Class.forName(t.trim()))).filter(t -> t.isSuccess())
-					.map(t -> Values.<Class<? extends DockableView>> cast(t.getUnchecked())).forEach(this::openView);
+					.map(t -> Values.<Class<? extends DockableView>> cast(t.getUnchecked()))
+					.forEachOrdered(this::openView);
 		}
 
 		dock.setMinimized(SWT.RIGHT, preferences.getBoolean("minimizedEast", false));
@@ -128,7 +129,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		}
 
 		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
-		String openViews = registeredViews.stream().sequential().map(v -> v.getClass().getName()).collect(joining(","));
+		String openViews = registeredViews.stream().map(v -> v.getClass().getName()).collect(joining(","));
 		preferences.put("openViews", openViews);
 
 		preferences.putBoolean("minimizedEast", dock.isMinimized(SWT.RIGHT));

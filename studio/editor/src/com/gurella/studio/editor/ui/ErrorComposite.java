@@ -116,7 +116,7 @@ public class ErrorComposite extends Composite {
 		// Look for child status
 		IStatus[] children = buildingStatus.getChildren();
 		int temp = nesting;
-		Arrays.stream(children).forEach(child -> populateList(listToPopulate, child, temp, true));
+		Arrays.stream(children).forEachOrdered(child -> populateList(listToPopulate, child, temp, true));
 	}
 
 	private void copyToClipboard() {
@@ -147,7 +147,7 @@ public class ErrorComposite extends Composite {
 		}
 
 		IStatus[] children = buildingStatus.getChildren();
-		Arrays.stream(children).forEach(child -> populateCopyBuffer(child, sb, nesting + 1));
+		Arrays.stream(children).forEachOrdered(child -> populateCopyBuffer(child, sb, nesting + 1));
 	}
 
 	private static java.util.List<String> readLines(final String s) {

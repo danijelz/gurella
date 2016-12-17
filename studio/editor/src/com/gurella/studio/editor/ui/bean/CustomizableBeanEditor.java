@@ -370,7 +370,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = MetaTypes.getMetaType(value.getClass()).getProperties().toArray(Property.class);
 		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
-				.forEach(p -> createEditorControls(getPropertyGroup(group, p),
+				.forEachOrdered(p -> createEditorControls(getPropertyGroup(group, p),
 						new PropertyEditorContext<>(parent, cast(value), p)));
 		selector.moveBelow(group);
 	}

@@ -188,7 +188,7 @@ public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem> implem
 
 	@Override
 	public void setImage(EditorImage[] images) {
-		widget.setImage(Arrays.stream(images).sequential().map(i -> toSwtImage(i)).toArray(i -> new Image[i]));
+		widget.setImage(Arrays.stream(images).map(i -> toSwtImage(i)).toArray(i -> new Image[i]));
 	}
 
 	@Override

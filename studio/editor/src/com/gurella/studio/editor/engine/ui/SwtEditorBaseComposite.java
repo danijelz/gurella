@@ -19,7 +19,7 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 
 	@Override
 	public SwtEditorControl<?>[] getChildren() {
-		return Arrays.<Control> stream(widget.getChildren()).sequential().map(c -> (EditorControl) instances.get(c))
+		return Arrays.<Control> stream(widget.getChildren()).map(c -> (EditorControl) instances.get(c))
 				.toArray(i -> new SwtEditorControl<?>[i]);
 	}
 
@@ -30,14 +30,14 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 
 	@Override
 	public EditorControl[] getTabList() {
-		return Arrays.stream(widget.getTabList()).sequential().map(c -> getEditorWidget(c)).filter(ec -> ec != null)
+		return Arrays.stream(widget.getTabList()).map(c -> getEditorWidget(c)).filter(ec -> ec != null)
 				.toArray(i -> new EditorControl[i]);
 	}
 
 	@Override
 	public void setTabList(EditorControl[] tabList) {
-		widget.setTabList(Arrays.stream(tabList).sequential().map(c -> ((SwtEditorControl<?>) c).widget)
-				.toArray(i -> new Control[i]));
+		widget.setTabList(
+				Arrays.stream(tabList).map(c -> ((SwtEditorControl<?>) c).widget).toArray(i -> new Control[i]));
 	}
 
 	void paintBorders() {

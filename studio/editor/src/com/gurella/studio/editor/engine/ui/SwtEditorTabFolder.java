@@ -32,14 +32,12 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 
 	@Override
 	public SwtEditorTabItem[] getItems() {
-		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new SwtEditorTabItem[i]);
+		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTabItem[i]);
 	}
 
 	@Override
 	public SwtEditorTabItem[] getSelection() {
-		return Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new SwtEditorTabItem[i]);
+		return Arrays.stream(widget.getSelection()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTabItem[i]);
 	}
 
 	@Override
@@ -64,8 +62,7 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 
 	@Override
 	public void setSelection(EditorTabItem[] items) {
-		widget.setSelection(
-				Arrays.stream(items).sequential().map(i -> ((SwtEditorTabItem) i).widget).toArray(i -> new TabItem[i]));
+		widget.setSelection(Arrays.stream(items).map(i -> ((SwtEditorTabItem) i).widget).toArray(i -> new TabItem[i]));
 	}
 
 	@Override

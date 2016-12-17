@@ -114,7 +114,7 @@ public class SwtLwjglApplication implements Application {
 		listener.pause();
 		listener.dispose();
 		synchronized (lifecycleListeners) {
-			new ArrayList<>(lifecycleListeners).stream().forEach(l -> disposeListener(l));
+			new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
 			lifecycleListeners.clear();
 		}
 		OpenAlAudioSingletone.dispose(audio);
@@ -183,14 +183,14 @@ public class SwtLwjglApplication implements Application {
 		if (wasActive && !isActive) {
 			wasActive = false;
 			synchronized (lifecycleListeners) {
-				lifecycleListeners.stream().forEach(l -> l.pause());
+				lifecycleListeners.stream().forEachOrdered(l -> l.pause());
 			}
 			listener.pause();
 		} else if (!wasActive && isActive) {
 			wasActive = true;
 			listener.resume();
 			synchronized (lifecycleListeners) {
-				lifecycleListeners.stream().forEach(l -> l.resume());
+				lifecycleListeners.stream().forEachOrdered(l -> l.resume());
 			}
 		}
 		return isActive;
@@ -209,7 +209,7 @@ public class SwtLwjglApplication implements Application {
 		}
 
 		switchRunnables();
-		executedRunnables.stream().forEach(r -> r.run());
+		executedRunnables.stream().forEachOrdered(r -> r.run());
 		executedRunnables.clear();
 		return true;
 	}

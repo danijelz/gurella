@@ -79,7 +79,7 @@ public class SceneLauncher {
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
 		cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-		return cp.stream().sequential().map(e -> getClasspathMemento(e)).collect(toList());
+		return cp.stream().map(e -> getClasspathMemento(e)).collect(toList());
 	}
 
 	private static String getBundleClasspath() {

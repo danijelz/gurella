@@ -134,7 +134,7 @@ class ExpandableGroup extends Composite {
 			control.moveBelow(findLastControlInGroup(this));
 		} else {
 			Predicate<Control> groupsFilter = c -> (c instanceof ExpandableGroup);
-			Optional<Control> childGroup = controls.stream().sequential().filter(groupsFilter).findFirst();
+			Optional<Control> childGroup = controls.stream().filter(groupsFilter).findFirst();
 			if (childGroup.isPresent()) {
 				control.moveAbove(childGroup.get());
 			} else {
@@ -159,7 +159,7 @@ class ExpandableGroup extends Composite {
 		controls.clear();
 		UiUtils.reflow(this);
 	}
-	
+
 	public void addExpandListener(Listener1<Boolean> listener) {
 		expandSignal.addListener(listener);
 	}

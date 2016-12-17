@@ -53,8 +53,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public EditorMenuItem[] getItems() {
-		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new EditorMenuItem[i]);
+		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new EditorMenuItem[i]);
 	}
 
 	@Override

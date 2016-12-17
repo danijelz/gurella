@@ -31,8 +31,7 @@ public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements E
 
 	@Override
 	public SwtEditorImage[] getImages() {
-		return Arrays.stream(widget.getImages()).sequential().map(i -> toEditorImage(i))
-				.toArray(i -> new SwtEditorImage[i]);
+		return Arrays.stream(widget.getImages()).map(i -> toEditorImage(i)).toArray(i -> new SwtEditorImage[i]);
 	}
 
 	@Override
@@ -78,7 +77,7 @@ public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements E
 
 	@Override
 	public void setImages(EditorImage[] images) {
-		widget.setImages(Arrays.stream(images).sequential().map(i -> toSwtImage(i)).toArray(i -> new Image[i]));
+		widget.setImages(Arrays.stream(images).map(i -> toSwtImage(i)).toArray(i -> new Image[i]));
 	}
 
 	@Override

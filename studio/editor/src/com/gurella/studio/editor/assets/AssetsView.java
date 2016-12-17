@@ -186,8 +186,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 	private void resourceChanged(IResourceDelta delta) {
 		IResource resource = delta.getResource();
-		Arrays.stream(delta.getAffectedChildren()).sequential()
-				.forEach(((Consumer<IResourceDelta>) d -> updateResource(resource, d)).andThen(this::resourceChanged));
+		Arrays.stream(delta.getAffectedChildren()).forEachOrdered(
+				((Consumer<IResourceDelta>) d -> updateResource(resource, d)).andThen(this::resourceChanged));
 	}
 
 	private void updateResource(IResource parent, IResourceDelta childDelta) {

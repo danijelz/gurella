@@ -335,6 +335,6 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 
 	@Override
 	public void setInput(@SuppressWarnings("unchecked") ELEMENT... elements) {
-		setInput(Arrays.stream(elements).sequential().collect(Collectors.toList()));
+		setInput(Arrays.stream(elements).collect(Collectors.toList()));
 	}
 }

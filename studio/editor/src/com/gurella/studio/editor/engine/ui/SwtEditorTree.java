@@ -72,7 +72,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeColumn<ELEMENT>[] getColumns() {
-		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorColumn(c))
+		return cast(Arrays.stream(widget.getColumns()).map(c -> getEditorColumn(c))
 				.toArray(i -> new SwtEditorTreeColumn[i]));
 	}
 
@@ -122,8 +122,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT>[] getItems() {
-		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorItem(i))
-				.toArray(i -> new SwtEditorTreeItem[i]));
+		return cast(Arrays.stream(widget.getItems()).map(i -> getEditorItem(i)).toArray(i -> new SwtEditorTreeItem[i]));
 	}
 
 	@Override
@@ -133,8 +132,8 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT>[] getSelectedItems() {
-		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorItem(i))
-				.toArray(i -> new SwtEditorTreeItem[i]));
+		return cast(
+				Arrays.stream(widget.getSelection()).map(i -> getEditorItem(i)).toArray(i -> new SwtEditorTreeItem[i]));
 	}
 
 	@Override
@@ -194,8 +193,8 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public void setSelection(EditorTreeItem[] items) {
-		widget.setSelection(Arrays.stream(items).sequential().map(i -> ((SwtEditorTreeItem<?>) i).widget)
-				.toArray(i -> new TreeItem[i]));
+		widget.setSelection(
+				Arrays.stream(items).map(i -> ((SwtEditorTreeItem<?>) i).widget).toArray(i -> new TreeItem[i]));
 	}
 
 	@Override
@@ -606,7 +605,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 				if (Values.isEmpty(children)) {
 					treeNodeData.children = Collections.emptyList();
 				} else {
-					children.stream().parallel().forEach(c -> addChild(element, c, provider, childrenDepth));
+					children.parallelStream().forEach(c -> addChild(element, c, provider, childrenDepth));
 					treeNodeData.children = children;
 				}
 			}
