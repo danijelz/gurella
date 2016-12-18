@@ -126,7 +126,7 @@ class AssetsMenu {
 		}
 
 		private void addNewFolder() {
-			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "New folder", true, null).map(n -> ((IFolder) selection).getFolder(n))
 					.ifPresent(nf -> successful(nf).peek(f -> f.create(true, true, new NullProgressMonitor()))
 							.onFailure(e -> log(e, "Error creating new folder")));
@@ -190,9 +190,13 @@ class AssetsMenu {
 		}
 
 		private void addNewPrefab() {
-			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "node", true, prefab.extension())
 					.ifPresent(n -> addAsset(parent, n, newPrefab(n)));
+		}
+
+		private IFolder getParentFolder() {
+			return selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
 		}
 
 		private static SceneNode newPrefab(String name) {
@@ -203,7 +207,7 @@ class AssetsMenu {
 		}
 
 		private void addNewMaterial() {
-			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "material", true, material.extension())
 					.ifPresent(n -> addAsset(parent, n, new MaterialDescriptor()));
 		}
@@ -219,13 +223,13 @@ class AssetsMenu {
 		}
 
 		private void addNewRendeTarget() {
-			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "renderTarget", true, renderTarget.extension())
 					.ifPresent(n -> addAsset(parent, n, new RenderTarget()));
 		}
 
 		private void addNewScene() {
-			IFolder parent = selection == null ? (IFolder) view.rootAssetsFolder : (IFolder) selection;
+			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "scene", true, scene.extension()).ifPresent(n -> addAsset(parent, n, newScene()));
 		}
 

@@ -57,6 +57,6 @@ public class Executor {
 	}
 
 	public interface LogCallback {
-		public void log(String log);
+		public void log(String text);
 	}
 }

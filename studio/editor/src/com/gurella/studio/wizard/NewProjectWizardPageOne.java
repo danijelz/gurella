@@ -54,15 +54,15 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class NewProjectWizardPage extends WizardPage {
+public class NewProjectWizardPageOne extends WizardPage {
 	private final NameGroup fNameGroup;
 	private final LocationGroup fLocationGroup;
 	private final DetectGroup fDetectGroup;
 	private final Validator fValidator;
 	private final WorkingSetGroup fWorkingSetGroup;
 
-	public NewProjectWizardPage() {
-		super("NewProjectWizardPage");
+	public NewProjectWizardPageOne() {
+		super("NewProjectWizardPageOne");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");
 		setDescription("Create Gurella project in the workspace or in an external location.");

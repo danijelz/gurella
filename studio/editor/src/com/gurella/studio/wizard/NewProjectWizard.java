@@ -2,8 +2,6 @@ package com.gurella.studio.wizard;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,8 @@ import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
-	private NewProjectWizardPage page;
+	private NewProjectWizardPageOne pageOne;
+	private NewProjectWizardPageTwo pageTwo;
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
@@ -43,8 +42,11 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void addPages() {
-		page = new NewProjectWizardPage();
-		addPage(page);
+		pageOne = new NewProjectWizardPageOne();
+		addPage(pageOne);
+
+		pageTwo = new NewProjectWizardPageTwo();
+		addPage(pageTwo);
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
 		buildProjects(builder);
 
-		String projectLocation = page.getProjectLocation();
+		String projectLocation = pageOne.getProjectLocation();
 		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
 		openProject(projectLocation, "desktop");
@@ -98,8 +100,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
-		final String name = page.getProjectName();
-		final String destination = page.getProjectLocation();
+		final String name = pageOne.getProjectName();
+		final String destination = pageOne.getProjectLocation();
 
 		final String pack = "com.packagename";
 		final String clazz = "TestApp";
@@ -200,7 +202,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		getContainer().run(true, true, runnable);
 	}
 
-	private static final class BuildProjectsRunnable implements IWorkspaceRunnable, LogCallback {
+	private final class BuildProjectsRunnable implements IWorkspaceRunnable, LogCallback {
 		private final ProjectBuilder builder;
 		private final String destination;
 		private final String pack;
@@ -227,9 +229,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		}
 
 		@Override
-		public void log(String log) {
-			// TODO log to text
-			System.out.print(log);
+		public void log(String text) {
+			pageTwo.appendToConsole(text);
 		}
 	}
 }

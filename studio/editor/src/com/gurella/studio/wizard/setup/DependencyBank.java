@@ -178,8 +178,9 @@ public class DependencyBank {
 				return iosMoeDependencies;
 			case HTML:
 				return gwtDependencies;
+			default:
+				throw new IllegalArgumentException("Unsupported project type: " + type.name);
 			}
-			return null;
 		}
 
 		public String[] getGwtInherits() {
