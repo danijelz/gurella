@@ -14,6 +14,9 @@ public class NewProjectWizardPageTwo extends WizardPage {
 
 	protected NewProjectWizardPageTwo() {
 		super("NewProjectWizardPageTwo");
+		setPageComplete(false);
+		setTitle("Create Gurella Project");
+		setDescription("Create Gurella project in the workspace or in an external location.");
 	}
 
 	@Override

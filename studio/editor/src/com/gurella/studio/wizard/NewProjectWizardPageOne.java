@@ -16,12 +16,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.internal.corext.util.Messages;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.preferences.CompliancePreferencePage;
 import org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage;
-import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
-import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
 import org.eclipse.jdt.internal.ui.wizards.buildpaths.BuildPathSupport;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
@@ -55,11 +51,11 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class NewProjectWizardPageOne extends WizardPage {
-	private final NameGroup fNameGroup;
-	private final LocationGroup fLocationGroup;
-	private final DetectGroup fDetectGroup;
+	private final NameGroup nameGroup;
+	private final LocationGroup locationGroup;
+	private final InfoGroup infoGroup;
 	private final Validator fValidator;
-	private final WorkingSetGroup fWorkingSetGroup;
+	private final WorkingSetGroup workingSetGroup;
 
 	public NewProjectWizardPageOne() {
 		super("NewProjectWizardPageOne");
@@ -67,22 +63,22 @@ public class NewProjectWizardPageOne extends WizardPage {
 		setTitle("Create Gurella Project");
 		setDescription("Create Gurella project in the workspace or in an external location.");
 
-		fNameGroup = new NameGroup();
-		fLocationGroup = new LocationGroup();
-		fDetectGroup = new DetectGroup();
-		fWorkingSetGroup = new WorkingSetGroup();
+		nameGroup = new NameGroup();
+		locationGroup = new LocationGroup();
+		workingSetGroup = new WorkingSetGroup();
+		infoGroup = new InfoGroup();
 
 		// establish connections
-		fNameGroup.addObserver(fLocationGroup);
-		fLocationGroup.addObserver(fDetectGroup);
+		nameGroup.addObserver(locationGroup);
+		locationGroup.addObserver(infoGroup);
 
 		// initialize all elements
-		fNameGroup.notifyObservers();
+		nameGroup.notifyObservers();
 
 		// create and connect validator
 		fValidator = new Validator();
-		fNameGroup.addObserver(fValidator);
-		fLocationGroup.addObserver(fValidator);
+		nameGroup.addObserver(fValidator);
+		locationGroup.addObserver(fValidator);
 
 		setProjectName(""); //$NON-NLS-1$
 		setProjectLocationURI(null);
@@ -100,16 +96,16 @@ public class NewProjectWizardPageOne extends WizardPage {
 		composite.setLayout(initGridLayout(new GridLayout(1, false), true));
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
-		Control nameControl = createNameControl(composite);
+		Control nameControl = nameGroup.createControl(composite);
 		nameControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Control locationControl = createLocationControl(composite);
+		Control locationControl = locationGroup.createControl(composite);
 		locationControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Control workingSetControl = createWorkingSetControl(composite);
+		Control workingSetControl = workingSetGroup.createControl(composite);
 		workingSetControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Control infoControl = createInfoControl(composite);
+		Control infoControl = infoGroup.createControl(composite);
 		infoControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		setControl(composite);
@@ -128,32 +124,16 @@ public class NewProjectWizardPageOne extends WizardPage {
 		return layout;
 	}
 
-	protected Control createNameControl(Composite composite) {
-		return fNameGroup.createControl(composite);
-	}
-
-	protected Control createLocationControl(Composite composite) {
-		return fLocationGroup.createControl(composite);
-	}
-
-	protected Control createWorkingSetControl(Composite composite) {
-		return fWorkingSetGroup.createControl(composite);
-	}
-
-	protected Control createInfoControl(Composite composite) {
-		return fDetectGroup.createControl(composite);
-	}
-
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
-			fNameGroup.postSetFocus();
+			nameGroup.postSetFocus();
 		}
 	}
 
 	public String getProjectName() {
-		return fNameGroup.getName();
+		return nameGroup.getName();
 	}
 
 	public void setProjectName(String name) {
@@ -161,20 +141,20 @@ public class NewProjectWizardPageOne extends WizardPage {
 			throw new IllegalArgumentException();
 		}
 
-		fNameGroup.setName(name);
+		nameGroup.setName(name);
 	}
 
 	public String getProjectLocation() {
-		return fLocationGroup.getLocation().toOSString();
+		return locationGroup.getLocation().toOSString();
 	}
 
 	public void setProjectLocationURI(URI uri) {
 		// TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
-		fLocationGroup.setLocation(null);
+		locationGroup.setLocation(null);
 	}
 
 	public IWorkingSet[] getWorkingSets() {
-		return fWorkingSetGroup.getSelectedWorkingSets();
+		return workingSetGroup.getSelectedWorkingSets();
 	}
 
 	/**
@@ -187,7 +167,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		if (workingSets == null) {
 			throw new IllegalArgumentException();
 		}
-		fWorkingSetGroup.setWorkingSets(workingSets);
+		workingSetGroup.setWorkingSets(workingSets);
 	}
 
 	private final class NameGroup extends Observable implements IDialogFieldListener {
@@ -286,7 +266,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		@Override
 		public void update(Observable o, Object arg) {
 			if (isUseDefaultSelected()) {
-				fLocation.setText(getDefaultPath(fNameGroup.getName()));
+				fLocation.setText(getDefaultPath(nameGroup.getName()));
 			}
 			fireEvent();
 		}
@@ -307,7 +287,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 			if (path != null) {
 				fLocation.setText(path.toOSString());
 			} else {
-				fLocation.setText(getDefaultPath(fNameGroup.getName()));
+				fLocation.setText(getDefaultPath(nameGroup.getName()));
 			}
 			fireEvent();
 		}
@@ -318,7 +298,8 @@ public class NewProjectWizardPageOne extends WizardPage {
 			dialog.setMessage("Choose a directory for the project contents:");
 			String directoryName = fLocation.getText().trim();
 			if (directoryName.length() == 0) {
-				String prevLocation = JavaPlugin.getDefault().getDialogSettings().get(DIALOGSTORE_LAST_EXTERNAL_LOC);
+				String prevLocation = GurellaStudioPlugin.getDefault().getDialogSettings()
+						.get(DIALOGSTORE_LAST_EXTERNAL_LOC);
 				if (prevLocation != null) {
 					directoryName = prevLocation;
 				}
@@ -335,10 +316,11 @@ public class NewProjectWizardPageOne extends WizardPage {
 				fLocation.setText(selectedDirectory);
 				String lastSegment = new Path(selectedDirectory).lastSegment();
 				if (lastSegment != null
-						&& (fNameGroup.getName().length() == 0 || fNameGroup.getName().equals(oldDirectory))) {
-					fNameGroup.setName(lastSegment);
+						&& (nameGroup.getName().length() == 0 || nameGroup.getName().equals(oldDirectory))) {
+					nameGroup.setName(lastSegment);
 				}
-				JavaPlugin.getDefault().getDialogSettings().put(DIALOGSTORE_LAST_EXTERNAL_LOC, selectedDirectory);
+				GurellaStudioPlugin.getDefault().getDialogSettings().put(DIALOGSTORE_LAST_EXTERNAL_LOC,
+						selectedDirectory);
 			}
 		}
 
@@ -348,7 +330,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 				final boolean checked = fUseDefaults.isSelected();
 				if (checked) {
 					fPreviousExternalLocation = fLocation.getText();
-					fLocation.setText(getDefaultPath(fNameGroup.getName()));
+					fLocation.setText(getDefaultPath(nameGroup.getName()));
 					fLocation.setEnabled(false);
 				} else {
 					fLocation.setText(fPreviousExternalLocation);
@@ -359,17 +341,16 @@ public class NewProjectWizardPageOne extends WizardPage {
 		}
 	}
 
-	private final class DetectGroup extends Observable implements Observer, SelectionListener {
+	private final class InfoGroup extends Observable implements Observer, SelectionListener {
 		private Link fHintText;
 		private Label fIcon;
 		private boolean fDetect;
 
-		public DetectGroup() {
+		public InfoGroup() {
 			fDetect = false;
 		}
 
 		public Control createControl(Composite parent) {
-
 			Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			GridLayout layout = new GridLayout(2, false);
@@ -393,16 +374,16 @@ public class NewProjectWizardPageOne extends WizardPage {
 		}
 
 		private boolean computeDetectState() {
-			if (fLocationGroup.isUseDefaultSelected()) {
-				String name = fNameGroup.getName();
-				if (name.length() == 0 || JavaPlugin.getWorkspace().getRoot().findMember(name) != null) {
+			if (locationGroup.isUseDefaultSelected()) {
+				String name = nameGroup.getName();
+				if (name.length() == 0 || ResourcesPlugin.getWorkspace().getRoot().findMember(name) != null) {
 					return false;
 				} else {
-					final File directory = fLocationGroup.getLocation().append(name).toFile();
+					final File directory = locationGroup.getLocation().append(name).toFile();
 					return directory.isDirectory();
 				}
 			} else {
-				final File directory = fLocationGroup.getLocation().toFile();
+				final File directory = locationGroup.getLocation().toFile();
 				return directory.isDirectory();
 			}
 		}
@@ -419,7 +400,8 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 					if (fDetect) {
 						fHintText.setVisible(true);
-						fHintText.setText(NewWizardMessages.NewJavaProjectWizardPageOne_DetectGroup_message);
+						fHintText.setText(
+								"The wizard will automatically configure the JRE and the project layout based on the existing source.<a></a>");
 						fIcon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_INFO));
 						fIcon.setVisible(true);
 					}
@@ -448,10 +430,8 @@ public class NewProjectWizardPageOne extends WizardPage {
 	private final class Validator implements Observer {
 		@Override
 		public void update(Observable o, Object arg) {
-
-			final IWorkspace workspace = JavaPlugin.getWorkspace();
-
-			final String name = fNameGroup.getName();
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			final String name = nameGroup.getName();
 
 			// check whether the project name field is empty
 			if (name.length() == 0) {
@@ -488,16 +468,14 @@ public class NewProjectWizardPageOne extends WizardPage {
 				}
 
 				String existingName = projectLocation.lastSegment();
-				if (!existingName.equals(fNameGroup.getName())) {
-					setErrorMessage(Messages.format("The name of the new project must be ''{0}''",
-							BasicElementLabels.getResourceName(existingName)));
+				if (!existingName.equals(nameGroup.getName())) {
+					setErrorMessage(String.format("The name of the new project must be '%s'", existingName));
 					setPageComplete(false);
 					return;
 				}
-
 			}
 
-			final String location = fLocationGroup.getLocation().toOSString();
+			final String location = locationGroup.getLocation().toOSString();
 
 			// check whether location is empty
 			if (location.length() == 0) {
@@ -515,7 +493,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 			}
 
 			IPath projectPath = null;
-			if (!fLocationGroup.isUseDefaultSelected()) {
+			if (!locationGroup.isUseDefaultSelected()) {
 				projectPath = Path.fromOSString(location);
 				if (!projectPath.toFile().exists()) {
 					// check non-existing external location
@@ -559,7 +537,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		public WorkingSetGroup() {
 			String[] workingSetIds = new String[] { IWorkingSetIDs.JAVA, IWorkingSetIDs.RESOURCE };
 			fWorkingSetBlock = new WorkingSetConfigurationBlock(workingSetIds,
-					JavaPlugin.getDefault().getDialogSettings());
+					GurellaStudioPlugin.getDefault().getDialogSettings());
 		}
 
 		public Control createControl(Composite composite) {
