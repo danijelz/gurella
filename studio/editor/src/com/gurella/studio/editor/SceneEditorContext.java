@@ -71,10 +71,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	}
 
 	private void unloadAll() {
-		for (Entry<String, Object> entry : editedAssets.entrySet()) {
-			Object asset = entry.getValue();
-			AssetService.unload(asset);
-		}
+		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 	}
 
 	public Scene getScene() {
