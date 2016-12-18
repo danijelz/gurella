@@ -25,8 +25,12 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		composite.setLayout(initGridLayout(new GridLayout(1, false), true));
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
-		console = new Text(composite, SWT.MULTI | SWT.READ_ONLY | SWT.LEFT);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(console);
+		console = new Text(composite, SWT.MULTI | SWT.READ_ONLY | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL);
+		console.setBackground(console.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		console.setForeground(console.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(console);
+
+		setControl(composite);
 	}
 
 	private GridLayout initGridLayout(GridLayout layout, boolean margins) {
@@ -43,6 +47,6 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	}
 
 	void appendToConsole(String text) {
-		console.setText(console.getText() + text);
+		console.getDisplay().asyncExec(() -> console.setText(console.getText() + text));
 	}
 }
