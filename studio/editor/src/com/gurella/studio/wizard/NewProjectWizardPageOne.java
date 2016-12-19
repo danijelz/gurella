@@ -149,7 +149,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		workingSetGroup.setWorkingSets(workingSets);
 	}
 
-	private IDialogSettings getPluginDialogSettings() {
+	private static IDialogSettings getPluginDialogSettings() {
 		return GurellaStudioPlugin.getDefault().getDialogSettings();
 	}
 

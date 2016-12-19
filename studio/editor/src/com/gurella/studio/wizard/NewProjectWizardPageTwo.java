@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
 public class NewProjectWizardPageTwo extends WizardPage {
@@ -101,7 +102,17 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	}
 
 	void log(String text) {
-		console.getDisplay().asyncExec(() -> console.setText(console.getText() + text));
+		console.getDisplay().asyncExec(() -> appendLog(text));
+	}
+
+	private void appendLog(String text) {
+		synchronized (console) {
+			console.setText(console.getText() + text);
+			ScrollBar horizontalBar = console.getHorizontalBar();
+			if (horizontalBar != null) {
+				horizontalBar.setSelection(horizontalBar.getMaximum());
+			}
+		}
 	}
 
 	String getLog() {

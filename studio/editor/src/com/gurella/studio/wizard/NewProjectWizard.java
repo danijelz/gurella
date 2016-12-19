@@ -217,7 +217,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		@Override
 		public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 			try {
-				JavaCore.run(this::runJavaModelAtomic, rule, monitor);
+				JavaCore.run(this::runBuilder, rule, monitor);
 			} catch (OperationCanceledException e) {
 				throw new InterruptedException(e.getMessage());
 			} catch (CoreException e) {
@@ -225,7 +225,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			}
 		}
 
-		private void runJavaModelAtomic(IProgressMonitor monitor) throws OperationCanceledException {
+		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			long millis = System.currentTimeMillis();
 			log("Generating app in " + location + "\n");
 			new GdxSetup().build(builder, location, name, pack, clazz, sdkLocation, this);
