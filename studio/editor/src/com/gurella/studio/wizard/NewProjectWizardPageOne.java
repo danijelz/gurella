@@ -3,8 +3,6 @@ package com.gurella.studio.wizard;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,9 +14,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.internal.ui.preferences.CompliancePreferencePage;
-import org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage;
-import org.eclipse.jdt.internal.ui.wizards.buildpaths.BuildPathSupport;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IStringButtonAdapter;
@@ -28,24 +23,18 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jdt.internal.ui.workingsets.IWorkingSetIDs;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.BidiUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import com.gurella.studio.GurellaStudioPlugin;
@@ -54,7 +43,6 @@ public class NewProjectWizardPageOne extends WizardPage {
 	private final NameGroup nameGroup;
 	private final LocationGroup locationGroup;
 	private final WorkingSetGroup workingSetGroup;
-	private final InfoGroup infoGroup;
 	private final Validator fValidator;
 
 	public NewProjectWizardPageOne() {
@@ -66,11 +54,9 @@ public class NewProjectWizardPageOne extends WizardPage {
 		nameGroup = new NameGroup();
 		locationGroup = new LocationGroup();
 		workingSetGroup = new WorkingSetGroup();
-		infoGroup = new InfoGroup();
 
 		// establish connections
 		nameGroup.addObserver(locationGroup);
-		locationGroup.addObserver(infoGroup);
 
 		// initialize all elements
 		nameGroup.notifyObservers();
@@ -104,9 +90,6 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 		Control workingSetControl = workingSetGroup.createControl(composite);
 		workingSetControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Control infoControl = infoGroup.createControl(composite);
-		infoControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		setControl(composite);
 	}
@@ -191,11 +174,6 @@ public class NewProjectWizardPageOne extends WizardPage {
 			return nameComposite;
 		}
 
-		protected void fireEvent() {
-			setChanged();
-			notifyObservers();
-		}
-
 		public String getName() {
 			return fNameField.getText().trim();
 		}
@@ -210,7 +188,8 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 		@Override
 		public void dialogFieldChanged(DialogField field) {
-			fireEvent();
+			setChanged();
+			notifyObservers();
 		}
 	}
 
@@ -339,88 +318,6 @@ public class NewProjectWizardPageOne extends WizardPage {
 				}
 			}
 			fireEvent();
-		}
-	}
-
-	private final class InfoGroup extends Observable implements Observer, SelectionListener {
-		private Link hintText;
-		private Label icon;
-		private boolean detect;
-
-		public Control createControl(Composite parent) {
-			Composite composite = new Composite(parent, SWT.NONE);
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-			GridLayout layout = new GridLayout(2, false);
-			layout.horizontalSpacing = 10;
-			composite.setLayout(layout);
-
-			icon = new Label(composite, SWT.LEFT);
-			icon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_WARNING));
-			GridData gridData = new GridData(SWT.LEFT, SWT.TOP, false, false);
-			icon.setLayoutData(gridData);
-
-			hintText = new Link(composite, SWT.WRAP);
-			hintText.setFont(composite.getFont());
-			hintText.addSelectionListener(this);
-			gridData = new GridData(GridData.FILL, SWT.FILL, true, true);
-			gridData.widthHint = convertWidthInCharsToPixels(50);
-			gridData.heightHint = convertHeightInCharsToPixels(3);
-			hintText.setLayoutData(gridData);
-
-			return composite;
-		}
-
-		private boolean computeDetectState() {
-			if (locationGroup.isUseDefaultSelected()) {
-				String name = nameGroup.getName();
-				if (name.length() == 0 || ResourcesPlugin.getWorkspace().getRoot().findMember(name) != null) {
-					return false;
-				} else {
-					final File directory = locationGroup.getLocation().append(name).toFile();
-					return directory.isDirectory();
-				}
-			} else {
-				final File directory = locationGroup.getLocation().toFile();
-				return directory.isDirectory();
-			}
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			if (o instanceof LocationGroup) {
-				boolean oldDetectState = detect;
-				detect = computeDetectState();
-
-				if (oldDetectState != detect) {
-					setChanged();
-					notifyObservers();
-
-					if (detect) {
-						hintText.setVisible(true);
-						hintText.setText(
-								"The wizard will automatically configure the JRE and the project layout based on the existing source.<a></a>");
-						icon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_INFO));
-						icon.setVisible(true);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			widgetDefaultSelected(e);
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-			String jreID = BuildPathSupport.JRE_PREF_PAGE_ID;
-			String eeID = BuildPathSupport.EE_PREF_PAGE_ID;
-			String complianceId = CompliancePreferencePage.PREF_ID;
-			Map<String, Boolean> data = new HashMap<>();
-			data.put(PropertyAndPreferencePage.DATA_NO_LINK, Boolean.TRUE);
-			String id = "JRE".equals(e.text) ? jreID : complianceId; //$NON-NLS-1$
-			PreferencesUtil.createPreferenceDialogOn(getShell(), id, new String[] { jreID, complianceId, eeID }, data)
-					.open();
 		}
 	}
 

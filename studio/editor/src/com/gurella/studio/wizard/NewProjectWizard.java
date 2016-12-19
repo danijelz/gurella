@@ -201,8 +201,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			this.builder = builder;
 			this.name = pageOne.getProjectName();
 			this.location = pageOne.getProjectLocation();
-			this.pack = "com.packagename";
-			this.clazz = "TestApp";
+			this.pack = pageTwo.getPackageName();
+			this.clazz = pageTwo.getClassName();
 			this.sdkLocation = "sdk";
 
 			Job job = Job.getJobManager().currentJob();

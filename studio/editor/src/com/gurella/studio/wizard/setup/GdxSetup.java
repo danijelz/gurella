@@ -485,6 +485,7 @@ public class GdxSetup {
 	}
 
 	private static String parseGwtInherits(ProjectBuilder builder) {
+		//TODO
 		//		 StringBuilder stringBuilder = new StringBuilder();
 		//		 builder.dependencies.stream().filter(d -> d.getGwtInherits() != null)
 		//		 .flatMap(d -> Arrays.stream(d.getGwtInherits()))

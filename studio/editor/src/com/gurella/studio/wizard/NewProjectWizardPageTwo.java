@@ -22,7 +22,6 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	private Button desktop;
 	private Button android;
 	private Button ios;
-	private Button iosmoe;
 	private Button html;
 	private Text console;
 
@@ -68,14 +67,16 @@ public class NewProjectWizardPageTwo extends WizardPage {
 
 		desktop = new Button(projectsGroup, SWT.CHECK);
 		desktop.setText("Desktop");
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(desktop);
 		android = new Button(projectsGroup, SWT.CHECK);
 		android.setText("Android");
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(android);
 		ios = new Button(projectsGroup, SWT.CHECK);
 		ios.setText("IOS");
-		iosmoe = new Button(projectsGroup, SWT.CHECK);
-		iosmoe.setText("IOS-MOE");
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(ios);
 		html = new Button(projectsGroup, SWT.CHECK);
 		html.setText("Html");
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(html);
 
 		Group consoleGroup = new Group(composite, SWT.NONE);
 		consoleGroup.setFont(composite.getFont());
@@ -119,8 +120,11 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	private void presentStatus(IStatus status) {
 		switch (status.getSeverity()) {
 		case IStatus.OK:
+			setPageComplete(true);
+			setMessage(null, IMessageProvider.NONE);
 			break;
 		case IStatus.INFO:
+			setPageComplete(true);
 			setMessage(status.getMessage(), IMessageProvider.INFORMATION);
 			break;
 		case IStatus.WARNING:
@@ -130,12 +134,15 @@ public class NewProjectWizardPageTwo extends WizardPage {
 			setMessage(status.getMessage(), IMessageProvider.ERROR);
 			break;
 		default:
+			setPageComplete(true);
+			setMessage(null, IMessageProvider.NONE);
 			break;
 		}
 	}
 
 	private boolean validateClassName() {
-		IStatus status = JavaConventions.validateJavaTypeName(getPackageName(), JavaCore.VERSION_1_6,
+		//return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
+		IStatus status = JavaConventions.validateJavaTypeName(getClassName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
 		presentStatus(status);
 
@@ -143,7 +150,11 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		return false;
 	}
 
-	public String getPackageName() {
+	String getClassName() {
+		return className.getText().trim();
+	}
+
+	String getPackageName() {
 		return packageName.getText().trim();
 	}
 }
