@@ -510,7 +510,7 @@ public class GdxSetup {
 		if (modules.contains(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
 		}
-		boolean offline = true;
+		boolean offline = true;//TODO maybe not needed
 		if (offline) {
 			gradleArgs.add("--offline");
 		}

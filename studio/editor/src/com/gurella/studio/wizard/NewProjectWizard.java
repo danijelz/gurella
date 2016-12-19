@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,14 +15,15 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter;
-import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.operation.IThreadListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.DependencyBank;
 import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
@@ -54,16 +54,10 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		try {
 			performFinishSafely();
 			return true;
-		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), "New", "Creation of project failed.");
-		} catch (InvocationTargetException e) {
-			ExceptionHandler.handle(e, getShell(), "New", "Creation of project failed.");
-		} catch (InterruptedException e) {
 		} catch (Exception e) {
-			ExceptionHandler.handle(new InvocationTargetException(e), getShell(), "New", "Creation of project failed.");
+			GurellaStudioPlugin.showError(e, "Creation of project failed.");
+			return false;
 		}
-
-		return false;
 	}
 
 	private void performFinishSafely() throws Exception {
@@ -93,19 +87,12 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		Path descriptionFile = new Path(path + File.separator + name + File.separator + ".project");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProjectDescription description = workspace.loadProjectDescription(descriptionFile);
-
 		IProject project = workspace.getRoot().getProject(description.getName());
 		project.create(description, null);
 		project.open(null);
 	}
 
 	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
-		final String name = pageOne.getProjectName();
-		final String destination = pageOne.getProjectLocation();
-
-		final String pack = "com.packagename";
-		final String clazz = "TestApp";
-		final String sdkLocation = "sdk";
 		// if (!GdxSetup.isSdkLocationValid(sdkLocation) && modules.contains(ProjectType.ANDROID)) {
 		// JOptionPane
 		// .showMessageDialog(this,
@@ -194,43 +181,67 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		// }
 		// }
 
-		Job job = Job.getJobManager().currentJob();
-		ISchedulingRule rule = job == null ? null : job.getRule();
-		IWorkspaceRunnable op = new BuildProjectsRunnable(builder, destination, pack, name, clazz, sdkLocation);
-		IRunnableWithProgress runnable = rule != null ? new WorkbenchRunnableAdapter(op, rule, true)
-				: new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot());
-		getContainer().run(true, true, runnable);
+		IRunnableWithProgress op = new BuildProjectsRunnable(builder);
+		getContainer().run(true, true, op);
 	}
 
-	private final class BuildProjectsRunnable implements IWorkspaceRunnable, LogCallback {
+	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
 		private final ProjectBuilder builder;
-		private final String destination;
-		private final String pack;
+
 		private final String name;
+		private final String location;
+		private final String pack;
 		private final String clazz;
 		private final String sdkLocation;
 
-		private BuildProjectsRunnable(ProjectBuilder builder, String destination, String pack, String name,
-				String clazz, String sdkLocation) {
+		private final ISchedulingRule rule;
+		private boolean transferRule;
+
+		private BuildProjectsRunnable(ProjectBuilder builder) {
 			this.builder = builder;
-			this.destination = destination;
-			this.pack = pack;
-			this.name = name;
-			this.clazz = clazz;
-			this.sdkLocation = sdkLocation;
+			this.name = pageOne.getProjectName();
+			this.location = pageOne.getProjectLocation();
+			this.pack = "com.packagename";
+			this.clazz = "TestApp";
+			this.sdkLocation = "sdk";
+
+			Job job = Job.getJobManager().currentJob();
+			if (job == null) {
+				rule = ResourcesPlugin.getWorkspace().getRoot();
+			} else {
+				rule = job.getRule();
+				transferRule = true;
+			}
 		}
 
 		@Override
-		public void run(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+			try {
+				JavaCore.run(this::runJavaModelAtomic, rule, monitor);
+			} catch (OperationCanceledException e) {
+				throw new InterruptedException(e.getMessage());
+			} catch (CoreException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+
+		private void runJavaModelAtomic(IProgressMonitor monitor) throws OperationCanceledException {
 			long millis = System.currentTimeMillis();
-			log("Generating app in " + destination + "\n");
-			new GdxSetup().build(builder, destination, name, pack, clazz, sdkLocation, this);
+			log("Generating app in " + location + "\n");
+			new GdxSetup().build(builder, location, name, pack, clazz, sdkLocation, this);
 			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
 		}
 
 		@Override
 		public void log(String text) {
-			pageTwo.appendToConsole(text);
+			pageTwo.log(text);
+		}
+
+		@Override
+		public void threadChange(Thread thread) {
+			if (transferRule) {
+				Job.getJobManager().transferRule(rule, thread);
+			}
 		}
 	}
 }

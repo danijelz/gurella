@@ -28,9 +28,9 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jdt.internal.ui.workingsets.IWorkingSetIDs;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.BidiUtils;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -53,9 +53,9 @@ import com.gurella.studio.GurellaStudioPlugin;
 public class NewProjectWizardPageOne extends WizardPage {
 	private final NameGroup nameGroup;
 	private final LocationGroup locationGroup;
+	private final WorkingSetGroup workingSetGroup;
 	private final InfoGroup infoGroup;
 	private final Validator fValidator;
-	private final WorkingSetGroup workingSetGroup;
 
 	public NewProjectWizardPageOne() {
 		super("NewProjectWizardPageOne");
@@ -91,9 +91,9 @@ public class NewProjectWizardPageOne extends WizardPage {
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 
-		final Composite composite = new Composite(parent, SWT.NULL);
+		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setFont(parent.getFont());
-		composite.setLayout(initGridLayout(new GridLayout(1, false), true));
+		composite.setLayout(initGridLayout());
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
 		Control nameControl = nameGroup.createControl(composite);
@@ -111,16 +111,12 @@ public class NewProjectWizardPageOne extends WizardPage {
 		setControl(composite);
 	}
 
-	private GridLayout initGridLayout(GridLayout layout, boolean margins) {
+	private GridLayout initGridLayout() {
+		GridLayout layout = new GridLayout(1, false);
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
 		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-		if (margins) {
-			layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-			layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-		} else {
-			layout.marginWidth = 0;
-			layout.marginHeight = 0;
-		}
+		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
+		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		return layout;
 	}
 
@@ -170,6 +166,10 @@ public class NewProjectWizardPageOne extends WizardPage {
 		workingSetGroup.setWorkingSets(workingSets);
 	}
 
+	private IDialogSettings getPluginDialogSettings() {
+		return GurellaStudioPlugin.getDefault().getDialogSettings();
+	}
+
 	private final class NameGroup extends Observable implements IDialogFieldListener {
 		protected final StringDialogField fNameField;
 
@@ -216,24 +216,25 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 	private final class LocationGroup extends Observable
 			implements Observer, IStringButtonAdapter, IDialogFieldListener {
-		protected final SelectionButtonDialogField fUseDefaults;
-		protected final StringButtonDialogField fLocation;
+		protected final SelectionButtonDialogField useDefaults;
+		protected final StringButtonDialogField location;
 
 		private String fPreviousExternalLocation;
 
-		private static final String DIALOGSTORE_LAST_EXTERNAL_LOC = JavaUI.ID_PLUGIN + ".last.external.project"; //$NON-NLS-1$
+		private static final String DIALOGSTORE_LAST_EXTERNAL_LOC = GurellaStudioPlugin.PLUGIN_ID
+				+ ".last.external.project"; //$NON-NLS-1$
 
 		public LocationGroup() {
-			fUseDefaults = new SelectionButtonDialogField(SWT.CHECK);
-			fUseDefaults.setDialogFieldListener(this);
-			fUseDefaults.setLabelText("Use &default location");
+			useDefaults = new SelectionButtonDialogField(SWT.CHECK);
+			useDefaults.setDialogFieldListener(this);
+			useDefaults.setLabelText("Use &default location");
 
-			fLocation = new StringButtonDialogField(this);
-			fLocation.setDialogFieldListener(this);
-			fLocation.setLabelText("&Location:");
-			fLocation.setButtonLabel("B&rowse...");
+			location = new StringButtonDialogField(this);
+			location.setDialogFieldListener(this);
+			location.setLabelText("&Location:");
+			location.setButtonLabel("B&rowse...");
 
-			fUseDefaults.setSelection(true);
+			useDefaults.setSelection(true);
 
 			fPreviousExternalLocation = ""; //$NON-NLS-1$
 		}
@@ -241,16 +242,18 @@ public class NewProjectWizardPageOne extends WizardPage {
 		public Control createControl(Composite composite) {
 			final int numColumns = 4;
 
-			final Composite locationComposite = new Composite(composite, SWT.NONE);
-			locationComposite.setLayout(new GridLayout(numColumns, false));
+			Group locationGroup = new Group(composite, SWT.NONE);
+			locationGroup.setFont(composite.getFont());
+			locationGroup.setText("Location");
+			locationGroup.setLayout(new GridLayout(numColumns, false));
 
-			fUseDefaults.doFillIntoGrid(locationComposite, numColumns);
-			fLocation.doFillIntoGrid(locationComposite, numColumns);
-			LayoutUtil.setHorizontalGrabbing(fLocation.getTextControl(null));
-			BidiUtils.applyBidiProcessing(fLocation.getTextControl(null),
+			useDefaults.doFillIntoGrid(locationGroup, numColumns);
+			location.doFillIntoGrid(locationGroup, numColumns);
+			LayoutUtil.setHorizontalGrabbing(location.getTextControl(null));
+			BidiUtils.applyBidiProcessing(location.getTextControl(null),
 					/* TODO StructuredTextTypeHandlerFactory.FILE */"file");
 
-			return locationComposite;
+			return locationGroup;
 		}
 
 		protected void fireEvent() {
@@ -266,7 +269,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		@Override
 		public void update(Observable o, Object arg) {
 			if (isUseDefaultSelected()) {
-				fLocation.setText(getDefaultPath(nameGroup.getName()));
+				location.setText(getDefaultPath(nameGroup.getName()));
 			}
 			fireEvent();
 		}
@@ -275,19 +278,19 @@ public class NewProjectWizardPageOne extends WizardPage {
 			if (isUseDefaultSelected()) {
 				return Platform.getLocation();
 			}
-			return Path.fromOSString(fLocation.getText().trim());
+			return Path.fromOSString(location.getText().trim());
 		}
 
 		public boolean isUseDefaultSelected() {
-			return fUseDefaults.isSelected();
+			return useDefaults.isSelected();
 		}
 
 		public void setLocation(IPath path) {
-			fUseDefaults.setSelection(path == null);
+			useDefaults.setSelection(path == null);
 			if (path != null) {
-				fLocation.setText(path.toOSString());
+				location.setText(path.toOSString());
 			} else {
-				fLocation.setText(getDefaultPath(nameGroup.getName()));
+				location.setText(getDefaultPath(nameGroup.getName()));
 			}
 			fireEvent();
 		}
@@ -296,10 +299,9 @@ public class NewProjectWizardPageOne extends WizardPage {
 		public void changeControlPressed(DialogField field) {
 			final DirectoryDialog dialog = new DirectoryDialog(getShell());
 			dialog.setMessage("Choose a directory for the project contents:");
-			String directoryName = fLocation.getText().trim();
+			String directoryName = location.getText().trim();
 			if (directoryName.length() == 0) {
-				String prevLocation = GurellaStudioPlugin.getDefault().getDialogSettings()
-						.get(DIALOGSTORE_LAST_EXTERNAL_LOC);
+				String prevLocation = getPluginDialogSettings().get(DIALOGSTORE_LAST_EXTERNAL_LOC);
 				if (prevLocation != null) {
 					directoryName = prevLocation;
 				}
@@ -312,29 +314,28 @@ public class NewProjectWizardPageOne extends WizardPage {
 			}
 			final String selectedDirectory = dialog.open();
 			if (selectedDirectory != null) {
-				String oldDirectory = new Path(fLocation.getText().trim()).lastSegment();
-				fLocation.setText(selectedDirectory);
+				String oldDirectory = new Path(location.getText().trim()).lastSegment();
+				location.setText(selectedDirectory);
 				String lastSegment = new Path(selectedDirectory).lastSegment();
 				if (lastSegment != null
 						&& (nameGroup.getName().length() == 0 || nameGroup.getName().equals(oldDirectory))) {
 					nameGroup.setName(lastSegment);
 				}
-				GurellaStudioPlugin.getDefault().getDialogSettings().put(DIALOGSTORE_LAST_EXTERNAL_LOC,
-						selectedDirectory);
+				getPluginDialogSettings().put(DIALOGSTORE_LAST_EXTERNAL_LOC, selectedDirectory);
 			}
 		}
 
 		@Override
 		public void dialogFieldChanged(DialogField field) {
-			if (field == fUseDefaults) {
-				final boolean checked = fUseDefaults.isSelected();
+			if (field == useDefaults) {
+				final boolean checked = useDefaults.isSelected();
 				if (checked) {
-					fPreviousExternalLocation = fLocation.getText();
-					fLocation.setText(getDefaultPath(nameGroup.getName()));
-					fLocation.setEnabled(false);
+					fPreviousExternalLocation = location.getText();
+					location.setText(getDefaultPath(nameGroup.getName()));
+					location.setEnabled(false);
 				} else {
-					fLocation.setText(fPreviousExternalLocation);
-					fLocation.setEnabled(true);
+					location.setText(fPreviousExternalLocation);
+					location.setEnabled(true);
 				}
 			}
 			fireEvent();
@@ -342,13 +343,9 @@ public class NewProjectWizardPageOne extends WizardPage {
 	}
 
 	private final class InfoGroup extends Observable implements Observer, SelectionListener {
-		private Link fHintText;
-		private Label fIcon;
-		private boolean fDetect;
-
-		public InfoGroup() {
-			fDetect = false;
-		}
+		private Link hintText;
+		private Label icon;
+		private boolean detect;
 
 		public Control createControl(Composite parent) {
 			Composite composite = new Composite(parent, SWT.NONE);
@@ -357,18 +354,18 @@ public class NewProjectWizardPageOne extends WizardPage {
 			layout.horizontalSpacing = 10;
 			composite.setLayout(layout);
 
-			fIcon = new Label(composite, SWT.LEFT);
-			fIcon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_WARNING));
+			icon = new Label(composite, SWT.LEFT);
+			icon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_WARNING));
 			GridData gridData = new GridData(SWT.LEFT, SWT.TOP, false, false);
-			fIcon.setLayoutData(gridData);
+			icon.setLayoutData(gridData);
 
-			fHintText = new Link(composite, SWT.WRAP);
-			fHintText.setFont(composite.getFont());
-			fHintText.addSelectionListener(this);
+			hintText = new Link(composite, SWT.WRAP);
+			hintText.setFont(composite.getFont());
+			hintText.addSelectionListener(this);
 			gridData = new GridData(GridData.FILL, SWT.FILL, true, true);
 			gridData.widthHint = convertWidthInCharsToPixels(50);
 			gridData.heightHint = convertHeightInCharsToPixels(3);
-			fHintText.setLayoutData(gridData);
+			hintText.setLayoutData(gridData);
 
 			return composite;
 		}
@@ -391,19 +388,19 @@ public class NewProjectWizardPageOne extends WizardPage {
 		@Override
 		public void update(Observable o, Object arg) {
 			if (o instanceof LocationGroup) {
-				boolean oldDetectState = fDetect;
-				fDetect = computeDetectState();
+				boolean oldDetectState = detect;
+				detect = computeDetectState();
 
-				if (oldDetectState != fDetect) {
+				if (oldDetectState != detect) {
 					setChanged();
 					notifyObservers();
 
-					if (fDetect) {
-						fHintText.setVisible(true);
-						fHintText.setText(
+					if (detect) {
+						hintText.setVisible(true);
+						hintText.setText(
 								"The wizard will automatically configure the JRE and the project layout based on the existing source.<a></a>");
-						fIcon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_INFO));
-						fIcon.setVisible(true);
+						icon.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_INFO));
+						icon.setVisible(true);
 					}
 				}
 			}
@@ -532,12 +529,10 @@ public class NewProjectWizardPageOne extends WizardPage {
 	}
 
 	private final class WorkingSetGroup {
-		private WorkingSetConfigurationBlock fWorkingSetBlock;
+		private WorkingSetConfigurationBlock workingSetBlock;
 
 		public WorkingSetGroup() {
-			String[] workingSetIds = new String[] { IWorkingSetIDs.JAVA, IWorkingSetIDs.RESOURCE };
-			fWorkingSetBlock = new WorkingSetConfigurationBlock(workingSetIds,
-					GurellaStudioPlugin.getDefault().getDialogSettings());
+			workingSetBlock = new WorkingSetConfigurationBlock(getPluginDialogSettings(), IWorkingSetIDs.JAVA, IWorkingSetIDs.RESOURCE);
 		}
 
 		public Control createControl(Composite composite) {
@@ -545,16 +540,16 @@ public class NewProjectWizardPageOne extends WizardPage {
 			workingSetGroup.setFont(composite.getFont());
 			workingSetGroup.setText("Working sets");
 			workingSetGroup.setLayout(new GridLayout(1, false));
-			fWorkingSetBlock.createContent(workingSetGroup);
+			workingSetBlock.createContent(workingSetGroup);
 			return workingSetGroup;
 		}
 
 		public void setWorkingSets(IWorkingSet[] workingSets) {
-			fWorkingSetBlock.setWorkingSets(workingSets);
+			workingSetBlock.setWorkingSets(workingSets);
 		}
 
 		public IWorkingSet[] getSelectedWorkingSets() {
-			return fWorkingSetBlock.getSelectedWorkingSets();
+			return workingSetBlock.getSelectedWorkingSets();
 		}
 	}
 }

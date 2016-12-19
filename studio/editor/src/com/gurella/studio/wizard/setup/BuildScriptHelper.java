@@ -87,6 +87,7 @@ public class BuildScriptHelper {
 		if (!project.equals(ProjectType.CORE)) {
 			write(wr, "compile project(\":" + ProjectType.CORE.getName() + "\")");
 		}
+
 		for (Dependency dep : dependencyList) {
 			if (dep.getDependencies(project) == null) {
 				continue;
@@ -96,15 +97,20 @@ public class BuildScriptHelper {
 				if (moduleDependency == null) {
 					continue;
 				}
-				if ((project.equals(ProjectType.ANDROID) || project.equals(ProjectType.IOSMOE))
-						&& moduleDependency.contains("native")) {
-					write(wr, "natives \"" + moduleDependency + "\"");
-				} else {
-					write(wr, "compile \"" + moduleDependency + "\"");
-				}
+				addDependency(wr, project, moduleDependency);
 			}
 		}
 		write(wr, "}");
+	}
+
+	private static void addDependency(BufferedWriter wr, ProjectType project, String moduleDependency)
+			throws IOException {
+		if (project.equals(ProjectType.ANDROID)
+				|| project.equals(ProjectType.IOSMOE) && moduleDependency.contains("native")) {
+			write(wr, "natives \"" + moduleDependency + "\"");
+		} else {
+			write(wr, "compile \"" + moduleDependency + "\"");
+		}
 	}
 
 	private static void write(BufferedWriter wr, String input) throws IOException {
@@ -128,11 +134,11 @@ public class BuildScriptHelper {
 		return indent < 0 ? 0 : indent;
 	}
 
-	public static int countMatches(String input, char match) {
+	private static int countMatches(String input, char match) {
 		return (int) input.chars().filter(c -> c == match).count();
 	}
 
-	public static String repeat(String toRepeat, int count) {
+	private static String repeat(String toRepeat, int count) {
 		return IntStream.range(0, count).mapToObj(i -> toRepeat).collect(joining());
 	}
 }

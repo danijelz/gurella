@@ -22,15 +22,13 @@ public class ProjectBuilder {
 	File settingsFile;
 	File buildFile;
 
-	public ProjectBuilder(DependencyBank bank, List<ProjectType> projects, List<Dependency> dependencies) throws IOException {
+	public ProjectBuilder(DependencyBank bank, List<ProjectType> projects, List<Dependency> dependencies)
+			throws IOException {
 		this.bank = bank;
 		this.projects = projects;
 		this.dependencies = dependencies;
 		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
-		build();
-	}
 
-	private void build() throws IOException {
 		settingsFile = File.createTempFile("libgdx-setup-settings", ".gradle");
 		if (!settingsFile.exists()) {
 			settingsFile.createNewFile();
