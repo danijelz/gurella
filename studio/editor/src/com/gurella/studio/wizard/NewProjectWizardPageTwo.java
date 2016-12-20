@@ -24,6 +24,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	private Button android;
 	private Button ios;
 	private Button html;
+	private Text androidSdkLocation;
 	private Text console;
 
 	protected NewProjectWizardPageTwo() {
@@ -79,11 +80,23 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		html.setText("Html");
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(html);
 
+		Group androidGroup = new Group(composite, SWT.NONE);
+		androidGroup.setFont(composite.getFont());
+		androidGroup.setText("Android");
+		androidGroup.setLayout(new GridLayout(1, false));
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(androidGroup);
+
+		Label sdkLocationLabel = new Label(androidGroup, SWT.NONE);
+		sdkLocationLabel.setText("SDK location:");
+		androidSdkLocation = new Text(androidGroup, SWT.LEFT | SWT.BORDER);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(androidSdkLocation);
+
 		Group consoleGroup = new Group(composite, SWT.NONE);
 		consoleGroup.setFont(composite.getFont());
 		consoleGroup.setText("Log");
 		consoleGroup.setLayout(new GridLayout(1, false));
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(consoleGroup);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).minSize(200, 200).grab(true, true)
+				.applyTo(consoleGroup);
 
 		console = new Text(consoleGroup,
 				SWT.MULTI | SWT.READ_ONLY | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);

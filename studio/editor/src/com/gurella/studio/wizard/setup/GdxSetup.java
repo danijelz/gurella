@@ -507,6 +507,7 @@ public class GdxSetup {
 		final List<String> gradleArgs = new ArrayList<String>();
 		gradleArgs.add("clean");
 		gradleArgs.add("--no-daemon");
+		gradleArgs.add("--parallel");
 		gradleArgs.add("eclipse");
 		if (modules.contains(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");

@@ -187,8 +187,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		// }
 		// }
 
-		IRunnableWithProgress op = new BuildProjectsRunnable(builder);
-		getContainer().run(true, true, op);
+		IRunnableWithProgress runnable = new BuildProjectsRunnable(builder);
+		getContainer().run(true, true, runnable);
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
