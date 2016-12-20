@@ -28,9 +28,28 @@ task dist(type: Jar) {
 dist.dependsOn classes
 
 eclipse {
+    pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
+    
     project {
         name = appName + "-desktop"
         linkedResource name: 'assets', type: '2', location: 'PARENT-1-PROJECT_LOC/%ASSET_PATH%'
+    }
+    
+    classpath {
+        file {
+            whenMerged { classpath ->
+                def libs = classpath.entries.findAll { it.kind == 'lib' }
+                libs = libs.collect { lib ->
+                    def baseDir = project.projectDir.getAbsolutePath().replace('\\', '/')
+                    if (lib.path.startsWith(baseDir)) {
+                        lib.path = lib.path.replace(baseDir, ".")
+                    }
+                    return lib
+                }
+                def others = classpath.entries.findAll { it.kind != 'lib' }
+                classpath.entries = libs + others
+            }
+        }
     }
 }
 

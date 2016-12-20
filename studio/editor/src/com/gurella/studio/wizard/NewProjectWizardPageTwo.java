@@ -108,9 +108,9 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	private void appendLog(String text) {
 		synchronized (console) {
 			console.setText(console.getText() + text);
-			ScrollBar horizontalBar = console.getHorizontalBar();
-			if (horizontalBar != null) {
-				horizontalBar.setSelection(horizontalBar.getMaximum());
+			ScrollBar verticalBar = console.getVerticalBar();
+			if (verticalBar != null) {
+				verticalBar.setSelection(verticalBar.getMaximum());
 			}
 		}
 	}

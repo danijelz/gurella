@@ -76,6 +76,8 @@ task run(type: Exec) {
 
 // sets up the Android Eclipse project, using the old Ant based build.
 eclipse {
+    pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
+    
     // need to specify Java source sets explicitly, SpringSource Gradle Eclipse plugin
     // ignores any nodes added in classpath.file.withXml
     sourceSets {
@@ -91,7 +93,22 @@ eclipse {
 
     classpath {
         plusConfigurations += [ project.configurations.compile ]        
-        containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK', 'com.android.ide.eclipse.adt.LIBRARIES'       
+        containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK', 'com.android.ide.eclipse.adt.LIBRARIES'    
+        
+        file {
+            whenMerged { classpath ->
+                def libs = classpath.entries.findAll { it.kind == 'lib' }
+                libs = libs.collect { lib ->
+                    def baseDir = project.projectDir.getAbsolutePath().replace('\\', '/')
+                    if (lib.path.startsWith(baseDir)) {
+                        lib.path = lib.path.replace(baseDir, ".")
+                    }
+                    return lib
+                }
+                def others = classpath.entries.findAll { it.kind != 'lib' }
+                classpath.entries = libs + others
+            }
+        }   
     }
 
     project {

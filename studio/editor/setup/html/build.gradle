@@ -67,3 +67,24 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 eclipse.project {
     name = appName + "-html"
 }
+
+eclipse {
+    pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
+
+    classpath {
+        file {
+            whenMerged { classpath ->
+                def libs = classpath.entries.findAll { it.kind == 'lib' }
+                libs = libs.collect { lib ->
+                    def baseDir = project.projectDir.getAbsolutePath().replace('\\', '/')
+                    if (lib.path.startsWith(baseDir)) {
+                        lib.path = lib.path.replace(baseDir, ".")
+                    }
+                    return lib
+                }
+                def others = classpath.entries.findAll { it.kind != 'lib' }
+                classpath.entries = libs + others
+            }
+        }
+    }
+}

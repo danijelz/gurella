@@ -33,6 +33,9 @@ import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
+	private static final String GRADLE_USER_HOME_CLASSPATH_VARIABLE_NAME = "GRADLE_USER_HOME";
+	private static final String MOE_USER_HOME_CLASSPATH_VARIABLE_NAME = "MOE_USER_HOME";
+
 	private NewProjectWizardPageOne pageOne;
 	private NewProjectWizardPageTwo pageTwo;
 
@@ -65,9 +68,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
 		modules.add(ProjectType.DESKTOP);
-		// modules.add(ProjectType.ANDROID);
-		// modules.add(ProjectType.IOSMOE);
-		// modules.add(ProjectType.HTML);
+		//modules.add(ProjectType.ANDROID);
+		//modules.add(ProjectType.HTML);
+		modules.add(ProjectType.IOSMOE);
 
 		List<Dependency> dependencies = new ArrayList<Dependency>();
 		dependencies.add(bank.getDependency(ProjectDependency.GDX));
@@ -81,6 +84,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
 		openProject(projectLocation, "desktop");
+		//openProject(projectLocation, "android");
+		//openProject(projectLocation, "html");
+		openProject(projectLocation, "ios-moe");
 	}
 
 	private static void openProject(String path, String name) throws CoreException {
@@ -203,7 +209,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			this.location = pageOne.getProjectLocation();
 			this.pack = pageTwo.getPackageName();
 			this.clazz = pageTwo.getClassName();
-			this.sdkLocation = "sdk";
+			this.sdkLocation = "/media/danijel/data/ddd/android/android-sdk-24.4.1/";
 
 			Job job = Job.getJobManager().currentJob();
 			if (job == null) {
@@ -217,6 +223,16 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		@Override
 		public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 			try {
+				if (JavaCore.getClasspathVariable(GRADLE_USER_HOME_CLASSPATH_VARIABLE_NAME) == null) {
+					Path path = new Path(System.getProperty("user.home") + File.separator + ".gradle");
+					JavaCore.setClasspathVariable(GRADLE_USER_HOME_CLASSPATH_VARIABLE_NAME, path, monitor);
+				}
+				
+				if (JavaCore.getClasspathVariable(MOE_USER_HOME_CLASSPATH_VARIABLE_NAME) == null) {
+					Path path = new Path(System.getProperty("user.home") + File.separator + ".moe");
+					JavaCore.setClasspathVariable(MOE_USER_HOME_CLASSPATH_VARIABLE_NAME, path, monitor);
+				}
+				
 				JavaCore.run(this::runBuilder, rule, monitor);
 			} catch (OperationCanceledException e) {
 				throw new InterruptedException(e.getMessage());
