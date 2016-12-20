@@ -25,6 +25,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	private Button ios;
 	private Button html;
 	private Text androidSdkLocation;
+	private Button selectSdkLocationButton;
 	private Text console;
 
 	protected NewProjectWizardPageTwo() {
@@ -72,6 +73,8 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(desktop);
 		android = new Button(projectsGroup, SWT.CHECK);
 		android.setText("Android");
+		android.addListener(SWT.Selection, e -> androidSelectionChanged());
+		android.addListener(SWT.DefaultSelection, e -> androidSelectionChanged());
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(android);
 		ios = new Button(projectsGroup, SWT.CHECK);
 		ios.setText("IOS");
@@ -82,14 +85,19 @@ public class NewProjectWizardPageTwo extends WizardPage {
 
 		Group androidGroup = new Group(composite, SWT.NONE);
 		androidGroup.setFont(composite.getFont());
-		androidGroup.setText("Android");
-		androidGroup.setLayout(new GridLayout(1, false));
+		androidGroup.setText("Android SDK");
+		androidGroup.setLayout(new GridLayout(3, false));
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(androidGroup);
 
 		Label sdkLocationLabel = new Label(androidGroup, SWT.NONE);
-		sdkLocationLabel.setText("SDK location:");
+		sdkLocationLabel.setText("&Location:");
 		androidSdkLocation = new Text(androidGroup, SWT.LEFT | SWT.BORDER);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(androidSdkLocation);
+		androidSdkLocation.setEnabled(false);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(androidSdkLocation);
+		selectSdkLocationButton = new Button(androidGroup, SWT.PUSH);
+		selectSdkLocationButton.setText("B&rowse...");
+		selectSdkLocationButton.setEnabled(false);
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(selectSdkLocationButton);
 
 		Group consoleGroup = new Group(composite, SWT.NONE);
 		consoleGroup.setFont(composite.getFont());
@@ -112,6 +120,12 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
 		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
 		return layout;
+	}
+
+	private void androidSelectionChanged() {
+		boolean selected = android.getSelection();
+		androidSdkLocation.setEnabled(selected);
+		selectSdkLocationButton.setEnabled(selected);
 	}
 
 	void log(String text) {

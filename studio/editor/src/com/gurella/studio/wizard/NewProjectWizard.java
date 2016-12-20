@@ -251,6 +251,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		@Override
 		public void log(String text) {
 			pageTwo.log(text);
+			System.out.print(text);
 		}
 
 		@Override

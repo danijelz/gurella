@@ -506,8 +506,6 @@ public class GdxSetup {
 	private static List<String> getGradleArgs(List<ProjectType> modules) {
 		final List<String> gradleArgs = new ArrayList<String>();
 		gradleArgs.add("clean");
-		gradleArgs.add("--no-daemon");
-		gradleArgs.add("--parallel");
 		gradleArgs.add("eclipse");
 		if (modules.contains(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
@@ -516,6 +514,9 @@ public class GdxSetup {
 		if (offline) {
 			gradleArgs.add("--offline");
 		}
+		gradleArgs.add("--daemon");
+		gradleArgs.add("--configure-on-demand");
+		gradleArgs.add("--parallel");
 
 		return gradleArgs;
 	}
