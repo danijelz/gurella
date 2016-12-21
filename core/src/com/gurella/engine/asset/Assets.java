@@ -78,7 +78,7 @@ public class Assets {
 
 	public static <T> Class<T> getAssetClass(final String fileName) {
 		AssetType type = getAssetType(fileName);
-		return type == null ? null : Values.cast(type.assetType);
+		return type == null ? null : Values.<Class<T>>cast(type.assetType);
 	}
 
 	public static FileHandle getFileHandle(String path) {

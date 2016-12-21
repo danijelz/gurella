@@ -31,6 +31,7 @@ public class DependencyBank {
 	static String box2DLightsVersion = "1.4";
 	static String ashleyVersion = "1.7.0";
 	static String aiVersion = "1.8.0";
+	static String gurellaVersion = "0.1-SNAPSHOT";
 
 	HashMap<ProjectDependency, Dependency> dependencies = new HashMap<ProjectDependency, Dependency>();
 
@@ -141,7 +142,10 @@ public class DependencyBank {
 		AI(new String[] { "com.badlogicgames.gdx:gdx-ai:$aiVersion" }, new String[] {},
 				new String[] { "com.badlogicgames.gdx:gdx-ai:$aiVersion" }, new String[] {}, new String[] {},
 				new String[] { "com.badlogicgames.gdx:gdx-ai:$aiVersion:sources" },
-				new String[] { "com.badlogic.gdx.ai" }, "Artificial Intelligence framework");
+				new String[] { "com.badlogic.gdx.ai" }, "Artificial Intelligence framework"),
+
+		GURELLA(new String[] { "com.gurella:gurella-core:$gurellaVersion" }, new String[] {}, new String[] {},
+				new String[] {}, new String[] {}, new String[] {}, new String[] {}, "Gurella framework");
 
 		private String[] coreDependencies;
 		private String[] desktopDependencies;

@@ -68,24 +68,26 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
 		modules.add(ProjectType.DESKTOP);
-		//modules.add(ProjectType.ANDROID);
-		//modules.add(ProjectType.HTML);
+		// modules.add(ProjectType.ANDROID);
+		// modules.add(ProjectType.HTML);
 		modules.add(ProjectType.IOSMOE);
 
 		List<Dependency> dependencies = new ArrayList<Dependency>();
 		dependencies.add(bank.getDependency(ProjectDependency.GDX));
 		dependencies.add(bank.getDependency(ProjectDependency.BULLET));
 		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
+		dependencies.add(bank.getDependency(ProjectDependency.GURELLA));
 
 		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
-		buildProjects(builder);
+		IRunnableWithProgress runnable = new BuildProjectsRunnable(builder);
+		getContainer().run(true, true, runnable);
 
 		String projectLocation = pageOne.getProjectLocation();
 		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
 		openProject(projectLocation, "desktop");
-		//openProject(projectLocation, "android");
-		//openProject(projectLocation, "html");
+		// openProject(projectLocation, "android");
+		// openProject(projectLocation, "html");
 		openProject(projectLocation, "ios-moe");
 	}
 
@@ -96,99 +98,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		IProject project = workspace.getRoot().getProject(description.getName());
 		project.create(description, null);
 		project.open(null);
-	}
-
-	private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
-		// if (!GdxSetup.isSdkLocationValid(sdkLocation) && modules.contains(ProjectType.ANDROID)) {
-		// JOptionPane
-		// .showMessageDialog(this,
-		// "Your Android SDK path doesn't contain an SDK! Please install the Android SDK, including all platforms and
-		// build tools!");
-		// return;
-		// }
-		//
-		// if (modules.contains(ProjectType.ANDROID)) {
-		// if (!GdxSetup.isSdkUpToDate(sdkLocation)) {
-		// File sdkLocationFile = new File(sdkLocation);
-		// try { //give them a poke in the right direction
-		// if (System.getProperty("os.name").contains("Windows")) {
-		// String replaced = sdkLocation.replace("\\", "\\\\");
-		// Runtime.getRuntime().exec("\"" + replaced + "\\SDK Manager.exe\"");
-		// } else {
-		// File sdkManager = new File(sdkLocation, "tools/android");
-		// Runtime.getRuntime().exec(new String[] {sdkManager.getAbsolutePath(), "sdk"});
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// return;
-		// }
-		// }
-		//
-		// if (!GdxSetup.isEmptyDirectory(destination)) {
-		// int value = JOptionPane.showConfirmDialog(this, "The destination is not empty, do you want to overwrite?",
-		// "Warning!", JOptionPane.YES_NO_OPTION);
-		// if (value != 0) {
-		// return;
-		// }
-		// }
-		//
-		// List<String> incompatList = builder.buildProject(modules, dependencies);
-		// if (incompatList.size() == 0) {
-		// try {
-		// builder.build();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// } else {
-		// JPanel panel = new JPanel();
-		// panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		// for (String subIncompat : incompatList) {
-		// JLabel label = new JLabel(subIncompat);
-		// label.setAlignmentX(Component.CENTER_ALIGNMENT);
-		// panel.add(label);
-		// }
-		//
-		// JLabel infoLabel = new JLabel("<html><br><br>The project can be generated, but you wont be able to use these
-		// extensions in the respective sub modules<br>Please see the link to learn about extensions</html>");
-		// infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		// panel.add(infoLabel);
-		// JEditorPane pane = new JEditorPane("text/html", "<a
-		// href=\"https://github.com/libgdx/libgdx/wiki/Dependency-management-with-Gradle\">Dependency Management</a>");
-		// pane.addHyperlinkListener(new HyperlinkListener() {
-		// @Override
-		// public void hyperlinkUpdate(HyperlinkEvent e) {
-		// if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED))
-		// try {
-		// Desktop.getDesktop().browse(new URI(e.getURL().toString()));
-		// } catch (IOException e1) {
-		// e1.printStackTrace();
-		// } catch (URISyntaxException e1) {
-		// e1.printStackTrace();
-		// }
-		// }
-		// });
-		// pane.setEditable(false);
-		// pane.setOpaque(false);
-		// pane.setAlignmentX(Component.CENTER_ALIGNMENT);
-		// panel.add(pane);
-		//
-		// Object[] options = {"Yes, build it!", "No, I'll change my extensions"};
-		// int value = JOptionPane.showOptionDialog(null, panel, "Extension Incompatibilities",
-		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-		// if (value != 0) {
-		// return;
-		// } else {
-		// try {
-		// builder.build();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }
-
-		IRunnableWithProgress runnable = new BuildProjectsRunnable(builder);
-		getContainer().run(true, true, runnable);
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
@@ -227,12 +136,12 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 					Path path = new Path(System.getProperty("user.home") + File.separator + ".gradle");
 					JavaCore.setClasspathVariable(GRADLE_USER_HOME_CLASSPATH_VARIABLE_NAME, path, monitor);
 				}
-				
+
 				if (JavaCore.getClasspathVariable(MOE_USER_HOME_CLASSPATH_VARIABLE_NAME) == null) {
 					Path path = new Path(System.getProperty("user.home") + File.separator + ".moe");
 					JavaCore.setClasspathVariable(MOE_USER_HOME_CLASSPATH_VARIABLE_NAME, path, monitor);
 				}
-				
+
 				JavaCore.run(this::runBuilder, rule, monitor);
 			} catch (OperationCanceledException e) {
 				throw new InterruptedException(e.getMessage());
@@ -261,4 +170,94 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			}
 		}
 	}
+
+	// private void buildProjects(ProjectBuilder builder) throws InvocationTargetException, InterruptedException {
+	// if (!GdxSetup.isSdkLocationValid(sdkLocation) && modules.contains(ProjectType.ANDROID)) {
+	// JOptionPane
+	// .showMessageDialog(this,
+	// "Your Android SDK path doesn't contain an SDK! Please install the Android SDK, including all platforms and
+	// build tools!");
+	// return;
+	// }
+	//
+	// if (modules.contains(ProjectType.ANDROID)) {
+	// if (!GdxSetup.isSdkUpToDate(sdkLocation)) {
+	// File sdkLocationFile = new File(sdkLocation);
+	// try { //give them a poke in the right direction
+	// if (System.getProperty("os.name").contains("Windows")) {
+	// String replaced = sdkLocation.replace("\\", "\\\\");
+	// Runtime.getRuntime().exec("\"" + replaced + "\\SDK Manager.exe\"");
+	// } else {
+	// File sdkManager = new File(sdkLocation, "tools/android");
+	// Runtime.getRuntime().exec(new String[] {sdkManager.getAbsolutePath(), "sdk"});
+	// }
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// return;
+	// }
+	// }
+	//
+	// if (!GdxSetup.isEmptyDirectory(destination)) {
+	// int value = JOptionPane.showConfirmDialog(this, "The destination is not empty, do you want to overwrite?",
+	// "Warning!", JOptionPane.YES_NO_OPTION);
+	// if (value != 0) {
+	// return;
+	// }
+	// }
+	//
+	// List<String> incompatList = builder.buildProject(modules, dependencies);
+	// if (incompatList.size() == 0) {
+	// try {
+	// builder.build();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// } else {
+	// JPanel panel = new JPanel();
+	// panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+	// for (String subIncompat : incompatList) {
+	// JLabel label = new JLabel(subIncompat);
+	// label.setAlignmentX(Component.CENTER_ALIGNMENT);
+	// panel.add(label);
+	// }
+	//
+	// JLabel infoLabel = new JLabel("<html><br><br>The project can be generated, but you wont be able to use these
+	// extensions in the respective sub modules<br>Please see the link to learn about extensions</html>");
+	// infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+	// panel.add(infoLabel);
+	// JEditorPane pane = new JEditorPane("text/html", "<a
+	// href=\"https://github.com/libgdx/libgdx/wiki/Dependency-management-with-Gradle\">Dependency Management</a>");
+	// pane.addHyperlinkListener(new HyperlinkListener() {
+	// @Override
+	// public void hyperlinkUpdate(HyperlinkEvent e) {
+	// if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED))
+	// try {
+	// Desktop.getDesktop().browse(new URI(e.getURL().toString()));
+	// } catch (IOException e1) {
+	// e1.printStackTrace();
+	// } catch (URISyntaxException e1) {
+	// e1.printStackTrace();
+	// }
+	// }
+	// });
+	// pane.setEditable(false);
+	// pane.setOpaque(false);
+	// pane.setAlignmentX(Component.CENTER_ALIGNMENT);
+	// panel.add(pane);
+	//
+	// Object[] options = {"Yes, build it!", "No, I'll change my extensions"};
+	// int value = JOptionPane.showOptionDialog(null, panel, "Extension Incompatibilities",
+	// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+	// if (value != 0) {
+	// return;
+	// } else {
+	// try {
+	// builder.build();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// }
+	// }
+	// }
 }

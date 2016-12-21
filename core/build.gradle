@@ -1,11 +1,38 @@
 apply plugin: "java"
+apply plugin: 'maven-publish'
+
+group 'com.gurella'
+archivesBaseName = 'gurella-core'
 
 sourceCompatibility = 1.6
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+	publications {
+	    mavenJava(MavenPublication) {
+	    	groupId group
+            artifactId archivesBaseName
+            version project.version
+            
+            from components.java
+            
+            artifact sourceJar {
+                classifier "sources"
+            }
+	    }
+	}
+	
+	repositories {
+        mavenLocal()
+	}
+}
 
 eclipse.project {
-    name = appName + "-core"
+	name = appName + "-core"
 }

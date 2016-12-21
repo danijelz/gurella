@@ -23,6 +23,7 @@ public class BuildScriptHelper {
 		write(wr, "maven { url \"" + DependencyBank.libGDXSnapshotsUrl + "\" }");
 		write(wr, DependencyBank.jCenter);
 		write(wr, "}");
+		space(wr);
 		// dependencies
 		write(wr, "dependencies {");
 		if (projects.contains(ProjectType.HTML)) {
@@ -48,6 +49,7 @@ public class BuildScriptHelper {
 		write(wr, "apply plugin: \"idea\"");
 		space(wr);
 		write(wr, "version = '1.0'");
+		space(wr);
 		write(wr, "ext {");
 		write(wr, "appName = \"%APP_NAME%\"");
 		write(wr, "gdxVersion = '" + DependencyBank.libgdxVersion + "'");
@@ -55,6 +57,7 @@ public class BuildScriptHelper {
 		write(wr, "box2DLightsVersion = '" + DependencyBank.box2DLightsVersion + "'");
 		write(wr, "ashleyVersion = '" + DependencyBank.ashleyVersion + "'");
 		write(wr, "aiVersion = '" + DependencyBank.aiVersion + "'");
+		write(wr, "gurellaVersion = '" + DependencyBank.gurellaVersion + "'");
 		write(wr, "}");
 		space(wr);
 		write(wr, "repositories {");
@@ -73,10 +76,12 @@ public class BuildScriptHelper {
 		Arrays.stream(project.getPlugins())
 				.forEachOrdered(p -> Try.successful(p).peek(tp -> write(wr, "apply plugin: \"" + tp + "\"")));
 		space(wr);
+		
 		if (project.equals(ProjectType.ANDROID) || project.equals(ProjectType.IOSMOE)) {
 			write(wr, "configurations { natives }");
+			space(wr);
 		}
-		space(wr);
+		
 		addDependencies(project, dependencies, wr);
 		write(wr, "}");
 	}

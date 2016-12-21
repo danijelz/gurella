@@ -1,5 +1,7 @@
 package com.gurella.engine.application;
 
+import static com.badlogic.gdx.Application.LOG_DEBUG;
+
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -39,9 +41,9 @@ public final class Application implements ApplicationListener {
 	@Override
 	public final void create() {
 		// TODO create services by checking if this is studio
-		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		// TODO add init scripts to initializer -> config.init(this);
+		Gdx.app.setLogLevel(LOG_DEBUG);
 		GraphicsService.init();
+		config.init();
 
 		Scene scene = AssetService.load(config.initialScenePath, Scene.class);
 		scene.start();
