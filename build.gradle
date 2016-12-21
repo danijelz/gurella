@@ -26,7 +26,6 @@ allprojects {
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.3'
         aiVersion = '1.8.0'
-        gurellaVersion = '0.1-SNAPSHOT'
     }
 
     repositories {
