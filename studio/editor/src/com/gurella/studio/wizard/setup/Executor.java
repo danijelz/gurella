@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Executor {
 	/**
-	 * Execute the Ant script file with the given parameters.
+	 * Execute the Gradle script file with the given parameters.
 	 * 
 	 * @return whether the Ant succeeded
 	 */

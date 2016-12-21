@@ -201,7 +201,7 @@ public class NewProjectWizardPageOne extends WizardPage {
 		private String fPreviousExternalLocation;
 
 		private static final String DIALOGSTORE_LAST_EXTERNAL_LOC = GurellaStudioPlugin.PLUGIN_ID
-				+ ".last.external.project"; //$NON-NLS-1$
+				+ ".newProject.last.external.project"; //$NON-NLS-1$
 
 		public LocationGroup() {
 			useDefaults = new SelectionButtonDialogField(SWT.CHECK);
@@ -220,7 +220,6 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 		public Control createControl(Composite composite) {
 			final int numColumns = 4;
-
 			Group locationGroup = new Group(composite, SWT.NONE);
 			locationGroup.setFont(composite.getFont());
 			locationGroup.setText("Location");
