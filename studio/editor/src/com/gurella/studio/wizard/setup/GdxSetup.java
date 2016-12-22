@@ -271,7 +271,8 @@ public class GdxSetup {
 
 	private static String parseGwtInherits(ProjectBuilder builder) {
 		return builder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
-				.flatMap(d -> Stream.of(d)).map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
+				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
+				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}
 
 	private static List<String> getGradleArgs(List<ProjectType> modules) {

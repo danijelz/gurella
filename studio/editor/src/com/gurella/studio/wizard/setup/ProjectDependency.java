@@ -170,7 +170,7 @@ public enum ProjectDependency {
 
 	public List<String> getIncompatibilities(ProjectType type) {
 		if (getDependencies(type) == null) {
-			String typeName = type.getName().toUpperCase();
+			String typeName = type.getName();
 			return Collections.singletonList("Dependency " + name() + " is not compatible with sub module " + typeName);
 		} else {
 			return Collections.emptyList();
