@@ -5,14 +5,16 @@ public class SetupConstants {
 	public static final String libgdxVersion = "1.9.5";
 	// Temporary snapshot version, we need a more dynamic solution for pointing to the latest nightly
 	public static final String libgdxNightlyVersion = "1.9.6-SNAPSHOT";
-	public static final String roboVMVersion = "2.3.0";
-	public static final String moeVersion = "1.2.3";
+	public static final String roboVmPluginVersion = "2.3.0";
+	public static final String moePluginVersion = "1.2.3";
 	public static final String androidBuildToolsVersion = "23.0.1";
 	public static final String androidAPILevel = "20";
+	public static final String androidPluginVersion = "1.5.0";
 	public static final String gwtVersion = "2.8.0";
+	public static final String gwtPluginVersion = "0.6";
+	public static final String gurellaVersion = "0.1-SNAPSHOT";
 	public static final String box2DLightsVersion = "1.4";
 	public static final String aiVersion = "1.8.0";
-	public static final String gurellaVersion = "0.1-SNAPSHOT";
 
 	// Repositories
 	public static final String mavenLocal = "mavenLocal()";
@@ -22,10 +24,11 @@ public class SetupConstants {
 	public static final String libGDXReleaseUrl = "https://oss.sonatype.org/content/repositories/releases/";
 
 	// Project plugins
-	public static final String gwtPluginImport = "de.richsource.gradle.plugins:gwt-gradle-plugin:0.6";
-	public static final String androidPluginImport = "com.android.tools.build:gradle:1.5.0";
-	public static final String roboVMPluginImport = "com.mobidevelop.robovm:robovm-gradle-plugin:" + roboVMVersion;
-	public static final String moePluginImport = "org.multi-os-engine:moe-gradle:" + moeVersion;
+	public static final String gwtPluginImport = "de.richsource.gradle.plugins:gwt-gradle-plugin:0" + gwtPluginVersion;
+	public static final String androidPluginImport = "com.android.tools.build:gradle:" + androidPluginVersion;
+	public static final String roboVmPluginImport = "com.mobidevelop.robovm:robovm-gradle-plugin:"
+			+ roboVmPluginVersion;
+	public static final String moePluginImport = "org.multi-os-engine:moe-gradle:" + moePluginVersion;
 
 	private SetupConstants() {
 	}

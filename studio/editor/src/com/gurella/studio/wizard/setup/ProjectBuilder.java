@@ -79,9 +79,20 @@ public class ProjectBuilder {
 		write("maven { url \"" + SetupConstants.libGDXSnapshotsUrl + "\" }");
 		write(SetupConstants.jCenter);
 		write("}");
+		addBuildScriptDependencies();
+		write("}");
 		space();
-		// dependencies
+	}
+
+	private void addBuildScriptDependencies() {
+		if (!projects.contains(ProjectType.HTML) || !projects.contains(ProjectType.ANDROID)
+				|| !projects.contains(ProjectType.IOS) || !projects.contains(ProjectType.IOSMOE)) {
+			return;
+		}
+
+		space();
 		write("dependencies {");
+
 		if (projects.contains(ProjectType.HTML)) {
 			write("classpath '" + SetupConstants.gwtPluginImport + "'");
 		}
@@ -89,14 +100,13 @@ public class ProjectBuilder {
 			write("classpath '" + SetupConstants.androidPluginImport + "'");
 		}
 		if (projects.contains(ProjectType.IOS)) {
-			write("classpath '" + SetupConstants.roboVMPluginImport + "'");
+			write("classpath '" + SetupConstants.roboVmPluginImport + "'");
 		}
 		if (projects.contains(ProjectType.IOSMOE)) {
 			write("classpath '" + SetupConstants.moePluginImport + "'");
 		}
+
 		write("}");
-		write("}");
-		space();
 	}
 
 	private void addAllProjects() {
@@ -109,10 +119,10 @@ public class ProjectBuilder {
 		write("ext {");
 		write("appName = \"%APP_NAME%\"");
 		write("gdxVersion = '" + SetupConstants.libgdxVersion + "'");
-		write("roboVMVersion = '" + SetupConstants.roboVMVersion + "'");
+		write("gurellaVersion = '" + SetupConstants.gurellaVersion + "'");
+		write("roboVMVersion = '" + SetupConstants.roboVmPluginVersion + "'");
 		write("box2DLightsVersion = '" + SetupConstants.box2DLightsVersion + "'");
 		write("aiVersion = '" + SetupConstants.aiVersion + "'");
-		write("gurellaVersion = '" + SetupConstants.gurellaVersion + "'");
 		write("}");
 		space();
 		write("repositories {");
@@ -127,8 +137,7 @@ public class ProjectBuilder {
 	private void addProject(ProjectType project) {
 		space();
 		write("project(\":" + project.getName() + "\") {");
-		Arrays.stream(project.getPlugins())
-				.forEachOrdered(p -> Try.successful(p).peek(tp -> write("apply plugin: \"" + tp + "\"")));
+		Arrays.stream(project.getPlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
 		space();
 
 		if (project == ProjectType.ANDROID || project == ProjectType.IOSMOE) {
