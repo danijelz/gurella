@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
+import com.gurella.studio.wizard.setup.SetupConstants;
+
 public class NewProjectWizardPageTwo extends WizardPage {
 	private Text packageName;
 	private Text className;
@@ -97,7 +99,8 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		selectSdkLocationButton = new Button(androidGroup, SWT.PUSH);
 		selectSdkLocationButton.setText("B&rowse...");
 		selectSdkLocationButton.setEnabled(false);
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(selectSdkLocationButton);
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false)
+				.applyTo(selectSdkLocationButton);
 
 		Group consoleGroup = new Group(composite, SWT.NONE);
 		consoleGroup.setFont(composite.getFont());
@@ -179,7 +182,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 	}
 
 	private boolean validateClassName() {
-		//return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
+		// return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
 		IStatus status = JavaConventions.validateJavaTypeName(getClassName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
 		presentStatus(status);
@@ -194,5 +197,13 @@ public class NewProjectWizardPageTwo extends WizardPage {
 
 	String getPackageName() {
 		return packageName.getText().trim();
+	}
+
+	String getAndroidAPILevel() {
+		return SetupConstants.androidAPILevel;
+	}
+
+	String getAndroidBuildToolsVersion() {
+		return SetupConstants.androidBuildToolsVersion;
 	}
 }

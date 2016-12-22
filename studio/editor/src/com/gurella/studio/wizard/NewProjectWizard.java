@@ -24,13 +24,11 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.wizard.setup.Dependency;
-import com.gurella.studio.wizard.setup.DependencyBank;
-import com.gurella.studio.wizard.setup.DependencyBank.ProjectDependency;
-import com.gurella.studio.wizard.setup.DependencyBank.ProjectType;
 import com.gurella.studio.wizard.setup.Executor.LogCallback;
 import com.gurella.studio.wizard.setup.GdxSetup;
 import com.gurella.studio.wizard.setup.ProjectBuilder;
+import com.gurella.studio.wizard.setup.ProjectDependency;
+import com.gurella.studio.wizard.setup.ProjectType;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
 	private static final String GRADLE_USER_HOME_CLASSPATH_VARIABLE_NAME = "GRADLE_USER_HOME";
@@ -64,21 +62,20 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private void performFinishSafely() throws Exception {
-		DependencyBank bank = new DependencyBank();
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
 		modules.add(ProjectType.DESKTOP);
-		// modules.add(ProjectType.ANDROID);
-		// modules.add(ProjectType.HTML);
 		modules.add(ProjectType.IOSMOE);
+		modules.add(ProjectType.ANDROID);
+		// modules.add(ProjectType.HTML);
 
-		List<Dependency> dependencies = new ArrayList<Dependency>();
-		dependencies.add(bank.getDependency(ProjectDependency.GDX));
-		dependencies.add(bank.getDependency(ProjectDependency.BULLET));
-		dependencies.add(bank.getDependency(ProjectDependency.BOX2D));
-		dependencies.add(bank.getDependency(ProjectDependency.GURELLA));
+		List<ProjectDependency> dependencies = new ArrayList<ProjectDependency>();
+		dependencies.add(ProjectDependency.GDX);
+		dependencies.add(ProjectDependency.BULLET);
+		dependencies.add(ProjectDependency.BOX2D);
+		dependencies.add(ProjectDependency.GURELLA);
 
-		ProjectBuilder builder = new ProjectBuilder(bank, modules, dependencies);
+		ProjectBuilder builder = new ProjectBuilder(modules, dependencies);
 		IRunnableWithProgress runnable = new BuildProjectsRunnable(builder);
 		getContainer().run(true, true, runnable);
 
@@ -86,9 +83,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
 		openProject(projectLocation, "desktop");
-		// openProject(projectLocation, "android");
-		// openProject(projectLocation, "html");
 		openProject(projectLocation, "ios-moe");
+		openProject(projectLocation, "android");
+		// openProject(projectLocation, "html");
 	}
 
 	private static void openProject(String path, String name) throws CoreException {
@@ -108,9 +105,11 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private final String pack;
 		private final String clazz;
 		private final String sdkLocation;
+		private final String androidAPILevel;
+		private final String androidBuildToolsVersion;
 
 		private final ISchedulingRule rule;
-		private boolean transferRule;
+		private final boolean transferRule;
 
 		private BuildProjectsRunnable(ProjectBuilder builder) {
 			this.builder = builder;
@@ -119,10 +118,13 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			this.pack = pageTwo.getPackageName();
 			this.clazz = pageTwo.getClassName();
 			this.sdkLocation = "/media/danijel/data/ddd/android/android-sdk-24.4.1/";
+			this.androidAPILevel = pageTwo.getAndroidAPILevel();
+			this.androidBuildToolsVersion = pageTwo.getAndroidBuildToolsVersion();
 
 			Job job = Job.getJobManager().currentJob();
 			if (job == null) {
 				rule = ResourcesPlugin.getWorkspace().getRoot();
+				transferRule = false;
 			} else {
 				rule = job.getRule();
 				transferRule = true;
@@ -153,7 +155,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			long millis = System.currentTimeMillis();
 			log("Generating app in " + location + "\n");
-			new GdxSetup().build(builder, location, name, pack, clazz, sdkLocation, this);
+			GdxSetup.build(builder, location, name, pack, clazz, sdkLocation, androidAPILevel, androidBuildToolsVersion,
+					this);
 			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
 		}
 

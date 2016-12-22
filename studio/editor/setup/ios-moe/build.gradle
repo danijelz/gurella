@@ -54,33 +54,10 @@ moeMainReleaseIphonesimulatorXcodeBuild.dependsOn copyNatives
 moeMainDebugIphonesimulatorXcodeBuild.dependsOn copyNatives
 
 // Setup Eclipse
-eclipse.project {
-    name = appName + "-ios-moe"
-}
-
 eclipse {
-    pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
-    pathVariables 'MOE_USER_HOME': new File(System.getProperty("user.home") + '/.moe')
-    
     // Set MOE nature
     project {
+        name = appName + "-ios-moe"
         natures 'org.multi-os-engine.project'
-    }
-    
-    classpath {
-        file {
-            whenMerged { classpath ->
-                def libs = classpath.entries.findAll { it.kind == 'lib' }
-                libs = libs.collect { lib ->
-                    def baseDir = project.projectDir.getAbsolutePath().replace('\\', '/')
-                    if (lib.path.startsWith(baseDir)) {
-                        lib.path = lib.path.replace(baseDir, ".")
-                    }
-                    return lib
-                }
-                def others = classpath.entries.findAll { it.kind != 'lib' }
-                classpath.entries = libs + others
-            }
-        }
     }
 }
