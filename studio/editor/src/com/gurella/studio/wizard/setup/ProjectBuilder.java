@@ -85,8 +85,8 @@ public class ProjectBuilder {
 	}
 
 	private void addBuildScriptDependencies() {
-		if (!projects.contains(ProjectType.HTML) || !projects.contains(ProjectType.ANDROID)
-				|| !projects.contains(ProjectType.IOS) || !projects.contains(ProjectType.IOSMOE)) {
+		if (!projects.contains(ProjectType.HTML) && !projects.contains(ProjectType.ANDROID)
+				&& !projects.contains(ProjectType.IOS) && !projects.contains(ProjectType.IOSMOE)) {
 			return;
 		}
 
