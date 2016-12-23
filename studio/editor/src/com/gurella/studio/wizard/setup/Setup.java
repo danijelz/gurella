@@ -39,7 +39,7 @@ import com.gurella.studio.wizard.setup.Executor.LogCallback;
 public class Setup {
 	private static final String resourceLoc = "setup/";
 
-	public static void build(Builder builder, String outputDir, String appName, String packageName,
+	public static void build(ProjectBuilder projectBuilder, String outputDir, String appName, String packageName,
 			String mainClass, String sdkLocation, String androidAPILevel, String androidBuildToolsVersion,
 			LogCallback callback) {
 		Project project = new Project();
@@ -49,8 +49,8 @@ public class Setup {
 
 		// root dir/gradle files
 		project.files.add(new ProjectFile("gitignore", ".gitignore", false));
-		project.files.add(new TemporaryProjectFile(builder.settingsFile, "settings.gradle", false));
-		project.files.add(new TemporaryProjectFile(builder.buildFile, "build.gradle", true));
+		project.files.add(new TemporaryProjectFile(projectBuilder.settingsFile, "settings.gradle", false));
+		project.files.add(new TemporaryProjectFile(projectBuilder.buildFile, "build.gradle", true));
 		project.files.add(new ProjectFile("gradlew", false));
 		project.files.add(new ProjectFile("gradlew.bat", false));
 		project.files.add(new ProjectFile("gradle/wrapper/gradle-wrapper.jar", false));
@@ -61,23 +61,23 @@ public class Setup {
 		project.files.add(new ProjectFile("core/build.gradle"));
 		project.files
 				.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
-		if (builder.projects.contains(ProjectType.HTML)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.HTML)) {
 			project.files.add(new ProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true));
 		}
 
 		// desktop project
-		if (builder.projects.contains(ProjectType.DESKTOP)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.DESKTOP)) {
 			project.files.add(new ProjectFile("desktop/build.gradle"));
 			project.files.add(new ProjectFile("desktop/src/DesktopLauncher",
 					"desktop/src/" + packageDir + "/desktop/DesktopLauncher.java", true));
 		}
 
 		// Assets
-		String assetPath = builder.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
+		String assetPath = projectBuilder.projectTypes.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
 		project.files.add(new ProjectFile("android/assets/badlogic.jpg", assetPath + "/badlogic.jpg", false));
 
 		// android project
-		if (builder.projects.contains(ProjectType.ANDROID)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.ANDROID)) {
 			project.files.add(new ProjectFile("android/res/values/strings.xml"));
 			project.files.add(new ProjectFile("android/res/values/styles.xml", false));
 			project.files.add(new ProjectFile("android/res/drawable-hdpi/ic_launcher.png", false));
@@ -96,7 +96,7 @@ public class Setup {
 		}
 
 		// html project
-		if (builder.projects.contains(ProjectType.HTML)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.HTML)) {
 			project.files.add(new ProjectFile("html/build.gradle"));
 			project.files.add(new ProjectFile("html/src/HtmlLauncher",
 					"html/src/" + packageDir + "/client/HtmlLauncher.java", true));
@@ -115,7 +115,7 @@ public class Setup {
 		}
 
 		// ios robovm
-		if (builder.projects.contains(ProjectType.IOS)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.IOS)) {
 			project.files
 					.add(new ProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true));
 			project.files.add(new ProjectFile("ios/data/Default.png", false));
@@ -136,7 +136,7 @@ public class Setup {
 			project.files.add(new ProjectFile("ios/robovm.xml", true));
 		}
 
-		if (builder.projects.contains(ProjectType.IOSMOE)) {
+		if (projectBuilder.projectTypes.contains(ProjectType.IOSMOE)) {
 			project.files.add(new ProjectFile("ios-moe/resources/Default.png", false));
 			project.files.add(new ProjectFile("ios-moe/resources/Default@2x.png", false));
 			project.files.add(new ProjectFile("ios-moe/resources/Default@2x~ipad.png", false));
@@ -172,15 +172,15 @@ public class Setup {
 		values.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
 		values.put("%API_LEVEL%", androidAPILevel);
 		values.put("%GWT_VERSION%", SetupConstants.gwtVersion);
-		if (builder.projects.contains(ProjectType.HTML)) {
-			values.put("%GWT_INHERITS%", parseGwtInherits(builder));
+		if (projectBuilder.projectTypes.contains(ProjectType.HTML)) {
+			values.put("%GWT_INHERITS%", parseGwtInherits(projectBuilder));
 		}
 
 		copyAndReplace(outputDir, project, values);
 
 		// HACK executable flag isn't preserved for whatever reason...
 		new File(outputDir, "gradlew").setExecutable(true);
-		Executor.execute(new File(outputDir), getGradleArgs(builder.projects), callback);
+		Executor.execute(new File(outputDir), getGradleArgs(projectBuilder.projectTypes), callback);
 	}
 
 	private static void copyAndReplace(String outputDir, Project project, Map<String, String> values) {
@@ -269,8 +269,8 @@ public class Setup {
 		return result;
 	}
 
-	private static String parseGwtInherits(Builder builder) {
-		return builder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
+	private static String parseGwtInherits(ProjectBuilder projectBuilder) {
+		return projectBuilder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
 				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
 				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}

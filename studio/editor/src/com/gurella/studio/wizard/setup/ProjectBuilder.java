@@ -1,7 +1,5 @@
 package com.gurella.studio.wizard.setup;
 
-import static com.gurella.engine.utils.Values.isNotBlank;
-import static com.gurella.engine.utils.Values.isNotEmpty;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedWriter;
@@ -13,10 +11,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 
-public class Builder {
-	List<ProjectType> projects = new ArrayList<ProjectType>();
+public class ProjectBuilder {
+	List<ProjectType> projectTypes = new ArrayList<ProjectType>();
 	List<Dependency> dependencies = new ArrayList<Dependency>();
 	List<String> incompatibilities = new ArrayList<String>();
 
@@ -26,8 +25,8 @@ public class Builder {
 	private int indent = 0;
 	private BufferedWriter writer;
 
-	public Builder(List<ProjectType> projects, List<Dependency> dependencies) {
-		this.projects = projects;
+	public ProjectBuilder(List<ProjectType> projects, List<Dependency> dependencies) {
+		this.projectTypes = projects;
 		this.dependencies = dependencies;
 		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
 
@@ -85,24 +84,24 @@ public class Builder {
 	}
 
 	private void addBuildScriptDependencies() {
-		if (!projects.contains(ProjectType.HTML) && !projects.contains(ProjectType.ANDROID)
-				&& !projects.contains(ProjectType.IOS) && !projects.contains(ProjectType.IOSMOE)) {
+		if (!projectTypes.contains(ProjectType.HTML) && !projectTypes.contains(ProjectType.ANDROID)
+				&& !projectTypes.contains(ProjectType.IOS) && !projectTypes.contains(ProjectType.IOSMOE)) {
 			return;
 		}
 
 		space();
 		write("dependencies {");
 
-		if (projects.contains(ProjectType.HTML)) {
+		if (projectTypes.contains(ProjectType.HTML)) {
 			write("classpath '" + SetupConstants.gwtPluginImport + "'");
 		}
-		if (projects.contains(ProjectType.ANDROID)) {
+		if (projectTypes.contains(ProjectType.ANDROID)) {
 			write("classpath '" + SetupConstants.androidPluginImport + "'");
 		}
-		if (projects.contains(ProjectType.IOS)) {
+		if (projectTypes.contains(ProjectType.IOS)) {
 			write("classpath '" + SetupConstants.roboVmPluginImport + "'");
 		}
-		if (projects.contains(ProjectType.IOSMOE)) {
+		if (projectTypes.contains(ProjectType.IOSMOE)) {
 			write("classpath '" + SetupConstants.moePluginImport + "'");
 		}
 
@@ -134,35 +133,35 @@ public class Builder {
 		write("}");
 	}
 
-	private void addProject(ProjectType project) {
+	private void addProject(ProjectType projectType) {
 		space();
-		write("project(\":" + project.getName() + "\") {");
-		Arrays.stream(project.getPlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
+		write("project(\":" + projectType.getName() + "\") {");
+		Arrays.stream(projectType.getPlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
 		space();
 
-		if (project == ProjectType.ANDROID || project == ProjectType.IOSMOE) {
+		if (projectType.needsNativLibs()) {
 			write("configurations { natives }");
 			space();
 		}
 
-		addDependencies(project);
+		addDependencies(projectType);
 		write("}");
 	}
 
-	private void addDependencies(ProjectType project) {
+	private void addDependencies(ProjectType projectType) {
 		write("dependencies {");
-		if (project != ProjectType.CORE) {
+		if (projectType != ProjectType.CORE) {
 			write("compile project(\":" + ProjectType.CORE.getName() + "\")");
 		}
 
-		dependencies.stream().filter(d -> isNotEmpty(d)).flatMap(d -> Stream.of(d.getDependencies(project)))
-				.filter(d -> isNotBlank(d)).forEachOrdered(d -> addDependency(project, d));
+		dependencies.stream().filter(Values::isNotEmpty).flatMap(d -> Stream.of(d.getDependencies(projectType)))
+				.filter(Values::isNotBlank).forEachOrdered(d -> addDependency(projectType, d));
 
 		write("}");
 	}
 
-	private void addDependency(ProjectType project, String dependency) {
-		if ((project == ProjectType.ANDROID || project == ProjectType.IOSMOE) && dependency.contains("native")) {
+	private void addDependency(ProjectType projectType, String dependency) {
+		if (projectType.needsNativLibs() && dependency.contains("native")) {
 			write("natives \"" + dependency + "\"");
 		} else {
 			write("compile \"" + dependency + "\"");

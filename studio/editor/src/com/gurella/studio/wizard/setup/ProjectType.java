@@ -23,4 +23,8 @@ public enum ProjectType {
 	public String[] getPlugins() {
 		return plugins;
 	}
+	
+	public boolean needsNativLibs() {
+		return this == ProjectType.ANDROID || this == ProjectType.IOSMOE;
+	}
 }
