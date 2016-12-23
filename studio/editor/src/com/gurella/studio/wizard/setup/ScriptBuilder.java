@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 
-public class ProjectBuilder {
+public class ScriptBuilder {
 	List<ProjectType> projectTypes = new ArrayList<ProjectType>();
 	List<Dependency> dependencies = new ArrayList<Dependency>();
 	List<String> incompatibilities = new ArrayList<String>();
@@ -25,7 +25,7 @@ public class ProjectBuilder {
 	private int indent = 0;
 	private BufferedWriter writer;
 
-	public ProjectBuilder(List<ProjectType> projects, List<Dependency> dependencies) {
+	public ScriptBuilder(List<ProjectType> projects, List<Dependency> dependencies) {
 		this.projectTypes = projects;
 		this.dependencies = dependencies;
 		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));

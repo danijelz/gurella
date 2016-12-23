@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.Executor.LogCallback;
 import com.gurella.studio.wizard.setup.Setup;
-import com.gurella.studio.wizard.setup.ProjectBuilder;
+import com.gurella.studio.wizard.setup.ScriptBuilder;
 import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.ProjectType;
 
@@ -75,8 +75,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		dependencies.add(Dependency.BOX2D);
 		dependencies.add(Dependency.GURELLA);
 
-		ProjectBuilder projectBuilder = new ProjectBuilder(modules, dependencies);
-		IRunnableWithProgress runnable = new BuildProjectsRunnable(projectBuilder);
+		ScriptBuilder scriptBuilder = new ScriptBuilder(modules, dependencies);
+		IRunnableWithProgress runnable = new BuildProjectsRunnable(scriptBuilder);
 		getContainer().run(true, true, runnable);
 
 		String projectLocation = pageOne.getProjectLocation();
@@ -98,7 +98,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
-		private final ProjectBuilder projectBuilder;
+		private final ScriptBuilder scriptBuilder;
 
 		private final String name;
 		private final String location;
@@ -111,8 +111,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private final ISchedulingRule rule;
 		private final boolean transferRule;
 
-		private BuildProjectsRunnable(ProjectBuilder projectBuilder) {
-			this.projectBuilder = projectBuilder;
+		private BuildProjectsRunnable(ScriptBuilder scriptBuilder) {
+			this.scriptBuilder = scriptBuilder;
 			this.name = pageOne.getProjectName();
 			this.location = pageOne.getProjectLocation();
 			this.pack = pageTwo.getPackageName();
@@ -155,7 +155,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			long millis = System.currentTimeMillis();
 			log("Generating app in " + location + "\n");
-			Setup.build(projectBuilder, location, name, pack, clazz, sdkLocation, androidAPILevel, androidBuildToolsVersion,
+			Setup.build(scriptBuilder, location, name, pack, clazz, sdkLocation, androidAPILevel, androidBuildToolsVersion,
 					this);
 			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
 		}
