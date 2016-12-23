@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationLogger;
 import com.badlogic.gdx.backends.lwjgl.LwjglClipboard;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.badlogic.gdx.backends.lwjgl.LwjglNet;
@@ -40,31 +42,26 @@ public class SwtLwjglApplication implements Application {
 
 	private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
 
-	private int logLevel = LOG_INFO;
+	private int logLevel = LOG_DEBUG;
 
-	private String preferencesDir;
+	private String preferencesDir = ".prefs/";
 	private ObjectMap<String, Preferences> preferences = new ObjectMap<>();
 
 	private int lastWidth;
 	private int lastHeight;
 	private boolean wasActive = true;
 
-	private int backgroundFPS;
+	private int backgroundFPS = 60;
+	private ApplicationLogger applicationLogger;
 
 	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener) {
-		this(internalPath, parent, listener, createConfig(parent.getSize().x, parent.getSize().y));
-	}
-
-	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener,
-			SwtApplicationConfig config) {
 		this.listener = listener;
-		backgroundFPS = config.backgroundFPS;
-		preferencesDir = config.preferencesDirectory;
 
 		LwjglNativesLoader.load();
+		setApplicationLogger(new LwjglApplicationLogger());
 
-		audio = OpenAlAudioSingletone.getInstance(config);
-		graphics = new SwtLwjglGraphics(parent, config);
+		audio = OpenAlAudioSingletone.getInstance();
+		graphics = new SwtLwjglGraphics(parent);
 		files = new SwtLwjglFiles(internalPath);
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
@@ -74,13 +71,6 @@ public class SwtLwjglApplication implements Application {
 		}
 
 		parent.getDisplay().asyncExec(() -> mainLoop());
-	}
-
-	private static SwtApplicationConfig createConfig(int width, int height) {
-		SwtApplicationConfig config = new SwtApplicationConfig();
-		config.width = width;
-		config.height = height;
-		return config;
 	}
 
 	private void init() {
@@ -106,7 +96,7 @@ public class SwtLwjglApplication implements Application {
 		Gdx.gl = graphics.gl20;
 		Gdx.gl20 = graphics.gl20;
 		Gdx.gl30 = graphics.gl30;
-		graphics.useContext();
+		graphics.setContext();
 	}
 
 	private void onGlCanvasDisposed() {
@@ -372,5 +362,15 @@ public class SwtLwjglApplication implements Application {
 		synchronized (lifecycleListeners) {
 			lifecycleListeners.remove(lifecycleListener);
 		}
+	}
+
+	@Override
+	public void setApplicationLogger(ApplicationLogger applicationLogger) {
+		this.applicationLogger = applicationLogger;
+	}
+
+	@Override
+	public ApplicationLogger getApplicationLogger() {
+		return applicationLogger;
 	}
 }

@@ -17,7 +17,6 @@ public class SceneManager {
 
 	private static final SceneTransition defaultTransition = new SceneTransition();
 
-	private Application application;
 	private IntMap<Scene> scenes = new IntMap<Scene>();
 	private ObjectMap<String, Array<Scene>> scenesByGroup = new ObjectMap<String, Array<Scene>>();
 
@@ -25,10 +24,6 @@ public class SceneManager {
 	private Scene currentScene;
 
 	private TransitionWorker transitionWorker = new TransitionWorker();
-
-	public SceneManager(Application application) {
-		this.application = application;
-	}
 
 	public void addScene(Scene scene) {
 		scenes.put(scene.getInstanceId(), scene);

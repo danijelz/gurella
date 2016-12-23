@@ -20,6 +20,10 @@ import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglGraphics implements Graphics {
+	private static final int r = 8, g = 8, b = 8, a = 8;
+	private static final int depth = 16, stencil = 0;
+	private static final int samples = 0;
+
 	GL20 gl20;
 	GL30 gl30;
 	long lastTime = System.nanoTime();
@@ -34,7 +38,6 @@ public class SwtLwjglGraphics implements Graphics {
 	private volatile boolean isContinuous = true;
 	private volatile boolean requestRendering = false;
 	private boolean softwareMode;
-	private int overrideDensity = -1;
 
 	private int sizeX;
 	private int sizeY;
@@ -44,17 +47,15 @@ public class SwtLwjglGraphics implements Graphics {
 
 	private final Object mutex = new Object();
 
-	SwtLwjglGraphics(Composite parentComposite, SwtApplicationConfig config) {
-		this.overrideDensity = config.overrideDensity;
-
+	SwtLwjglGraphics(Composite parentComposite) {
 		GLData glData = new GLData();
-		glData.redSize = config.r;
-		glData.greenSize = config.g;
-		glData.blueSize = config.b;
-		glData.alphaSize = config.a;
-		glData.depthSize = config.depth;
-		glData.stencilSize = config.stencil;
-		glData.samples = config.samples;
+		glData.redSize = r;
+		glData.greenSize = g;
+		glData.blueSize = b;
+		glData.alphaSize = a;
+		glData.depthSize = depth;
+		glData.stencilSize = stencil;
+		glData.samples = samples;
 		glData.doubleBuffer = true;
 
 		Point size = parentComposite.getSize();
@@ -70,11 +71,11 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	void init() {
-		useContext();
+		setContext();
 		initGlInstances();
 	}
 
-	void useContext() {
+	void setContext() {
 		try {
 			if (!glCanvas.isDisposed()) {
 				glCanvas.setCurrent();
@@ -218,7 +219,7 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public float getDensity() {
-		return overrideDensity == -1 ? getPpiX() / 160.0f : overrideDensity / 160f;
+		return getPpiX() / 160.0f;
 	}
 
 	@Override

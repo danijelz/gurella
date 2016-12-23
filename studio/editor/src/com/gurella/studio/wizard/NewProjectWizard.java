@@ -25,9 +25,9 @@ import org.eclipse.ui.IWorkbench;
 
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.setup.Executor.LogCallback;
-import com.gurella.studio.wizard.setup.GdxSetup;
-import com.gurella.studio.wizard.setup.ProjectBuilder;
-import com.gurella.studio.wizard.setup.ProjectDependency;
+import com.gurella.studio.wizard.setup.Setup;
+import com.gurella.studio.wizard.setup.Builder;
+import com.gurella.studio.wizard.setup.Dependency;
 import com.gurella.studio.wizard.setup.ProjectType;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
@@ -69,13 +69,13 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		modules.add(ProjectType.ANDROID);
 		// modules.add(ProjectType.HTML);
 
-		List<ProjectDependency> dependencies = new ArrayList<ProjectDependency>();
-		dependencies.add(ProjectDependency.GDX);
-		dependencies.add(ProjectDependency.BULLET);
-		dependencies.add(ProjectDependency.BOX2D);
-		dependencies.add(ProjectDependency.GURELLA);
+		List<Dependency> dependencies = new ArrayList<Dependency>();
+		dependencies.add(Dependency.GDX);
+		dependencies.add(Dependency.BULLET);
+		dependencies.add(Dependency.BOX2D);
+		dependencies.add(Dependency.GURELLA);
 
-		ProjectBuilder builder = new ProjectBuilder(modules, dependencies);
+		Builder builder = new Builder(modules, dependencies);
 		IRunnableWithProgress runnable = new BuildProjectsRunnable(builder);
 		getContainer().run(true, true, runnable);
 
@@ -98,7 +98,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
-		private final ProjectBuilder builder;
+		private final Builder builder;
 
 		private final String name;
 		private final String location;
@@ -111,7 +111,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private final ISchedulingRule rule;
 		private final boolean transferRule;
 
-		private BuildProjectsRunnable(ProjectBuilder builder) {
+		private BuildProjectsRunnable(Builder builder) {
 			this.builder = builder;
 			this.name = pageOne.getProjectName();
 			this.location = pageOne.getProjectLocation();
@@ -155,7 +155,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			long millis = System.currentTimeMillis();
 			log("Generating app in " + location + "\n");
-			GdxSetup.build(builder, location, name, pack, clazz, sdkLocation, androidAPILevel, androidBuildToolsVersion,
+			Setup.build(builder, location, name, pack, clazz, sdkLocation, androidAPILevel, androidBuildToolsVersion,
 					this);
 			log("Done! " + (String.valueOf(System.currentTimeMillis() - millis)) + "\n");
 		}

@@ -51,6 +51,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.asset.loader.audio.SoundClipLoader;
 import com.gurella.engine.asset.loader.object.JsonObjectLoader;
 import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
@@ -128,6 +129,7 @@ public class AssetRegistry extends AssetManager {
 		setLoader(SceneNode.class, "pref", new JsonObjectLoader<SceneNode>(resolver, SceneNode.class));
 		setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
+		setLoader(ApplicationConfig.class, "gcfg", new JsonObjectLoader<ApplicationConfig>(resolver, ApplicationConfig.class));
 		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 		setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
 		setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));

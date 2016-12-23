@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.audio.AudioClip;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -42,6 +43,7 @@ public enum AssetType {
 	material(MaterialDescriptor.class, true, "gmat"),
 	shaderTemplate(ShaderTemplate.class, true, "glslt"),
 	renderTarget(RenderTarget.class, true, "grt"),
+	applicationConfig(ApplicationConfig.class, true, "gcfg"),
 	renderProgram(null),
 	spritterAnimation(null),
 	splineAnimation(null),

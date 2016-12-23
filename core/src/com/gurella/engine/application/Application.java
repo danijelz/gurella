@@ -1,12 +1,11 @@
 package com.gurella.engine.application;
 
-import static com.badlogic.gdx.Application.LOG_DEBUG;
-
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
@@ -18,20 +17,31 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 
 public final class Application implements ApplicationListener {
+	private static final String defaultConfigLocation = "application.gcfg";
+
 	private static final PauseEvent pauseEvent = new PauseEvent();
 	private static final ResumeEvent resumeEvent = new ResumeEvent();
 	private static final UpdateEvent updateEvent = new UpdateEvent();
 	private static final ResizeEvent resizeEvent = new ResizeEvent();
 	private static final ShutdownEvent shutdownEvent = new ShutdownEvent();
 
-	public float deltaTime;
+	private String configLocation;
+	private ApplicationConfig config;
+
+	private final SceneManager sceneManager = new SceneManager();
+
 	private boolean paused;
 
-	private ApplicationConfig config;
-	private final SceneManager sceneManager = new SceneManager(null);
+	public Application() {
+		this.configLocation = defaultConfigLocation;
+	}
 
 	public Application(ApplicationConfig config) {
 		this.config = config;
+	}
+
+	public Application(String configLocation) {
+		this.configLocation = configLocation;
 	}
 
 	public static Application current() {
@@ -40,13 +50,10 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void create() {
-		// TODO create services by checking if this is studio
-		Gdx.app.setLogLevel(LOG_DEBUG);
 		GraphicsService.init();
+		config = config == null ? AssetService.load(configLocation) : config;
 		config.init();
-
-		Scene scene = AssetService.load(config.initialScenePath, Scene.class);
-		scene.start();
+		AssetService.loadAsync(config.initialScenePath, Scene.class, new SceneLoadedCallback(), 0);
 	}
 
 	@Override
@@ -56,7 +63,6 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void render() {
-		deltaTime = Gdx.graphics.getDeltaTime();
 		EventService.post(updateEvent);
 	}
 
@@ -155,6 +161,25 @@ public final class Application implements ApplicationListener {
 		@Override
 		public void dispatch(ApplicationResizeListener listener) {
 			listener.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		}
+	}
+
+	private static class SceneLoadedCallback implements AsyncCallback<Scene> {
+		@Override
+		public void onSuccess(Scene scene) {
+			scene.start();
+		}
+
+		@Override
+		public void onException(Throwable exception) {
+		}
+
+		@Override
+		public void onCancled(String message) {
+		}
+
+		@Override
+		public void onProgress(float progress) {
 		}
 	}
 }

@@ -3,6 +3,10 @@ package com.gurella.studio.editor.swtgl;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 
 class OpenAlAudioSingletone {
+	private static final int simultaneousSources = 16;
+	private static final int bufferCount = 9;
+	private static final int bufferSize = 512;
+
 	private static int refCount;
 	private static OpenALAudio instance;
 	private static final Object mutex = new Object();
@@ -10,7 +14,7 @@ class OpenAlAudioSingletone {
 	private OpenAlAudioSingletone() {
 	}
 
-	static OpenALAudio getInstance(SwtApplicationConfig config) {
+	static OpenALAudio getInstance() {
 		synchronized (mutex) {
 			if (SwtApplicationConfig.disableAudio) {
 				return null;
@@ -18,9 +22,6 @@ class OpenAlAudioSingletone {
 
 			refCount++;
 			if (instance == null) {
-				int simultaneousSources = config.audioDeviceSimultaneousSources;
-				int bufferCount = config.audioDeviceBufferCount;
-				int bufferSize = config.audioDeviceBufferSize;
 				instance = new OpenALAudio(simultaneousSources, bufferCount, bufferSize);
 			}
 
