@@ -76,9 +76,7 @@ public class SceneTransition {
 	}
 	
 	public void onTransitionException(Throwable exception) {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		exception.printStackTrace(pw);
+		Gdx.app.error("SceneTransition2", "exception", exception);
 	}
 
 //	private void fillRectangle() {

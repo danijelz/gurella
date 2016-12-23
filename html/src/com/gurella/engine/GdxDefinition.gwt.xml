@@ -3,12 +3,6 @@
 <module rename-to="html">
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.badlogic.gdx.physics.box2d.box2d-gwt' />
-	<inherits name='com.badlogic.gdx.controllers.controllers-gwt' />
-	<inherits name='Box2DLights' />
-	<inherits name='com.badlogic.gdx.ai' />
-	<inherits name='libgdx-utils' />
-	<inherits name='libgdx-utils-box2d' />
-	<inherits name='com.badlogic.ashley_gwt' />
 
 	<inherits name='GurellaEngine' />
 	<entry-point class='com.gurella.engine.client.HtmlLauncher' />

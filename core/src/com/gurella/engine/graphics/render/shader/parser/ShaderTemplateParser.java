@@ -18,16 +18,12 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTok
 import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.skipLineCommentToken;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
-import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 import com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.ContentTokenInfo;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
@@ -372,39 +368,5 @@ public class ShaderTemplateParser implements Poolable {
 		parenthesisOpened = false;
 		skipLineEnded = false;
 		type = root;
-	}
-
-	public static void main(String[] args) {
-		String name = "com/gurella/engine/graphics/render/shader/parser/TestParser.glsl";
-		InputStream input = ShaderTemplateParser.class.getClassLoader().getResourceAsStream(name);
-		ShaderTemplateParser parser = new ShaderTemplateParser();
-
-		try {
-			parser.parse(new InputStreamReader(input, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-
-		parser.printBlocks();
-		System.out.print("\n\n\n\n\n");
-		ShaderTemplate template = parser.extractShaderTemplate();
-		System.out.print(template.toString());
-		System.out.print("\n\n\n\n\n");
-		ShaderGeneratorContext context = new ShaderGeneratorContext();
-		context.init(template);
-		context.define("abc");
-		context.define("bbca");
-		context.setValue("dddVar", 2);
-		template.generate(context);
-		System.out.println("----------------------");
-		System.out.print(context.getShaderSource(true));
-		parser.reset();
-	}
-
-	private void printBlocks() {
-		for (ShaderParserBlock shaderParserBlock : rootBlocks) {
-			System.out.print(shaderParserBlock.toString());
-			System.out.print("\n");
-		}
 	}
 }
