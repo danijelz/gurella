@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.setup;
+package com.gurella.studio.wizard.project.setup;
 
 import static java.util.stream.Collectors.joining;
 

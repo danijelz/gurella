@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard;
+package com.gurella.studio.wizard.project;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,14 +38,15 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.wizard.project.setup.SetupInfo;
 
-public class NewProjectWizardPageOne extends WizardPage {
+public class NewProjectMainPage extends WizardPage {
 	private final NameGroup nameGroup;
 	private final LocationGroup locationGroup;
 	private final WorkingSetGroup workingSetGroup;
 	private final Validator fValidator;
 
-	public NewProjectWizardPageOne() {
+	public NewProjectMainPage() {
 		super("NewProjectWizardPageOne");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");
@@ -287,9 +288,11 @@ public class NewProjectWizardPageOne extends WizardPage {
 
 			if (directoryName.length() > 0) {
 				final File path = new File(directoryName);
-				if (path.exists())
+				if (path.exists()) {
 					dialog.setFilterPath(directoryName);
+				}
 			}
+
 			final String selectedDirectory = dialog.open();
 			if (selectedDirectory != null) {
 				String oldDirectory = new Path(location.getText().trim()).lastSegment();
@@ -428,7 +431,8 @@ public class NewProjectWizardPageOne extends WizardPage {
 		private WorkingSetConfigurationBlock workingSetBlock;
 
 		public WorkingSetGroup() {
-			workingSetBlock = new WorkingSetConfigurationBlock(getPluginDialogSettings(), IWorkingSetIDs.JAVA, IWorkingSetIDs.RESOURCE);
+			workingSetBlock = new WorkingSetConfigurationBlock(getPluginDialogSettings(), IWorkingSetIDs.JAVA,
+					IWorkingSetIDs.RESOURCE);
 		}
 
 		public Control createControl(Composite composite) {
@@ -447,5 +451,10 @@ public class NewProjectWizardPageOne extends WizardPage {
 		public IWorkingSet[] getSelectedWorkingSets() {
 			return workingSetBlock.getSelectedWorkingSets();
 		}
+	}
+
+	public void updateSetupInfo(SetupInfo setupInfo) {
+		setupInfo.name = getProjectName();
+		setupInfo.location = getProjectLocation();
 	}
 }

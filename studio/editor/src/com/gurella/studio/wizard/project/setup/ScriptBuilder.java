@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.setup;
+package com.gurella.studio.wizard.project.setup;
 
 import static java.util.stream.Collectors.joining;
 
@@ -15,7 +15,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 
 public class ScriptBuilder {
-	List<ProjectType> projectTypes = new ArrayList<ProjectType>();
+	List<ProjectType> projects = new ArrayList<ProjectType>();
 	List<Dependency> dependencies = new ArrayList<Dependency>();
 	List<String> incompatibilities = new ArrayList<String>();
 
@@ -26,24 +26,15 @@ public class ScriptBuilder {
 	private BufferedWriter writer;
 
 	public ScriptBuilder(List<ProjectType> projects, List<Dependency> dependencies) {
-		this.projectTypes = projects;
+		this.projects = projects;
 		this.dependencies = dependencies;
 		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
 
 		settingsFile = createTempFile("libgdx-setup-settings", ".gradle");
 		buildFile = createTempFile("libgdx-setup-build", ".gradle");
 
-		writeSettings(projects);
-
-		try (FileWriter buildWriter = new FileWriter(buildFile.getAbsoluteFile());
-				BufferedWriter writer = new BufferedWriter(buildWriter)) {
-			this.writer = writer;
-			addBuildScript();
-			addAllProjects();
-			projects.forEach(p -> addProject(p));
-		} catch (Throwable t) {
-			throw new RuntimeException(t);
-		}
+		writeSettings();
+		writeBuildScript();
 	}
 
 	private static File createTempFile(String prefix, String suffix) {
@@ -54,14 +45,14 @@ public class ScriptBuilder {
 				file.deleteOnExit();
 			}
 			file.setWritable(true);
-			return file;
+			return file.getAbsoluteFile();
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
 		}
 	}
 
-	private void writeSettings(List<ProjectType> projects) {
-		try (FileWriter settingsWriter = new FileWriter(settingsFile.getAbsoluteFile());
+	private void writeSettings() {
+		try (FileWriter settingsWriter = new FileWriter(settingsFile);
 				BufferedWriter settingsBw = new BufferedWriter(settingsWriter)) {
 			settingsBw.write(projects.stream().map(p -> p.getName()).collect(joining("', '", "include '", "'")));
 		} catch (Throwable t) {
@@ -69,39 +60,54 @@ public class ScriptBuilder {
 		}
 	}
 
+	private void writeBuildScript() {
+		try (FileWriter buildWriter = new FileWriter(buildFile);
+				BufferedWriter writer = new BufferedWriter(buildWriter)) {
+			this.writer = writer;
+			addBuildScript();
+			addAllProjects();
+			projects.forEach(p -> addProject(p));
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
+		}
+	}
+
 	private void addBuildScript() {
 		write("buildscript {");
-		// repos
+		addBuildScriptRepos();
+		addBuildScriptDependencies();
+		write("}");
+		space();
+	}
+
+	private void addBuildScriptRepos() {
 		write("repositories {");
 		write(SetupConstants.mavenLocal);
 		write(SetupConstants.mavenCentral);
 		write("maven { url \"" + SetupConstants.libGDXSnapshotsUrl + "\" }");
 		write(SetupConstants.jCenter);
 		write("}");
-		addBuildScriptDependencies();
-		write("}");
-		space();
 	}
 
 	private void addBuildScriptDependencies() {
-		if (!projectTypes.contains(ProjectType.HTML) && !projectTypes.contains(ProjectType.ANDROID)
-				&& !projectTypes.contains(ProjectType.IOS) && !projectTypes.contains(ProjectType.IOSMOE)) {
+		if (!projects.contains(ProjectType.HTML) && !projects.contains(ProjectType.ANDROID)
+				&& !projects.contains(ProjectType.IOS) && !projects.contains(ProjectType.IOSMOE)) {
 			return;
 		}
 
 		space();
 		write("dependencies {");
 
-		if (projectTypes.contains(ProjectType.HTML)) {
+		if (projects.contains(ProjectType.HTML)) {
 			write("classpath '" + SetupConstants.gwtPluginImport + "'");
 		}
-		if (projectTypes.contains(ProjectType.ANDROID)) {
+		if (projects.contains(ProjectType.ANDROID)) {
 			write("classpath '" + SetupConstants.androidPluginImport + "'");
 		}
-		if (projectTypes.contains(ProjectType.IOS)) {
+		if (projects.contains(ProjectType.IOS)) {
 			write("classpath '" + SetupConstants.roboVmPluginImport + "'");
 		}
-		if (projectTypes.contains(ProjectType.IOSMOE)) {
+		if (projects.contains(ProjectType.IOSMOE)) {
 			write("classpath '" + SetupConstants.moePluginImport + "'");
 		}
 
@@ -139,16 +145,16 @@ public class ScriptBuilder {
 		Arrays.stream(projectType.getPlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
 		space();
 
-		if (projectType.needsNativLibs()) {
+		if (projectType.needsNatives()) {
 			write("configurations { natives }");
 			space();
 		}
 
-		addDependencies(projectType);
+		addProjectDependencies(projectType);
 		write("}");
 	}
 
-	private void addDependencies(ProjectType projectType) {
+	private void addProjectDependencies(ProjectType projectType) {
 		write("dependencies {");
 		if (projectType != ProjectType.CORE) {
 			write("compile project(\":" + ProjectType.CORE.getName() + "\")");
@@ -161,7 +167,7 @@ public class ScriptBuilder {
 	}
 
 	private void addDependency(ProjectType projectType, String dependency) {
-		if (projectType.needsNativLibs() && dependency.contains("native")) {
+		if (projectType.needsNatives() && dependency.contains("native")) {
 			write("natives \"" + dependency + "\"");
 		} else {
 			write("compile \"" + dependency + "\"");

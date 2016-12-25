@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard;
+package com.gurella.studio.wizard.scene;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;

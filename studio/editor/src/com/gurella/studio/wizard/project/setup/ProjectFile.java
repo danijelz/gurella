@@ -1,7 +1,7 @@
-package com.gurella.studio.wizard.setup;
+package com.gurella.studio.wizard.project.setup;
 
 /**
- * A file in a {@link Project}, the resourceName specifies the location
+ * A file eeded for setup, the resourceName specifies the location
  * of the template file, the outputName specifies the final name of the
  * file relative to its project, the isTemplate field specifies if 
  * values need to be replaced in this file or not.

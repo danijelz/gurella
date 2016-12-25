@@ -182,7 +182,7 @@
       </category>
       <wizard
             category="com.gurella.studio.wizard.gurellaWizardsCategory"
-            class="com.gurella.studio.wizard.NewSceneWizard"
+            class="com.gurella.studio.wizard.scene.NewSceneWizard"
             hasPages="true"
             icon="icons/logo16.png"
             id="com.gurella.studio.wizard.newSceneWizard"
@@ -191,7 +191,7 @@
       <wizard
             canFinishEarly="false"
             category="com.gurella.studio.wizard.gurellaWizardsCategory"
-            class="com.gurella.studio.wizard.NewProjectWizard"
+            class="com.gurella.studio.wizard.project.NewProjectWizard"
             finalPerspective="org.eclipse.jdt.ui.JavaPerspective"
             hasPages="true"
             icon="icons/logo16.png"

@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard;
+package com.gurella.studio.wizard.project;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaConventions;
@@ -17,24 +17,28 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.studio.wizard.setup.SetupConstants;
+import com.gurella.studio.wizard.project.setup.SetupInfo;
 
-public class NewProjectWizardPageTwo extends WizardPage {
+public class NewProjectDetailsPage extends WizardPage {
 	private Text packageName;
 	private Text className;
+
 	private Button desktop;
 	private Button android;
 	private Button ios;
 	private Button html;
-	private Text androidSdkLocation;
-	private Button selectSdkLocationButton;
+
+	private final AndroidSdkGroup androidSdkGroup;
+
 	private Text console;
 
-	protected NewProjectWizardPageTwo() {
+	protected NewProjectDetailsPage() {
 		super("NewProjectWizardPageTwo");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");
 		setDescription("Create Gurella project in the workspace or in an external location.");
+
+		androidSdkGroup = new AndroidSdkGroup(this);
 	}
 
 	@Override
@@ -75,8 +79,8 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(desktop);
 		android = new Button(projectsGroup, SWT.CHECK);
 		android.setText("Android");
-		android.addListener(SWT.Selection, e -> androidSelectionChanged());
-		android.addListener(SWT.DefaultSelection, e -> androidSelectionChanged());
+		android.addListener(SWT.Selection, e -> androidSdkGroup.setEnabled(android.getSelection()));
+		android.addListener(SWT.DefaultSelection, e -> androidSdkGroup.setEnabled(android.getSelection()));
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(android);
 		ios = new Button(projectsGroup, SWT.CHECK);
 		ios.setText("IOS");
@@ -85,22 +89,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		html.setText("Html");
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(html);
 
-		Group androidGroup = new Group(composite, SWT.NONE);
-		androidGroup.setFont(composite.getFont());
-		androidGroup.setText("Android SDK");
-		androidGroup.setLayout(new GridLayout(3, false));
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(androidGroup);
-
-		Label sdkLocationLabel = new Label(androidGroup, SWT.NONE);
-		sdkLocationLabel.setText("&Location:");
-		androidSdkLocation = new Text(androidGroup, SWT.LEFT | SWT.BORDER);
-		androidSdkLocation.setEnabled(false);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(androidSdkLocation);
-		selectSdkLocationButton = new Button(androidGroup, SWT.PUSH);
-		selectSdkLocationButton.setText("B&rowse...");
-		selectSdkLocationButton.setEnabled(false);
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false)
-				.applyTo(selectSdkLocationButton);
+		androidSdkGroup.createControl(composite);
 
 		Group consoleGroup = new Group(composite, SWT.NONE);
 		consoleGroup.setFont(composite.getFont());
@@ -125,19 +114,13 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		return layout;
 	}
 
-	private void androidSelectionChanged() {
-		boolean selected = android.getSelection();
-		androidSdkLocation.setEnabled(selected);
-		selectSdkLocationButton.setEnabled(selected);
+	void setLog(String text) {
+		console.getDisplay().asyncExec(() -> setLogAsync(text));
 	}
 
-	void log(String text) {
-		console.getDisplay().asyncExec(() -> appendLog(text));
-	}
-
-	private void appendLog(String text) {
+	private void setLogAsync(String text) {
 		synchronized (console) {
-			console.setText(console.getText() + text);
+			console.setText(text);
 			ScrollBar verticalBar = console.getVerticalBar();
 			if (verticalBar != null) {
 				verticalBar.setSelection(verticalBar.getMaximum());
@@ -183,7 +166,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 
 	private boolean validateClassName() {
 		// return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
-		IStatus status = JavaConventions.validateJavaTypeName(getClassName(), JavaCore.VERSION_1_6,
+		IStatus status = JavaConventions.validateJavaTypeName(getMainClassName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
 		presentStatus(status);
 
@@ -191,7 +174,7 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		return false;
 	}
 
-	String getClassName() {
+	String getMainClassName() {
 		return className.getText().trim();
 	}
 
@@ -199,11 +182,23 @@ public class NewProjectWizardPageTwo extends WizardPage {
 		return packageName.getText().trim();
 	}
 
-	String getAndroidAPILevel() {
-		return SetupConstants.androidAPILevel;
+	String getAndroidSdkLocation() {
+		return android.getSelection() ? androidSdkGroup.getSdkLocationText() : "";
+	}
+
+	String getAndroidApiLevel() {
+		return android.getSelection() ? androidSdkGroup.getApiLevelCombo() : "";
 	}
 
 	String getAndroidBuildToolsVersion() {
-		return SetupConstants.androidBuildToolsVersion;
+		return android.getSelection() ? androidSdkGroup.getBuildToolsVersionCombo() : "";
+	}
+
+	public void updateSetupInfo(SetupInfo setupInfo) {
+		setupInfo.packageName = getPackageName();
+		setupInfo.mainClass = getMainClassName();
+		setupInfo.androidSdkLocation = getAndroidSdkLocation();
+		setupInfo.androidApiLevel = getAndroidApiLevel();
+		setupInfo.androidBuildToolsVersion = getAndroidBuildToolsVersion();
 	}
 }

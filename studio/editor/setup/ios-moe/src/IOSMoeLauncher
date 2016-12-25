@@ -8,7 +8,6 @@ import %PACKAGE%.%MAIN_CLASS%;
 import apple.uikit.c.UIKit;
 
 public class IOSMoeLauncher extends IOSApplication.Delegate {
-
     protected IOSMoeLauncher(Pointer peer) {
         super(peer);
     }

@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard;
+package com.gurella.studio.wizard.scene;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

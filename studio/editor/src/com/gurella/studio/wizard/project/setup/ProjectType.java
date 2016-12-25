@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.setup;
+package com.gurella.studio.wizard.project.setup;
 
 public enum ProjectType {
 	CORE("core", new String[] { "java" }),
@@ -24,7 +24,7 @@ public enum ProjectType {
 		return plugins;
 	}
 	
-	public boolean needsNativLibs() {
+	public boolean needsNatives() {
 		return this == ProjectType.ANDROID || this == ProjectType.IOSMOE;
 	}
 }

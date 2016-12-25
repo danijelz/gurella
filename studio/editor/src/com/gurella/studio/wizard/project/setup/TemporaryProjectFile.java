@@ -1,9 +1,9 @@
-package com.gurella.studio.wizard.setup;
+package com.gurella.studio.wizard.project.setup;
 
 import java.io.File;
 
 /**
- * A temporary file that wraps {@link ProjectFile} for use in a {@link Project}
+ * A temporary file that wraps {@link ProjectFile}
  * 
  * @author Tomski
  */

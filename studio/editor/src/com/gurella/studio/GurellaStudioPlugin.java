@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
@@ -73,8 +74,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	public static InputStream getFileInputStream(String filePath) {
-		return Try.ofFailable(() -> FileLocator.openStream(plugin.getBundle(), new Path(filePath), false))
-				.orElse(null);
+		return Try.ofFailable(() -> FileLocator.openStream(plugin.getBundle(), new Path(filePath), false)).orElse(null);
 	}
 
 	public static IPath locatePath(String filePath) {
@@ -339,6 +339,14 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		Status[] childStatuses = Arrays.stream(stackTraces)
 				.map(st -> new Status(IStatus.ERROR, PLUGIN_ID, st.toString())).toArray(i -> new Status[i]);
 		return new MultiStatus(PLUGIN_ID, IStatus.ERROR, childStatuses, message, t);
+	}
+
+	public static void log(int severity, String message) {
+		getDefault().getLog().log(new Status(severity, PLUGIN_ID, message));
+	}
+
+	public static IDialogSettings getPluginDialogSettings() {
+		return GurellaStudioPlugin.getDefault().getDialogSettings();
 	}
 
 	private static final class GurellaFormToolkit extends FormToolkit {
