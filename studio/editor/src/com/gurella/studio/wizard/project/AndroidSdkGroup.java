@@ -269,7 +269,7 @@ public class AndroidSdkGroup implements Validator {
 		}
 
 		String sdkLocation = getSdkLocation();
-		if (Values.isBlank(sdkLocation)) {
+		if (Values.isBlank(sdkLocation) || !isSdkLocationValid(sdkLocation)) {
 			Status status = new Status(ERROR, PLUGIN_ID, "Select SDK location.");
 			return Collections.singletonList(status);
 		}
