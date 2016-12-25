@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -274,18 +275,19 @@ public class AndroidSdkGroup implements Validator {
 			return Collections.singletonList(status);
 		}
 
+		List<IStatus> result = new ArrayList<>();
 		ApiLevel apiLevel = getSelectedApiLevel();
 		if (apiLevel == null) {
 			Status status = new Status(ERROR, PLUGIN_ID, "Select API level.");
-			return Collections.singletonList(status);
+			result.add(status);
 		}
 
 		BuildToolsVersion buildToolsVersion = getSelectedBuildToolsVersion();
 		if (buildToolsVersion == null) {
 			Status status = new Status(ERROR, PLUGIN_ID, "Select build tools version.");
-			return Collections.singletonList(status);
+			result.add(status);
 		}
 
-		return Collections.emptyList();
+		return result;
 	}
 }
