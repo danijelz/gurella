@@ -3,20 +3,24 @@ package com.gurella.studio.wizard.project;
 import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
 import static com.gurella.studio.GurellaStudioPlugin.getPluginDialogSettings;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.core.runtime.IStatus.ERROR;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -29,9 +33,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.wizard.project.setup.SetupConstants;
 
-public class AndroidSdkGroup {
+public class AndroidSdkGroup implements Validator {
 	private static final String DIALOGSTORE_LAST_ANDROIDSDK_LOC = PLUGIN_ID + ".newProject.last.androidsdk.location";
 
 	private final NewProjectDetailsPage detailsPage;
@@ -57,6 +60,7 @@ public class AndroidSdkGroup {
 		sdkLocationLabel.setText("&Location:");
 		sdkLocationText = new Text(androidGroup, SWT.LEFT | SWT.BORDER);
 		sdkLocationText.setEnabled(false);
+		sdkLocationText.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(sdkLocationText);
 
 		selectSdkLocationButton = new Button(androidGroup, SWT.PUSH);
@@ -68,8 +72,10 @@ public class AndroidSdkGroup {
 
 		Label apiLevelLabel = new Label(androidGroup, SWT.NONE);
 		apiLevelLabel.setText("API level:");
-		apiLevelCombo = new ComboViewer(new Combo(androidGroup, SWT.DROP_DOWN | SWT.READ_ONLY));
-		apiLevelCombo.getCombo().setEnabled(false);
+		Combo apiLevel = new Combo(androidGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+		apiLevelCombo = new ComboViewer(apiLevel);
+		apiLevel.setEnabled(false);
+		apiLevel.addListener(SWT.Selection, e -> fireValidate());
 		apiLevelCombo.setContentProvider(ArrayContentProvider.getInstance());
 		apiLevelCombo.setLabelProvider(new LabelProvider());
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).span(2, 1).hint(80, 20)
@@ -77,8 +83,10 @@ public class AndroidSdkGroup {
 
 		Label buildToolsVersionLabel = new Label(androidGroup, SWT.NONE);
 		buildToolsVersionLabel.setText("Build tools version");
-		buildToolsVersionCombo = new ComboViewer(new Combo(androidGroup, SWT.DROP_DOWN | SWT.READ_ONLY));
-		buildToolsVersionCombo.getCombo().setEnabled(false);
+		Combo buildToolsVersion = new Combo(androidGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+		buildToolsVersionCombo = new ComboViewer(buildToolsVersion);
+		buildToolsVersion.setEnabled(false);
+		buildToolsVersion.addListener(SWT.Selection, e -> fireValidate());
 		buildToolsVersionCombo.setContentProvider(ArrayContentProvider.getInstance());
 		buildToolsVersionCombo.setLabelProvider(new LabelProvider());
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).span(2, 1).hint(80, 20)
@@ -108,18 +116,15 @@ public class AndroidSdkGroup {
 		}
 
 		final String sdkLocation = dialog.open();
-		if (sdkLocation != null) {
-			File buildTools = new File(sdkLocation, "build-tools");
-			if (isSdkLocationValid(sdkLocation) && buildTools.exists()) {
-				updateSdkLocation(sdkLocation);
-			} else if (!buildTools.exists()) {
-				String message = "You have no build tools!\nUpdate your Android SDK with build tools version: "
-						+ SetupConstants.androidBuildToolsVersion;
-				MessageDialog.openError(shell, "Invalid Android SDK location", message);
-			} else {
-				String message = "Selected directory is not valid Android SDK location";
-				MessageDialog.openError(shell, "Invalid Android SDK location", message);
-			}
+		if (sdkLocation == null) {
+			return;
+		}
+
+		if (isSdkLocationValid(sdkLocation)) {
+			updateSdkLocation(sdkLocation);
+		} else {
+			String message = "Selected directory is not valid Android SDK location";
+			MessageDialog.openError(shell, "Invalid Android SDK location", message);
 		}
 	}
 
@@ -137,52 +142,52 @@ public class AndroidSdkGroup {
 
 		List<ApiLevel> apiLevels = extractApiLevels(sdkLocation);
 		apiLevelCombo.setInput(apiLevels);
-		apiLevelCombo.setSelection(findMostAppropriateApiLevel(apiLevels));
+		if (!apiLevels.isEmpty()) {
+			apiLevelCombo.setSelection(new StructuredSelection(apiLevels.get(0)));
+		}
 
 		List<BuildToolsVersion> buildToolVersions = extractBuildToolVersions(sdkLocation);
 		buildToolsVersionCombo.setInput(buildToolVersions);
-		buildToolsVersionCombo.setSelection(findMostAppropriateBuildToolVersion(buildToolVersions));
+		if (!buildToolVersions.isEmpty()) {
+			buildToolsVersionCombo.setSelection(new StructuredSelection(buildToolVersions));
+		}
+		
+		fireValidate();
 	}
 
 	private static List<ApiLevel> extractApiLevels(String sdkLocation) {
 		File apis = new File(sdkLocation, "platforms");
-		return Stream.of(apis.listFiles()).map(f -> toApiLevel(f)).filter(al -> al != null).collect(toList());
+		return Stream.of(apis.listFiles()).map(f -> toApiLevel(f)).filter(al -> al != null && al.isValid())
+				.collect(toList());
 	}
 
 	private static ApiLevel toApiLevel(File parentFile) {
 		File properties = new File(parentFile, "source.properties");
 		try (FileReader reader = new FileReader(properties); BufferedReader buffer = new BufferedReader(reader)) {
-			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(AndroidSdkGroup::parseApiLevel)
-					.findFirst().orElse(null);
+			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(ApiLevel::parse).findFirst()
+					.orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return null;
-	}
-
-	private static ApiLevel parseApiLevel(String line) {
-		String levelString = line.split("\\=")[1];
-		int level = Integer.parseInt(levelString);
-		return new ApiLevel(level);
-	}
-
-	private ISelection findMostAppropriateApiLevel(List<ApiLevel> apiLevels) {
-		apiLevelCombo.getInput();
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	private static List<BuildToolsVersion> extractBuildToolVersions(String sdkLocation) {
 		File buildTools = new File(sdkLocation, "build-tools");
-		return Stream.of(buildTools.listFiles()).map(f -> toBuildTool(f)).filter(bt -> bt != null).collect(toList());
+		if (!buildTools.exists()) {
+			return Collections.emptyList();
+		}
+
+		return Stream.of(buildTools.listFiles()).map(f -> toBuildTool(f)).filter(bt -> bt != null && bt.isValid())
+				.collect(toList());
 	}
 
 	private static BuildToolsVersion toBuildTool(File parentFile) {
 		File properties = new File(parentFile, "source.properties");
 		try (FileReader reader = new FileReader(properties); BufferedReader buffer = new BufferedReader(reader)) {
-			return buffer.lines().filter(l -> l.contains("Pkg.Revision")).map(AndroidSdkGroup::parseBuildToolVersion)
-					.findFirst().orElse(null);
+			return buffer.lines().filter(l -> l.contains("Pkg.Revision")).map(BuildToolsVersion::parse).findFirst()
+					.orElse(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -190,144 +195,56 @@ public class AndroidSdkGroup {
 		return null;
 	}
 
-	private static BuildToolsVersion parseBuildToolVersion(String line) {
-		String versionString = line.split("\\=")[1];
-		String[] versionComponents = versionString.split("\\.");
-		int[] version = new int[3];
-
-		for (int i = 0; i < 3; i++) {
-			version[i] = versionComponents.length < i - 1 ? 0 : Integer.parseInt(versionComponents[i]);
-		}
-		return new BuildToolsVersion(version);
-	}
-
-	private ISelection findMostAppropriateBuildToolVersion(List<BuildToolsVersion> buildToolVersions) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	String getSdkLocationText() {
+	String getSdkLocation() {
 		return sdkLocationText.getText();
 	}
 
-	String getApiLevelCombo() {
-		return apiLevelCombo.getSelection().toString();
+	String getApiLevel() {
+		return getSelectedApiLevel().toString();
 	}
 
-	String getBuildToolsVersionCombo() {
-		return SetupConstants.androidBuildToolsVersion;
+	private ApiLevel getSelectedApiLevel() {
+		IStructuredSelection selection = (IStructuredSelection) apiLevelCombo.getSelection();
+		return selection.isEmpty() ? null : (ApiLevel) selection.getFirstElement();
 	}
 
-	private static final class ApiLevel implements Comparable<ApiLevel> {
-		int level;
-
-		ApiLevel(int level) {
-			this.level = level;
-		}
-
-		@Override
-		public int hashCode() {
-			return 31 + level;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ApiLevel other = (ApiLevel) obj;
-			return level == other.level;
-		}
-
-		@Override
-		public String toString() {
-			return String.valueOf(level);
-		}
-
-		@Override
-		public int compareTo(ApiLevel other) {
-			return Integer.compare(level, other.level);
-		}
+	String getBuildToolsVersion() {
+		return getSelectedBuildToolsVersion().toString();
 	}
 
-	private static class BuildToolsVersion implements Comparable<BuildToolsVersion> {
-		int maj;
-		int mid;
-		int min;
+	private BuildToolsVersion getSelectedBuildToolsVersion() {
+		IStructuredSelection selection = (IStructuredSelection) buildToolsVersionCombo.getSelection();
+		return selection.isEmpty() ? null : (BuildToolsVersion) selection.getFirstElement();
+	}
 
-		public BuildToolsVersion(int[] version) {
-			this.maj = version[0];
-			this.mid = version[1];
-			this.min = version[2];
+	private void fireValidate() {
+		detailsPage.validate();
+	}
+
+	@Override
+	public List<IStatus> validate() {
+		if (!sdkLocationText.isEnabled()) {
+			return Collections.emptyList();
 		}
 
-		public int getMaj() {
-			return maj;
+		String sdkLocation = getSdkLocation();
+		if (Values.isBlank(sdkLocation)) {
+			Status status = new Status(ERROR, PLUGIN_ID, "Select SDK location.");
+			return Collections.singletonList(status);
 		}
 
-		public int getMid() {
-			return mid;
+		ApiLevel apiLevel = getSelectedApiLevel();
+		if (apiLevel == null) {
+			Status status = new Status(ERROR, PLUGIN_ID, "Select API level.");
+			return Collections.singletonList(status);
 		}
 
-		public int getMin() {
-			return min;
+		BuildToolsVersion buildToolsVersion = getSelectedBuildToolsVersion();
+		if (buildToolsVersion == null) {
+			Status status = new Status(ERROR, PLUGIN_ID, "Select build tools version.");
+			return Collections.singletonList(status);
 		}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + maj;
-			result = prime * result + mid;
-			result = prime * result + min;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			BuildToolsVersion other = (BuildToolsVersion) obj;
-			if (maj != other.maj) {
-				return false;
-			}
-			if (mid != other.mid) {
-				return false;
-			}
-			if (min != other.min) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			builder.append(maj);
-			builder.append('.');
-			builder.append(mid);
-			builder.append('.');
-			builder.append(min);
-			return builder.toString();
-		}
-
-		@Override
-		public int compareTo(BuildToolsVersion other) {
-			return Comparator.comparingInt(BuildToolsVersion::getMaj).thenComparingInt(BuildToolsVersion::getMid)
-					.thenComparingInt(BuildToolsVersion::getMin).compare(this, other);
-		}
+		return Collections.emptyList();
 	}
 }

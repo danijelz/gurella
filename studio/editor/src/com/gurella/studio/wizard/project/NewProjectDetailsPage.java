@@ -1,5 +1,10 @@
 package com.gurella.studio.wizard.project;
 
+import static org.eclipse.jdt.core.JavaCore.VERSION_1_6;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
@@ -32,6 +37,8 @@ public class NewProjectDetailsPage extends WizardPage {
 
 	private Text console;
 
+	private List<Validator> validators = new ArrayList<>();
+
 	protected NewProjectDetailsPage() {
 		super("NewProjectWizardPageTwo");
 		setPageComplete(false);
@@ -39,6 +46,7 @@ public class NewProjectDetailsPage extends WizardPage {
 		setDescription("Create Gurella project in the workspace or in an external location.");
 
 		androidSdkGroup = new AndroidSdkGroup(this);
+		validators.add(androidSdkGroup);
 	}
 
 	@Override
@@ -132,6 +140,19 @@ public class NewProjectDetailsPage extends WizardPage {
 		return console.getText();
 	}
 
+	void validate() {
+		IStatus status = validators.stream().flatMap(v -> v.validate().stream())
+				.sorted((s1, s2) -> Integer.compare(s2.getSeverity(), s1.getSeverity())).findFirst().orElse(null);
+
+		if (status == null) {
+			setPageComplete(true);
+			setErrorMessage(null);
+			setMessage(null);
+		} else {
+			presentStatus(status);
+		}
+	}
+
 	private boolean validatePackageName() {
 		IStatus status = JavaConventions.validatePackageName(getPackageName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
@@ -145,29 +166,33 @@ public class NewProjectDetailsPage extends WizardPage {
 		switch (status.getSeverity()) {
 		case IStatus.OK:
 			setPageComplete(true);
-			setMessage(null, IMessageProvider.NONE);
+			setErrorMessage(null);
+			setMessage(null);
 			break;
 		case IStatus.INFO:
 			setPageComplete(true);
+			setErrorMessage(null);
 			setMessage(status.getMessage(), IMessageProvider.INFORMATION);
 			break;
 		case IStatus.WARNING:
+			setPageComplete(true);
 			setMessage(status.getMessage(), IMessageProvider.WARNING);
 			break;
 		case IStatus.ERROR:
+			setPageComplete(true);
 			setMessage(status.getMessage(), IMessageProvider.ERROR);
 			break;
 		default:
 			setPageComplete(true);
-			setMessage(null, IMessageProvider.NONE);
+			setErrorMessage(null);
+			setMessage(null);
 			break;
 		}
 	}
 
 	private boolean validateClassName() {
 		// return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
-		IStatus status = JavaConventions.validateJavaTypeName(getMainClassName(), JavaCore.VERSION_1_6,
-				JavaCore.VERSION_1_6);
+		IStatus status = JavaConventions.validateJavaTypeName(getMainClassName(), VERSION_1_6, VERSION_1_6);
 		presentStatus(status);
 
 		// TODO Auto-generated method stub
@@ -183,15 +208,15 @@ public class NewProjectDetailsPage extends WizardPage {
 	}
 
 	String getAndroidSdkLocation() {
-		return android.getSelection() ? androidSdkGroup.getSdkLocationText() : "";
+		return android.getSelection() ? androidSdkGroup.getSdkLocation() : "";
 	}
 
 	String getAndroidApiLevel() {
-		return android.getSelection() ? androidSdkGroup.getApiLevelCombo() : "";
+		return android.getSelection() ? androidSdkGroup.getApiLevel() : "";
 	}
 
 	String getAndroidBuildToolsVersion() {
-		return android.getSelection() ? androidSdkGroup.getBuildToolsVersionCombo() : "";
+		return android.getSelection() ? androidSdkGroup.getBuildToolsVersion() : "";
 	}
 
 	public void updateSetupInfo(SetupInfo setupInfo) {

@@ -35,7 +35,7 @@ public class SetupUtils {
 		}
 
 		int newestLocalApi = getLatestApi(apis);
-		if (newestLocalApi > Integer.parseInt(SetupConstants.androidApiLevel)) {
+		if (newestLocalApi > SetupConstants.androidApiLevel) {
 			int value = JOptionPane.showConfirmDialog(null,
 					"You have a more recent Android API than the recommended.\nDo you want to use your more recent version?",
 					"Warning!", JOptionPane.YES_NO_OPTION);
@@ -44,7 +44,7 @@ public class SetupUtils {
 			} else {
 				// TODO SetupConstants.androidAPILevel = String.valueOf(newestLocalApi);
 			}
-		} else if (newestLocalApi != Integer.parseInt(SetupConstants.androidApiLevel)) {
+		} else if (newestLocalApi != SetupConstants.androidApiLevel) {
 			JOptionPane.showMessageDialog(null,
 					"Please update your Android SDK, you need the Android API: " + SetupConstants.androidApiLevel);
 			return false;
@@ -52,7 +52,7 @@ public class SetupUtils {
 
 		String newestLocalTool = getLatestTools(buildTools);
 		int[] localToolVersion = convertTools(newestLocalTool);
-		int[] targetToolVersion = convertTools(SetupConstants.androidBuildToolsVersion);
+		int[] targetToolVersion = convertTools(SetupConstants.androidBuildToolsVersion.toString());
 		if (compareVersions(targetToolVersion, localToolVersion)) {
 			int value = JOptionPane.showConfirmDialog(null,
 					"You have a more recent version of android build tools than the recommended.\nDo you want to use your more recent version?",

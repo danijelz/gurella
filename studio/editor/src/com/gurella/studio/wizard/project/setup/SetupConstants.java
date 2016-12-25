@@ -7,8 +7,8 @@ public class SetupConstants {
 	public static final String libgdxNightlyVersion = "1.9.6-SNAPSHOT";
 	public static final String roboVmPluginVersion = "2.3.0";
 	public static final String moePluginVersion = "1.2.3";
-	public static final String androidBuildToolsVersion = "23.0.1";
-	public static final String androidApiLevel = "20";
+	public static final int androidApiLevel = 20;
+	public static final int[] androidBuildToolsVersion = { 23, 0, 1 };
 	public static final String androidPluginVersion = "1.5.0";
 	public static final String gwtVersion = "2.8.0";
 	public static final String gwtPluginVersion = "0.6";
