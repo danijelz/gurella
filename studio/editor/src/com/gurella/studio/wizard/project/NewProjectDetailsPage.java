@@ -143,26 +143,25 @@ public class NewProjectDetailsPage extends WizardPage {
 	void validate() {
 		IStatus status = validators.stream().flatMap(v -> v.validate().stream())
 				.sorted((s1, s2) -> Integer.compare(s2.getSeverity(), s1.getSeverity())).findFirst().orElse(null);
-
-		if (status == null) {
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(null);
-		} else {
-			presentStatus(status);
-		}
+		presentStatus(status);
 	}
 
 	private boolean validatePackageName() {
 		IStatus status = JavaConventions.validatePackageName(getPackageName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
 		presentStatus(status);
-
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	private void presentStatus(IStatus status) {
+		if (status == null) {
+			setPageComplete(true);
+			setErrorMessage(null);
+			setMessage(null);
+			return;
+		}
+
 		switch (status.getSeverity()) {
 		case IStatus.OK:
 			setPageComplete(true);
@@ -194,7 +193,6 @@ public class NewProjectDetailsPage extends WizardPage {
 		// return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
 		IStatus status = JavaConventions.validateJavaTypeName(getMainClassName(), VERSION_1_6, VERSION_1_6);
 		presentStatus(status);
-
 		// TODO Auto-generated method stub
 		return false;
 	}
