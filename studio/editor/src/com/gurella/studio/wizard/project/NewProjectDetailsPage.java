@@ -146,12 +146,11 @@ public class NewProjectDetailsPage extends WizardPage {
 		presentStatus(status);
 	}
 
-	private boolean validatePackageName() {
+	private void validatePackageName() {
 		IStatus status = JavaConventions.validatePackageName(getPackageName(), JavaCore.VERSION_1_6,
 				JavaCore.VERSION_1_6);
 		presentStatus(status);
 		// TODO Auto-generated method stub
-		return false;
 	}
 
 	private void presentStatus(IStatus status) {
@@ -189,12 +188,11 @@ public class NewProjectDetailsPage extends WizardPage {
 		}
 	}
 
-	private boolean validateClassName() {
+	private void validateClassName() {
 		// return SourceVersion.isIdentifier(className) && !SourceVersion.isKeyword(className);
 		IStatus status = JavaConventions.validateJavaTypeName(getMainClassName(), VERSION_1_6, VERSION_1_6);
 		presentStatus(status);
 		// TODO Auto-generated method stub
-		return false;
 	}
 
 	String getMainClassName() {
