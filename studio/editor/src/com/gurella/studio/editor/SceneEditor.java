@@ -142,8 +142,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		SceneEditorRegistry.put(this, dock, application);
 		EventService.subscribe(id, this);
 
-		sceneContext = new SceneEditorContext(this);
 		historyManager = new HistoryManager(this);
+		sceneContext = new SceneEditorContext(this);
 		launchManager = new LaunchManager(this);
 		viewRegistry = new ViewRegistry(this);
 		dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
