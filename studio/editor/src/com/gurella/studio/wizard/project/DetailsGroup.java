@@ -1,11 +1,14 @@
 package com.gurella.studio.wizard.project;
 
+import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
+import static org.eclipse.core.runtime.IStatus.ERROR;
 import static org.eclipse.jdt.core.JavaCore.VERSION_1_6;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -20,6 +23,7 @@ public class DetailsGroup implements Validator {
 
 	private Text packageName;
 	private Text className;
+	private boolean needsStructuredPackage;
 
 	public DetailsGroup(NewProjectDetailsPage detailsPage) {
 		this.detailsPage = detailsPage;
@@ -52,8 +56,15 @@ public class DetailsGroup implements Validator {
 	@Override
 	public List<IStatus> validate() {
 		List<IStatus> result = new ArrayList<>();
-		IStatus status = JavaConventions.validatePackageName(getPackageName(), VERSION_1_6, VERSION_1_6);
+		String packageName = getPackageName();
+		IStatus status = JavaConventions.validatePackageName(packageName, VERSION_1_6, VERSION_1_6);
 		if (status != null) {
+			result.add(status);
+		}
+
+		if (needsStructuredPackage && packageName.indexOf('.') < 0) {
+			String message = "Android projects require that package name must have at least two parts e.g. 'com.project'";
+			status = new Status(ERROR, PLUGIN_ID, message);
 			result.add(status);
 		}
 
@@ -63,6 +74,10 @@ public class DetailsGroup implements Validator {
 		}
 
 		return result;
+	}
+
+	void setNeedsStructuredPackage(boolean needsStructuredPackage) {
+		this.needsStructuredPackage = needsStructuredPackage;
 	}
 
 	String getMainClassName() {

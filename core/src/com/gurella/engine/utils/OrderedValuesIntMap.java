@@ -3,7 +3,7 @@ package com.gurella.engine.utils;
 import com.badlogic.gdx.utils.IntMap;
 
 //TODO Poolable, array pool
-public class OrderedValuesIntMap<V> extends IntMap<V> {
+public class OrderedValuesIntMap<V> extends IntMap<V> implements Container {
 	private final ArrayExt<V> values;
 
 	public OrderedValuesIntMap() {
@@ -86,6 +86,11 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 
 	public V random() {
 		return values.random();
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override

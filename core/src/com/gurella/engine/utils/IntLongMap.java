@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.StringBuilder;
  * depending on hash collisions. Load factors greater than 0.91 greatly increase the chances the map will have to rehash to the
  * next higher POT size.
  * @author Nathan Sweet */
-public class IntLongMap implements Iterable<IntLongMap.Entry> {
+public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
 	private static final int EMPTY = 0;
@@ -601,9 +601,15 @@ public class IntLongMap implements Iterable<IntLongMap.Entry> {
 	}
 
 	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
 	public String toString() {
-		if (size == 0)
+		if (size == 0) {
 			return "{}";
+		}
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('{');
 		int[] keyTable = this.keyTable;

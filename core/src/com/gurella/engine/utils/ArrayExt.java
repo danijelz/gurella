@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
 //TODO Poolable
-public class ArrayExt<T> extends Array<T> implements Poolable {
+public class ArrayExt<T> extends Array<T> implements Poolable, Container {
 	private ImmutableArray<T> immutable;
 
 	public ArrayExt() {
@@ -96,6 +96,11 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 		}
 
 		items[newIndex] = value;
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	public ImmutableArray<T> immutable() {

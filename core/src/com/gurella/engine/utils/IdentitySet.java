@@ -14,7 +14,7 @@ import com.gurella.engine.pool.PoolService;
  * @author Nathan Sweet
  */
 // TODO Poolable, array pool
-public class IdentitySet<T> implements Iterable<T>, Poolable {
+public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
 
@@ -469,6 +469,11 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 	private int hash3(int h) {
 		h *= PRIME2;
 		return (h ^ h >>> hashShift) & mask;
+	}
+	
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override

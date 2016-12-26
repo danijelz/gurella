@@ -51,7 +51,7 @@ public final class Application implements ApplicationListener {
 	@Override
 	public final void create() {
 		GraphicsService.init();
-		config = config == null ? AssetService.load(configLocation) : config;
+		config = config == null ? AssetService.<ApplicationConfig> load(configLocation) : config;
 		config.init();
 		AssetService.loadAsync(config.initialScenePath, Scene.class, new SceneLoadedCallback(), 0);
 	}

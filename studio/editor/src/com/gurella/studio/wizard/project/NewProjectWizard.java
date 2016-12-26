@@ -53,9 +53,11 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		try {
 			performFinishSafely();
+			GurellaStudioPlugin.log(IStatus.INFO, detailsPage.getLog());
 			return true;
 		} catch (Exception e) {
 			GurellaStudioPlugin.showError(e, "Creation of project failed.");
+			GurellaStudioPlugin.log(IStatus.ERROR, detailsPage.getLog());
 			return false;
 		}
 	}
@@ -64,7 +66,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		SetupInfo setupInfo = new SetupInfo();
 		mainPage.updateSetupInfo(setupInfo);
 		detailsPage.updateSetupInfo(setupInfo);
-		
+
 		List<ProjectType> modules = new ArrayList<ProjectType>();
 		modules.add(ProjectType.CORE);
 		modules.add(ProjectType.DESKTOP);
@@ -149,7 +151,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			log("Generating app in " + location + "\n");
-			Setup.build(scriptBuilder, location, name, pack, clazz, androidSdkLocation, androidAPILevel,
+			new Setup().build(scriptBuilder, location, name, pack, clazz, androidSdkLocation, androidAPILevel,
 					androidBuildToolsVersion, this);
 			log("Done!\n");
 		}
@@ -158,7 +160,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		public void log(String text) {
 			log.append(text);
 			detailsPage.setLog(log.toString());
-			GurellaStudioPlugin.log(IStatus.INFO, text);
 		}
 
 		@Override

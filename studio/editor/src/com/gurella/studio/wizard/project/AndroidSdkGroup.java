@@ -47,6 +47,9 @@ public class AndroidSdkGroup implements Validator {
 	private Button runAndroidManagerButton;
 	private ComboViewer buildToolsVersionCombo;
 
+	private List<ApiLevel> apiLevels;
+	private List<BuildToolsVersion> buildToolVersions;
+
 	public AndroidSdkGroup(NewProjectDetailsPage detailsPage) {
 		this.detailsPage = detailsPage;
 	}
@@ -69,8 +72,7 @@ public class AndroidSdkGroup implements Validator {
 		selectSdkLocationButton.setText("B&rowse...");
 		selectSdkLocationButton.setEnabled(false);
 		selectSdkLocationButton.addListener(SWT.Selection, e -> selectAndroidSdkLocation());
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false)
-				.applyTo(selectSdkLocationButton);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).applyTo(selectSdkLocationButton);
 
 		Label apiLevelLabel = new Label(androidGroup, SWT.NONE);
 		apiLevelLabel.setText("API level:");
@@ -87,6 +89,7 @@ public class AndroidSdkGroup implements Validator {
 		runAndroidManagerButton.setText("SDK manager");
 		runAndroidManagerButton.setEnabled(false);
 		runAndroidManagerButton.addListener(SWT.Selection, e -> runSdkManager());
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(false, false).applyTo(runAndroidManagerButton);
 
 		Label buildToolsVersionLabel = new Label(androidGroup, SWT.NONE);
 		buildToolsVersionLabel.setText("Build tools version");
@@ -111,8 +114,7 @@ public class AndroidSdkGroup implements Validator {
 			ProcessBuilder builder = new ProcessBuilder(getSdkManagerCommands(sdkLocation)).redirectErrorStream(true);
 			final Process process = builder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			while (reader.readLine() != null) {
-			}
+			reader.lines().count();
 			process.waitFor();
 			if (process.exitValue() == 0) {
 				updateSdkData(sdkLocation);
@@ -180,15 +182,21 @@ public class AndroidSdkGroup implements Validator {
 	}
 
 	private void updateSdkData(String sdkLocation) {
-		List<ApiLevel> apiLevels = extractApiLevels(sdkLocation);
+		IStructuredSelection selection = apiLevelCombo.getStructuredSelection();
+		apiLevels = extractApiLevels(sdkLocation);
 		apiLevelCombo.setInput(apiLevels);
-		if (!apiLevels.isEmpty()) {
+		if (!selection.isEmpty()) {
+			apiLevelCombo.setSelection(selection);
+		} else if (!apiLevels.isEmpty()) {
 			apiLevelCombo.setSelection(new StructuredSelection(apiLevels.get(0)));
 		}
 
-		List<BuildToolsVersion> buildToolVersions = extractBuildToolVersions(sdkLocation);
+		selection = buildToolsVersionCombo.getStructuredSelection();
+		buildToolVersions = extractBuildToolVersions(sdkLocation);
 		buildToolsVersionCombo.setInput(buildToolVersions);
-		if (!buildToolVersions.isEmpty()) {
+		if (!selection.isEmpty()) {
+			buildToolsVersionCombo.setSelection(selection);
+		} else if (!buildToolVersions.isEmpty()) {
 			buildToolsVersionCombo.setSelection(new StructuredSelection(buildToolVersions));
 		}
 	}
@@ -276,15 +284,20 @@ public class AndroidSdkGroup implements Validator {
 		}
 
 		List<IStatus> result = new ArrayList<>();
+
 		ApiLevel apiLevel = getSelectedApiLevel();
 		if (apiLevel == null) {
-			Status status = new Status(ERROR, PLUGIN_ID, "Select API level.");
+			String message = Values.isEmpty(apiLevels) ? "You have no Android APIs! Update your Android SDK."
+					: "Select API level.";
+			Status status = new Status(ERROR, PLUGIN_ID, message);
 			result.add(status);
 		}
 
 		BuildToolsVersion buildToolsVersion = getSelectedBuildToolsVersion();
 		if (buildToolsVersion == null) {
-			Status status = new Status(ERROR, PLUGIN_ID, "Select build tools version.");
+			String message = Values.isEmpty(buildToolVersions) ? "You have no build tools! Update your Android SDK."
+					: "Select build tools version.";
+			Status status = new Status(ERROR, PLUGIN_ID, message);
 			result.add(status);
 		}
 

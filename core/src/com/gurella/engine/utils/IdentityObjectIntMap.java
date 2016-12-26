@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.StringBuilder;
 
 //TODO poolable
-public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.Entry<K>> {
+public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.Entry<K>>, Container {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
 
@@ -549,6 +549,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	private int hash3(int h) {
 		h *= PRIME2;
 		return (h ^ h >>> hashShift) & mask;
+	}
+	
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override

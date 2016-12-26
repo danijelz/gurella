@@ -33,47 +33,51 @@ import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 public class Setup {
 	private static final String resourceLoc = "setup/";
 
-	public static void build(ScriptBuilder scriptBuilder, String outputDir, String appName, String packageName,
+	private List<ProjectFile> files = new ArrayList<ProjectFile>();
+	private Map<String, String> values = new HashMap<String, String>();
+
+	private ScriptBuilder scriptBuilder;
+	private String mainClass;
+	private String androidAPILevel;
+	private String androidBuildToolsVersion;
+	private String sdkPath;
+
+	private String packageDir;
+	private String assetPath;
+
+	public void build(ScriptBuilder scriptBuilder, String outputDir, String appName, String packageName,
 			String mainClass, String sdkLocation, String androidAPILevel, String androidBuildToolsVersion,
 			LogCallback callback) {
-		List<ProjectFile> files = new ArrayList<ProjectFile>();
+		this.mainClass = mainClass;
+		this.scriptBuilder = scriptBuilder;
+		this.androidAPILevel = androidAPILevel;
+		this.androidBuildToolsVersion = androidBuildToolsVersion;
 
-		String packageDir = packageName.replace('.', '/');
-		String sdkPath = sdkLocation.replace('\\', '/');
+		packageDir = packageName.replace('.', '/');
+		sdkPath = sdkLocation.replace('\\', '/');
+		assetPath = scriptBuilder.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
 
-		addRootFiles(scriptBuilder, files);
-		addCoreFiles(scriptBuilder, mainClass, files, packageDir);
-		addDesktopFiles(scriptBuilder, files, packageDir);
-		addAndroidFiles(scriptBuilder, files, packageDir);
-		addHtmlFiles(scriptBuilder, files, packageDir);
-		addIosRobovmFiles(scriptBuilder, files, packageDir);
-		addIosMoeFiles(scriptBuilder, files, packageDir);
+		addRootFiles();
+		addCoreFiles();
+		addDesktopFiles();
+		addAndroidFiles();
+		addHtmlFiles();
+		addIosRobovmFiles();
+		addIosMoeFiles();
+		addAssetsFiles();
 
-		// Assets
-		String assetPath = scriptBuilder.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
-		files.add(new ProjectFile("android/assets/badlogic.jpg", assetPath + "/badlogic.jpg", false));
-
-		Map<String, String> values = new HashMap<String, String>();
 		values.put("%APP_NAME%", appName);
 		values.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
 		values.put("%PACKAGE%", packageName);
 		values.put("%PACKAGE_DIR%", packageDir);
 		values.put("%MAIN_CLASS%", mainClass);
-		values.put("%ANDROID_SDK%", sdkPath);
 		values.put("%ASSET_PATH%", assetPath);
-		values.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
-		values.put("%API_LEVEL%", androidAPILevel);
-		values.put("%GWT_VERSION%", SetupConstants.gwtVersion);
-		if (scriptBuilder.projects.contains(ProjectType.HTML)) {
-			values.put("%GWT_INHERITS%", parseGwtInherits(scriptBuilder));
-		}
 
 		copyAndReplace(outputDir, files, values);
-
 		executeGradle(scriptBuilder, outputDir, callback);
 	}
 
-	private static void addRootFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files) {
+	private void addRootFiles() {
 		files.add(new ProjectFile("gitignore", ".gitignore", false));
 		files.add(new TemporaryProjectFile(scriptBuilder.settingsFile, "settings.gradle", false));
 		files.add(new TemporaryProjectFile(scriptBuilder.buildFile, "build.gradle", true));
@@ -84,8 +88,7 @@ public class Setup {
 		files.add(new ProjectFile("gradle.properties"));
 	}
 
-	private static void addCoreFiles(ScriptBuilder scriptBuilder, String mainClass, List<ProjectFile> files,
-			String packageDir) {
+	private void addCoreFiles() {
 		files.add(new ProjectFile("core/build.gradle"));
 		files.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
 		if (scriptBuilder.projects.contains(ProjectType.HTML)) {
@@ -93,7 +96,7 @@ public class Setup {
 		}
 	}
 
-	private static void addDesktopFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files, String packageDir) {
+	private void addDesktopFiles() {
 		if (!scriptBuilder.projects.contains(ProjectType.DESKTOP)) {
 			return;
 		}
@@ -103,10 +106,14 @@ public class Setup {
 				"desktop/src/" + packageDir + "/desktop/DesktopLauncher.java", true));
 	}
 
-	private static void addAndroidFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files, String packageDir) {
+	private void addAndroidFiles() {
 		if (!scriptBuilder.projects.contains(ProjectType.ANDROID)) {
 			return;
 		}
+
+		values.put("%ANDROID_SDK%", sdkPath);
+		values.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
+		values.put("%API_LEVEL%", androidAPILevel);
 
 		files.add(new ProjectFile("android/res/values/strings.xml"));
 		files.add(new ProjectFile("android/res/values/styles.xml", false));
@@ -120,15 +127,18 @@ public class Setup {
 		files.add(new ProjectFile("android/AndroidManifest.xml"));
 		files.add(new ProjectFile("android/build.gradle", true));
 		files.add(new ProjectFile("android/ic_launcher-web.png", false));
-		files.add(new ProjectFile("android/proguard-txt", false));
-		files.add(new ProjectFile("android/properties", false));
+		files.add(new ProjectFile("android/proguard-project.txt", false));
+		files.add(new ProjectFile("android/project.properties", false));
 		files.add(new ProjectFile("local.properties", true));
 	}
 
-	private static void addHtmlFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files, String packageDir) {
+	private void addHtmlFiles() {
 		if (!scriptBuilder.projects.contains(ProjectType.HTML)) {
 			return;
 		}
+
+		values.put("%GWT_VERSION%", SetupConstants.gwtVersion);
+		values.put("%GWT_INHERITS%", parseGwtInherits());
 
 		files.add(new ProjectFile("html/build.gradle"));
 		files.add(
@@ -144,7 +154,13 @@ public class Setup {
 		files.add(new ProjectFile("html/war/WEB-INF/web.xml", "html/webapp/WEB-INF/web.xml", true));
 	}
 
-	private static void addIosRobovmFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files, String packageDir) {
+	private String parseGwtInherits() {
+		return scriptBuilder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
+				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
+				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
+	}
+
+	private void addIosRobovmFiles() {
 		if (!scriptBuilder.projects.contains(ProjectType.IOS)) {
 			return;
 		}
@@ -168,7 +184,7 @@ public class Setup {
 		files.add(new ProjectFile("ios/robovm.xml", true));
 	}
 
-	private static void addIosMoeFiles(ScriptBuilder scriptBuilder, List<ProjectFile> files, String packageDir) {
+	private void addIosMoeFiles() {
 		if (!scriptBuilder.projects.contains(ProjectType.IOSMOE)) {
 			return;
 		}
@@ -193,8 +209,12 @@ public class Setup {
 		files.add(new ProjectFile("ios-moe/xcode/ios-moe-Test/Info-Test.plist", false));
 		files.add(new ProjectFile("ios-moe/xcode/ios-moe/Info.plist", true));
 		files.add(new ProjectFile("ios-moe/xcode/ios-moe/main.cpp", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe.xcodeproj/pbxproj", true));
+		files.add(new ProjectFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj", true));
 		files.add(new ProjectFile("ios-moe/build.gradle", true));
+	}
+
+	private void addAssetsFiles() {
+		files.add(new ProjectFile("android/assets/badlogic.jpg", assetPath + "/badlogic.jpg", false));
 	}
 
 	private static void copyAndReplace(String outputDir, List<ProjectFile> files, Map<String, String> values) {
@@ -281,12 +301,6 @@ public class Setup {
 			result = result.replace(entry.getKey(), entry.getValue());
 		}
 		return result;
-	}
-
-	private static String parseGwtInherits(ScriptBuilder scriptBuilder) {
-		return scriptBuilder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
-				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
-				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}
 
 	private static void executeGradle(ScriptBuilder scriptBuilder, String outputDir, LogCallback callback) {

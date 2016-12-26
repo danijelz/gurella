@@ -11,22 +11,17 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
+import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
 public class NewProjectDetailsPage extends WizardPage {
 	private final DetailsGroup detailsGroup;
-
-	private Button desktop;
-	private Button android;
-	private Button ios;
-	private Button html;
-
+	private final ProjectTypesGroup projectTypesGroup;
 	private final AndroidSdkGroup androidSdkGroup;
 
 	private Text console;
@@ -41,9 +36,21 @@ public class NewProjectDetailsPage extends WizardPage {
 
 		detailsGroup = new DetailsGroup(this);
 		validators.add(detailsGroup);
-		
+
+		projectTypesGroup = new ProjectTypesGroup(this);
+		validators.add(projectTypesGroup);
+
 		androidSdkGroup = new AndroidSdkGroup(this);
 		validators.add(androidSdkGroup);
+
+		projectTypesGroup.setProjectTypeListener(this::projectTypeSelectionChanged);
+	}
+
+	private void projectTypeSelectionChanged(ProjectType projectType, Boolean selected) {
+		if (projectType == ProjectType.ANDROID) {
+			androidSdkGroup.setEnabled(selected.booleanValue());
+			detailsGroup.setNeedsStructuredPackage(!selected.booleanValue());
+		}
 	}
 
 	@Override
@@ -56,28 +63,7 @@ public class NewProjectDetailsPage extends WizardPage {
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
 		detailsGroup.createControl(composite);
-
-		Group projectsGroup = new Group(composite, SWT.NONE);
-		projectsGroup.setFont(composite.getFont());
-		projectsGroup.setText("Projects");
-		projectsGroup.setLayout(new GridLayout(5, false));
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(projectsGroup);
-
-		desktop = new Button(projectsGroup, SWT.CHECK);
-		desktop.setText("Desktop");
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(desktop);
-		android = new Button(projectsGroup, SWT.CHECK);
-		android.setText("Android");
-		android.addListener(SWT.Selection, e -> androidSdkGroup.setEnabled(android.getSelection()));
-		android.addListener(SWT.DefaultSelection, e -> androidSdkGroup.setEnabled(android.getSelection()));
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(android);
-		ios = new Button(projectsGroup, SWT.CHECK);
-		ios.setText("IOS");
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(ios);
-		html = new Button(projectsGroup, SWT.CHECK);
-		html.setText("Html");
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(html);
-
+		projectTypesGroup.createControl(composite);
 		androidSdkGroup.createControl(composite);
 
 		Group consoleGroup = new Group(composite, SWT.NONE);
@@ -145,11 +131,14 @@ public class NewProjectDetailsPage extends WizardPage {
 			break;
 		case IStatus.WARNING:
 			setPageComplete(true);
+			setErrorMessage(null);
 			setMessage(status.getMessage(), IMessageProvider.WARNING);
 			break;
 		case IStatus.ERROR:
-			setPageComplete(true);
-			setMessage(status.getMessage(), IMessageProvider.ERROR);
+		case IStatus.CANCEL:
+			setPageComplete(false);
+			setMessage(null);
+			setErrorMessage(status.getMessage());
 			break;
 		default:
 			setPageComplete(true);
@@ -167,16 +156,20 @@ public class NewProjectDetailsPage extends WizardPage {
 		return detailsGroup.getPackageName();
 	}
 
+	private boolean isSelectedAndroidProjectType() {
+		return projectTypesGroup.isSelected(ProjectType.ANDROID);
+	}
+
 	String getAndroidSdkLocation() {
-		return android.getSelection() ? androidSdkGroup.getSdkLocation() : "";
+		return isSelectedAndroidProjectType() ? androidSdkGroup.getSdkLocation() : "";
 	}
 
 	String getAndroidApiLevel() {
-		return android.getSelection() ? androidSdkGroup.getApiLevel() : "";
+		return isSelectedAndroidProjectType() ? androidSdkGroup.getApiLevel() : "";
 	}
 
 	String getAndroidBuildToolsVersion() {
-		return android.getSelection() ? androidSdkGroup.getBuildToolsVersion() : "";
+		return isSelectedAndroidProjectType() ? androidSdkGroup.getBuildToolsVersion() : "";
 	}
 
 	public void updateSetupInfo(SetupInfo setupInfo) {

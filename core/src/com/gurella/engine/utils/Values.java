@@ -4,6 +4,29 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.BooleanArray;
+import com.badlogic.gdx.utils.ByteArray;
+import com.badlogic.gdx.utils.CharArray;
+import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.utils.IntFloatMap;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.LongArray;
+import com.badlogic.gdx.utils.LongMap;
+import com.badlogic.gdx.utils.ObjectFloatMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.PooledLinkedList;
+import com.badlogic.gdx.utils.Queue;
+import com.badlogic.gdx.utils.ShortArray;
+import com.badlogic.gdx.utils.SortedIntList;
+
 public class Values {
 	private static final char[] whitespaces = { (char) 0x0009, (char) 0x000A, (char) 0x000B, (char) 0x000C,
 			(char) 0x000D, (char) 0x0020, (char) 0x0085, (char) 0x00A0, (char) 0x1680, (char) 0x180E, (char) 0x2000,
@@ -27,6 +50,56 @@ public class Values {
 			return ((Map<?, ?>) value).isEmpty();
 		} else if (value instanceof Collection) {
 			return ((Collection<?>) value).isEmpty();
+		} else if (value instanceof Array) {
+			return ((Array<?>) value).size == 0;
+		} else if (value instanceof ArrayMap) {
+			return ((ArrayMap<?, ?>) value).size == 0;
+		} else if (value instanceof BooleanArray) {
+			return ((BooleanArray) value).size == 0;
+		} else if (value instanceof ObjectSet) {
+			return ((ObjectSet<?>) value).size == 0;
+		} else if (value instanceof ObjectMap) {
+			return ((ObjectMap<?, ?>) value).size == 0;
+		} else if (value instanceof ObjectIntMap) {
+			return ((ObjectIntMap<?>) value).size == 0;
+		} else if (value instanceof ObjectFloatMap) {
+			return ((ObjectFloatMap<?>) value).size == 0;
+		} else if (value instanceof LongMap) {
+			return ((LongMap<?>) value).size == 0;
+		} else if (value instanceof LongArray) {
+			return ((LongArray) value).size == 0;
+		} else if (value instanceof IntSet) {
+			return ((IntSet) value).size == 0;
+		} else if (value instanceof IntMap) {
+			return ((IntMap<?>) value).size == 0;
+		} else if (value instanceof IntIntMap) {
+			return ((IntIntMap) value).size == 0;
+		} else if (value instanceof IntFloatMap) {
+			return ((IntFloatMap) value).size == 0;
+		} else if (value instanceof IntArray) {
+			return ((IntArray) value).size == 0;
+		} else if (value instanceof IdentityMap) {
+			return ((IdentityMap<?, ?>) value).size == 0;
+		} else if (value instanceof FloatArray) {
+			return ((FloatArray) value).size == 0;
+		} else if (value instanceof CharArray) {
+			return ((CharArray) value).size == 0;
+		} else if (value instanceof ByteArray) {
+			return ((ByteArray) value).size == 0;
+		} else if (value instanceof BooleanArray) {
+			return ((BooleanArray) value).size == 0;
+		} else if (value instanceof Queue) {
+			return ((Queue<?>) value).size == 0;
+		} else if (value instanceof ShortArray) {
+			return ((ShortArray) value).size == 0;
+		} else if (value instanceof SortedIntList) {
+			return ((SortedIntList<?>) value).size() == 0;
+		} else if (value instanceof PooledLinkedList) {
+			return ((PooledLinkedList<?>) value).size() == 0;
+		} else if (value instanceof ImmutableArray) {
+			return ((ImmutableArray<?>) value).size() == 0;
+		} else if (value instanceof Container) {
+			return ((Container) value).size() == 0;
 		} else if (value instanceof Iterable) {
 			return !((Iterable<?>) value).iterator().hasNext();
 		} else if (value.getClass().isArray()) {
