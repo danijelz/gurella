@@ -55,7 +55,7 @@ public class Setup {
 		this.callback = callback;
 
 		mainClass = setupInfo.mainClass;
-		initialScene = "initial.gscn";
+		initialScene = setupInfo.initialScene;
 		androidApiLevel = setupInfo.androidApiLevel;
 		androidBuildToolsVersion = setupInfo.androidBuildToolsVersion;
 		appName = setupInfo.appName;
@@ -93,21 +93,21 @@ public class Setup {
 
 	private void addRootFiles() {
 		GradleScriptBuilder gradleScriptBuilder = new GradleScriptBuilder(setupInfo);
-		files.add(new ProjectFile("gitignore", ".gitignore", false));
+		newProjectFile("gitignore", ".gitignore", false);
 		files.add(new TemporaryProjectFile(gradleScriptBuilder.createSettingsScript(), "settings.gradle", false));
 		files.add(new TemporaryProjectFile(gradleScriptBuilder.createBuildScript(), "build.gradle", false));
-		files.add(new ProjectFile("gradlew", false));
-		files.add(new ProjectFile("gradlew.bat", false));
-		files.add(new ProjectFile("gradle/wrapper/gradle-wrapper.jar", false));
-		files.add(new ProjectFile("gradle/wrapper/gradle-wrapper.properties", false));
-		files.add(new ProjectFile("gradle.properties"));
+		newProjectFile("gradlew", false);
+		newProjectFile("gradlew.bat", false);
+		newProjectFile("gradle/wrapper/gradle-wrapper.jar", false);
+		newProjectFile("gradle/wrapper/gradle-wrapper.properties", false);
+		newProjectFile("gradle.properties");
 	}
 
 	private void addCoreFiles() {
-		files.add(new ProjectFile("core/build.gradle"));
-		files.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
+		newProjectFile("core/build.gradle");
+		newProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true);
 		if (setupInfo.projects.contains(ProjectType.HTML)) {
-			files.add(new ProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true));
+			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
 		}
 	}
 
@@ -116,9 +116,9 @@ public class Setup {
 			return;
 		}
 
-		files.add(new ProjectFile("desktop/build.gradle"));
-		files.add(new ProjectFile("desktop/src/DesktopLauncher",
-				"desktop/src/" + packageDir + "/desktop/DesktopLauncher.java", true));
+		newProjectFile("desktop/build.gradle");
+		newProjectFile("desktop/src/DesktopLauncher", "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java",
+				true);
 	}
 
 	private void addAndroidFiles() {
@@ -131,21 +131,20 @@ public class Setup {
 		replacements.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
 		replacements.put("%API_LEVEL%", androidApiLevel);
 
-		files.add(new ProjectFile("android/res/values/strings.xml"));
-		files.add(new ProjectFile("android/res/values/styles.xml", false));
-		files.add(new ProjectFile("android/res/drawable-hdpi/ic_launcher.png", false));
-		files.add(new ProjectFile("android/res/drawable-mdpi/ic_launcher.png", false));
-		files.add(new ProjectFile("android/res/drawable-xhdpi/ic_launcher.png", false));
-		files.add(new ProjectFile("android/res/drawable-xxhdpi/ic_launcher.png", false));
-		files.add(new ProjectFile("android/res/drawable-xxxhdpi/ic_launcher.png", false));
-		files.add(new ProjectFile("android/src/AndroidLauncher", "android/src/" + packageDir + "/AndroidLauncher.java",
-				true));
-		files.add(new ProjectFile("android/AndroidManifest.xml"));
-		files.add(new ProjectFile("android/build.gradle", true));
-		files.add(new ProjectFile("android/ic_launcher-web.png", false));
-		files.add(new ProjectFile("android/proguard-project.txt", false));
-		files.add(new ProjectFile("android/project.properties", false));
-		files.add(new ProjectFile("local.properties", true));
+		newProjectFile("android/res/values/strings.xml");
+		newProjectFile("android/res/values/styles.xml", false);
+		newProjectFile("android/res/drawable-hdpi/ic_launcher.png", false);
+		newProjectFile("android/res/drawable-mdpi/ic_launcher.png", false);
+		newProjectFile("android/res/drawable-xhdpi/ic_launcher.png", false);
+		newProjectFile("android/res/drawable-xxhdpi/ic_launcher.png", false);
+		newProjectFile("android/res/drawable-xxxhdpi/ic_launcher.png", false);
+		newProjectFile("android/src/AndroidLauncher", "android/src/" + packageDir + "/AndroidLauncher.java", true);
+		newProjectFile("android/AndroidManifest.xml");
+		newProjectFile("android/build.gradle", true);
+		newProjectFile("android/ic_launcher-web.png", false);
+		newProjectFile("android/proguard-project.txt", false);
+		newProjectFile("android/project.properties", false);
+		newProjectFile("local.properties", true);
 	}
 
 	private void addHtmlFiles() {
@@ -156,18 +155,16 @@ public class Setup {
 		replacements.put("%GWT_VERSION%", SetupConstants.gwtVersion);
 		replacements.put("%GWT_INHERITS%", parseGwtInherits());
 
-		files.add(new ProjectFile("html/build.gradle"));
-		files.add(
-				new ProjectFile("html/src/HtmlLauncher", "html/src/" + packageDir + "/client/HtmlLauncher.java", true));
-		files.add(new ProjectFile("html/GdxDefinition", "html/src/" + packageDir + "/GdxDefinition.gwt.xml", true));
-		files.add(new ProjectFile("html/GdxDefinitionSuperdev",
-				"html/src/" + packageDir + "/GdxDefinitionSuperdev.gwt.xml", true));
-		files.add(new ProjectFile("html/war/index", "html/webapp/index.html", true));
-		files.add(new ProjectFile("html/war/styles.css", "html/webapp/styles.css", false));
-		files.add(new ProjectFile("html/war/refresh.png", "html/webapp/refresh.png", false));
-		files.add(new ProjectFile("html/war/soundmanager2-jsmin.js", "html/webapp/soundmanager2-jsmin.js", false));
-		files.add(new ProjectFile("html/war/soundmanager2-setup.js", "html/webapp/soundmanager2-setup.js", false));
-		files.add(new ProjectFile("html/war/WEB-INF/web.xml", "html/webapp/WEB-INF/web.xml", true));
+		newProjectFile("html/build.gradle");
+		newProjectFile("html/src/HtmlLauncher", "html/src/" + packageDir + "/client/HtmlLauncher.java", true);
+		newProjectFile("html/GdxDefinition", "html/src/" + packageDir + "/GdxDefinition.gwt.xml", true);
+		newProjectFile("html/GdxDefinitionSuperdev", "html/src/" + packageDir + "/GdxDefinitionSuperdev.gwt.xml", true);
+		newProjectFile("html/war/index", "html/webapp/index.html", true);
+		newProjectFile("html/war/styles.css", "html/webapp/styles.css", false);
+		newProjectFile("html/war/refresh.png", "html/webapp/refresh.png", false);
+		newProjectFile("html/war/soundmanager2-jsmin.js", "html/webapp/soundmanager2-jsmin.js", false);
+		newProjectFile("html/war/soundmanager2-setup.js", "html/webapp/soundmanager2-setup.js", false);
+		newProjectFile("html/war/WEB-INF/web.xml", "html/webapp/WEB-INF/web.xml", true);
 	}
 
 	private String parseGwtInherits() {
@@ -181,23 +178,23 @@ public class Setup {
 			return;
 		}
 
-		files.add(new ProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true));
-		files.add(new ProjectFile("ios/data/Default.png", false));
-		files.add(new ProjectFile("ios/data/Default@2x.png", false));
-		files.add(new ProjectFile("ios/data/Default@2x~ipad.png", false));
-		files.add(new ProjectFile("ios/data/Default-568h@2x.png", false));
-		files.add(new ProjectFile("ios/data/Default~ipad.png", false));
-		files.add(new ProjectFile("ios/data/Default-375w-667h@2x.png", false));
-		files.add(new ProjectFile("ios/data/Default-414w-736h@3x.png", false));
-		files.add(new ProjectFile("ios/data/Default-1024w-1366h@2x~ipad.png", false));
-		files.add(new ProjectFile("ios/data/Icon.png", false));
-		files.add(new ProjectFile("ios/data/Icon@2x.png", false));
-		files.add(new ProjectFile("ios/data/Icon-72.png", false));
-		files.add(new ProjectFile("ios/data/Icon-72@2x.png", false));
-		files.add(new ProjectFile("ios/build.gradle", true));
-		files.add(new ProjectFile("ios/Info.plist.xml", false));
-		files.add(new ProjectFile("ios/robovm.properties"));
-		files.add(new ProjectFile("ios/robovm.xml", true));
+		newProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true);
+		newProjectFile("ios/data/Default.png", false);
+		newProjectFile("ios/data/Default@2x.png", false);
+		newProjectFile("ios/data/Default@2x~ipad.png", false);
+		newProjectFile("ios/data/Default-568h@2x.png", false);
+		newProjectFile("ios/data/Default~ipad.png", false);
+		newProjectFile("ios/data/Default-375w-667h@2x.png", false);
+		newProjectFile("ios/data/Default-414w-736h@3x.png", false);
+		newProjectFile("ios/data/Default-1024w-1366h@2x~ipad.png", false);
+		newProjectFile("ios/data/Icon.png", false);
+		newProjectFile("ios/data/Icon@2x.png", false);
+		newProjectFile("ios/data/Icon-72.png", false);
+		newProjectFile("ios/data/Icon-72@2x.png", false);
+		newProjectFile("ios/build.gradle", true);
+		newProjectFile("ios/Info.plist.xml", false);
+		newProjectFile("ios/robovm.properties");
+		newProjectFile("ios/robovm.xml", true);
 	}
 
 	private void addIosMoeFiles() {
@@ -205,34 +202,45 @@ public class Setup {
 			return;
 		}
 
-		files.add(new ProjectFile("ios-moe/resources/Default.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default@2x.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default@2x~ipad.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default-568h@2x.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default~ipad.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default-375w-667h@2x.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default-414w-736h@3x.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Default-1024w-1366h@2x~ipad.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Icon.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Icon@2x.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Icon-72.png", false));
-		files.add(new ProjectFile("ios-moe/resources/Icon-72@2x.png", false));
-		files.add(new ProjectFile("ios-moe/src/IOSMoeLauncher", "ios-moe/src/" + packageDir + "/IOSMoeLauncher.java",
-				true));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe/build.xcconfig", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe/custom.xcconfig", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe-Test/build.xcconfig", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe-Test/Info-Test.plist", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe/Info.plist", true));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe/main.cpp", false));
-		files.add(new ProjectFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj", true));
-		files.add(new ProjectFile("ios-moe/build.gradle", true));
+		newProjectFile("ios-moe/resources/Default.png", false);
+		newProjectFile("ios-moe/resources/Default@2x.png", false);
+		newProjectFile("ios-moe/resources/Default@2x~ipad.png", false);
+		newProjectFile("ios-moe/resources/Default-568h@2x.png", false);
+		newProjectFile("ios-moe/resources/Default~ipad.png", false);
+		newProjectFile("ios-moe/resources/Default-375w-667h@2x.png", false);
+		newProjectFile("ios-moe/resources/Default-414w-736h@3x.png", false);
+		newProjectFile("ios-moe/resources/Default-1024w-1366h@2x~ipad.png", false);
+		newProjectFile("ios-moe/resources/Icon.png", false);
+		newProjectFile("ios-moe/resources/Icon@2x.png", false);
+		newProjectFile("ios-moe/resources/Icon-72.png", false);
+		newProjectFile("ios-moe/resources/Icon-72@2x.png", false);
+		newProjectFile("ios-moe/src/IOSMoeLauncher", "ios-moe/src/" + packageDir + "/IOSMoeLauncher.java", true);
+		newProjectFile("ios-moe/xcode/ios-moe/build.xcconfig", false);
+		newProjectFile("ios-moe/xcode/ios-moe/custom.xcconfig", false);
+		newProjectFile("ios-moe/xcode/ios-moe-Test/build.xcconfig", false);
+		newProjectFile("ios-moe/xcode/ios-moe-Test/Info-Test.plist", false);
+		newProjectFile("ios-moe/xcode/ios-moe/Info.plist", true);
+		newProjectFile("ios-moe/xcode/ios-moe/main.cpp", false);
+		newProjectFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj", true);
+		newProjectFile("ios-moe/build.gradle", true);
 	}
 
 	private void addAssetsFiles() {
-		files.add(new ProjectFile("android/assets/application.gcfg", assetPath + "/application.gcfg", true));
-		files.add(new ProjectFile("android/assets/initial.gscn", assetPath + "/" + initialScene, false));
-		files.add(new ProjectFile("android/assets/cloudySea.jpg", assetPath + "/sky/cloudySea.jpg", false));
+		newProjectFile("android/assets/application.gcfg", assetPath + "/application.gcfg", true);
+		newProjectFile("android/assets/initial.gscn", assetPath + "/scenes/" + initialScene, false);
+		newProjectFile("android/assets/cloudySea.jpg", assetPath + "/sky/cloudySea.jpg", false);
+	}
+
+	private void newProjectFile(String resourceName) {
+		files.add(new ProjectFile(resourceName));
+	}
+
+	private void newProjectFile(String resourceName, boolean isTemplate) {
+		files.add(new ProjectFile(resourceName, isTemplate));
+	}
+
+	private void newProjectFile(String resourceName, String outputName, boolean isTemplate) {
+		files.add(new ProjectFile(resourceName, outputName, isTemplate));
 	}
 
 	private void copyAndReplace() {

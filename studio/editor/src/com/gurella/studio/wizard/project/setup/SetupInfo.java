@@ -19,6 +19,7 @@ public class SetupInfo {
 	public String location;
 	public String packageName;
 	public String mainClass; //TODO remove
+	public String initialScene = "initial.gscn"; //TODO remove
 	public String androidSdkLocation;
 	public String androidApiLevel;
 	public String androidBuildToolsVersion;
