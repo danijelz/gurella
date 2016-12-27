@@ -2,8 +2,6 @@ package com.gurella.studio.wizard.project;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -25,12 +23,9 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.wizard.project.setup.Dependency;
-import com.gurella.studio.wizard.project.setup.ProjectType;
-import com.gurella.studio.wizard.project.setup.ScriptBuilder;
+import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 import com.gurella.studio.wizard.project.setup.Setup;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
-import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
 	private NewProjectMainPage mainPage;
@@ -67,21 +62,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		mainPage.updateSetupInfo(setupInfo);
 		detailsPage.updateSetupInfo(setupInfo);
 
-		List<ProjectType> modules = new ArrayList<ProjectType>();
-		modules.add(ProjectType.CORE);
-		modules.add(ProjectType.DESKTOP);
-		modules.add(ProjectType.IOSMOE);
-		modules.add(ProjectType.ANDROID);
-		// modules.add(ProjectType.HTML);
-
-		List<Dependency> dependencies = new ArrayList<Dependency>();
-		dependencies.add(Dependency.GDX);
-		dependencies.add(Dependency.BULLET);
-		dependencies.add(Dependency.BOX2D);
-		dependencies.add(Dependency.GURELLA);
-
-		ScriptBuilder scriptBuilder = new ScriptBuilder(modules, dependencies);
-		IRunnableWithProgress runnable = new BuildProjectsRunnable(scriptBuilder);
+		IRunnableWithProgress runnable = new BuildProjectsRunnable(setupInfo);
 		getContainer().run(true, true, runnable);
 
 		String projectLocation = mainPage.getProjectLocation();
@@ -103,30 +84,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
-		private final ScriptBuilder scriptBuilder;
-
-		private final String name;
-		private final String location;
-		private final String pack;
-		private final String clazz;
-		private final String androidSdkLocation;
-		private final String androidAPILevel;
-		private final String androidBuildToolsVersion;
+		private final SetupInfo setupInfo;
 
 		private final ISchedulingRule rule;
 		private final boolean transferRule;
 
 		private final StringBuilder log = new StringBuilder();
 
-		private BuildProjectsRunnable(ScriptBuilder scriptBuilder) {
-			this.scriptBuilder = scriptBuilder;
-			this.name = mainPage.getProjectName();
-			this.location = mainPage.getProjectLocation();
-			this.pack = detailsPage.getPackageName();
-			this.clazz = detailsPage.getMainClassName();
-			this.androidSdkLocation = detailsPage.getAndroidSdkLocation();
-			this.androidAPILevel = detailsPage.getAndroidApiLevel();
-			this.androidBuildToolsVersion = detailsPage.getAndroidBuildToolsVersion();
+		private BuildProjectsRunnable(SetupInfo setupInfo) {
+			this.setupInfo = setupInfo;
 
 			Job job = Job.getJobManager().currentJob();
 			if (job == null) {
@@ -150,9 +116,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		}
 
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
-			log("Generating app in " + location + "\n");
-			new Setup().build(scriptBuilder, location, name, pack, clazz, androidSdkLocation, androidAPILevel,
-					androidBuildToolsVersion, this);
+			log("Generating app in " + setupInfo.location + "\n");
+			new Setup(setupInfo, this).build();
 			log("Done!\n");
 		}
 

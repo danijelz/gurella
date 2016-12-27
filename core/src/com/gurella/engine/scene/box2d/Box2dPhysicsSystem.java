@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.gurella.engine.application.Application;
+import com.gurella.engine.application.GurellaApplication;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneService;
@@ -36,7 +36,7 @@ public class Box2dPhysicsSystem extends SceneService
 
 	@Override
 	protected void serviceActivated() {
-		paused = ((Application) Gdx.app.getApplicationListener()).isPaused();
+		paused = ((GurellaApplication) Gdx.app.getApplicationListener()).isPaused();
 	}
 
 	@Override

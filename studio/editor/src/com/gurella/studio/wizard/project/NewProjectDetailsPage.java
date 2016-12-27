@@ -23,7 +23,6 @@ public class NewProjectDetailsPage extends WizardPage {
 	private final DetailsGroup detailsGroup;
 	private final ProjectTypesGroup projectTypesGroup;
 	private final AndroidSdkGroup androidSdkGroup;
-
 	private Text console;
 
 	private List<Validator> validators = new ArrayList<>();
@@ -73,8 +72,8 @@ public class NewProjectDetailsPage extends WizardPage {
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).minSize(200, 200).grab(true, true)
 				.applyTo(consoleGroup);
 
-		console = new Text(consoleGroup,
-				SWT.MULTI | SWT.READ_ONLY | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		console = new Text(consoleGroup, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		console.setEditable(false);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(console);
 
 		setControl(composite);
@@ -172,11 +171,16 @@ public class NewProjectDetailsPage extends WizardPage {
 		return isSelectedAndroidProjectType() ? androidSdkGroup.getBuildToolsVersion() : "";
 	}
 
-	public void updateSetupInfo(SetupInfo setupInfo) {
+	List<ProjectType> getSelectedProjectTypes() {
+		return projectTypesGroup.getSelectedProjectTypes();
+	}
+
+	void updateSetupInfo(SetupInfo setupInfo) {
 		setupInfo.packageName = getPackageName();
 		setupInfo.mainClass = getMainClassName();
 		setupInfo.androidSdkLocation = getAndroidSdkLocation();
 		setupInfo.androidApiLevel = getAndroidApiLevel();
 		setupInfo.androidBuildToolsVersion = getAndroidBuildToolsVersion();
+		setupInfo.projects.addAll(getSelectedProjectTypes());
 	}
 }

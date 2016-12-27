@@ -454,7 +454,7 @@ public class NewProjectMainPage extends WizardPage {
 	}
 
 	public void updateSetupInfo(SetupInfo setupInfo) {
-		setupInfo.name = getProjectName();
+		setupInfo.appName = getProjectName();
 		setupInfo.location = getProjectLocation();
 	}
 }

@@ -2,11 +2,11 @@ package %PACKAGE%.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import %PACKAGE%.%MAIN_CLASS%;
+import com.gurella.engine.application.GurellaApplication;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new %MAIN_CLASS%(), config);
+		new LwjglApplication(new GurellaApplication(), config);
 	}
 }

@@ -33,30 +33,51 @@ import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 public class Setup {
 	private static final String resourceLoc = "setup/";
 
-	private List<ProjectFile> files = new ArrayList<ProjectFile>();
-	private Map<String, String> values = new HashMap<String, String>();
+	private final SetupInfo setupInfo;
+	private final LogCallback callback;
 
-	private ScriptBuilder scriptBuilder;
+	private final List<ProjectFile> files = new ArrayList<ProjectFile>();
+	private final Map<String, String> replacements = new HashMap<String, String>();
+
+	private String appName;
 	private String mainClass;
-	private String androidAPILevel;
+	private String initialScene;
+	private String packageName;
+	private String androidApiLevel;
 	private String androidBuildToolsVersion;
-	private String sdkPath;
 
+	private String outputDir;
 	private String packageDir;
 	private String assetPath;
 
-	public void build(ScriptBuilder scriptBuilder, String outputDir, String appName, String packageName,
-			String mainClass, String sdkLocation, String androidAPILevel, String androidBuildToolsVersion,
-			LogCallback callback) {
-		this.mainClass = mainClass;
-		this.scriptBuilder = scriptBuilder;
-		this.androidAPILevel = androidAPILevel;
-		this.androidBuildToolsVersion = androidBuildToolsVersion;
+	public Setup(SetupInfo setupInfo, LogCallback callback) {
+		this.setupInfo = setupInfo;
+		this.callback = callback;
 
-		packageDir = packageName.replace('.', '/');
-		sdkPath = sdkLocation.replace('\\', '/');
-		assetPath = scriptBuilder.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
+		mainClass = setupInfo.mainClass;
+		initialScene = "initial.gscn";
+		androidApiLevel = setupInfo.androidApiLevel;
+		androidBuildToolsVersion = setupInfo.androidBuildToolsVersion;
+		appName = setupInfo.appName;
+		packageName = setupInfo.packageName;
+		outputDir = setupInfo.location;
+		packageDir = setupInfo.packageName.replace('.', '/');
+		assetPath = setupInfo.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
 
+		addDefaultReplacements();
+	}
+
+	private void addDefaultReplacements() {
+		replacements.put("%APP_NAME%", appName);
+		replacements.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
+		replacements.put("%PACKAGE%", packageName);
+		replacements.put("%PACKAGE_DIR%", packageDir);
+		replacements.put("%MAIN_CLASS%", mainClass);
+		replacements.put("%ASSET_PATH%", assetPath);
+		replacements.put("%INITIAL_SCENE%", initialScene);
+	}
+
+	public void build() {
 		addRootFiles();
 		addCoreFiles();
 		addDesktopFiles();
@@ -66,21 +87,15 @@ public class Setup {
 		addIosMoeFiles();
 		addAssetsFiles();
 
-		values.put("%APP_NAME%", appName);
-		values.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
-		values.put("%PACKAGE%", packageName);
-		values.put("%PACKAGE_DIR%", packageDir);
-		values.put("%MAIN_CLASS%", mainClass);
-		values.put("%ASSET_PATH%", assetPath);
-
-		copyAndReplace(outputDir, files, values);
-		executeGradle(scriptBuilder, outputDir, callback);
+		copyAndReplace();
+		executeGradle();
 	}
 
 	private void addRootFiles() {
+		GradleScriptBuilder gradleScriptBuilder = new GradleScriptBuilder(setupInfo);
 		files.add(new ProjectFile("gitignore", ".gitignore", false));
-		files.add(new TemporaryProjectFile(scriptBuilder.settingsFile, "settings.gradle", false));
-		files.add(new TemporaryProjectFile(scriptBuilder.buildFile, "build.gradle", true));
+		files.add(new TemporaryProjectFile(gradleScriptBuilder.createSettingsScript(), "settings.gradle", false));
+		files.add(new TemporaryProjectFile(gradleScriptBuilder.createBuildScript(), "build.gradle", false));
 		files.add(new ProjectFile("gradlew", false));
 		files.add(new ProjectFile("gradlew.bat", false));
 		files.add(new ProjectFile("gradle/wrapper/gradle-wrapper.jar", false));
@@ -91,13 +106,13 @@ public class Setup {
 	private void addCoreFiles() {
 		files.add(new ProjectFile("core/build.gradle"));
 		files.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
-		if (scriptBuilder.projects.contains(ProjectType.HTML)) {
+		if (setupInfo.projects.contains(ProjectType.HTML)) {
 			files.add(new ProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true));
 		}
 	}
 
 	private void addDesktopFiles() {
-		if (!scriptBuilder.projects.contains(ProjectType.DESKTOP)) {
+		if (!setupInfo.projects.contains(ProjectType.DESKTOP)) {
 			return;
 		}
 
@@ -107,13 +122,14 @@ public class Setup {
 	}
 
 	private void addAndroidFiles() {
-		if (!scriptBuilder.projects.contains(ProjectType.ANDROID)) {
+		if (!setupInfo.projects.contains(ProjectType.ANDROID)) {
 			return;
 		}
 
-		values.put("%ANDROID_SDK%", sdkPath);
-		values.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
-		values.put("%API_LEVEL%", androidAPILevel);
+		String sdkPath = setupInfo.androidSdkLocation.replace('\\', '/');
+		replacements.put("%ANDROID_SDK%", sdkPath);
+		replacements.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
+		replacements.put("%API_LEVEL%", androidApiLevel);
 
 		files.add(new ProjectFile("android/res/values/strings.xml"));
 		files.add(new ProjectFile("android/res/values/styles.xml", false));
@@ -133,12 +149,12 @@ public class Setup {
 	}
 
 	private void addHtmlFiles() {
-		if (!scriptBuilder.projects.contains(ProjectType.HTML)) {
+		if (!setupInfo.projects.contains(ProjectType.HTML)) {
 			return;
 		}
 
-		values.put("%GWT_VERSION%", SetupConstants.gwtVersion);
-		values.put("%GWT_INHERITS%", parseGwtInherits());
+		replacements.put("%GWT_VERSION%", SetupConstants.gwtVersion);
+		replacements.put("%GWT_INHERITS%", parseGwtInherits());
 
 		files.add(new ProjectFile("html/build.gradle"));
 		files.add(
@@ -155,13 +171,13 @@ public class Setup {
 	}
 
 	private String parseGwtInherits() {
-		return scriptBuilder.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
+		return setupInfo.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
 				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
 				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}
 
 	private void addIosRobovmFiles() {
-		if (!scriptBuilder.projects.contains(ProjectType.IOS)) {
+		if (!setupInfo.projects.contains(ProjectType.IOS)) {
 			return;
 		}
 
@@ -185,7 +201,7 @@ public class Setup {
 	}
 
 	private void addIosMoeFiles() {
-		if (!scriptBuilder.projects.contains(ProjectType.IOSMOE)) {
+		if (!setupInfo.projects.contains(ProjectType.IOSMOE)) {
 			return;
 		}
 
@@ -214,14 +230,16 @@ public class Setup {
 	}
 
 	private void addAssetsFiles() {
-		files.add(new ProjectFile("android/assets/badlogic.jpg", assetPath + "/badlogic.jpg", false));
+		files.add(new ProjectFile("android/assets/application.gcfg", assetPath + "/application.gcfg", true));
+		files.add(new ProjectFile("android/assets/initial.gscn", assetPath + "/" + initialScene, false));
+		files.add(new ProjectFile("android/assets/cloudySea.jpg", assetPath + "/sky/cloudySea.jpg", false));
 	}
 
-	private static void copyAndReplace(String outputDir, List<ProjectFile> files, Map<String, String> values) {
+	private void copyAndReplace() {
 		File out = new File(outputDir);
 		Optional.of(out).filter(o -> o.exists() || o.mkdirs()).orElseThrow(
 				() -> new RuntimeException("Couldn't create output directory '" + out.getAbsolutePath() + "'"));
-		files.forEach(f -> copyFile(f, out, values));
+		files.forEach(f -> copyFile(out, f));
 	}
 
 	private static byte[] readResource(String resource, String path) {
@@ -271,8 +289,8 @@ public class Setup {
 		writeFile(outFile, Try.ofFailable(() -> text.getBytes("UTF-8")).getUnchecked());
 	}
 
-	private static void copyFile(ProjectFile file, File out, Map<String, String> values) {
-		File outFile = new File(out, file.outputName);
+	private void copyFile(File parent, ProjectFile file) {
+		File outFile = new File(parent, file.outputName);
 		if (!outFile.getParentFile().exists() && !outFile.getParentFile().mkdirs()) {
 			throw new RuntimeException("Couldn't create dir '" + outFile.getAbsolutePath() + "'");
 		}
@@ -284,7 +302,7 @@ public class Setup {
 			} else {
 				txt = readResourceAsString(file.resourceName, resourceLoc);
 			}
-			txt = replace(txt, values);
+			txt = replace(txt);
 			writeFile(outFile, txt);
 		} else {
 			if (file instanceof TemporaryProjectFile) {
@@ -295,26 +313,26 @@ public class Setup {
 		}
 	}
 
-	private static String replace(String txt, Map<String, String> values) {
+	private String replace(String txt) {
 		String result = txt;
-		for (Entry<String, String> entry : values.entrySet()) {
+		for (Entry<String, String> entry : replacements.entrySet()) {
 			result = result.replace(entry.getKey(), entry.getValue());
 		}
 		return result;
 	}
 
-	private static void executeGradle(ScriptBuilder scriptBuilder, String outputDir, LogCallback callback) {
+	private void executeGradle() {
 		// HACK executable flag isn't preserved for whatever reason...
 		new File(outputDir, "gradlew").setExecutable(true);
-		Executor.execute(new File(outputDir), getGradleArgs(scriptBuilder.projects), callback);
+		Executor.execute(new File(outputDir), getGradleArgs(), callback);
 	}
 
-	private static List<String> getGradleArgs(List<ProjectType> modules) {
+	private List<String> getGradleArgs() {
 		final List<String> gradleArgs = new ArrayList<String>();
 
 		gradleArgs.add("clean");
 		gradleArgs.add("eclipse");
-		if (modules.contains(DESKTOP)) {
+		if (setupInfo.projects.contains(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
 		}
 

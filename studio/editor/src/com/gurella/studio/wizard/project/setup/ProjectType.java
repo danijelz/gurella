@@ -1,29 +1,29 @@
 package com.gurella.studio.wizard.project.setup;
 
 public enum ProjectType {
-	CORE("core", new String[] { "java" }),
-	DESKTOP("desktop", new String[] { "java" }),
-	ANDROID("android", new String[] { "android" }),
-	IOS("ios", new String[] { "java", "robovm" }),
-	IOSMOE("ios-moe", new String[] { "moe" }),
-	HTML("html", new String[] { "gwt", "war" });
+	CORE("core", "java"),
+	DESKTOP("desktop", "java"),
+	ANDROID("android", "android"),
+	IOS("ios", "java", "robovm"),
+	IOSMOE("ios-moe", "moe"),
+	HTML("html", "gwt", "war");
 
 	final String name;
-	private final String[] plugins;
+	private final String[] gradlePlugins;
 
-	ProjectType(String name, String plugins[]) {
+	ProjectType(String name, String... gradlePlugins) {
 		this.name = name;
-		this.plugins = plugins;
+		this.gradlePlugins = gradlePlugins;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public String[] getPlugins() {
-		return plugins;
+	public String[] getGradlePlugins() {
+		return gradlePlugins;
 	}
-	
+
 	public boolean needsNatives() {
 		return this == ProjectType.ANDROID || this == ProjectType.IOSMOE;
 	}

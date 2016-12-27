@@ -1,0 +1,48 @@
+{
+0: {
+	uuid: d8eadbe6567245db8009558a15c3debb
+	nodes: {
+		elements: [ 3, 1, 2, 3 ]
+	}
+}
+1: {
+	#: com.gurella.engine.scene.SceneNode
+	uuid: 0e09e9691308437395deea13c2fa5962
+	name: Main camera
+	components: {
+		elements: [ 2, 4, 5 ]
+	}
+}
+2: {
+	#: com.gurella.engine.scene.SceneNode
+	uuid: cd06704a71fe451dae888deae05307eb
+	name: Directional light
+	components: {
+		elements: [ 2, 6, 7 ]
+	}
+}
+3: {
+	#: com.gurella.engine.scene.SceneNode
+	uuid: 616263fc35824934b4c0b7f07bb6888b
+	name: Skybox
+	components: {
+		elements: [ 2, 8, 9 ]
+	}
+}
+4: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: 5e8ed28e9da5415f8aee79ce8e1d9398 }
+5: {
+	#: com.gurella.engine.scene.camera.PerspectiveCameraComponent
+	uuid: 33055008f0e046adaadb4be18920c965
+	viewport: { worldWidth: 6, worldHeight: 1 }
+}
+6: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: cef74e38c0ee4188b56440709bf0d80a }
+7: { #: com.gurella.engine.scene.light.DirectionalLightComponent, uuid: 114cb752593f4a5cbee4ed675b93846c }
+8: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: 5f2e345362d342179c09c3d556c114fc }
+9: {
+	#: com.gurella.engine.scene.renderable.skybox.SkyboxComponent
+	uuid: 5d003e8cbbc64a0e9a1fee1c3f28a379
+	layer: 0:Default
+	texture: { #: @, p: sky/cloudySea.jpg }
+}
+d: [ com.badlogic.gdx.graphics.Pixmap sky/cloudySea.jpg ]
+}

@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.joining;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -14,27 +13,18 @@ import java.util.stream.Stream;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 
-public class ScriptBuilder {
-	List<ProjectType> projects = new ArrayList<ProjectType>();
-	List<Dependency> dependencies = new ArrayList<Dependency>();
-	List<String> incompatibilities = new ArrayList<String>();
-
-	File settingsFile;
-	File buildFile;
+public class GradleScriptBuilder {
+	private final String appName;
+	private final List<ProjectType> projects;
+	private final List<Dependency> dependencies;
 
 	private int indent = 0;
 	private BufferedWriter writer;
 
-	public ScriptBuilder(List<ProjectType> projects, List<Dependency> dependencies) {
-		this.projects = projects;
-		this.dependencies = dependencies;
-		dependencies.stream().forEach(d -> projects.forEach(p -> incompatibilities.addAll(d.getIncompatibilities(p))));
-
-		settingsFile = createTempFile("libgdx-setup-settings", ".gradle");
-		buildFile = createTempFile("libgdx-setup-build", ".gradle");
-
-		writeSettings();
-		writeBuildScript();
+	public GradleScriptBuilder(SetupInfo setupInfo) {
+		appName = setupInfo.appName;
+		projects = setupInfo.projects;
+		dependencies = setupInfo.dependencies;
 	}
 
 	private static File createTempFile(String prefix, String suffix) {
@@ -51,22 +41,26 @@ public class ScriptBuilder {
 		}
 	}
 
-	private void writeSettings() {
+	public File createSettingsScript() {
+		File settingsFile = createTempFile("gurella-setup-settings", ".gradle");
 		try (FileWriter settingsWriter = new FileWriter(settingsFile);
 				BufferedWriter settingsBw = new BufferedWriter(settingsWriter)) {
 			settingsBw.write(projects.stream().map(p -> p.getName()).collect(joining("', '", "include '", "'")));
+			return settingsFile;
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
 		}
 	}
 
-	private void writeBuildScript() {
+	public File createBuildScript() {
+		File buildFile = createTempFile("gurella-setup-build", ".gradle");
 		try (FileWriter buildWriter = new FileWriter(buildFile);
 				BufferedWriter writer = new BufferedWriter(buildWriter)) {
 			this.writer = writer;
 			addBuildScript();
 			addAllProjects();
 			projects.forEach(p -> addProject(p));
+			return buildFile;
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
 		}
@@ -122,7 +116,7 @@ public class ScriptBuilder {
 		write("version = '1.0'");
 		space();
 		write("ext {");
-		write("appName = \"%APP_NAME%\"");
+		write("appName = \"" + appName + "\"");
 		write("gdxVersion = '" + SetupConstants.libgdxVersion + "'");
 		write("gurellaVersion = '" + SetupConstants.gurellaVersion + "'");
 		write("roboVMVersion = '" + SetupConstants.roboVmPluginVersion + "'");
@@ -142,7 +136,7 @@ public class ScriptBuilder {
 	private void addProject(ProjectType projectType) {
 		space();
 		write("project(\":" + projectType.getName() + "\") {");
-		Arrays.stream(projectType.getPlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
+		Arrays.stream(projectType.getGradlePlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
 		space();
 
 		if (projectType.needsNatives()) {

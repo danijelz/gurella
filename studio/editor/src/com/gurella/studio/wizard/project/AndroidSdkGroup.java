@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class AndroidSdkGroup implements Validator {
 	private static final String DIALOGSTORE_LAST_ANDROIDSDK_LOC = PLUGIN_ID + ".newProject.last.androidsdk.location";
@@ -217,7 +218,7 @@ public class AndroidSdkGroup implements Validator {
 			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(ApiLevel::parse).findFirst()
 					.orElse(null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			GurellaStudioPlugin.log(e, "Error while parsing ApiLevel");
 		}
 
 		return null;
@@ -239,7 +240,7 @@ public class AndroidSdkGroup implements Validator {
 			return buffer.lines().filter(l -> l.contains("Pkg.Revision")).map(BuildToolsVersion::parse).findFirst()
 					.orElse(null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			GurellaStudioPlugin.log(e, "Error while parsing BuildToolsVersion");
 		}
 
 		return null;

@@ -16,7 +16,7 @@ import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 
-public final class Application implements ApplicationListener {
+public final class GurellaApplication implements ApplicationListener {
 	private static final String defaultConfigLocation = "application.gcfg";
 
 	private static final PauseEvent pauseEvent = new PauseEvent();
@@ -32,20 +32,20 @@ public final class Application implements ApplicationListener {
 
 	private boolean paused;
 
-	public Application() {
+	public GurellaApplication() {
 		this.configLocation = defaultConfigLocation;
 	}
 
-	public Application(ApplicationConfig config) {
+	public GurellaApplication(ApplicationConfig config) {
 		this.config = config;
 	}
 
-	public Application(String configLocation) {
+	public GurellaApplication(String configLocation) {
 		this.configLocation = configLocation;
 	}
 
-	public static Application current() {
-		return (Application) Gdx.app.getApplicationListener();
+	public static GurellaApplication current() {
+		return (GurellaApplication) Gdx.app.getApplicationListener();
 	}
 
 	@Override

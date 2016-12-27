@@ -3,7 +3,7 @@ package %PACKAGE%;
 import com.badlogic.gdx.backends.iosmoe.IOSApplication;
 import com.badlogic.gdx.backends.iosmoe.IOSApplicationConfiguration;
 import org.moe.natj.general.Pointer;
-import %PACKAGE%.%MAIN_CLASS%;
+import com.gurella.engine.application.GurellaApplication;
 
 import apple.uikit.c.UIKit;
 
@@ -16,7 +16,7 @@ public class IOSMoeLauncher extends IOSApplication.Delegate {
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
         config.useAccelerometer = false;
-        return new IOSApplication(new %MAIN_CLASS%(), config);
+        return new IOSApplication(new GurellaApplication(), config);
     }
 
     public static void main(String[] argv) {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
-import com.gurella.engine.application.Application;
+import com.gurella.engine.application.GurellaApplication;
 import com.gurella.engine.application.ApplicationConfig;
 
 public class LaunchSceneApplication {
@@ -20,7 +20,7 @@ public class LaunchSceneApplication {
 
 		String initialScenePath = System.getProperty("gurellaDebugScene");
 		System.out.println("Starting scene: " + initialScenePath);
-		new LaunchSceneLwjglApplication(new Application(new ApplicationConfig(initialScenePath)), cfg);
+		new LaunchSceneLwjglApplication(new GurellaApplication(new ApplicationConfig(initialScenePath)), cfg);
 	}
 
 	private static class LaunchSceneLwjglApplication extends LwjglApplication {

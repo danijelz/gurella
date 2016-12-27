@@ -16,7 +16,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.gurella.engine.application.Application;
+import com.gurella.engine.application.GurellaApplication;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;

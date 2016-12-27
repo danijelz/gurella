@@ -3,10 +3,9 @@ package %PACKAGE%.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import %PACKAGE%.%MAIN_CLASS%;
+import com.gurella.engine.application.GurellaApplication;
 
 public class HtmlLauncher extends GwtApplication {
-
         @Override
         public GwtApplicationConfiguration getConfig () {
                 return new GwtApplicationConfiguration(480, 320);
@@ -14,6 +13,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new %MAIN_CLASS%();
+                return new GurellaApplication();
         }
 }
