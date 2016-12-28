@@ -2,6 +2,7 @@ package com.gurella.studio.wizard.project;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -23,7 +24,9 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
+import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.Setup;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
@@ -51,8 +54,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			GurellaStudioPlugin.log(IStatus.INFO, detailsPage.getLog());
 			return true;
 		} catch (Exception e) {
-			GurellaStudioPlugin.showError(e, "Creation of project failed.");
 			GurellaStudioPlugin.log(IStatus.ERROR, detailsPage.getLog());
+			GurellaStudioPlugin.showError(e, "Creation of project failed.");
 			return false;
 		}
 	}
@@ -68,10 +71,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		String projectLocation = mainPage.getProjectLocation();
 		openProject(projectLocation, "");
 		openProject(projectLocation, "core");
-		openProject(projectLocation, "desktop");
-		openProject(projectLocation, "ios-moe");
-		openProject(projectLocation, "android");
-		// openProject(projectLocation, "html");
+
+		List<ProjectType> projectTypes = detailsPage.getSelectedProjectTypes();
+		projectTypes.stream().forEach(p -> Try.uchecked(() -> openProject(projectLocation, p.getName())));
 	}
 
 	private static void openProject(String path, String name) throws CoreException {
@@ -88,8 +90,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		private final ISchedulingRule rule;
 		private final boolean transferRule;
-
-		private final StringBuilder log = new StringBuilder();
 
 		private BuildProjectsRunnable(SetupInfo setupInfo) {
 			this.setupInfo = setupInfo;
@@ -123,8 +123,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		@Override
 		public void log(String text) {
-			log.append(text);
-			detailsPage.setLog(log.toString());
+			detailsPage.log(text);
 		}
 
 		@Override

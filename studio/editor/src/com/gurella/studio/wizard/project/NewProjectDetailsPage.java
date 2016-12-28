@@ -6,15 +6,11 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
@@ -23,7 +19,7 @@ public class NewProjectDetailsPage extends WizardPage {
 	private final DetailsGroup detailsGroup;
 	private final ProjectTypesGroup projectTypesGroup;
 	private final AndroidSdkGroup androidSdkGroup;
-	private Text console;
+	private final ConsoleGroup consoleGroup;
 
 	private List<Validator> validators = new ArrayList<>();
 
@@ -42,6 +38,8 @@ public class NewProjectDetailsPage extends WizardPage {
 		androidSdkGroup = new AndroidSdkGroup(this);
 		validators.add(androidSdkGroup);
 
+		consoleGroup = new ConsoleGroup();
+
 		projectTypesGroup.setProjectTypeListener(this::projectTypeSelectionChanged);
 	}
 
@@ -58,28 +56,18 @@ public class NewProjectDetailsPage extends WizardPage {
 
 		final Composite composite = new Composite(parent, SWT.NONE);
 		composite.setFont(parent.getFont());
-		composite.setLayout(initGridLayout());
+		composite.setLayout(createGridLayout());
 		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
 		detailsGroup.createControl(composite);
 		projectTypesGroup.createControl(composite);
 		androidSdkGroup.createControl(composite);
-
-		Group consoleGroup = new Group(composite, SWT.NONE);
-		consoleGroup.setFont(composite.getFont());
-		consoleGroup.setText("Log");
-		consoleGroup.setLayout(new GridLayout(1, false));
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).minSize(200, 200).grab(true, true)
-				.applyTo(consoleGroup);
-
-		console = new Text(consoleGroup, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		console.setEditable(false);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(console);
+		consoleGroup.createControl(composite);
 
 		setControl(composite);
 	}
 
-	private GridLayout initGridLayout() {
+	private GridLayout createGridLayout() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
 		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
@@ -88,22 +76,12 @@ public class NewProjectDetailsPage extends WizardPage {
 		return layout;
 	}
 
-	void setLog(String text) {
-		console.getDisplay().asyncExec(() -> setLogAsync(text));
-	}
-
-	private void setLogAsync(String text) {
-		synchronized (console) {
-			console.setText(text);
-			ScrollBar verticalBar = console.getVerticalBar();
-			if (verticalBar != null) {
-				verticalBar.setSelection(verticalBar.getMaximum());
-			}
-		}
+	void log(String text) {
+		consoleGroup.log(text);
 	}
 
 	String getLog() {
-		return console.getText();
+		return consoleGroup.getLog();
 	}
 
 	void validate() {

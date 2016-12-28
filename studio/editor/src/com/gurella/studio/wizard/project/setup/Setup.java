@@ -1,6 +1,10 @@
 package com.gurella.studio.wizard.project.setup;
 
+import static com.gurella.studio.wizard.project.setup.ProjectType.ANDROID;
 import static com.gurella.studio.wizard.project.setup.ProjectType.DESKTOP;
+import static com.gurella.studio.wizard.project.setup.ProjectType.HTML;
+import static com.gurella.studio.wizard.project.setup.ProjectType.IOS;
+import static com.gurella.studio.wizard.project.setup.ProjectType.IOSMOE;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -62,22 +66,16 @@ public class Setup {
 		packageName = setupInfo.packageName;
 		outputDir = setupInfo.location;
 		packageDir = setupInfo.packageName.replace('.', '/');
-		assetPath = setupInfo.projects.contains(ProjectType.ANDROID) ? "android/assets" : "core/assets";
-
-		addDefaultReplacements();
+		assetPath = containsProject(ANDROID) ? "android/assets" : "core/assets";
 	}
 
-	private void addDefaultReplacements() {
-		replacements.put("%APP_NAME%", appName);
-		replacements.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
-		replacements.put("%PACKAGE%", packageName);
-		replacements.put("%PACKAGE_DIR%", packageDir);
-		replacements.put("%MAIN_CLASS%", mainClass);
-		replacements.put("%ASSET_PATH%", assetPath);
-		replacements.put("%INITIAL_SCENE%", initialScene);
+	private boolean containsProject(ProjectType projectType) {
+		return setupInfo.projects.contains(projectType);
 	}
 
 	public void build() {
+		addDefaultReplacements();
+
 		addRootFiles();
 		addCoreFiles();
 		addDesktopFiles();
@@ -91,11 +89,21 @@ public class Setup {
 		executeGradle();
 	}
 
+	private void addDefaultReplacements() {
+		replacements.put("%APP_NAME%", appName);
+		replacements.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
+		replacements.put("%PACKAGE%", packageName);
+		replacements.put("%PACKAGE_DIR%", packageDir);
+		replacements.put("%MAIN_CLASS%", mainClass);
+		replacements.put("%ASSET_PATH%", assetPath);
+		replacements.put("%INITIAL_SCENE%", initialScene);
+	}
+
 	private void addRootFiles() {
-		GradleScriptBuilder gradleScriptBuilder = new GradleScriptBuilder(setupInfo);
+		GradleScriptBuilder scriptBuilder = new GradleScriptBuilder(setupInfo);
 		newProjectFile("gitignore", ".gitignore", false);
-		files.add(new TemporaryProjectFile(gradleScriptBuilder.createSettingsScript(), "settings.gradle", false));
-		files.add(new TemporaryProjectFile(gradleScriptBuilder.createBuildScript(), "build.gradle", false));
+		newTemporaryProjectFile(scriptBuilder.createSettingsScript(), "settings.gradle", false);
+		newTemporaryProjectFile(scriptBuilder.createBuildScript(), "build.gradle", false);
 		newProjectFile("gradlew", false);
 		newProjectFile("gradlew.bat", false);
 		newProjectFile("gradle/wrapper/gradle-wrapper.jar", false);
@@ -106,13 +114,13 @@ public class Setup {
 	private void addCoreFiles() {
 		newProjectFile("core/build.gradle");
 		newProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true);
-		if (setupInfo.projects.contains(ProjectType.HTML)) {
+		if (setupInfo.projects.contains(HTML)) {
 			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
 		}
 	}
 
 	private void addDesktopFiles() {
-		if (!setupInfo.projects.contains(ProjectType.DESKTOP)) {
+		if (!containsProject(DESKTOP)) {
 			return;
 		}
 
@@ -122,7 +130,7 @@ public class Setup {
 	}
 
 	private void addAndroidFiles() {
-		if (!setupInfo.projects.contains(ProjectType.ANDROID)) {
+		if (!containsProject(ANDROID)) {
 			return;
 		}
 
@@ -148,7 +156,7 @@ public class Setup {
 	}
 
 	private void addHtmlFiles() {
-		if (!setupInfo.projects.contains(ProjectType.HTML)) {
+		if (!containsProject(HTML)) {
 			return;
 		}
 
@@ -174,7 +182,7 @@ public class Setup {
 	}
 
 	private void addIosRobovmFiles() {
-		if (!setupInfo.projects.contains(ProjectType.IOS)) {
+		if (!containsProject(IOS)) {
 			return;
 		}
 
@@ -198,7 +206,7 @@ public class Setup {
 	}
 
 	private void addIosMoeFiles() {
-		if (!setupInfo.projects.contains(ProjectType.IOSMOE)) {
+		if (!containsProject(IOSMOE)) {
 			return;
 		}
 
@@ -227,7 +235,7 @@ public class Setup {
 
 	private void addAssetsFiles() {
 		newProjectFile("android/assets/application.gcfg", assetPath + "/application.gcfg", true);
-		newProjectFile("android/assets/initial.gscn", assetPath + "/scenes/" + initialScene, false);
+		newProjectFile("android/assets/initialScene.gscn", assetPath + "/scenes/" + initialScene, false);
 		newProjectFile("android/assets/cloudySea.jpg", assetPath + "/sky/cloudySea.jpg", false);
 	}
 
@@ -243,6 +251,10 @@ public class Setup {
 		files.add(new ProjectFile(resourceName, outputName, isTemplate));
 	}
 
+	private void newTemporaryProjectFile(File file, String outputString, boolean isTemplate) {
+		files.add(new TemporaryProjectFile(file, outputString, isTemplate));
+	}
+
 	private void copyAndReplace() {
 		File out = new File(outputDir);
 		Optional.of(out).filter(o -> o.exists() || o.mkdirs()).orElseThrow(
@@ -250,7 +262,7 @@ public class Setup {
 		files.forEach(f -> copyFile(out, f));
 	}
 
-	private static byte[] readResource(String resource, String path) {
+	private static byte[] readResource(String path, String resource) {
 		String filePath = path + resource;
 		try (ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 				InputStream in = GurellaStudioPlugin.getFileInputStream(filePath)) {
@@ -277,8 +289,8 @@ public class Setup {
 		}
 	}
 
-	private static String readResourceAsString(String resource, String path) {
-		return Try.ofFailable(() -> new String(readResource(resource, path), "UTF-8")).getUnchecked();
+	private static String readResourceAsString(String path, String resource) {
+		return Try.ofFailable(() -> new String(readResource(path, resource), "UTF-8")).getUnchecked();
 	}
 
 	private static String readResourceAsString(File file) {
@@ -308,7 +320,7 @@ public class Setup {
 			if (file instanceof TemporaryProjectFile) {
 				txt = readResourceAsString(((TemporaryProjectFile) file).file);
 			} else {
-				txt = readResourceAsString(file.resourceName, resourceLoc);
+				txt = readResourceAsString(resourceLoc, file.resourceName);
 			}
 			txt = replace(txt);
 			writeFile(outFile, txt);
@@ -316,7 +328,7 @@ public class Setup {
 			if (file instanceof TemporaryProjectFile) {
 				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
 			} else {
-				writeFile(outFile, readResource(file.resourceName, resourceLoc));
+				writeFile(outFile, readResource(resourceLoc, file.resourceName));
 			}
 		}
 	}
@@ -340,7 +352,7 @@ public class Setup {
 
 		gradleArgs.add("clean");
 		gradleArgs.add("eclipse");
-		if (setupInfo.projects.contains(DESKTOP)) {
+		if (containsProject(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
 		}
 

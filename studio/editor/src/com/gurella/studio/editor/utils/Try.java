@@ -198,12 +198,48 @@ public abstract class Try<T> {
 		return new Success<>(x);
 	}
 
+	public static <T, E extends Throwable> void uchecked(T value, TryConsumer<T, E> action) {
+		try {
+			action.accept(value);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void uchecked(TryRunnable runnable) {
+		try {
+			runnable.run();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> T uchecked(TrySupplier<T> supplier) {
+		try {
+			return supplier.get();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public interface TrySupplier<T> {
 		T get() throws Throwable;
 	}
 
 	public interface TryConsumer<T, E extends Throwable> {
 		void accept(T t) throws E;
+
+		default TryConsumer<T, E> andThen(TryConsumer<? super T, E> after) {
+			Objects.requireNonNull(after);
+			return t -> {
+				accept(t);
+				after.accept(t);
+			};
+		}
+	}
+
+	public interface TryRunnable {
+		void run() throws Throwable;
 	}
 
 	public interface TryMapFunction<T, R> {

@@ -18,14 +18,14 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class DetailsGroup implements Validator {
+class DetailsGroup implements Validator {
 	private final NewProjectDetailsPage detailsPage;
 
 	private Text packageName;
 	private Text className;
 	private boolean needsStructuredPackage;
 
-	public DetailsGroup(NewProjectDetailsPage detailsPage) {
+	DetailsGroup(NewProjectDetailsPage detailsPage) {
 		this.detailsPage = detailsPage;
 	}
 

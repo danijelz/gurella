@@ -1,6 +1,7 @@
 package com.gurella.studio.launch;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.editor.utils.Try.uchecked;
 import static com.gurella.studio.launch.SceneLauncherConstants.LAUNCH_SCENE_CONFIGURATION_TYPE;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
@@ -53,8 +54,7 @@ public class SceneLauncher {
 		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).map(c -> Try.successful(c))
-				.forEach(t -> t.peek(tc -> tc.delete()));
+		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).forEach(c -> uchecked(() -> c.delete()));
 
 		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
@@ -64,14 +64,14 @@ public class SceneLauncher {
 		workingCopy.setAttribute(ATTR_PROJECT_NAME, projectName);
 		workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, main);
 		workingCopy.setAttribute(SceneLauncherConstants.ATTR_SCENE_NAME, path.toString());
-		workingCopy.setAttribute(ATTR_CLASSPATH, getClasspath(javaProject));
+		workingCopy.setAttribute(ATTR_CLASSPATH, computeClasspath(javaProject));
 		workingCopy.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
 		ILaunchConfiguration config = workingCopy.doSave();
 		return config;
 	}
 
 	static List<String> computeClasspath(IJavaProject javaProject) {
-		return Try.ofFailable(() -> getClasspath(javaProject)).getUnchecked();
+		return uchecked(() -> getClasspath(javaProject));
 	}
 
 	private static List<String> getClasspath(IJavaProject javaProject) throws CoreException {
@@ -79,12 +79,12 @@ public class SceneLauncher {
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
 		cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-		return cp.stream().map(e -> getClasspathMemento(e)).collect(toList());
+		return cp.stream().map(e -> uchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
 	}
 
 	private static String getBundleClasspath() {
 		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
-		File bundleFile = Try.successful(bundle).map(b -> FileLocator.getBundleFile(b)).getUnchecked();
+		File bundleFile = uchecked(() -> FileLocator.getBundleFile(bundle));
 		if (bundleFile.isDirectory()) {
 			File targetDir = new File(bundleFile, "bin");
 			if (targetDir.exists()) {
@@ -92,9 +92,5 @@ public class SceneLauncher {
 			}
 		}
 		return bundleFile.getAbsolutePath();
-	}
-
-	private static String getClasspathMemento(String e) {
-		return Try.successful(e).map(x -> newStringVariableClasspathEntry(e).getMemento()).getUnchecked();
 	}
 }
