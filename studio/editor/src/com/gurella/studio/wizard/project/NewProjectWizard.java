@@ -1,8 +1,9 @@
 package com.gurella.studio.wizard.project;
 
+import static com.gurella.studio.editor.utils.Try.uchecked;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -24,9 +25,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
-import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.Setup;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
@@ -68,12 +67,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		IRunnableWithProgress runnable = new BuildProjectsRunnable(setupInfo);
 		getContainer().run(true, true, runnable);
 
-		String projectLocation = mainPage.getProjectLocation();
+		String projectLocation = setupInfo.location;
 		openProject(projectLocation, "");
-		openProject(projectLocation, "core");
-
-		List<ProjectType> projectTypes = detailsPage.getSelectedProjectTypes();
-		projectTypes.stream().forEach(p -> Try.uchecked(() -> openProject(projectLocation, p.getName())));
+		setupInfo.projects.stream().forEach(p -> uchecked(() -> openProject(projectLocation, p.getName())));
 	}
 
 	private static void openProject(String path, String name) throws CoreException {

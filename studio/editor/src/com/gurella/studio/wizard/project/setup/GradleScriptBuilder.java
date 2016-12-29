@@ -1,5 +1,6 @@
 package com.gurella.studio.wizard.project.setup;
 
+import static com.gurella.studio.editor.utils.Try.uchecked;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedWriter;
@@ -28,17 +29,13 @@ public class GradleScriptBuilder {
 	}
 
 	private static File createTempFile(String prefix, String suffix) {
-		try {
-			File file = File.createTempFile(prefix, suffix);
-			if (!file.exists()) {
-				file.createNewFile();
-				file.deleteOnExit();
-			}
-			file.setWritable(true);
-			return file.getAbsoluteFile();
-		} catch (Throwable t) {
-			throw new RuntimeException(t);
+		File file = uchecked(() -> File.createTempFile(prefix, suffix));
+		if (!file.exists()) {
+			uchecked(() -> file.createNewFile());
+			file.deleteOnExit();
 		}
+		file.setWritable(true);
+		return file.getAbsoluteFile();
 	}
 
 	public File createSettingsScript() {

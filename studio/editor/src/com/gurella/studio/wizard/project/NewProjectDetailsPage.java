@@ -125,40 +125,14 @@ public class NewProjectDetailsPage extends WizardPage {
 		}
 	}
 
-	String getMainClassName() {
-		return detailsGroup.getMainClassName();
-	}
-
-	String getPackageName() {
-		return detailsGroup.getPackageName();
-	}
-
-	private boolean isSelectedAndroidProjectType() {
-		return projectTypesGroup.isSelected(ProjectType.ANDROID);
-	}
-
-	String getAndroidSdkLocation() {
-		return isSelectedAndroidProjectType() ? androidSdkGroup.getSdkLocation() : "";
-	}
-
-	String getAndroidApiLevel() {
-		return isSelectedAndroidProjectType() ? androidSdkGroup.getApiLevel() : "";
-	}
-
-	String getAndroidBuildToolsVersion() {
-		return isSelectedAndroidProjectType() ? androidSdkGroup.getBuildToolsVersion() : "";
-	}
-
-	List<ProjectType> getSelectedProjectTypes() {
-		return projectTypesGroup.getSelectedProjectTypes();
-	}
-
 	void updateSetupInfo(SetupInfo setupInfo) {
-		setupInfo.packageName = getPackageName();
-		setupInfo.mainClass = getMainClassName();
-		setupInfo.androidSdkLocation = getAndroidSdkLocation();
-		setupInfo.androidApiLevel = getAndroidApiLevel();
-		setupInfo.androidBuildToolsVersion = getAndroidBuildToolsVersion();
-		setupInfo.projects.addAll(getSelectedProjectTypes());
+		setupInfo.packageName = detailsGroup.getPackageName();
+		setupInfo.mainClass = detailsGroup.getMainClassName();
+		setupInfo.initialScene = detailsGroup.getInitialSceneName();
+		boolean androidProjectSelected = projectTypesGroup.isSelected(ProjectType.ANDROID);
+		setupInfo.androidSdkLocation = androidProjectSelected ? androidSdkGroup.getSdkLocation() : "";
+		setupInfo.androidApiLevel = androidProjectSelected ? androidSdkGroup.getApiLevel() : "";
+		setupInfo.androidBuildToolsVersion = androidProjectSelected ? androidSdkGroup.getBuildToolsVersion() : "";
+		setupInfo.projects.addAll(projectTypesGroup.getSelectedProjectTypes());
 	}
 }

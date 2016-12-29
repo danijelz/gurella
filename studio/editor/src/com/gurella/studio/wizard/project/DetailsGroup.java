@@ -18,10 +18,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.gurella.engine.utils.Values;
+
 class DetailsGroup implements Validator {
 	private final NewProjectDetailsPage detailsPage;
 
 	private Text packageName;
+	private Text initialSceneName;
 	private Text className;
 	private boolean needsStructuredPackage;
 
@@ -41,6 +44,12 @@ class DetailsGroup implements Validator {
 		packageName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		packageName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(packageName);
+
+		Label initialSceneNameLabel = new Label(detailsGroup, SWT.NONE);
+		initialSceneNameLabel.setText("Initial scene:");
+		initialSceneName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
+		initialSceneName.addModifyListener(e -> fireValidate());
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(initialSceneName);
 
 		Label classNameLabel = new Label(detailsGroup, SWT.NONE);
 		classNameLabel.setText("Main class:");
@@ -68,6 +77,12 @@ class DetailsGroup implements Validator {
 			result.add(status);
 		}
 
+		String initialSceneName = getInitialSceneName();
+		if (Values.isBlank(initialSceneName)) {
+			status = new Status(ERROR, PLUGIN_ID, "Enter initial scene name.");
+			result.add(status);
+		}
+
 		status = JavaConventions.validateJavaTypeName(getMainClassName(), VERSION_1_6, VERSION_1_6);
 		if (status != null) {
 			result.add(status);
@@ -86,5 +101,10 @@ class DetailsGroup implements Validator {
 
 	String getPackageName() {
 		return packageName.getText().trim();
+	}
+
+	public String getInitialSceneName() {
+		String name = initialSceneName.getText();
+		return Values.isBlank(name) || name.endsWith(".gscn") ? name : name + ".gscn";
 	}
 }
