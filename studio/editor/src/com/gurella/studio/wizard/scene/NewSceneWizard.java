@@ -1,5 +1,7 @@
 package com.gurella.studio.wizard.scene;
 
+import static com.gurella.studio.GurellaStudioPlugin.showError;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -48,8 +50,7 @@ public class NewSceneWizard extends BasicNewResourceWizard {
 		}
 
 		selectAndReveal(file);
-		Try.successful(file).peek(f -> openEditor(f))
-				.onFailure(e -> GurellaStudioPlugin.showError(e, "Problems Opening Editor"));
+		Try.successful(file).peek(f -> openEditor(f)).onFailure(e -> showError(e, "Problems Opening Editor"));
 
 		return true;
 	}

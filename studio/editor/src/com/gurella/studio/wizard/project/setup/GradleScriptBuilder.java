@@ -1,6 +1,6 @@
 package com.gurella.studio.wizard.project.setup;
 
-import static com.gurella.studio.editor.utils.Try.uchecked;
+import static com.gurella.studio.editor.utils.Try.unchecked;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedWriter;
@@ -29,9 +29,9 @@ public class GradleScriptBuilder {
 	}
 
 	private static File createTempFile(String prefix, String suffix) {
-		File file = uchecked(() -> File.createTempFile(prefix, suffix));
+		File file = unchecked(() -> File.createTempFile(prefix, suffix));
 		if (!file.exists()) {
-			uchecked(() -> file.createNewFile());
+			unchecked(() -> file.createNewFile());
 			file.deleteOnExit();
 		}
 		file.setWritable(true);
@@ -179,11 +179,11 @@ public class GradleScriptBuilder {
 			txt = repeat(" ", indent) + input + "\n";
 		}
 
-		Try.successful(writer).peek(w -> w.write(txt)).getUnchecked();
+		Try.unchecked(() -> writer.write(txt));
 	}
 
 	private void space() {
-		Try.successful(writer).peek(w -> w.write("\n")).getUnchecked();
+		Try.unchecked(() -> writer.write("\n"));
 	}
 
 	private static int clamp(int indent) {

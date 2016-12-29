@@ -10,7 +10,6 @@ import java.util.function.LongConsumer;
 
 import org.osgi.service.prefs.Preferences;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.studio.editor.utils.Try;
 
 public class PreferencesNode {
@@ -40,7 +39,7 @@ public class PreferencesNode {
 	}
 
 	public PreferencesNode clear() {
-		Try.successful(preferences).peek(p -> p.clear()).onFailure(e -> new GdxRuntimeException(e));
+		Try.unchecked(() -> preferences.clear());
 		return this;
 	}
 
@@ -157,12 +156,12 @@ public class PreferencesNode {
 	}
 
 	public PreferencesNode flush() {
-		Try.successful(preferences).peek(p -> p.flush()).onFailure(e -> new GdxRuntimeException(e));
+		Try.unchecked(() -> preferences.flush());
 		return this;
 	}
 
 	public PreferencesNode sync() {
-		Try.successful(preferences).peek(p -> p.sync()).onFailure(e -> new GdxRuntimeException(e));
+		Try.unchecked(() -> preferences.sync());
 		return this;
 	}
 

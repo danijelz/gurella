@@ -1,6 +1,6 @@
 package com.gurella.studio.wizard.project;
 
-import static com.gurella.studio.editor.utils.Try.uchecked;
+import static com.gurella.studio.editor.utils.Try.unchecked;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -69,7 +69,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		String projectLocation = setupInfo.location;
 		openProject(projectLocation, "");
-		setupInfo.projects.stream().forEach(p -> uchecked(() -> openProject(projectLocation, p.getName())));
+		setupInfo.projects.stream().forEach(p -> unchecked(() -> openProject(projectLocation, p.getName())));
 	}
 
 	private static void openProject(String path, String name) throws CoreException {

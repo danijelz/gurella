@@ -1,7 +1,7 @@
 package com.gurella.studio.launch;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
-import static com.gurella.studio.editor.utils.Try.uchecked;
+import static com.gurella.studio.editor.utils.Try.unchecked;
 import static com.gurella.studio.launch.SceneLauncherConstants.LAUNCH_SCENE_CONFIGURATION_TYPE;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_CLASSPATH;
@@ -54,7 +54,7 @@ public class SceneLauncher {
 		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
-		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).forEach(c -> uchecked(() -> c.delete()));
+		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).forEach(c -> unchecked(() -> c.delete()));
 
 		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
@@ -71,7 +71,7 @@ public class SceneLauncher {
 	}
 
 	static List<String> computeClasspath(IJavaProject javaProject) {
-		return uchecked(() -> getClasspath(javaProject));
+		return unchecked(() -> getClasspath(javaProject));
 	}
 
 	private static List<String> getClasspath(IJavaProject javaProject) throws CoreException {
@@ -79,12 +79,12 @@ public class SceneLauncher {
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
 		cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-		return cp.stream().map(e -> uchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
+		return cp.stream().map(e -> unchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
 	}
 
 	private static String getBundleClasspath() {
 		Bundle bundle = GurellaStudioPlugin.getDefault().getBundle();
-		File bundleFile = uchecked(() -> FileLocator.getBundleFile(bundle));
+		File bundleFile = unchecked(() -> FileLocator.getBundleFile(bundle));
 		if (bundleFile.isDirectory()) {
 			File targetDir = new File(bundleFile, "bin");
 			if (targetDir.exists()) {

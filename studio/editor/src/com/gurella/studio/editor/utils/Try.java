@@ -198,7 +198,7 @@ public abstract class Try<T> {
 		return new Success<>(x);
 	}
 
-	public static <T, E extends Throwable> void uchecked(T value, TryConsumer<T, E> action) {
+	public static <T, E extends Throwable> void unchecked(T value, TryConsumer<T, E> action) {
 		try {
 			action.accept(value);
 		} catch (Throwable e) {
@@ -206,7 +206,7 @@ public abstract class Try<T> {
 		}
 	}
 
-	public static void uchecked(TryRunnable runnable) {
+	public static void unchecked(TryRunnable runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable e) {
@@ -214,7 +214,7 @@ public abstract class Try<T> {
 		}
 	}
 
-	public static <T> T uchecked(TrySupplier<T> supplier) {
+	public static <T> T unchecked(TrySupplier<T> supplier) {
 		try {
 			return supplier.get();
 		} catch (Throwable e) {
