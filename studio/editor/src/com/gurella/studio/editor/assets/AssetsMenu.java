@@ -8,17 +8,17 @@ import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
 import static com.gurella.studio.editor.utils.PrettyPrintSerializer.serialize;
-import static com.gurella.studio.editor.utils.Try.successful;
+import static com.gurella.studio.editor.utils.Try.run;
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -128,8 +128,8 @@ class AssetsMenu {
 		private void addNewFolder() {
 			IFolder parent = getParentFolder();
 			enterNewFileName(parent, "New folder", true, null).map(n -> ((IFolder) selection).getFolder(n))
-					.ifPresent(nf -> successful(nf).peek(f -> f.create(true, true, new NullProgressMonitor()))
-							.onFailure(e -> log(e, "Error creating new folder")));
+					.ifPresent(nf -> run(() -> nf.create(true, true, new NullProgressMonitor()),
+							e -> log(e, "Error creating new folder")));
 		}
 
 		private void importAssets() {
@@ -144,19 +144,18 @@ class AssetsMenu {
 			}
 
 			String path = dlg.getFilterPath();
-			List<String> unsuccessful = new ArrayList<>();
-			Arrays.stream(dlg.getFileNames()).forEach(fn -> importAsset(path, fn, unsuccessful));
+			List<String> unsuccessful = Stream.of(dlg.getFileNames()).filter(n -> !importAsset(path, n))
+					.collect(toList());
 			preferencesNode.put("lastPath", path);
 			Optional.of(unsuccessful).filter(u -> !u.isEmpty()).ifPresent(u -> MessageDialog.openWarning(shell,
 					"Import problems", "Some assets could not be imported: " + u.toString()));
 		}
 
-		private void importAsset(String path, String fileName, List<String> unsuccessful) {
+		private boolean importAsset(String path, String fileName) {
 			IFolder folder = (IFolder) selection;
 			File file = new File(path, fileName);
 			IFile newFile = folder.getFile(fileName);
-			Try.successful(newFile).peek(f -> f.create(new FileInputStream(file), true, null))
-					.onFailure(e -> unsuccessful.add(fileName));
+			return Try.successful(newFile).peek(nf -> nf.create(new FileInputStream(file), true, null)).isSuccess();
 		}
 
 		private void addCreateSubMenu(Menu menu) {

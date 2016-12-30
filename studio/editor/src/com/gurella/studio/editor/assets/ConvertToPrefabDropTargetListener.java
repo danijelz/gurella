@@ -107,8 +107,8 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		Try.successful(prefabName.get()).peek(n -> convertToPrefab(folder, node, n))
-				.onFailure(e -> showError(e, "Error while converting to prefab."));
+		Try.run(() -> convertToPrefab(folder, node, prefabName.get()),
+				e -> showError(e, "Error while converting to prefab."));
 	}
 
 	private void convertToPrefab(IFolder folder, SceneNode node, String prefabName)

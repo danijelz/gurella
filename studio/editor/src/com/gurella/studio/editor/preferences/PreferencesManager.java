@@ -61,7 +61,7 @@ public class PreferencesManager implements PreferencesStore, SceneLoadedListener
 	@Override
 	public void onEditorClose() {
 		String msg = "Error while flushing preferences";
-		Try.successful(projectPreferences).peek(pp -> pp.flush()).onFailure(e -> log(e, msg));
+		Try.run(() -> projectPreferences.flush(), e -> log(e, msg));
 		Workbench.removeListener(extensionRegistry);
 		EventService.unsubscribe(editorId, this);
 	}

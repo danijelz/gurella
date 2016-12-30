@@ -66,8 +66,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		unloadAll();
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		String msg = "Error closing java project";
-		Try.successful(Optional.ofNullable(javaProject)).filter(o -> o.isPresent()).map(o -> o.get())
-				.peek(t -> t.close()).onFailure(e -> log(e, msg));
+		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
 	}
 
 	private void unloadAll() {

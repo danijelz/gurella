@@ -35,8 +35,7 @@ import com.gurella.studio.editor.utils.Try;
 
 public class SceneLauncher {
 	public static void launch(SceneEditor sceneEditor, String mode) {
-		Try.successful(null).peek(n -> _launch(sceneEditor, mode))
-				.onFailure(e -> showError(e, "Error while trying to run a scene."));
+		Try.run(() -> _launch(sceneEditor, mode), e -> showError(e, "Error while trying to run a scene."));
 	}
 
 	private static void _launch(SceneEditor sceneEditor, String mode) throws CoreException {

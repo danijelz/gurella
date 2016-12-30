@@ -7,6 +7,7 @@ import static org.eclipse.core.runtime.IStatus.WARNING;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.eclipse.core.runtime.IStatus;
@@ -58,9 +59,7 @@ public class ProjectTypesGroup implements Validator {
 
 	private void notifyProjectTypeEnablement(ProjectType projectType, boolean enabled) {
 		detailsPage.validate();
-		if (listener != null) {
-			listener.accept(projectType, Boolean.valueOf(enabled));
-		}
+		Optional.ofNullable(listener).ifPresent(l -> l.accept(projectType, Boolean.valueOf(enabled)));
 	}
 
 	List<ProjectType> getSelectedProjectTypes() {

@@ -3,6 +3,7 @@ package com.gurella.studio.editor.utils;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -219,6 +220,14 @@ public abstract class Try<T> {
 			return supplier.get();
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static void run(TryRunnable runnable, Consumer<Throwable> exceptionAction) {
+		try {
+			runnable.run();
+		} catch (Throwable e) {
+			exceptionAction.accept(e);
 		}
 	}
 

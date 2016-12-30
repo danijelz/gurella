@@ -23,7 +23,7 @@ public class NewProjectDetailsPage extends WizardPage {
 
 	private List<Validator> validators = new ArrayList<>();
 
-	protected NewProjectDetailsPage() {
+	NewProjectDetailsPage() {
 		super("NewProjectWizardPageTwo");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");

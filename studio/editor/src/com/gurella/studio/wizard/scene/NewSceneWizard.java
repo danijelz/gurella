@@ -50,7 +50,7 @@ public class NewSceneWizard extends BasicNewResourceWizard {
 		}
 
 		selectAndReveal(file);
-		Try.successful(file).peek(f -> openEditor(f)).onFailure(e -> showError(e, "Problems Opening Editor"));
+		Try.run(() -> openEditor(file), e -> showError(e, "Problems Opening Editor"));
 
 		return true;
 	}
