@@ -1,8 +1,12 @@
 package com.gurella.studio;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -33,7 +36,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import com.gurella.engine.editor.ui.EditorLogLevel;
@@ -48,6 +50,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	private static GurellaStudioPlugin plugin;
 
 	private static Map<DeviceResourceDescriptor, Object> pluginResources = new HashMap<>();
+	private static Map<String, File> pluginFiles = new HashMap<>();
 	private static DeviceResourceManager resourceManager;
 	private static GurellaFormToolkit toolkit;
 
@@ -82,13 +85,39 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	public static File locateFile(String filePath) {
-		Bundle bundle = Platform.getBundle(PLUGIN_ID);
-		URL fileURL = bundle.getEntry(filePath);
-		try {
-			return new File(FileLocator.resolve(fileURL).toURI());
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		File tempFile = pluginFiles.get(filePath);
+		if (tempFile == null) {
+			final String prefix = (PLUGIN_ID + "_" + filePath).replaceAll("[\\.|\\\\|/]", "_");
+			tempFile = Try.unchecked(() -> File.createTempFile(prefix, ".tmp"));
+			tempFile.deleteOnExit();
+			tempFile.setWritable(true);
+			writeFile(tempFile, readResource(filePath));
+		}
+		return tempFile;
+	}
+
+	private static byte[] readResource(String filePath) {
+		try (ByteArrayOutputStream bytes = new ByteArrayOutputStream(); InputStream in = getFileInputStream(filePath)) {
+			return readBytes(bytes, in);
+		} catch (Throwable e) {
+			throw new RuntimeException("Couldn't read resource '" + filePath + "'", e);
+		}
+	}
+
+	private static byte[] readBytes(ByteArrayOutputStream bytes, InputStream in) throws IOException {
+		int read = 0;
+		byte[] buffer = new byte[1024 * 10];
+		while ((read = in.read(buffer)) > 0) {
+			bytes.write(buffer, 0, read);
+		}
+		return bytes.toByteArray();
+	}
+
+	private static void writeFile(File outFile, byte[] bytes) {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile))) {
+			out.write(bytes);
+		} catch (IOException e) {
+			throw new RuntimeException("Couldn't write file '" + outFile.getAbsolutePath() + "'", e);
 		}
 	}
 
