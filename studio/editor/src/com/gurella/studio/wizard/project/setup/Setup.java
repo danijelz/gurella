@@ -52,7 +52,6 @@ public class Setup {
 
 	private String outputDir;
 	private String packageDir;
-	private String assetPath;
 
 	public Setup(SetupInfo setupInfo, LogCallback callback) {
 		this.setupInfo = setupInfo;
@@ -66,7 +65,6 @@ public class Setup {
 		packageName = setupInfo.packageName;
 		outputDir = setupInfo.location;
 		packageDir = setupInfo.packageName.replace('.', '/');
-		assetPath = containsProject(ANDROID) ? "android/assets" : "core/assets";
 	}
 
 	private boolean containsProject(ProjectType projectType) {
@@ -83,9 +81,8 @@ public class Setup {
 		addHtmlFiles();
 		addIosRobovmFiles();
 		addIosMoeFiles();
-		addAssetsFiles();
 
-		copyAndReplace();
+		copyFiles();
 		executeGradle();
 	}
 
@@ -95,7 +92,6 @@ public class Setup {
 		replacements.put("%PACKAGE%", packageName);
 		replacements.put("%PACKAGE_DIR%", packageDir);
 		replacements.put("%MAIN_CLASS%", mainClass);
-		replacements.put("%ASSET_PATH%", assetPath);
 		replacements.put("%INITIAL_SCENE%", initialScene);
 	}
 
@@ -114,6 +110,11 @@ public class Setup {
 	private void addCoreFiles() {
 		newProjectFile("core/build.gradle");
 		newProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true);
+		
+		newProjectFile("core/assets/application.gcfg", "core/assets/application.gcfg", true);
+		newProjectFile("core/assets/initialScene.gscn", "core/assets/scenes/" + initialScene, false);
+		newProjectFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg", false);
+		
 		if (setupInfo.projects.contains(HTML)) {
 			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
 		}
@@ -233,12 +234,6 @@ public class Setup {
 		newProjectFile("ios-moe/build.gradle", true);
 	}
 
-	private void addAssetsFiles() {
-		newProjectFile("android/assets/application.gcfg", assetPath + "/application.gcfg", true);
-		newProjectFile("android/assets/initialScene.gscn", assetPath + "/scenes/" + initialScene, false);
-		newProjectFile("android/assets/cloudySea.jpg", assetPath + "/sky/cloudySea.jpg", false);
-	}
-
 	private void newProjectFile(String resourceName) {
 		files.add(new ProjectFile(resourceName));
 	}
@@ -255,7 +250,7 @@ public class Setup {
 		files.add(new TemporaryProjectFile(file, outputString, isTemplate));
 	}
 
-	private void copyAndReplace() {
+	private void copyFiles() {
 		File out = new File(outputDir);
 		Optional.of(out).filter(o -> o.exists() || o.mkdirs()).orElseThrow(
 				() -> new RuntimeException("Couldn't create output directory '" + out.getAbsolutePath() + "'"));
