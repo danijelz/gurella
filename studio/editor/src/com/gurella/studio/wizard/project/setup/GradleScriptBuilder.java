@@ -31,7 +31,7 @@ public class GradleScriptBuilder {
 	private static File createTempFile(String prefix, String suffix) {
 		File file = unchecked(() -> File.createTempFile(prefix, suffix));
 		if (!file.exists()) {
-			unchecked(() -> file.createNewFile());
+			unchecked(() -> Boolean.valueOf(file.createNewFile()));
 			file.deleteOnExit();
 		}
 		file.setWritable(true);
@@ -151,10 +151,14 @@ public class GradleScriptBuilder {
 			write("compile project(\":" + ProjectType.CORE.getName() + "\")");
 		}
 
-		dependencies.stream().filter(Values::isNotEmpty).flatMap(d -> Stream.of(d.getDependencies(projectType)))
-				.filter(Values::isNotBlank).forEachOrdered(d -> addDependency(projectType, d));
+		dependencies.stream().filter(Values::isNotEmpty).flatMap(d -> getDependencies(projectType, d))
+				.forEachOrdered(d -> addDependency(projectType, d));
 
 		write("}");
+	}
+
+	private static Stream<String> getDependencies(ProjectType projectType, Dependency dependency) {
+		return Stream.of(dependency.getDependencies(projectType)).filter(Values::isNotBlank);
 	}
 
 	private void addDependency(ProjectType projectType, String dependency) {

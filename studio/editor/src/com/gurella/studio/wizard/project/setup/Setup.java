@@ -176,8 +176,8 @@ public class Setup {
 	}
 
 	private String parseGwtInherits() {
-		return setupInfo.dependencies.stream().map(d -> d.getGwtInherits()).filter(d -> Values.isNotEmpty(d))
-				.flatMap(d -> Stream.of(d)).filter(d -> Values.isNotBlank(d))
+		return setupInfo.dependencies.stream().map(d -> d.getGwtInherits()).filter(Values::isNotEmpty)
+				.flatMap(d -> Stream.<String> of(d)).filter(Values::isNotBlank)
 				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}
 
