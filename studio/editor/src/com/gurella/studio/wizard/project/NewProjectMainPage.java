@@ -125,6 +125,9 @@ public class NewProjectMainPage extends WizardPage {
 	}
 
 	public String getProjectLocation() {
+		if(locationGroup.isUseDefaultSelected()) {
+			return Platform.getLocation() + File.separator + getProjectName();
+		}
 		return locationGroup.getLocation().toOSString();
 	}
 

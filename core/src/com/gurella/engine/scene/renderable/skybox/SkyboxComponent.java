@@ -1,12 +1,12 @@
 package com.gurella.engine.scene.renderable.skybox;
 
+import static com.badlogic.gdx.graphics.VertexAttributes.Usage.Position;
 import static com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute.EnvironmentMap;
 
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -30,7 +30,7 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	private Pixmap positiveZ;
 	private Pixmap negativeZ;
 
-	transient Cubemap cubemap;
+	private Cubemap cubemap;
 
 	private Model boxModel;
 	private ModelInstance boxInstance;
@@ -46,59 +46,59 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	public void setTexture(Pixmap sky) {
 		disposeData();
-
 		this.texture = sky;
-
-		if (!isActive()) {
-			return;
+		if (texture != null && isActive()) {
+			initData();
 		}
-
-		if (sky != null) {
-			int width = sky.getWidth() / 4;
-			int height = sky.getHeight() / 3;
-
-			negativeX = new Pixmap(width, height, sky.getFormat());
-			negativeX.drawPixmap(sky, 0, 0, 0, height, width, height);
-
-			positiveY = new Pixmap(width, height, sky.getFormat());
-			positiveY.drawPixmap(sky, 0, 0, width, 0, width, height);
-
-			positiveZ = new Pixmap(width, height, sky.getFormat());
-			positiveZ.drawPixmap(sky, 0, 0, width, height, width, height);
-
-			negativeY = new Pixmap(width, height, sky.getFormat());
-			negativeY.drawPixmap(sky, 0, 0, width, height * 2, width, height);
-
-			positiveX = new Pixmap(width, height, sky.getFormat());
-			positiveX.drawPixmap(sky, 0, 0, width * 2, height, width, height);
-
-			negativeZ = new Pixmap(width, height, sky.getFormat());
-			negativeZ.drawPixmap(sky, 0, 0, width * 3, height, width, height);
-
-			cubemap = new Cubemap(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
-		}
-
-		cubemapAttribute.textureDescription.texture = cubemap;
-		CubemapAttribute attribute = (CubemapAttribute) boxInstance.materials.get(0).get(EnvironmentMap);
-		attribute.textureDescription.texture = cubemap;
 	}
 
-	@Override
-	protected void componentActivated() {
+	private void initData() {
+		int width = texture.getWidth() / 4;
+		int height = texture.getHeight() / 3;
+
+		negativeX = new Pixmap(width, height, texture.getFormat());
+		negativeX.drawPixmap(texture, 0, 0, 0, height, width, height);
+
+		positiveY = new Pixmap(width, height, texture.getFormat());
+		positiveY.drawPixmap(texture, 0, 0, width, 0, width, height);
+
+		positiveZ = new Pixmap(width, height, texture.getFormat());
+		positiveZ.drawPixmap(texture, 0, 0, width, height, width, height);
+
+		negativeY = new Pixmap(width, height, texture.getFormat());
+		negativeY.drawPixmap(texture, 0, 0, width, height * 2, width, height);
+
+		positiveX = new Pixmap(width, height, texture.getFormat());
+		positiveX.drawPixmap(texture, 0, 0, width * 2, height, width, height);
+
+		negativeZ = new Pixmap(width, height, texture.getFormat());
+		negativeZ.drawPixmap(texture, 0, 0, width * 3, height, width, height);
+
+		cubemap = new Cubemap(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
+
+		if (cubemapAttribute == null) {
+			cubemapAttribute = new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap);
+			cubemapAttribute.textureDescription.magFilter = TextureFilter.Linear;
+			cubemapAttribute.textureDescription.minFilter = TextureFilter.Linear;
+			cubemapAttribute.textureDescription.uWrap = TextureWrap.ClampToEdge;
+			cubemapAttribute.textureDescription.vWrap = TextureWrap.ClampToEdge;
+		} else {
+			cubemapAttribute.textureDescription.texture = cubemap;
+			CubemapAttribute attribute = (CubemapAttribute) boxInstance.materials.get(0).get(EnvironmentMap);
+			attribute.textureDescription.texture = cubemap;
+		}
+
 		if (boxModel == null) {
-			boxModel = createModel();
+			boxModel = new ModelBuilder().createBox(1, 1, 1, new Material(cubemapAttribute), Position);
 			boxInstance = new ModelInstance(boxModel);
 		}
 	}
 
-	private Model createModel() {
-		ModelBuilder modelBuilder = new ModelBuilder();
-		cubemapAttribute = new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap);
-		cubemapAttribute.textureDescription.magFilter = TextureFilter.Linear;
-		cubemapAttribute.textureDescription.minFilter = TextureFilter.Linear;
-		cubemapAttribute.textureDescription.uWrap = TextureWrap.ClampToEdge;
-		cubemapAttribute.textureDescription.vWrap = TextureWrap.ClampToEdge;
-		return modelBuilder.createBox(1, 1, 1, new Material(cubemapAttribute), VertexAttributes.Usage.Position);
+	@Override
+	protected void componentActivated() {
+		if (texture != null && cubemap == null) {
+			initData();
+		}
 	}
 
 	@Override
@@ -107,10 +107,9 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	protected void doRender(GenericBatch batch) {
-		if (cubemap == null) {
-			return;
+		if (cubemap != null) {
+			batch.render(boxInstance, SkyboxShader.getInstance());
 		}
-		batch.render(boxInstance, SkyboxShader.getInstance());
 	}
 
 	@Override
@@ -121,37 +120,37 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	public void dispose() {
+		texture = null;
+		disposeData();
 		if (boxModel != null) {
 			boxModel.dispose();
 		}
-		disposeData();
 	}
 
 	protected void disposeData() {
-		if (texture != null) {
-			// TODO AssetService.unload(sky);
-			texture = null;
-
-			cubemap.dispose();
-			cubemap = null;
-
-			positiveX.dispose();
-			positiveX = null;
-
-			negativeX.dispose();
-			negativeX = null;
-
-			positiveY.dispose();
-			positiveY = null;
-
-			negativeY.dispose();
-			negativeY = null;
-
-			positiveZ.dispose();
-			positiveZ = null;
-
-			negativeZ.dispose();
-			negativeZ = null;
+		if (cubemap == null) {
+			return;
 		}
+
+		cubemap.dispose();
+		cubemap = null;
+
+		positiveX.dispose();
+		positiveX = null;
+
+		negativeX.dispose();
+		negativeX = null;
+
+		positiveY.dispose();
+		positiveY = null;
+
+		negativeY.dispose();
+		negativeY = null;
+
+		positiveZ.dispose();
+		positiveZ = null;
+
+		negativeZ.dispose();
+		negativeZ = null;
 	}
 }
