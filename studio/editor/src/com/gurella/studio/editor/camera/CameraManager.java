@@ -23,7 +23,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		EditorResizeListener, PreferencesExtension {
 
 	private final int editorId;
-	private final CameraProviderExtensionRegistry extensionRegistry;
+	private final CameraProvider extensionRegistry;
 	private PreferencesNode preferences;
 
 	private final PerspectiveCamera perspectiveCamera;
@@ -41,7 +41,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	public CameraManager(int editorId) {
 		this.editorId = editorId;
-		extensionRegistry = new CameraProviderExtensionRegistry(this);
+		extensionRegistry = new CameraProvider(this);
 		Workbench.activate(this);
 		Workbench.addListener(extensionRegistry);
 

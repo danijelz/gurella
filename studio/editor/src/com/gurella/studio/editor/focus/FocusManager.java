@@ -17,6 +17,7 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
@@ -27,10 +28,9 @@ import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
-public class FocusManager implements SceneLoadedListener, EditorSelectionListener, EditorCloseListener,
+public class FocusManager implements SceneProviderExtension, EditorSelectionListener, EditorCloseListener,
 		EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final int editorId;
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
@@ -54,7 +54,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		this.scene = scene;
 		EventService.subscribe(scene.getInstanceId(), this);
 	}

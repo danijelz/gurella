@@ -37,15 +37,15 @@ import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
+import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.assets.AssetSelection;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class DndAssetPlacementManager implements SceneLoadedListener, CameraProviderExtension,
+public class DndAssetPlacementManager implements SceneProviderExtension, CameraProviderExtension,
 		EditorPreRenderUpdateListener, EditorRenderUpdateListener, EditorCloseListener {
 	private final int editorId;
 	private final GLCanvas glCanvas;
@@ -81,7 +81,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		this.scene = scene;
 		inputSystem = scene.inputSystem;
 	}

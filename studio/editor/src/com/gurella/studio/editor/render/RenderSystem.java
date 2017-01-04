@@ -34,14 +34,14 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.tool.ToolManager;
 
-public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorCloseListener,
+public class RenderSystem implements ComponentActivityListener, SceneProviderExtension, EditorCloseListener,
 		EditorFocusListener, EditorRenderUpdateListener, CameraProviderExtension {
 	private int editorId;
 
@@ -107,7 +107,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		this.scene = scene;
 		sceneId = scene.getInstanceId();
 		EventService.subscribe(sceneId, this);

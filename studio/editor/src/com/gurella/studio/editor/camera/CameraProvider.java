@@ -7,11 +7,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
 
-public class CameraProviderExtensionRegistry implements PluginListener {
+public class CameraProvider implements PluginListener {
 	private final CameraManager cameraManager;
 	private final Set<CameraProviderExtension> extensions = new HashSet<>();
 
-	CameraProviderExtensionRegistry(CameraManager cameraManager) {
+	CameraProvider(CameraManager cameraManager) {
 		this.cameraManager = cameraManager;
 	}
 

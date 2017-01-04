@@ -46,20 +46,19 @@ import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.launch.LaunchManager;
 import com.gurella.studio.editor.preferences.PreferencesManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneDirtyListener {
+public class SceneEditor extends EditorPart implements SceneProviderExtension, SceneDirtyListener {
 	public final int id = Sequence.next();
 
 	private Composite content;
 	Dock dock;
 
+	SceneProvider sceneProvider;
 	ViewRegistry viewRegistry;
 	DndAssetPlacementManager dndAssetPlacementManager;
 	HistoryManager historyManager;
@@ -133,6 +132,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		this.content = parent;
 		parent.setLayout(new GridLayout());
 
+		sceneProvider = new SceneProvider(id);
 		preferencesManager = new PreferencesManager(this);
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -163,7 +163,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		dirty = false;
 	}
 
@@ -274,7 +274,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		@Override
 		public void onSuccess(Scene scene) {
-			EventService.post(id, SceneLoadedListener.class, l -> l.sceneLoaded(scene));
+			EventService.post(id, SceneProviderExtension.class, l -> l.setScene(scene));
 			scene.start();
 			asyncExec(() -> progressLabel.dispose());
 		}

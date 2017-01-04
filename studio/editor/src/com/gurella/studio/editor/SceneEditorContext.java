@@ -27,10 +27,9 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseListener, EditorCloseListener {
+public class SceneEditorContext implements SceneProviderExtension, EditorPreCloseListener, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -79,7 +78,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		this.scene = scene;
 	}
 

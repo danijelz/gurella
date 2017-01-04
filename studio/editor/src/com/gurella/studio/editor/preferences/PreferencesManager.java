@@ -12,11 +12,11 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class PreferencesManager implements PreferencesStore, SceneLoadedListener, EditorCloseListener {
+public class PreferencesManager implements PreferencesStore, SceneProviderExtension, EditorCloseListener {
 	private final int editorId;
 	private PreferencesExtensionRegistry extensionRegistry;
 
@@ -53,7 +53,7 @@ public class PreferencesManager implements PreferencesStore, SceneLoadedListener
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		scenePreferences = projectPreferences.node(scene.ensureUuid());
 		Workbench.addListener(extensionRegistry);
 	}

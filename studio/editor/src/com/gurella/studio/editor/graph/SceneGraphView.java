@@ -48,6 +48,7 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
@@ -62,14 +63,13 @@ import com.gurella.studio.editor.operation.ReparentNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.ControlExpression;
 import com.gurella.studio.editor.utils.DelegatingDragSourceListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneGraphView extends DockableView
-		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener {
+		implements EditorSceneActivityListener, NodeNameChangeListener, SceneProviderExtension {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
 	private final Label searchImageLabel;
@@ -131,7 +131,7 @@ public class SceneGraphView extends DockableView
 		initFocusHandlers();
 
 		// TODO handle with plugin
-		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
+		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> setScene(scene));
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 		UiUtils.paintBordersFor(this);
@@ -280,7 +280,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
+	public void setScene(Scene scene) {
 		this.scene = scene;
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
