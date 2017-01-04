@@ -162,9 +162,8 @@ final class ManagedObjects {
 		parentChangedEvent.newParent = null;
 	}
 
-	@TypePriorities({
-			@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-			@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
+	@TypePriorities({ @TypePriority(priority = Integer.MIN_VALUE, type = ApplicationUpdateListener.class),
+			@TypePriority(priority = Integer.MIN_VALUE, type = ApplicationDebugUpdateListener.class) })
 	private static class Cleaner implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {

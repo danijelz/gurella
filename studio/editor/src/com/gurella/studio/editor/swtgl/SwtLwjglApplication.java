@@ -25,6 +25,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.studio.GurellaStudioPlugin;
 
 //Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
@@ -107,6 +108,7 @@ public class SwtLwjglApplication implements Application {
 			new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
 			lifecycleListeners.clear();
 		}
+		DisposablesService.disposeAll();
 		OpenAlAudioSingletone.dispose(audio);
 	}
 

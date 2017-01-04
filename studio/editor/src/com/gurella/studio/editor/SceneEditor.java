@@ -192,7 +192,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	@Override
 	public void dispose() {
 		super.dispose();
-		EventService.post(id, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 		EventService.unsubscribe(id, this);
 		EventService.post(id, EditorCloseListener.class, l -> l.onEditorClose());
 		// TODO context and applicationListener should be unified

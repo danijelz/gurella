@@ -10,6 +10,7 @@ import com.gurella.studio.editor.input.InputManager;
 import com.gurella.studio.editor.menu.ContextMenuManager;
 import com.gurella.studio.editor.render.RenderSystem;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
@@ -69,9 +70,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 
 	@Override
 	public void dispose() {
+		EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
-		// TODO DisposablesService.disposeAll();
 	}
 }

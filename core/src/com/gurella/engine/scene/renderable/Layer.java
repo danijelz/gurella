@@ -18,8 +18,8 @@ public final class Layer implements Comparable<Layer> {
 	private static final ObjectMap<String, Layer> layersByName = new ObjectMap<String, Layer>();
 	private static final ArrayExt<Layer> values = new ArrayExt<Layer>();
 
+	public static final Layer SKY = new Layer(-100, "Sky");
 	public static final Layer DEFAULT = new Layer(0, "Default");
-	public static final Layer SKY = new Layer(100, "Sky");
 	public static final Layer GUI = new Layer(200, "GUI");
 	public static final Layer DnD = new Layer(300, "DnD");
 

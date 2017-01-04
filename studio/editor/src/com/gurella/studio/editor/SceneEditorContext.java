@@ -26,10 +26,11 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneLoadedListener, EditorCloseListener {
+public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseListener, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -59,12 +60,16 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		Reflection.classResolver = classLoader::loadClass;
 		EventService.subscribe(editorId, this);
 	}
+	
+	@Override
+	public void onEditorPreClose() {
+		Optional.ofNullable(scene).ifPresent(s -> s.stop());
+	}
 
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		unloadAll();
-		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
 	}
