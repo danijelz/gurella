@@ -12,6 +12,6 @@ public class PriorityComparator implements Comparator<Object> {
 
 	@Override
 	public int compare(Object o1, Object o2) {
-		return Values.compare(Priorities.getPriority(o1), Priorities.getPriority(o2));
+		return Values.compare(PriorityManager.getPriority(o1), PriorityManager.getPriority(o2));
 	}
 }

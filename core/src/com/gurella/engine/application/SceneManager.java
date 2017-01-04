@@ -8,7 +8,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.utils.priority.TypePriority;
+import com.gurella.engine.utils.priority.Priority;
 import com.gurella.engine.utils.state.FixedStateMachineContext;
 import com.gurella.engine.utils.state.StateMachine;
 
@@ -77,7 +77,7 @@ public class SceneManager {
 		return currentSceneGroup;
 	}
 
-	@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
+	@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
 	private class TransitionWorker implements /* AsyncCallback<DependencyMap>, */ ApplicationUpdateListener {
 		private StateMachine<SceneTransitionState> transitionStateManager;
 

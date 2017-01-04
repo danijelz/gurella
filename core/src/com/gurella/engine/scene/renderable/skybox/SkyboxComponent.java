@@ -13,14 +13,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 @MetaTypeDescriptor(descriptiveName = "Skybox")
-public class SkyboxComponent extends RenderableComponent implements Disposable {
+public class SkyboxComponent extends RenderableComponent {
 	Pixmap texture;
 
 	private Pixmap positiveX;
@@ -119,11 +118,12 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void destroyed() {
 		texture = null;
 		disposeData();
 		if (boxModel != null) {
 			boxModel.dispose();
+			boxModel = null;
 		}
 	}
 

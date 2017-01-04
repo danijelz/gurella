@@ -14,8 +14,8 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListen
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
-import com.gurella.engine.utils.priority.TypePriorities;
-import com.gurella.engine.utils.priority.TypePriority;
+import com.gurella.engine.utils.priority.Priorities;
+import com.gurella.engine.utils.priority.Priority;
 
 public final class AssetService {
 	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
@@ -145,8 +145,8 @@ public final class AssetService {
 		getInstance().assetRegistry.reloadInvalidated();
 	}
 
-	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
-			@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
+	@Priorities({ @Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
+			@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
 	private static class RegistryUpdater implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {

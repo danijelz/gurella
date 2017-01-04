@@ -99,8 +99,8 @@ public final class GurellaApplication implements ApplicationListener {
 
 	@Override
 	public void dispose() {
-		EventService.post(shutdownEvent);
 		// TODO sceneManager.stop();
+		EventService.post(shutdownEvent);
 		DisposablesService.disposeAll();
 	}
 

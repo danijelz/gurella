@@ -19,9 +19,9 @@ import com.gurella.engine.subscriptions.scene.update.PostRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
-import com.gurella.engine.utils.priority.TypePriority;
+import com.gurella.engine.utils.priority.Priority;
 
-@TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
+@Priority(value = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
 class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	private static final SceneStartedEvent sceneStartedEvent = new SceneStartedEvent();
 	private static final SceneStoppedEvent sceneStoppedEvent = new SceneStoppedEvent();

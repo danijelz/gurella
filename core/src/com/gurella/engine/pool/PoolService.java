@@ -14,18 +14,21 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
-import com.gurella.engine.utils.priority.TypePriorities;
-import com.gurella.engine.utils.priority.TypePriority;
+import com.gurella.engine.utils.priority.Priorities;
+import com.gurella.engine.utils.priority.Priority;
 
 // TODO factory pools, 
 // TODO handle Disposables
-@TypePriorities({
-		@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-		@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
-public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener {
+@Priorities({
+		@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
+		@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class),
+		@Priority(value = 100, type = ApplicationShutdownListener.class) })
+public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener,
+		ApplicationShutdownListener {
 	private static final PoolService instance = new PoolService();
 	private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
@@ -305,14 +308,23 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 
 	@Override
 	public void debugUpdate() {
+		cleanAll();
+	}
+
+	private void cleanAll() {
 		prepareForCleaning();
 		freeAsync();
 		synchronized (asyncPool) {
-			if(asyncPool.size == 0) {
+			if (asyncPool.size == 0) {
 				return;
 			}
 		}
-		debugUpdate();
+		cleanAll();
+	}
+
+	@Override
+	public void shutdown() {
+		cleanAll();
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {

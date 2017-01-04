@@ -60,7 +60,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		Reflection.classResolver = classLoader::loadClass;
 		EventService.subscribe(editorId, this);
 	}
-	
+
 	@Override
 	public void onEditorPreClose() {
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
@@ -69,13 +69,9 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		unloadAll();
+		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
-	}
-
-	private void unloadAll() {
-		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 	}
 
 	public Scene getScene() {

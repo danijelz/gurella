@@ -6,6 +6,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.ObjectOperation.OperationType;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
@@ -16,8 +17,8 @@ import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
-import com.gurella.engine.utils.priority.TypePriorities;
-import com.gurella.engine.utils.priority.TypePriority;
+import com.gurella.engine.utils.priority.Priorities;
+import com.gurella.engine.utils.priority.Priority;
 
 final class ManagedObjects {
 	private static final ObjectsActivatedEvent objectsActivatedEvent = new ObjectsActivatedEvent();
@@ -162,26 +163,13 @@ final class ManagedObjects {
 		parentChangedEvent.newParent = null;
 	}
 
-	@TypePriorities({ @TypePriority(priority = Integer.MIN_VALUE, type = ApplicationUpdateListener.class),
-			@TypePriority(priority = Integer.MIN_VALUE, type = ApplicationDebugUpdateListener.class) })
-	private static class Cleaner implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
+	@Priorities({ @Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
+			@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class),
+			@Priority(value = 0, type = ApplicationShutdownListener.class) })
+	private static class Cleaner
+			implements ApplicationUpdateListener, ApplicationDebugUpdateListener, ApplicationShutdownListener {
 		@Override
 		public void update() {
-			doUpdate();
-		}
-
-		@Override
-		public void debugUpdate() {
-			doUpdate();
-			synchronized (mutex) {
-				if (operations.size == 0) {
-					return;
-				}
-			}
-			debugUpdate();
-		}
-
-		private static void doUpdate() {
 			synchronized (mutex) {
 				Array<ObjectOperation> temp = operations;
 				operations = workingOperations;
@@ -193,6 +181,26 @@ final class ManagedObjects {
 			}
 
 			workingOperations.clear();
+		}
+
+		@Override
+		public void debugUpdate() {
+			update();
+		}
+
+		private void cleanAll() {
+			update();
+			synchronized (mutex) {
+				if (operations.size == 0) {
+					return;
+				}
+			}
+			cleanAll();
+		}
+
+		@Override
+		public void shutdown() {
+			cleanAll();
 		}
 	}
 

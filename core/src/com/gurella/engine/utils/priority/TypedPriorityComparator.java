@@ -13,6 +13,6 @@ public class TypedPriorityComparator implements Comparator<Object> {
 
 	@Override
 	public int compare(Object o1, Object o2) {
-		return Values.compare(Priorities.getPriority(o1, interfaceType), Priorities.getPriority(o2, interfaceType));
+		return Values.compare(PriorityManager.getPriority(o1, interfaceType), PriorityManager.getPriority(o2, interfaceType));
 	}
 }
