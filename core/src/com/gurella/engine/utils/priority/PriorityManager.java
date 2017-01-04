@@ -76,7 +76,7 @@ public class PriorityManager {
 	private static void appendPriority(Class<?> type, Priority priority) {
 		Class<?> priorityType = priority.type();
 		if (priorityType == null || Object.class == priorityType) {
-			globalPriorities.put(priorityType, priority.value());
+			globalPriorities.put(type, priority.value());
 		} else {
 			getTypePriorities(type).put(priorityType, priority.value());
 		}

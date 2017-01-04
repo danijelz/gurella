@@ -22,7 +22,7 @@ import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
@@ -30,7 +30,7 @@ import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListene
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 
 //TODO add joints, force fields
-public class BulletPhysicsSystem extends SceneService
+public class BulletPhysicsSystem extends BuiltinSceneSystem
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
 		Bullet.init();

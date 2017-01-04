@@ -11,12 +11,12 @@ import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
-public class AudioSystem extends SceneService implements ComponentActivityListener, PreRenderUpdateListener {
+public class AudioSystem extends BuiltinSceneSystem implements ComponentActivityListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();

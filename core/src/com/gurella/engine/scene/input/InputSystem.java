@@ -21,7 +21,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.ReverseOrdinalComparator;
 import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
@@ -34,7 +34,7 @@ import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 
-public class InputSystem extends SceneService implements ComponentActivityListener, InputUpdateListener {
+public class InputSystem extends BuiltinSceneSystem implements ComponentActivityListener, InputUpdateListener {
 	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 
 	private SpatialSystem<?> spatialSystem;

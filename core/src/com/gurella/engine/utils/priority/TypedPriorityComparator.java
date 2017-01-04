@@ -1,5 +1,7 @@
 package com.gurella.engine.utils.priority;
 
+import static com.gurella.engine.utils.priority.PriorityManager.getPriority;
+
 import java.util.Comparator;
 
 import com.gurella.engine.utils.Values;
@@ -13,6 +15,6 @@ public class TypedPriorityComparator implements Comparator<Object> {
 
 	@Override
 	public int compare(Object o1, Object o2) {
-		return Values.compare(PriorityManager.getPriority(o1, interfaceType), PriorityManager.getPriority(o2, interfaceType));
+		return Values.compare(getPriority(o1, interfaceType), getPriority(o2, interfaceType));
 	}
 }

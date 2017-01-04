@@ -4,13 +4,13 @@ import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
-public class UiSystem extends SceneService implements ComponentActivityListener, ObjectsParentListener, Composite {
+public class UiSystem extends BuiltinSceneSystem implements ComponentActivityListener, ObjectsParentListener, Composite {
 	UiFocusManager uiFocusManager;
 
 	transient final OrderedIdentitySet<UiComponent> _components = new OrderedIdentitySet<UiComponent>();

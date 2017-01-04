@@ -7,12 +7,12 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.gurella.engine.application.GurellaApplication;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 
-public class Box2dPhysicsSystem extends SceneService
+public class Box2dPhysicsSystem extends BuiltinSceneSystem
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
 		Box2D.init();

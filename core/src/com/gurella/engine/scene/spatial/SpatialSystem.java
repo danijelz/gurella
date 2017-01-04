@@ -9,13 +9,13 @@ import com.badlogic.gdx.utils.IntMap.Values;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
-public abstract class SpatialSystem<T extends Spatial> extends SceneService
+public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSystem
 		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
 	private Object mutex = new Object();
 

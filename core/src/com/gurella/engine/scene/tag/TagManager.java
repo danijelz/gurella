@@ -7,7 +7,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.tag.TagActivityListener;
@@ -16,7 +16,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO EntitySubscription -> TagSubscription
-public class TagManager extends SceneService implements ComponentActivityListener, TagActivityListener {
+public class TagManager extends BuiltinSceneSystem implements ComponentActivityListener, TagActivityListener {
 	private static final ComponentFamily tagComponentFamily = ComponentFamily.fromComponentType(TagComponent.class);
 
 	private final IntMap<OrderedIdentitySet<SceneNode>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode>>();
