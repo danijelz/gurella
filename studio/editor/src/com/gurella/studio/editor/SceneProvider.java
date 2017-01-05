@@ -10,7 +10,7 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 
-public class SceneProvider implements PluginListener, EditorCloseListener {
+class SceneProvider implements PluginListener, EditorCloseListener {
 	private final int editorId;
 	private final Set<SceneProviderExtension> extensions = new HashSet<>();
 

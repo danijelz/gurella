@@ -2,6 +2,9 @@ package com.gurella.engine.event;
 
 import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.pool.PoolService;
@@ -9,12 +12,21 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO add closeChannel()
 public class EventService {
-	private static final EventBus global = new EventBus();
+	private static final IdentityMap<Application, EventBus> globals = new IdentityMap<Application, EventBus>();
 	private static final SubscriberComparator globalComparator = new SubscriberComparator();
 	private static final IntMap<EventBus> channels = new IntMap<EventBus>();
 	private static final SubscriberComparator channelsComparator = new SubscriberComparator();
 
 	private EventService() {
+	}
+
+	private static EventBus getGlobal() {
+		EventBus bus = globals.get(Gdx.app);
+		if (bus == null) {
+			bus = new EventBus();
+			globals.put(Gdx.app, bus);
+		}
+		return bus;
 	}
 
 	public static void subscribe(EventSubscription subscriber) {
@@ -23,8 +35,8 @@ public class EventService {
 			return;
 		}
 
-		synchronized (global) {
-			global.subscribe(subscriber, subscriptions, globalComparator);
+		synchronized (globals) {
+			getGlobal().subscribe(subscriber, subscriptions, globalComparator);
 		}
 	}
 
@@ -34,8 +46,8 @@ public class EventService {
 			return;
 		}
 
-		synchronized (global) {
-			global.unsubscribe(subscriber, subscriptions);
+		synchronized (globals) {
+			getGlobal().unsubscribe(subscriber, subscriptions);
 		}
 	}
 
@@ -47,9 +59,9 @@ public class EventService {
 		Object[] listenersByType;
 		int listenersSize;
 
-		synchronized (global) {
+		synchronized (globals) {
 			@SuppressWarnings("unchecked")
-			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) global.listeners.get(subscriptionType);
+			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) getGlobal().listeners.get(subscriptionType);
 			if (temp == null || temp.size == 0) {
 				return;
 			}

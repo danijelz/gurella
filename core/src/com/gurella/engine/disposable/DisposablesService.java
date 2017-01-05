@@ -4,10 +4,10 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IdentityMap;
 
 public class DisposablesService {
-	private static final ObjectMap<Application, Array<Disposable>> instances = new ObjectMap<Application, Array<Disposable>>();
+	private static final IdentityMap<Application, Array<Disposable>> instances = new IdentityMap<Application, Array<Disposable>>();
 
 	private DisposablesService() {
 	}

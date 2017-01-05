@@ -44,26 +44,6 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		dock = editor.dock;
 		EventService.subscribe(editor.id, this);
 		Workbench.activate(this);
-
-		String openViews = preferences.get("openViews", "");
-		if (Values.isBlank(openViews)) {
-			openView(SceneGraphView.class);
-			openView(AssetsView.class);
-			openView(InspectorView.class);
-		} else {
-			Arrays.stream(openViews.split(",")).filter(Values::isNotBlank)
-					.map(t -> Try.ofFailable(() -> Class.forName(t.trim()))).filter(t -> t.isSuccess())
-					.map(t -> Values.<Class<? extends DockableView>> cast(t.getUnchecked()))
-					.forEachOrdered(this::openView);
-		}
-
-		dock.setMinimized(SWT.RIGHT, preferences.getBoolean("minimizedEast", false));
-		dock.setMinimized(SWT.BOTTOM, preferences.getBoolean("minimizedSouth", false));
-		dock.setMinimized(SWT.LEFT, preferences.getBoolean("minimizedWest", false));
-
-		dock.setSelection(SWT.RIGHT, preferences.getInt("selectionEast", 0));
-		dock.setSelection(SWT.BOTTOM, preferences.getInt("selectionSouth", 0));
-		dock.setSelection(SWT.LEFT, preferences.getInt("selectionWest", 0));
 	}
 
 	public boolean isOpen(Class<? extends DockableView> type) {
@@ -131,6 +111,26 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		}
 
 		preferences = preferencesStore.resourceNode().node(ViewRegistry.class);
+
+		String openViews = preferences.get("openViews", "");
+		if (Values.isBlank(openViews)) {
+			openView(SceneGraphView.class);
+			openView(AssetsView.class);
+			openView(InspectorView.class);
+		} else {
+			Arrays.stream(openViews.split(",")).filter(Values::isNotBlank)
+					.map(t -> Try.ofFailable(() -> Class.forName(t.trim()))).filter(t -> t.isSuccess())
+					.map(t -> Values.<Class<? extends DockableView>> cast(t.getUnchecked()))
+					.forEachOrdered(this::openView);
+		}
+
+		dock.setMinimized(SWT.RIGHT, preferences.getBoolean("minimizedEast", false));
+		dock.setMinimized(SWT.BOTTOM, preferences.getBoolean("minimizedSouth", false));
+		dock.setMinimized(SWT.LEFT, preferences.getBoolean("minimizedWest", false));
+
+		dock.setSelection(SWT.RIGHT, preferences.getInt("selectionEast", 0));
+		dock.setSelection(SWT.BOTTOM, preferences.getInt("selectionSouth", 0));
+		dock.setSelection(SWT.LEFT, preferences.getInt("selectionWest", 0));
 	}
 
 	private void persistPreferences() {

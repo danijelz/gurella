@@ -65,7 +65,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	private DndAssetPlacementManager dndAssetPlacementManager;
 	HistoryManager historyManager;
 	private LaunchManager launchManager;
-	PreferencesManager preferencesManager;
+	private PreferencesManager preferencesManager;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
