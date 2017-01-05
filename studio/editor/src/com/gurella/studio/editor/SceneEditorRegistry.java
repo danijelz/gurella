@@ -7,23 +7,22 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class SceneEditorRegistry {
 	public static final int invalidId = -1;
 
 	private static final IntMap<SceneEditor> idToEditor = new IntMap<>();
-	private static final ObjectIntMap<Dock> partControlToEditorId = new ObjectIntMap<>();
+	private static final ObjectIntMap<Control> partControlToEditorId = new ObjectIntMap<>();
 	private static final ObjectIntMap<SwtLwjglApplication> gdxAppToEditorId = new ObjectIntMap<>();
 
 	private SceneEditorRegistry() {
 	}
 
-	static void put(SceneEditor editor, Dock dock, SwtLwjglApplication application) {
+	static void put(SceneEditor editor, Composite content, SwtLwjglApplication application) {
 		int id = editor.id;
 		idToEditor.put(id, editor);
-		partControlToEditorId.put(dock, id);
+		partControlToEditorId.put(content, id);
 		gdxAppToEditorId.put(application, id);
 	}
 
@@ -36,13 +35,14 @@ public class SceneEditorRegistry {
 
 	static int getEditorId(Control control) {
 		Composite parent = control instanceof Composite ? (Composite) control : control.getParent();
-		while (parent != null) {
-			if (parent instanceof Dock) {
-				return partControlToEditorId.get((Dock) parent, invalidId);
-			}
+		int id = invalidId;
+
+		while (parent != null && id == invalidId) {
+			id = partControlToEditorId.get(parent, invalidId);
+			parent = parent.getParent();
 		}
 
-		return invalidId;
+		return id;
 	}
 
 	static int getCurrentEditorId() {

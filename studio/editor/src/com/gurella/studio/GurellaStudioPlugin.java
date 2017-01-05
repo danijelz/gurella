@@ -45,7 +45,6 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.gurella.studio"; //$NON-NLS-1$
-	public static final Object glMutex = new Object();
 
 	private static GurellaStudioPlugin plugin;
 

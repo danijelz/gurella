@@ -26,12 +26,12 @@ import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Synchronized;
 
 //Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
 	private final SwtLwjglGraphics graphics;
-	private OpenALAudio audio;
+	private final OpenALAudio audio;
 	private final SwtLwjglFiles files;
 	private final SwtLwjglInput input;
 	private final LwjglNet net;
@@ -52,7 +52,7 @@ public class SwtLwjglApplication implements Application {
 	private int lastHeight;
 	private boolean wasActive = true;
 
-	private int backgroundFPS = 60;
+	private int backgroundFps = 60;
 	private ApplicationLogger applicationLogger;
 
 	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener) {
@@ -67,24 +67,17 @@ public class SwtLwjglApplication implements Application {
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
 
-		synchronized (GurellaStudioPlugin.glMutex) {
-			init();
-		}
-
-		parent.getDisplay().asyncExec(() -> mainLoop());
-	}
-
-	private void init() {
-		graphics.init();
-		setCurrent();
-
-		listener.create();
-
 		lastWidth = graphics.getWidth();
 		lastHeight = graphics.getHeight();
+	}
+
+	public void init() {
+		setCurrent();
+		listener.create();
 
 		final GLCanvas glCanvas = graphics.getGlCanvas();
 		glCanvas.addListener(SWT.Dispose, e -> onGlCanvasDisposed());
+		glCanvas.getDisplay().asyncExec(() -> mainLoop());
 	}
 
 	private void setCurrent() {
@@ -123,7 +116,7 @@ public class SwtLwjglApplication implements Application {
 			return;
 		}
 
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			setCurrent();
 			update();
 		}
@@ -146,7 +139,7 @@ public class SwtLwjglApplication implements Application {
 			audio.update();
 		}
 
-		if (!isActive && backgroundFPS == -1) {
+		if (!isActive && backgroundFps == -1) {
 			shouldRender = false;
 		}
 
@@ -200,18 +193,16 @@ public class SwtLwjglApplication implements Application {
 			return false;
 		}
 
-		switchRunnables();
+		Synchronized.run(runnables, () -> switchRunnables());
 		executedRunnables.stream().forEachOrdered(r -> r.run());
 		executedRunnables.clear();
 		return true;
 	}
 
 	private void switchRunnables() {
-		synchronized (runnables) {
-			List<Runnable> temp = runnables;
-			runnables = executedRunnables;
-			executedRunnables = temp;
-		}
+		List<Runnable> temp = runnables;
+		runnables = executedRunnables;
+		executedRunnables = temp;
 	}
 
 	@Override
@@ -286,10 +277,10 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void postRunnable(Runnable runnable) {
-		synchronized (runnables) {
+		Synchronized.run(runnables, () -> {
 			runnables.add(runnable);
 			graphics.requestRendering();
-		}
+		});
 	}
 
 	@Override

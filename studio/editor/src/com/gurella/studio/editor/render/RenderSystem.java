@@ -33,12 +33,12 @@ import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
-import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
+import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.tool.ToolManager;
 
 public class RenderSystem implements ComponentActivityListener, SceneProviderExtension, EditorCloseListener,
@@ -173,7 +173,7 @@ public class RenderSystem implements ComponentActivityListener, SceneProviderExt
 			return;
 		}
 
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			updateGlState();
 			if (camera instanceof PerspectiveCamera) {
 				grid3d.render(batch);
@@ -224,7 +224,7 @@ public class RenderSystem implements ComponentActivityListener, SceneProviderExt
 			debugRender(renderContext, spatial, focusedComponent);
 			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
 		}
-		
+
 		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable && focusedComponent.isActive()) {
 			((DebugRenderable) focusedComponent).debugRender(renderContext);
 		}

@@ -146,7 +146,7 @@ public class PreferencesNode {
 	}
 
 	public Optional<PreferencesNode> nodeIfExists(String pathName) {
-		return Try.ofFailable(() -> preferences.nodeExists(pathName)).filter(b -> TRUE.equals(b))
+		return Try.ofFailable(() -> Boolean.valueOf(preferences.nodeExists(pathName))).filter(b -> TRUE.equals(b))
 				.map(b -> node(pathName)).toOptional();
 	}
 

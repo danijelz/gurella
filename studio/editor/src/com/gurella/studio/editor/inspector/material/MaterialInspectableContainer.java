@@ -221,7 +221,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		directionalAttribute.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 		environment.set(directionalAttribute);
 
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 
@@ -256,7 +256,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void updateModelType(ModelShape newShape) {
 		if (modelShape != newShape) {
 			modelShape = newShape;
-			synchronized (GurellaStudioPlugin.glMutex) {
+			synchronized (SwtLwjglGraphics.glMutex) {
 				glCanvas.setCurrent();
 				Gdx.gl20 = gl20;
 				model.dispose();
@@ -273,7 +273,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			if (!dirty) {
 				editorContext.unload(target.getLocation().toString());
 			}
@@ -293,7 +293,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void render() {
 		input.update();
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
 			}
@@ -318,7 +318,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	void refreshMaterial() {
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
@@ -481,7 +481,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				}
 			}
 
-			//System.out.println(Arrays.toString(vertices));
+			// System.out.println(Arrays.toString(vertices));
 			mesh.setVertices(vertices);
 		}
 	}

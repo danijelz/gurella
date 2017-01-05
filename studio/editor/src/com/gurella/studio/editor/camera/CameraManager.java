@@ -24,6 +24,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	private final int editorId;
 	private final CameraProvider extensionRegistry;
+	
 	private PreferencesNode preferences;
 
 	private final PerspectiveCamera perspectiveCamera;
@@ -150,7 +151,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 			return;
 		}
 
-		preferences = preferencesStore.sceneNode().node(CameraManager.class);
+		preferences = preferencesStore.resourceNode().node(CameraManager.class);
 		preferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
 
 		PreferencesNode node2d = preferences.node("camera2d");

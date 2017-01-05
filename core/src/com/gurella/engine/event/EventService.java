@@ -17,7 +17,7 @@ public class EventService {
 	private EventService() {
 	}
 
-	public static void subscribe(Object subscriber) {
+	public static void subscribe(EventSubscription subscriber) {
 		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
@@ -28,7 +28,7 @@ public class EventService {
 		}
 	}
 
-	public static void unsubscribe(Object subscriber) {
+	public static void unsubscribe(EventSubscription subscriber) {
 		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
@@ -68,7 +68,7 @@ public class EventService {
 		PoolService.free(listenersByType);
 	}
 
-	public static void subscribe(int channel, Object subscriber) {
+	public static void subscribe(int channel, EventSubscription subscriber) {
 		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
@@ -84,7 +84,7 @@ public class EventService {
 		}
 	}
 
-	public static void unsubscribe(int channel, Object subscriber) {
+	public static void unsubscribe(int channel, EventSubscription subscriber) {
 		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;

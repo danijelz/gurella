@@ -13,7 +13,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -35,7 +34,6 @@ public class Dock extends Composite {
 	public Dock(SceneEditor editor, Composite parent, int style) {
 		super(parent, style);
 		this.editor = editor;
-		EventService.subscribe(editor.id, this);
 
 		dragEast = createCursor("icons/right_source.bmp");
 		dragSouth = createCursor("icons/bottom_source.bmp");

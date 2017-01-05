@@ -1,6 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
@@ -13,10 +14,10 @@ public class BuiltinSceneSystem {
 
 	protected void activate() {
 		if (this instanceof ApplicationEventSubscription) {
-			EventService.subscribe(this);
+			EventService.subscribe((EventSubscription) this);
 		}
 		if (this instanceof SceneEventSubscription) {
-			EventService.subscribe(scene.getInstanceId(), this);
+			EventService.subscribe(scene.getInstanceId(), (EventSubscription) this);
 		}
 		serviceActivated();
 	}
@@ -26,10 +27,10 @@ public class BuiltinSceneSystem {
 
 	protected void deactivate() {
 		if (this instanceof ApplicationEventSubscription) {
-			EventService.unsubscribe(this);
+			EventService.unsubscribe((EventSubscription) this);
 		}
 		if (this instanceof SceneEventSubscription) {
-			EventService.unsubscribe(scene.getInstanceId(), this);
+			EventService.unsubscribe(scene.getInstanceId(), (EventSubscription) this);
 		}
 		serviceDeactivated();
 	}

@@ -21,6 +21,7 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.AssetPersisters;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
@@ -58,6 +59,7 @@ public class SceneEditorContext implements SceneProviderExtension, EditorPreClos
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;
 		EventService.subscribe(editorId, this);
+		Workbench.activate(this);
 	}
 
 	@Override
@@ -68,6 +70,7 @@ public class SceneEditorContext implements SceneProviderExtension, EditorPreClos
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(this);
 		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));

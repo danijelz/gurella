@@ -12,6 +12,7 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.managedobject.ObjectSubscriptionAttachment.ObjectSubscription;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
@@ -102,7 +103,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		}
 
 		if (this instanceof ApplicationEventSubscription) {
-			EventService.subscribe(this);
+			EventService.subscribe((EventSubscription) this);
 		}
 
 		state = ManagedObjectState.active;
@@ -154,7 +155,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		ManagedObjects.deactivated(this);
 
 		if (this instanceof ApplicationEventSubscription) {
-			EventService.unsubscribe(this);
+			EventService.unsubscribe((EventSubscription) this);
 		}
 
 		detachAll();
@@ -374,7 +375,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		attachments.clear();
 	}
 
-	protected void subscribe(Object subscriber) {
+	protected void subscribe(EventSubscription subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}
@@ -382,21 +383,21 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		attach(SubscriptionAttachment.obtain(subscriber));
 	}
 
-	protected boolean unsubscribe(Object subscriber) {
+	protected boolean unsubscribe(EventSubscription subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}
 		return detach(subscriber);
 	}
 
-	protected void subscribeTo(ManagedObject object, Object subscriber) {
+	protected void subscribeTo(ManagedObject object, EventSubscription subscriber) {
 		if (object == null || subscriber == null) {
 			throw new NullPointerException("object or subscriber is null.");
 		}
 		attach(ObjectSubscriptionAttachment.obtain(object.instanceId, subscriber));
 	}
 
-	protected boolean unsubscribeFrom(ManagedObject object, Object subscriber) {
+	protected boolean unsubscribeFrom(ManagedObject object, EventSubscription subscriber) {
 		if (object == null || subscriber == null) {
 			throw new NullPointerException("object or subscriber is null.");
 		}
@@ -406,14 +407,14 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		return result;
 	}
 
-	public void subscribeTo(Object subscriber) {
+	public void subscribeTo(EventSubscription subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}
 		attach(ObjectSubscriptionAttachment.obtain(instanceId, subscriber));
 	}
 
-	public boolean unsubscribeFrom(Object subscriber) {
+	public boolean unsubscribeFrom(EventSubscription subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}

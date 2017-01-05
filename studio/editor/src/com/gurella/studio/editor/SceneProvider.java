@@ -24,13 +24,9 @@ public class SceneProvider implements PluginListener, EditorCloseListener {
 
 	@Override
 	public void activated(Plugin plugin) {
-		if (scene == null) {
-			return;
-		}
-
 		if (plugin instanceof SceneProviderExtension) {
 			SceneProviderExtension exstension = (SceneProviderExtension) plugin;
-			if (extensions.add(exstension)) {
+			if (extensions.add(exstension) && scene != null) {
 				exstension.setScene(scene);
 			}
 		}
@@ -38,20 +34,15 @@ public class SceneProvider implements PluginListener, EditorCloseListener {
 
 	@Override
 	public void deactivated(Plugin plugin) {
-		if (scene == null) {
-			return;
-		}
-
 		if (plugin instanceof SceneProviderExtension) {
 			SceneProviderExtension exstension = (SceneProviderExtension) plugin;
-			if (extensions.remove(exstension)) {
-				exstension.setScene(null);
-			}
+			extensions.remove(exstension);
 		}
 	}
 
 	void setScene(Scene scene) {
 		this.scene = scene;
+		scene.start();
 		extensions.forEach(e -> e.setScene(scene));
 	}
 

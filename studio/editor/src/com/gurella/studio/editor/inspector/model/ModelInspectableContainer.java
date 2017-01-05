@@ -103,7 +103,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 			modelBatch = new ModelBatch();
@@ -145,7 +145,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			model.dispose();
 			modelBatch.dispose();
 			glCanvas.dispose();
@@ -162,7 +162,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private void render() {
 		input.update();
 		camController.update();
-		synchronized (GurellaStudioPlugin.glMutex) {
+		synchronized (SwtLwjglGraphics.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
 			}

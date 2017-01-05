@@ -2,6 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.TransientProperty;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
@@ -59,10 +60,10 @@ public abstract class SceneNodeComponent extends SceneElement {
 		super.activated();
 		scene._activeComponents.add(this);
 		if (this instanceof SceneEventSubscription) {
-			EventService.subscribe(scene.getInstanceId(), this);
+			EventService.subscribe(scene.getInstanceId(), (EventSubscription) this);
 		}
 		if (this instanceof NodeEventSubscription) {
-			EventService.subscribe(getNodeId(), this);
+			EventService.subscribe(getNodeId(), (EventSubscription) this);
 		}
 		componentActivated();
 		scene.eventsDispatcher.componentActivated(this);
@@ -75,10 +76,10 @@ public abstract class SceneNodeComponent extends SceneElement {
 	protected final void deactivated() {
 		scene.eventsDispatcher.componentDeactivated(this);
 		if (this instanceof SceneEventSubscription) {
-			EventService.unsubscribe(scene.getInstanceId(), this);
+			EventService.unsubscribe(scene.getInstanceId(), (EventSubscription) this);
 		}
 		if (this instanceof NodeEventSubscription) {
-			EventService.unsubscribe(getNodeId(), this);
+			EventService.unsubscribe(getNodeId(), (EventSubscription) this);
 		}
 		componentDeactivated();
 		scene._activeComponents.remove(this);
@@ -90,7 +91,7 @@ public abstract class SceneNodeComponent extends SceneElement {
 	final void setParent(SceneNode node) {
 		super.setParent(node);
 	}
-	
+
 	final void unsetParent() {
 		super.setParent(null);
 	}

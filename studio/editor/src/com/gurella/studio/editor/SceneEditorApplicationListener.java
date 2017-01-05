@@ -31,7 +31,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 
 	public SceneEditorApplicationListener(int editorId) {
 		this.editorId = editorId;
-		EventService.subscribe(editorId, this);
 	}
 
 	@Override
@@ -59,11 +58,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	static void debugUpdate() {
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 	}
-	
+
 	@Override
 	public void pause() {
 	}
-	
+
 	@Override
 	public void resume() {
 	}
@@ -73,6 +72,5 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 		EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
 		debugUpdate();
-		EventService.unsubscribe(editorId, this);
 	}
 }

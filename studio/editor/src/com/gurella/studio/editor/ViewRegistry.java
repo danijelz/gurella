@@ -18,7 +18,9 @@ import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
+import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
@@ -26,13 +28,14 @@ import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.utils.Try;
 
 class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
-		EditorContextMenuContributor, ViewOrientationListener {
+		EditorContextMenuContributor, ViewOrientationListener, PreferencesExtension {
 	private static final String editorMenuSectionName = "Editor";
 	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
 	private final Dock dock;
-	private final PreferencesNode preferences;
+
+	private PreferencesNode preferences;
 
 	List<DockableView> registeredViews = new ArrayList<DockableView>();
 
@@ -41,9 +44,6 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		dock = editor.dock;
 		EventService.subscribe(editor.id, this);
 		Workbench.activate(this);
-
-		dock.addDisposeListener(e -> persistPreferences());
-		preferences = editor.preferencesManager.resourceNode().node(ViewRegistry.class);
 
 		String openViews = preferences.get("openViews", "");
 		if (Values.isBlank(openViews)) {
@@ -67,7 +67,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	}
 
 	public boolean isOpen(Class<? extends DockableView> type) {
-		return registeredViews.stream().filter(v -> v.getClass() == type).findFirst().isPresent();
+		return registeredViews.stream().filter(v -> v.getClass() == type).findAny().isPresent();
 	}
 
 	public void openView(Class<? extends DockableView> type) {
@@ -121,6 +121,16 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		if (!dock.isDisposed()) {
 			persistPreferences();
 		}
+	}
+
+	@Override
+	public void setPreferencesStore(PreferencesStore preferencesStore) {
+		if (preferencesStore == null) {
+			preferences = null;
+			return;
+		}
+
+		preferences = preferencesStore.resourceNode().node(ViewRegistry.class);
 	}
 
 	private void persistPreferences() {

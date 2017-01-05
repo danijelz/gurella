@@ -41,6 +41,7 @@ import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
@@ -130,11 +131,11 @@ public class SceneGraphView extends DockableView
 		initDragManagers();
 		initFocusHandlers();
 
-		// TODO handle with plugin
-		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> setScene(scene));
-		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
-		EventService.subscribe(editor.id, this);
 		UiUtils.paintBordersFor(this);
+
+		addDisposeListener(e -> onDispose(editor.id));
+		EventService.subscribe(editor.id, this);
+		Workbench.activate(this);
 	}
 
 	private void filterChanged() {
@@ -229,6 +230,11 @@ public class SceneGraphView extends DockableView
 		return getSelectedElement().filter(SceneNodeComponent.class::isInstance).map(SceneNodeComponent.class::cast);
 	}
 
+	private void onDispose(int editorId) {
+		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(this);
+	}
+
 	@Override
 	public void nodeAdded(Scene scene, SceneNode parentNode, SceneNode node) {
 		if (parentNode == null) {
@@ -282,8 +288,6 @@ public class SceneGraphView extends DockableView
 	@Override
 	public void setScene(Scene scene) {
 		this.scene = scene;
-		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
-		EventService.subscribe(editorId, this);
 		viewer.setInput(scene);
 	}
 

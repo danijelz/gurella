@@ -6,7 +6,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
@@ -18,22 +17,27 @@ import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.studio.editor.utils.Synchronized;
+import com.gurella.studio.editor.utils.Try;
 
 public class SwtLwjglGraphics implements Graphics {
+	// TODO rename to gdxMutex and move to SwtLwjglApplication
+	public static final Object glMutex = new Object();
+
 	private static final int r = 8, g = 8, b = 8, a = 8;
 	private static final int depth = 16, stencil = 0;
 	private static final int samples = 0;
 
 	GL20 gl20;
 	GL30 gl30;
-	long lastTime = System.nanoTime();
+	long lastTime;
 
 	private long frameId = -1;
 	private float deltaTime = 0;
 	private long frameStart = 0;
 	private int frames = 0;
 	private int fps;
-	private BufferFormat bufferFormat = new BufferFormat(8, 8, 8, 8, 16, 8, 0, false);
+	private final BufferFormat bufferFormat = new BufferFormat(8, 8, 8, 8, 16, 8, 0, false);
 	private String extensions;
 	private volatile boolean isContinuous = true;
 	private volatile boolean requestRendering = false;
@@ -43,7 +47,7 @@ public class SwtLwjglGraphics implements Graphics {
 	private int sizeY;
 
 	private GLVersion glVersion;
-	private final GLCanvas glCanvas;
+	private GLCanvas glCanvas;
 
 	private final Object mutex = new Object();
 
@@ -67,58 +71,41 @@ public class SwtLwjglGraphics implements Graphics {
 		glCanvas.addListener(SWT.Resize, e -> updateSize());
 		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 
+		setContext();
+		initGlInstances();
+
 		lastTime = System.nanoTime();
 	}
 
-	void init() {
-		setContext();
-		initGlInstances();
-	}
-
 	void setContext() {
-		try {
-			if (!glCanvas.isDisposed()) {
-				glCanvas.setCurrent();
-				GLContext.useContext(glCanvas);
-			}
-		} catch (LWJGLException e) {
-			throw new GdxRuntimeException(e);
+		if (glCanvas.isDisposed()) {
+			return;
 		}
+
+		glCanvas.setCurrent();
+		Try.unchecked(() -> GLContext.useContext(glCanvas));
 	}
 
 	public void initGlInstances() {
-		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
-		int major = Integer.parseInt("" + version.charAt(0));
-
-		String versionString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
-		String vendorString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VENDOR);
-		String rendererString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_RENDERER);
-		glVersion = new GLVersion(Application.ApplicationType.Desktop, versionString, vendorString, rendererString);
+		String version = GL11.glGetString(GL11.GL_VERSION);
+		String vendor = GL11.glGetString(GL11.GL_VENDOR);
+		String renderer = GL11.glGetString(GL11.GL_RENDERER);
+		int major = Character.getNumericValue(version.charAt(0));
 
 		if (major < 2) {
 			throw new GdxRuntimeException(
 					"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: " + version);
-		}
-
-		if (major > 2) {
+		} else if (major > 2) {
 			gl30 = new LwjglGL30();
 			gl20 = gl30;
-		} else if (!supportsExtension("GL_EXT_framebuffer_object") && !supportsExtension("GL_ARB_framebuffer_object")) {
-			String glInfo = glInfo();
-			throw new GdxRuntimeException("OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: "
-					+ version + ", FBO extension: false" + (glInfo.isEmpty() ? "" : ("\n" + glInfo())));
-		} else {
+		} else if (supportsExtension("GL_EXT_framebuffer_object") || supportsExtension("GL_ARB_framebuffer_object")) {
 			gl20 = new LwjglGL20();
+		} else {
+			throw new GdxRuntimeException("OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: '"
+					+ version + "', FBO extension: 'false', vendor: '" + vendor + "', renderer: '" + renderer + "'.");
 		}
-	}
 
-	private static String glInfo() {
-		try {
-			return GL11.glGetString(GL11.GL_VENDOR) + "\n" + GL11.glGetString(GL11.GL_RENDERER) + "\n"
-					+ GL11.glGetString(GL11.GL_VERSION);
-		} catch (Throwable ignored) {
-			return "";
-		}
+		glVersion = new GLVersion(Application.ApplicationType.Desktop, version, vendor, renderer);
 	}
 
 	private void updateSize() {
@@ -255,9 +242,7 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public void requestRendering() {
-		synchronized (mutex) {
-			requestRendering = true;
-		}
+		Synchronized.run(mutex, () -> requestRendering = true);
 	}
 
 	boolean shouldRender() {

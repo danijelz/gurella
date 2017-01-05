@@ -48,29 +48,29 @@ import com.gurella.studio.editor.preferences.PreferencesManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
+import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneEditor extends EditorPart implements SceneProviderExtension, SceneDirtyListener {
+public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	public final int id = Sequence.next();
 
 	private Composite content;
 	Dock dock;
 
-	SceneProvider sceneProvider;
-	ViewRegistry viewRegistry;
-	DndAssetPlacementManager dndAssetPlacementManager;
-	HistoryManager historyManager;
-	LaunchManager launchManager;
 	SceneEditorContext sceneContext;
+	private SceneProvider sceneProvider;
+	ViewRegistry viewRegistry;
+	private DndAssetPlacementManager dndAssetPlacementManager;
+	HistoryManager historyManager;
+	private LaunchManager launchManager;
 	PreferencesManager preferencesManager;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
 
 	private boolean dirty;
-
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -132,39 +132,32 @@ public class SceneEditor extends EditorPart implements SceneProviderExtension, S
 		this.content = parent;
 		parent.setLayout(new GridLayout());
 
-		sceneProvider = new SceneProvider(id);
-		preferencesManager = new PreferencesManager(this);
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		applicationListener = new SceneEditorApplicationListener(id);
-		initGdxApplication();
-		SceneEditorRegistry.put(this, dock, application);
-		EventService.subscribe(id, this);
+		application = new SwtLwjglApplication(getInternalAssetsPath(), dock.getCenter(), applicationListener);
+		SceneEditorRegistry.put(this, parent, application);
 
-		historyManager = new HistoryManager(this);
-		sceneContext = new SceneEditorContext(this);
-		launchManager = new LaunchManager(this);
-		viewRegistry = new ViewRegistry(this);
-		dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
+		synchronized (SwtLwjglGraphics.glMutex) {
+			application.init();
+			sceneProvider = new SceneProvider(id);
+			preferencesManager = new PreferencesManager(this);
+			historyManager = new HistoryManager(this);
+			sceneContext = new SceneEditorContext(this);
+			launchManager = new LaunchManager(this);
+			viewRegistry = new ViewRegistry(this);
+			dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
+			EventService.subscribe(id, this);
+		}
 
 		String path = ((IPathEditorInput) getEditorInput()).getPath().toString();
 		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
 	}
 
-	private void initGdxApplication() {
-		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
-		IResource resource = pathEditorInput.getAdapter(IResource.class);
-		String internalPath = resource.getProject().getFile("assets").getLocation().toString();
-		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(internalPath, dock.getCenter(), applicationListener);
-		}
-
-	}
-
-	@Override
-	public void setScene(Scene scene) {
-		dirty = false;
+	private String getInternalAssetsPath() {
+		IResource resource = getEditorInput().getAdapter(IResource.class);
+		return resource.getProject().getFile("assets").getLocation().toString();
 	}
 
 	private void presentException(Throwable exception) {
@@ -218,19 +211,19 @@ public class SceneEditor extends EditorPart implements SceneProviderExtension, S
 		return SceneEditorRegistry.getCurrentEditor();
 	}
 
-	public static void subscribeToCurrentEditor(Object subscriber) {
+	public static void subscribeToCurrentEditor(EventSubscription subscriber) {
 		EventService.subscribe(getCurrentEditorId(), subscriber);
 	}
 
-	public static void subscribeToControlEditor(Control subscriber) {
+	public static <T extends Control & EventSubscription> void subscribeToControlEditor(T subscriber) {
 		EventService.subscribe(getEditorId(subscriber), subscriber);
 	}
 
-	public static void unsubscribeFromCurrentEditor(Object subscriber) {
+	public static void unsubscribeFromCurrentEditor(EventSubscription subscriber) {
 		EventService.unsubscribe(getCurrentEditorId(), subscriber);
 	}
 
-	public static void unsubscribeFromControlEditor(Control subscriber) {
+	public static <T extends Control & EventSubscription> void unsubscribeFromControlEditor(T subscriber) {
 		EventService.unsubscribe(getEditorId(subscriber), subscriber);
 	}
 
@@ -274,8 +267,7 @@ public class SceneEditor extends EditorPart implements SceneProviderExtension, S
 
 		@Override
 		public void onSuccess(Scene scene) {
-			EventService.post(id, SceneProviderExtension.class, l -> l.setScene(scene));
-			scene.start();
+			sceneProvider.setScene(scene);
 			asyncExec(() -> progressLabel.dispose());
 		}
 

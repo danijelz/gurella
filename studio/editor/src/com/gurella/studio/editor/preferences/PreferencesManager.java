@@ -35,6 +35,8 @@ public class PreferencesManager implements PreferencesStore, SceneProviderExtens
 		resourcePreferences = projectPreferences.node(resourcePath.toString().replace('/', '_').replace('.', '_'));
 
 		EventService.subscribe(editorId, this);
+		Workbench.addListener(extensionRegistry);
+		Workbench.activate(this);
 	}
 
 	@Override
@@ -55,13 +57,13 @@ public class PreferencesManager implements PreferencesStore, SceneProviderExtens
 	@Override
 	public void setScene(Scene scene) {
 		scenePreferences = projectPreferences.node(scene.ensureUuid());
-		Workbench.addListener(extensionRegistry);
 	}
 
 	@Override
 	public void onEditorClose() {
 		String msg = "Error while flushing preferences";
 		Try.run(() -> projectPreferences.flush(), e -> log(e, msg));
+		Workbench.deactivate(this);
 		Workbench.removeListener(extensionRegistry);
 		EventService.unsubscribe(editorId, this);
 	}
