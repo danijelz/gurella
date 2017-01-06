@@ -261,6 +261,7 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 
 		@Override
 		public void dragLeave(DropTargetEvent event) {
+			event.detail = DND.DROP_NONE;
 			unloadTemporaryAssetsIfDragEnded();
 		}
 
