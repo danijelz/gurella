@@ -263,8 +263,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 		ManagedObject oldParent = parent;
 		parent = newParent;
 
-		boolean activationAllowed = isActivationAllowed();
-		if (state == active && !activationAllowed) {
+		if (state == active && !isActivationAllowed()) {
 			handleDeactivation();
 		}
 
@@ -280,7 +279,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 			ManagedObjects.childAdded(newParent, this);
 		}
 
-		if (state != active && activationAllowed) {
+		if (state != active && isActivationAllowed()) {
 			handleActivation();
 		}
 

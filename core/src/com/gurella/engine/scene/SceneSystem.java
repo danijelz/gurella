@@ -36,7 +36,6 @@ public abstract class SceneSystem extends SceneElement {
 	}
 
 	final void setParent(Scene scene) {
-		this.scene = scene;
 		super.setParent(scene);
 	}
 
