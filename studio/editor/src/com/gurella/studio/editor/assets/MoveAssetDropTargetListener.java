@@ -10,17 +10,13 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.studio.editor.SceneEditorContext;
-
 class MoveAssetDropTargetListener extends DropTargetAdapter {
 	private final AssetsView view;
-	private final SceneEditorContext context;
 	private final IFile sceneFile;
 
 	MoveAssetDropTargetListener(AssetsView view) {
 		this.view = view;
-		this.context = view.editorContext;
-		this.sceneFile = context.sceneFile;
+		this.sceneFile = view.context.sceneFile;
 	}
 
 	@Override

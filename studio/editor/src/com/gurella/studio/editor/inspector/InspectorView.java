@@ -1,15 +1,15 @@
 package com.gurella.studio.editor.inspector;
 
-import static com.gurella.studio.GurellaStudioPlugin.getImage;
-
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -18,12 +18,22 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 	private Object target;
 	private InspectableContainer<?> content;
 
-	public InspectorView(SceneEditor editor, int style) {
-		super(editor, "Inspector", getImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
+	public InspectorView(Dock dock, SceneEditorContext context, int style) {
+		super(dock, context, style | SWT.BORDER);
 		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
 		GurellaStudioPlugin.getToolkit().adapt(this);
-		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
-		EventService.subscribe(editor.id, this);
+		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
+		EventService.subscribe(editorId, this);
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Inspector";
+	}
+
+	@Override
+	protected Image getImage() {
+		return GurellaStudioPlugin.getImage("icons/showproperties_obj.gif");
 	}
 
 	private <T> void presentInspectable(Inspectable<T> inspectable) {

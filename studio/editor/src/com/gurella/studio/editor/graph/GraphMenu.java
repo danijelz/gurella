@@ -91,14 +91,14 @@ class GraphMenu {
 	private static class MenuPopulator {
 		private final SceneGraphView view;
 		private final Clipboard clipboard;
-		private final SceneEditorContext context;
 		private final int editorId;
+		private final SceneEditorContext context;
 		private final SceneElement selection;
 
 		MenuPopulator(SceneGraphView view, SceneElement selection) {
 			this.view = view;
 			this.clipboard = view.clipboard;
-			this.context = view.editorContext;
+			this.context = view.context;
 			this.editorId = context.editorId;
 			this.selection = selection;
 		}

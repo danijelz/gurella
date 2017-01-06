@@ -13,6 +13,7 @@ public class LaunchSceneShortcut implements ILaunchShortcut {
 
 	@Override
 	public void launch(IEditorPart editor, String mode) {
-		SceneLauncher.launch((SceneEditor) editor, mode);
+		SceneEditor sceneEditor = (SceneEditor) editor;
+		SceneLauncher.launch(sceneEditor.getSceneContext(), mode);
 	}
 }

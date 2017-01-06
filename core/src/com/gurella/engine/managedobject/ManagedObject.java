@@ -280,7 +280,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 			ManagedObjects.childAdded(newParent, this);
 		}
 
-		else if (state != active && activationAllowed) {
+		if (state != active && activationAllowed) {
 			handleActivation();
 		}
 

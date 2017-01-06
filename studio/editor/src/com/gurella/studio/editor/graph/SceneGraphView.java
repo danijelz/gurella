@@ -48,8 +48,9 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.SceneProviderExtension;
+import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
@@ -71,8 +72,6 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneGraphView extends DockableView
 		implements EditorSceneActivityListener, NodeNameChangeListener, SceneProviderExtension {
-	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
-
 	private final Label searchImageLabel;
 	private final Text filterText;
 	private final Label menuLabel;
@@ -86,8 +85,8 @@ public class SceneGraphView extends DockableView
 
 	private SceneElement lastSelection;
 
-	public SceneGraphView(SceneEditor editor, int style) {
-		super(editor, "Scene", image, style);
+	public SceneGraphView(Dock dock, SceneEditorContext context, int style) {
+		super(dock, context, style);
 
 		setLayout(new GridLayout(3, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
@@ -133,9 +132,19 @@ public class SceneGraphView extends DockableView
 
 		UiUtils.paintBordersFor(this);
 
-		addDisposeListener(e -> onDispose(editor.id));
-		EventService.subscribe(editor.id, this);
+		addDisposeListener(e -> onDispose(editorId));
+		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Scene";
+	}
+
+	@Override
+	protected Image getImage() {
+		return GurellaStudioPlugin.getImage("icons/outline_co.png");
 	}
 
 	private void filterChanged() {
@@ -156,13 +165,13 @@ public class SceneGraphView extends DockableView
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(
-				new ComponentDropTargetListener(graph, editorContext), new NodeDropTargetListener(graph, editorContext),
-				new AssetDropTargetListener(editorContext));
+				new ComponentDropTargetListener(graph, context), new NodeDropTargetListener(graph, context),
+				new AssetDropTargetListener(context));
 		dropTarget.addDropListener(listener);
 	}
 
 	private void initFocusHandlers() {
-		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IWorkbench workbench = context.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		focusService.addFocusTracker(graph, "com.gurella.studio.editor.graph.SceneGraphView.graph");
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
@@ -175,7 +184,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	private void deactivateFocusHandlers(IHandlerActivation... handlers) {
-		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IWorkbench workbench = context.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
 		Arrays.stream(handlers).forEach(h -> handlerService.deactivateHandler(h));
@@ -339,7 +348,7 @@ public class SceneGraphView extends DockableView
 
 			String errorMsg = "Error while repositioning component";
 			int newIndex = destination.components.size();
-			editorContext.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
+			context.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
 					errorMsg);
 		} else {
 			if (source.getParent() == destination) {
@@ -349,7 +358,7 @@ public class SceneGraphView extends DockableView
 			SceneNode node = (SceneNode) source;
 			String errorMsg = "Error while repositioning node";
 			int newIndex = destination.childNodes.size();
-			editorContext.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
+			context.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
 		}
 
 		clipboard.clearContents();
@@ -364,11 +373,11 @@ public class SceneGraphView extends DockableView
 		if (copy instanceof SceneNode) {
 			SceneNode node = (SceneNode) copy;
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, destination, node);
-			editorContext.executeOperation(operation, "Error while adding component");
+			context.executeOperation(operation, "Error while adding component");
 		} else {
 			SceneNodeComponent component = (SceneNodeComponent) copy;
 			AddComponentOperation operation = new AddComponentOperation(editorId, destination, component);
-			editorContext.executeOperation(operation, "Error while adding component");
+			context.executeOperation(operation, "Error while adding component");
 		}
 	}
 
@@ -385,12 +394,12 @@ public class SceneGraphView extends DockableView
 			SceneNode node = (SceneNode) element;
 			SceneNode parentNode = node.getParentNode();
 			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
-			editorContext.executeOperation(operation, "Error while removing node");
+			context.executeOperation(operation, "Error while removing node");
 		} else if (element instanceof SceneNodeComponent) {
 			SceneNodeComponent component = (SceneNodeComponent) element;
 			SceneNode node = component.getNode();
 			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
-			editorContext.executeOperation(operation, "Error while removing component");
+			context.executeOperation(operation, "Error while removing component");
 		}
 	}
 
@@ -403,7 +412,7 @@ public class SceneGraphView extends DockableView
 		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", node.getName(), v);
 		if (dlg.open() == Window.OK) {
 			RenameNodeOperation operation = new RenameNodeOperation(editorId, node, dlg.getValue());
-			editorContext.executeOperation(operation, "Error while renaming node");
+			context.executeOperation(operation, "Error while renaming node");
 		}
 	}
 }

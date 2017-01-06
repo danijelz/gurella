@@ -29,17 +29,15 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.osgi.framework.Bundle;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneLauncher {
-	public static void launch(SceneEditor sceneEditor, String mode) {
-		Try.run(() -> _launch(sceneEditor, mode), e -> showError(e, "Error while trying to run a scene."));
+	public static void launch(SceneEditorContext context, String mode) {
+		Try.run(() -> _launch(context, mode), e -> showError(e, "Error while trying to run a scene."));
 	}
 
-	private static void _launch(SceneEditor sceneEditor, String mode) throws CoreException {
-		SceneEditorContext context = sceneEditor.getSceneContext();
+	private static void _launch(SceneEditorContext context, String mode) throws CoreException {
 		IProgressMonitor monitor = context.getProgressMonitor();
 		getLaunchConfiguration(context).launch(mode, monitor, true);
 		monitor.done();
@@ -77,7 +75,7 @@ public class SceneLauncher {
 		List<String> cp = new ArrayList<>();
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
-		//TODO cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
+		// TODO cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
 		return cp.stream().map(e -> unchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
 	}
 

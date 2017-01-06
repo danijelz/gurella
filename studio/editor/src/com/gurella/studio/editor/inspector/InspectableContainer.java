@@ -8,11 +8,11 @@ import com.gurella.studio.editor.SceneEditorContext;
 
 public abstract class InspectableContainer<T> extends ScrolledForm {
 	protected final SceneEditorContext editorContext;
-	protected T target;
+	protected final T target;
 
 	public InspectableContainer(InspectorView parent, T target) {
 		super(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		editorContext = parent.editorContext;
+		editorContext = parent.context;
 		this.target = target;
 		setExpandHorizontal(true);
 		setExpandVertical(true);

@@ -89,6 +89,7 @@ public abstract class SceneNodeComponent extends SceneElement {
 	}
 
 	final void setParent(SceneNode node) {
+		this.scene = node.scene;
 		super.setParent(node);
 	}
 

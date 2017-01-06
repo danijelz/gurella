@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.assets;
 
 import static com.gurella.engine.event.EventService.post;
-import static com.gurella.studio.GurellaStudioPlugin.getImage;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static org.eclipse.ltk.core.refactoring.CheckConditionsOperation.ALL_CONDITIONS;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
@@ -38,6 +37,7 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -54,7 +54,8 @@ import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
@@ -87,14 +88,14 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 	private Object lastSelection;
 
-	public AssetsView(SceneEditor editor, int style) {
-		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
+	public AssetsView(Dock dock, SceneEditorContext context, int style) {
+		super(dock, context, style);
 
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		rootAssetsFolder = editorContext.project.getFolder("assets");
+		rootAssetsFolder = context.project.getFolder("assets");
 
 		clipboard = new Clipboard(getDisplay());
 		addDisposeListener(e -> clipboard.dispose());
@@ -117,7 +118,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		initDragManagers();
 		initFocusHandlers();
 
-		IWorkspace workspace = editorContext.workspace;
+		IWorkspace workspace = context.workspace;
 		workspace.addResourceChangeListener(this);
 		addDisposeListener(e -> workspace.removeResourceChangeListener(this));
 
@@ -125,6 +126,16 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 		addDisposeListener(e -> Workbench.deactivate(this));
 		Workbench.activate(this);
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Assets";
+	}
+
+	@Override
+	protected Image getImage() {
+		return GurellaStudioPlugin.getImage("icons/resource_persp.gif");
 	}
 
 	private void initDragManagers() {
@@ -137,11 +148,11 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(this),
-				new ConvertToPrefabDropTargetListener(editorContext)));
+				new ConvertToPrefabDropTargetListener(context)));
 	}
 
 	private void initFocusHandlers() {
-		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IWorkbench workbench = context.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		focusService.addFocusTracker(tree, "com.gurella.studio.editor.graph.SceneGraphView.graph");
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
@@ -154,7 +165,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	private void deactivateFocusHandlers(IHandlerActivation... handlers) {
-		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IWorkbench workbench = context.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
 		Arrays.stream(handlers).forEach(h -> handlerService.deactivateHandler(h));
@@ -235,7 +246,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	private void presentInspectable() {
-		int editorId = editorContext.editorId;
+		int editorId = context.editorId;
 		getSelectedFile().ifPresent(
 				f -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
 	}
@@ -338,9 +349,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	private void executeRefractoringOperation(RefactoringDescriptor descriptor, String label, String errMsg) {
 		RefactoringStatus status = new RefactoringStatus();
 		Try.successful(descriptor).map(d -> d.createRefactoring(status))
-				.map(r -> new RefractoringOperation(editorContext, label,
-						new PerformRefactoringOperation(r, ALL_CONDITIONS)))
-				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+				.map(r -> new RefractoringOperation(context, label, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+				.onSuccess(o -> context.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	void delete() {
@@ -348,7 +358,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	}
 
 	void delete(IResource resource) {
-		if (editorContext.sceneFile.equals(resource)) {
+		if (context.sceneFile.equals(resource)) {
 			// TODO error
 			return;
 		}

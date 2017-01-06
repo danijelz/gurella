@@ -92,14 +92,17 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 	}
 
 	final void setParent(SceneNode node) {
+		this.scene = node.scene;
 		super.setParent(node);
 	}
 
 	final void setParent(Scene scene) {
+		this.scene = scene;
 		super.setParent(scene);
 	}
 
 	final void unsetParent() {
+		this.scene = null;
 		super.setParent(null);
 	}
 

@@ -8,32 +8,29 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
-import com.gurella.studio.editor.utils.UiUtils;
 
 public class Dock extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 38;
 
-	SceneEditor editor;
+	final int editorId;
 
-	Composite center;
-	Dockable east;
-	Dockable south;
-	Dockable west;
+	final Composite center;
+	final Dockable east;
+	final Dockable south;
+	final Dockable west;
 
-	Cursor dragEast;
-	Cursor dragSouth;
-	Cursor dragWest;
+	final Cursor dragEast;
+	final Cursor dragSouth;
+	final Cursor dragWest;
 
-	public Dock(SceneEditor editor, Composite parent, int style) {
-		super(parent, style);
-		this.editor = editor;
+	public Dock(Composite parent, int editorId) {
+		super(parent, SWT.NONE);
+		this.editorId = editorId;
 
 		dragEast = createCursor("icons/right_source.bmp");
 		dragSouth = createCursor("icons/bottom_source.bmp");
@@ -68,24 +65,14 @@ public class Dock extends Composite {
 		dragWest.dispose();
 	}
 
-	public void setCenterControl(Control centerControl) {
-		UiUtils.disposeChildren(center);
-		centerControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		centerControl.setParent(center);
-	}
-
 	public Composite getCenter() {
 		return center;
 	}
 
-	public void addDockItem(DockableView view, String title, Image image, int position) {
-		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
-		getDockComponent(position).addItem(view, title, resolved);
-	}
-
-	public void addDockItem(DockableView view, String title, Image image, int position, int index) {
-		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
-		getDockComponent(position).addItem(view, title, resolved, index);
+	void addDockItem(DockableView view, String title, Image image, int position) {
+		String resolvedTitle = Values.isBlank(title) ? view.getClass().getSimpleName() : title;
+		Image resolvedImage = image == null ? getImage("icons/palette_view.gif") : image;
+		getDockComponent(position).addItem(view, resolvedTitle, resolvedImage);
 	}
 
 	private Dockable getDockComponent(int position) {

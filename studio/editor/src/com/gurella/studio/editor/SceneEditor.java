@@ -57,7 +57,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	public final int id = Sequence.next();
 
 	private Composite content;
-	Dock dock;
+	private Dock dock;
 
 	SceneEditorContext sceneContext;
 	private SceneProvider sceneProvider;
@@ -132,7 +132,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 		this.content = parent;
 		parent.setLayout(new GridLayout());
 
-		dock = new Dock(this, parent, SWT.NONE);
+		dock = new Dock(parent, id);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		applicationListener = new SceneEditorApplicationListener(id);
@@ -145,9 +145,10 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 			preferencesManager = new PreferencesManager(this);
 			historyManager = new HistoryManager(this);
 			sceneContext = new SceneEditorContext(this);
-			launchManager = new LaunchManager(this);
-			viewRegistry = new ViewRegistry(this);
-			dndAssetPlacementManager = new DndAssetPlacementManager(id, application.getGraphics().getGlCanvas());
+			launchManager = new LaunchManager(sceneContext);
+			viewRegistry = new ViewRegistry(id, sceneContext, dock);
+			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
+			dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
 			EventService.subscribe(id, this);
 		}
 
@@ -167,14 +168,6 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 		ErrorComposite errorComposite = new ErrorComposite(content, status, message);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		content.layout();
-	}
-
-	public Dock getDock() {
-		return dock;
-	}
-
-	public SceneEditorContext getSceneContext() {
-		return sceneContext;
 	}
 
 	@Override
@@ -197,6 +190,10 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	public void sceneDirty() {
 		dirty = true;
 		firePropertyChange(PROP_DIRTY);
+	}
+
+	public SceneEditorContext getSceneContext() {
+		return sceneContext;
 	}
 
 	public static int getEditorId(Control control) {

@@ -32,17 +32,20 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	private static final String editorMenuSectionName = "Editor";
 	private static final String viewMenuGroupName = "&View";
 
-	private final SceneEditor editor;
+	private final int editorId;
+	private final SceneEditorContext context;
 	private final Dock dock;
 
 	private PreferencesNode preferences;
 
 	List<DockableView> registeredViews = new ArrayList<DockableView>();
 
-	public ViewRegistry(SceneEditor editor) {
-		this.editor = editor;
-		dock = editor.dock;
-		EventService.subscribe(editor.id, this);
+	public ViewRegistry(int editorId, SceneEditorContext context, Dock dock) {
+		this.editorId = editorId;
+		this.context = context;
+		this.dock = dock;
+
+		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
 	}
 
@@ -57,9 +60,9 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 		int defaultOrientation = type == InspectorView.class ? SWT.RIGHT : SWT.LEFT;
 		int orientation = preferences.node(type).getInt("orientation", defaultOrientation);
-		Try.ofFailable(() -> type.getConstructor(SceneEditor.class, int.class))
-				.map(c -> c.newInstance(editor, Integer.valueOf(orientation)))
-				.onSuccess(v -> EventService.post(editor.id, ViewActivityListener.class, l -> l.viewOpened(v)))
+		Try.ofFailable(() -> type.getConstructor(Dock.class, SceneEditorContext.class, int.class))
+				.map(c -> c.newInstance(dock, context, Integer.valueOf(orientation)))
+				.onSuccess(v -> EventService.post(editorId, ViewActivityListener.class, l -> l.viewOpened(v)))
 				.onFailure(e -> e.printStackTrace());
 	}
 
@@ -98,9 +101,21 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 	@Override
 	public void onEditorPreClose() {
-		if (!dock.isDisposed()) {
-			persistPreferences();
+		if (preferences == null || dock.isDisposed()) {
+			return;
 		}
+
+		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
+		String openViews = registeredViews.stream().map(v -> v.getClass().getName()).collect(joining(","));
+		preferences.put("openViews", openViews);
+
+		preferences.putBoolean("minimizedEast", dock.isMinimized(SWT.RIGHT));
+		preferences.putBoolean("minimizedSouth", dock.isMinimized(SWT.BOTTOM));
+		preferences.putBoolean("minimizedWest", dock.isMinimized(SWT.LEFT));
+
+		preferences.putInt("selectionEast", dock.getSelectionIndex(SWT.RIGHT));
+		preferences.putInt("selectionSouth", dock.getSelectionIndex(SWT.BOTTOM));
+		preferences.putInt("selectionWest", dock.getSelectionIndex(SWT.LEFT));
 	}
 
 	@Override
@@ -133,27 +148,9 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		dock.setSelection(SWT.LEFT, preferences.getInt("selectionWest", 0));
 	}
 
-	private void persistPreferences() {
-		if (preferences == null) {
-			return;
-		}
-
-		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
-		String openViews = registeredViews.stream().map(v -> v.getClass().getName()).collect(joining(","));
-		preferences.put("openViews", openViews);
-
-		preferences.putBoolean("minimizedEast", dock.isMinimized(SWT.RIGHT));
-		preferences.putBoolean("minimizedSouth", dock.isMinimized(SWT.BOTTOM));
-		preferences.putBoolean("minimizedWest", dock.isMinimized(SWT.LEFT));
-
-		preferences.putInt("selectionEast", dock.getSelectionIndex(SWT.RIGHT));
-		preferences.putInt("selectionSouth", dock.getSelectionIndex(SWT.BOTTOM));
-		preferences.putInt("selectionWest", dock.getSelectionIndex(SWT.LEFT));
-	}
-
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(this);
-		EventService.unsubscribe(editor.id, this);
+		EventService.unsubscribe(editorId, this);
 	}
 }

@@ -88,7 +88,9 @@ public class SkyboxComponent extends RenderableComponent {
 		}
 
 		if (boxModel == null) {
-			boxModel = new ModelBuilder().createBox(1, 1, 1, new Material(cubemapAttribute), Position);
+			Material material = new Material();
+			material.set(cubemapAttribute);
+			boxModel = new ModelBuilder().createBox(1, 1, 1, material, Position);
 			boxInstance = new ModelInstance(boxModel);
 		}
 	}

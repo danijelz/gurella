@@ -128,7 +128,7 @@ final class DragListener implements Listener {
 		this.dockable.layoutParent();
 		targetTabFolder.layout(true, true);
 
-		int editorId = dockable.getParent().editor.id;
+		int editorId = dockable.getParent().editorId;
 		int position = dockable.position;
 		EventService.post(editorId, ViewOrientationListener.class, l -> l.orientationChanged(view, position));
 	}

@@ -93,7 +93,7 @@ class AssetsMenu {
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Delete");
 			item.addListener(SWT.Selection, e -> view.delete(selection));
-			IFile sceneFile = view.editorContext.sceneFile;
+			IFile sceneFile = view.context.sceneFile;
 			item.setEnabled(selected && !selection.equals(sceneFile));
 
 			item = new MenuItem(menu, SWT.PUSH);

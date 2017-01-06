@@ -432,7 +432,7 @@ class Dockable extends Composite {
 			layoutParent();
 
 			event.doit = false;
-			int editorId = getParent().editor.id;
+			int editorId = getParent().editorId;
 			EventService.post(editorId, ViewActivityListener.class, l -> l.viewClosed(view));
 		}
 	}
