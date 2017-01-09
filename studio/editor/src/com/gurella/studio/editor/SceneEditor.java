@@ -33,6 +33,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
@@ -186,6 +187,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 		applicationListener.debugUpdate();
 		application.exit();
 		SceneEditorRegistry.remove(this);
+		DisposablesService.disposeAll();
 	}
 
 	@Override

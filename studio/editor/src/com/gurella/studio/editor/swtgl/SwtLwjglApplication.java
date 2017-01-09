@@ -94,16 +94,15 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	private void onGlCanvasDisposed() {
+		running = false;
 		synchronized (SwtLwjglGraphics.glMutex) {
 			setCurrent();
-			running = false;
 			listener.pause();
 			listener.dispose();
 			synchronized (lifecycleListeners) {
 				new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
 				lifecycleListeners.clear();
 			}
-			DisposablesService.disposeAll();
 			OpenAlAudioSingletone.dispose(audio);
 		}
 	}
