@@ -23,7 +23,7 @@ import com.gurella.engine.utils.priority.Priority;
 //TODO handle Disposables
 @Priorities({ @Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
 		@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
-public class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener {
+class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener {
 	private final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
 	private final BooleanArrayPool booleanArrayPool;
@@ -81,126 +81,126 @@ public class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListen
 		}
 	}
 
-	public <T> T obtain(Class<T> type) {
+	<T> T obtain(Class<T> type) {
 		Pool<T> pool = getObjectPool(type);
 		synchronized (pool) {
 			return pool.obtain();
 		}
 	}
 
-	public boolean[] obtainBooleanArray(int length, float maxDeviation) {
+	boolean[] obtainBooleanArray(int length, float maxDeviation) {
 		synchronized (booleanArrayPool) {
 			return booleanArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public boolean[] obtainBooleanArray(int length, int maxLength) {
+	boolean[] obtainBooleanArray(int length, int maxLength) {
 		synchronized (booleanArrayPool) {
 			return booleanArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public byte[] obtainByteArray(int length, float maxDeviation) {
+	byte[] obtainByteArray(int length, float maxDeviation) {
 		synchronized (byteArrayPool) {
 			return byteArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public byte[] obtainByteArray(int length, int maxLength) {
+	byte[] obtainByteArray(int length, int maxLength) {
 		synchronized (byteArrayPool) {
 			return byteArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public char[] obtainCharArray(int length, float maxDeviation) {
+	char[] obtainCharArray(int length, float maxDeviation) {
 		synchronized (charArrayPool) {
 			return charArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public char[] obtainCharArray(int length, int maxLength) {
+	char[] obtainCharArray(int length, int maxLength) {
 		synchronized (charArrayPool) {
 			return charArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public short[] obtainShortArray(int length, float maxDeviation) {
+	short[] obtainShortArray(int length, float maxDeviation) {
 		synchronized (shortArrayPool) {
 			return shortArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public short[] obtainShortArray(int length, int maxLength) {
+	short[] obtainShortArray(int length, int maxLength) {
 		synchronized (shortArrayPool) {
 			return shortArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public int[] obtainIntArray(int length, float maxDeviation) {
+	int[] obtainIntArray(int length, float maxDeviation) {
 		synchronized (intArrayPool) {
 			return intArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public int[] obtainIntArray(int length, int maxLength) {
+	int[] obtainIntArray(int length, int maxLength) {
 		synchronized (intArrayPool) {
 			return intArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public long[] obtainLongArray(int length, float maxDeviation) {
+	long[] obtainLongArray(int length, float maxDeviation) {
 		synchronized (longArrayPool) {
 			return longArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public long[] obtainLongArray(int length, int maxLength) {
+	long[] obtainLongArray(int length, int maxLength) {
 		synchronized (longArrayPool) {
 			return longArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public float[] obtainFloatArray(int length, float maxDeviation) {
+	float[] obtainFloatArray(int length, float maxDeviation) {
 		synchronized (floatArrayPool) {
 			return floatArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public float[] obtainFloatArray(int length, int maxLength) {
+	float[] obtainFloatArray(int length, int maxLength) {
 		synchronized (floatArrayPool) {
 			return floatArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public double[] obtainDoubleArray(int length, float maxDeviation) {
+	double[] obtainDoubleArray(int length, float maxDeviation) {
 		synchronized (doubleArrayPool) {
 			return doubleArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public double[] obtainDoubleArray(int length, int maxLength) {
+	double[] obtainDoubleArray(int length, int maxLength) {
 		synchronized (doubleArrayPool) {
 			return doubleArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public Object[] obtainObjectArray(int length, float maxDeviation) {
+	Object[] obtainObjectArray(int length, float maxDeviation) {
 		synchronized (objectArrayPool) {
 			return objectArrayPool.obtain(length, length + (int) (length * maxDeviation));
 		}
 	}
 
-	public Object[] obtainObjectArray(int length, int maxLength) {
+	Object[] obtainObjectArray(int length, int maxLength) {
 		synchronized (objectArrayPool) {
 			return objectArrayPool.obtain(length, maxLength);
 		}
 	}
 
-	public <T> T[] obtainArray(Class<T> componentType, int length, float maxDeviation) {
+	<T> T[] obtainArray(Class<T> componentType, int length, float maxDeviation) {
 		return obtainArrayInternal(componentType, length, length + (int) (length * maxDeviation));
 	}
 
-	public <T> T[] obtainArray(Class<T> componentType, int length, int maxLength) {
+	<T> T[] obtainArray(Class<T> componentType, int length, int maxLength) {
 		return obtainArrayInternal(componentType, length, maxLength);
 	}
 
@@ -212,19 +212,19 @@ public class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListen
 		}
 	}
 
-	public <T> void free(T object) {
+	<T> void free(T object) {
 		synchronized (asyncPool) {
 			asyncPool.add(object);
 		}
 	}
 
-	public void freeAll(Object... objects) {
+	void freeAll(Object... objects) {
 		synchronized (asyncPool) {
 			asyncPool.addAll(objects);
 		}
 	}
 
-	public void freeAll(Array<?> objects) {
+	void freeAll(Array<?> objects) {
 		synchronized (asyncPool) {
 			asyncPool.addAll(objects);
 		}

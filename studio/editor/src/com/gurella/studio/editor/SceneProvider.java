@@ -1,6 +1,7 @@
 package com.gurella.studio.editor;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import com.gurella.engine.event.EventService;
@@ -9,8 +10,9 @@ import com.gurella.engine.plugin.PluginListener;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-class SceneProvider implements PluginListener, EditorCloseListener {
+class SceneProvider implements PluginListener, EditorPreCloseListener, EditorCloseListener {
 	private final int editorId;
 	private final Set<SceneProviderExtension> extensions = new HashSet<>();
 
@@ -44,6 +46,11 @@ class SceneProvider implements PluginListener, EditorCloseListener {
 		this.scene = scene;
 		scene.start();
 		extensions.forEach(e -> e.setScene(scene));
+	}
+
+	@Override
+	public void onEditorPreClose() {
+		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 	}
 
 	@Override

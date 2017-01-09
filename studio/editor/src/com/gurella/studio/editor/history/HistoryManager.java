@@ -36,7 +36,7 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 	public HistoryManager(SceneEditor editor) {
 		editorId = editor.id;
 
-		IEditorSite site = (IEditorSite) editor.getSite();
+		IEditorSite site = editor.getEditorSite();
 		undoAction = new UndoActionHandler(site, this);
 		redoAction = new RedoActionHandler(site, this);
 

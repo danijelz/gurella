@@ -151,14 +151,15 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 			}
 
 			if (obj instanceof IResource) {
-				IJavaElement je = JavaCore.create((IResource) obj);
-				if (je == null) {
-					IProject pro = ((IResource) obj).getProject();
-					je = JavaCore.create(pro);
+				IResource resource = (IResource) obj;
+				IJavaElement javaElement = JavaCore.create(resource);
+				if (javaElement == null) {
+					IProject project = resource.getProject();
+					javaElement = JavaCore.create(project);
 				}
 
-				if (je != null && je.exists()) {
-					return je.getJavaProject().getElementName();
+				if (javaElement != null && javaElement.exists()) {
+					return javaElement.getJavaProject().getElementName();
 				}
 			}
 		}

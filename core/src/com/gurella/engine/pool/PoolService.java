@@ -132,7 +132,9 @@ public final class PoolService {
 
 		@Override
 		public void shutdown() {
-			getPool().cleanAll();
+			ApplicationPool pool = getPool();
+			pool.cleanAll();
+			EventService.unsubscribe(pool);
 		}
 	}
 }

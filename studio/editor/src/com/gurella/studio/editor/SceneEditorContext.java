@@ -5,7 +5,6 @@ import static com.gurella.studio.GurellaStudioPlugin.log;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IFile;
@@ -27,10 +26,9 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneProviderExtension, EditorPreCloseListener, EditorCloseListener {
+public class SceneEditorContext implements SceneProviderExtension, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -60,11 +58,6 @@ public class SceneEditorContext implements SceneProviderExtension, EditorPreClos
 		Reflection.classResolver = classLoader::loadClass;
 		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
-	}
-
-	@Override
-	public void onEditorPreClose() {
-		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 	}
 
 	@Override
