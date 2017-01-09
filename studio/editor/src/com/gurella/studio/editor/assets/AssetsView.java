@@ -41,6 +41,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IWorkbench;
@@ -55,7 +56,6 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
@@ -78,30 +78,33 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.refractoring.CopyAssetsDescriptor;
 
 public class AssetsView extends DockableView implements IResourceChangeListener, PreferencesExtension {
-	private final Tree tree;
-	private final TreeViewer viewer;
-	private final AssetsMenu menu;
-	final Clipboard clipboard;
+	private Tree tree;
+	private TreeViewer viewer;
+	private AssetsMenu menu;
+	Clipboard clipboard;
 
 	IFolder rootAssetsFolder;
 	PreferencesStore preferencesStore;
 
 	private Object lastSelection;
 
-	public AssetsView(Dock dock, SceneEditorContext context, int style) {
-		super(dock, context, style);
+	public AssetsView(SceneEditorContext context) {
+		super(context);
+	}
 
-		setLayout(new GridLayout());
+	@Override
+	protected void initControl(Composite control) {
+		control.setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		toolkit.adapt(this);
+		toolkit.adapt(control);
 
 		rootAssetsFolder = context.project.getFolder("assets");
 
-		clipboard = new Clipboard(getDisplay());
-		addDisposeListener(e -> clipboard.dispose());
+		clipboard = new Clipboard(control.getDisplay());
+		control.addDisposeListener(e -> clipboard.dispose());
 		menu = new AssetsMenu(this);
 
-		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		tree = toolkit.createTree(control, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.addListener(SWT.KeyDown, e -> onKeyDown());
@@ -120,11 +123,11 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 		IWorkspace workspace = context.workspace;
 		workspace.addResourceChangeListener(this);
-		addDisposeListener(e -> workspace.removeResourceChangeListener(this));
+		control.addDisposeListener(e -> workspace.removeResourceChangeListener(this));
 
 		viewer.setInput(rootAssetsFolder);
 
-		addDisposeListener(e -> Workbench.deactivate(this));
+		control.addDisposeListener(e -> Workbench.deactivate(this));
 		Workbench.activate(this);
 	}
 
@@ -176,7 +179,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		tree.dispose();
 		String message = "Error creating assets tree";
 		IStatus status = GurellaStudioPlugin.log(e, message);
-		ErrorComposite errorComposite = new ErrorComposite(this, status, message);
+		ErrorComposite errorComposite = new ErrorComposite(getContent(), status, message);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
@@ -192,7 +195,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 			return;
 		}
 
-		getDisplay().asyncExec(() -> resourceChanged(assetsDelta));
+		getContent().getDisplay().asyncExec(() -> resourceChanged(assetsDelta));
 	}
 
 	private void resourceChanged(IResourceDelta delta) {

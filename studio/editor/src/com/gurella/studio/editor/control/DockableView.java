@@ -1,34 +1,58 @@
 package com.gurella.studio.editor.control;
 
-import static org.eclipse.swt.SWT.BOTTOM;
-import static org.eclipse.swt.SWT.LEFT;
-import static org.eclipse.swt.SWT.RIGHT;
-
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import com.gurella.studio.editor.SceneEditorContext;
 
-public abstract class DockableView extends Composite {
+public abstract class DockableView {
 	public final int editorId;
 	public final SceneEditorContext context;
 
-	public DockableView(Dock dock, SceneEditorContext context, ViewOrientation orientation) {
-		this(dock, context, orientation == null ? LEFT : orientation.swtValue);
-	}
+	DockableViewComposite content;
 
-	public DockableView(Dock dock, SceneEditorContext context, int orientation) {
-		super(dock.getDockItemParent(orientation), checkStyle(orientation));
-		dock.addDockItem(this, getTitle(), getImage(), orientation);
+	public DockableView(SceneEditorContext context) {
 		editorId = context.editorId;
 		this.context = context;
-	}
-
-	private static int checkStyle(int style) {
-		return ((style & LEFT) == 0 && (style & RIGHT) == 0 && (style & BOTTOM) == 0) ? style | LEFT : style;
 	}
 
 	protected abstract String getTitle();
 
 	protected abstract Image getImage();
+
+	protected abstract void initControl(Composite control);
+
+	void createControl(Composite parent) {
+		content = new DockableViewComposite(parent);
+		initControl(content);
+	}
+
+	public Composite getContent() {
+		return content;
+	}
+
+	public Shell getShell() {
+		return content.getShell();
+	}
+
+	public Display getDisplay() {
+		return content.getDisplay();
+	}
+
+	public void layout() {
+		content.layout(true, true);
+	}
+
+	class DockableViewComposite extends Composite {
+		public DockableViewComposite(Composite parent) {
+			super(parent, SWT.NONE);
+		}
+
+		DockableView getView() {
+			return DockableView.this;
+		}
+	}
 }

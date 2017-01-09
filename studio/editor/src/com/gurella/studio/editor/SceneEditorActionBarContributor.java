@@ -10,6 +10,7 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
+import com.gurella.studio.editor.control.ViewRegistry;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.ViewActivityListener;

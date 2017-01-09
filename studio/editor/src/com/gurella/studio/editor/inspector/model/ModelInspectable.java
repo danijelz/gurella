@@ -19,7 +19,7 @@ public class ModelInspectable implements Inspectable<IFile> {
 	}
 
 	@Override
-	public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
+	public InspectableContainer<IFile> createControl(InspectorView parent, IFile target) {
 		return new ModelInspectableContainer(parent, target);
 	}
 }

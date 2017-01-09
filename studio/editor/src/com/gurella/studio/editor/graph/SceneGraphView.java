@@ -29,6 +29,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -50,7 +51,6 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.SceneProviderExtension;
-import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
@@ -72,46 +72,49 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneGraphView extends DockableView
 		implements EditorSceneActivityListener, NodeNameChangeListener, SceneProviderExtension {
-	private final Label searchImageLabel;
-	private final Text filterText;
-	private final Label menuLabel;
-	private final Tree graph;
-	private final TreeViewer viewer;
-	private final GraphViewerFilter filter;
-	private final GraphMenu menu;
+	private Label searchImageLabel;
+	private Text filterText;
+	private Label menuLabel;
+	private Tree graph;
+	private TreeViewer viewer;
+	private GraphViewerFilter filter;
+	private GraphMenu menu;
 
-	final Clipboard clipboard;
+	Clipboard clipboard;
 	Scene scene;
 
 	private SceneElement lastSelection;
 
-	public SceneGraphView(Dock dock, SceneEditorContext context, int style) {
-		super(dock, context, style);
+	public SceneGraphView(SceneEditorContext context) {
+		super(context);
+	}
 
-		setLayout(new GridLayout(3, false));
+	@Override
+	protected void initControl(Composite control) {
+		control.setLayout(new GridLayout(3, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		toolkit.adapt(this);
+		toolkit.adapt(control);
 
-		clipboard = new Clipboard(getDisplay());
-		addDisposeListener(e -> clipboard.dispose());
+		clipboard = new Clipboard(control.getDisplay());
+		control.addDisposeListener(e -> clipboard.dispose());
 		menu = new GraphMenu(this);
 
-		searchImageLabel = UiUtils.createLabel(this, "");
+		searchImageLabel = UiUtils.createLabel(control, "");
 		searchImageLabel.setImage(GurellaStudioPlugin.getImage("icons/search-16.png"));
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(searchImageLabel);
 
-		filterText = UiUtils.createText(this);
+		filterText = UiUtils.createText(control);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).minSize(180, 18)
 				.applyTo(filterText);
 		filterText.setMessage("Name");
 		filterText.addModifyListener(e -> filterChanged());
 
-		menuLabel = toolkit.createLabel(this, "");
+		menuLabel = toolkit.createLabel(control, "");
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, false).applyTo(menuLabel);
 		menuLabel.setImage(GurellaStudioPlugin.getImage("icons/menu.png"));
 		menuLabel.addListener(SWT.MouseUp, e -> menu.show(null));
 
-		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		graph = toolkit.createTree(control, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, 1).applyTo(graph);
 		graph.setHeaderVisible(false);
 		graph.addListener(SWT.KeyDown, e -> onKeyDown());
@@ -130,9 +133,9 @@ public class SceneGraphView extends DockableView
 		initDragManagers();
 		initFocusHandlers();
 
-		UiUtils.paintBordersFor(this);
+		UiUtils.paintBordersFor(control);
 
-		addDisposeListener(e -> onDispose(editorId));
+		control.addDisposeListener(e -> onDispose(editorId));
 		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
 	}
@@ -409,7 +412,7 @@ public class SceneGraphView extends DockableView
 
 	void rename(SceneNode node) {
 		IInputValidator v = i -> i.length() < 3 ? "Too short" : null;
-		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", node.getName(), v);
+		InputDialog dlg = new InputDialog(getContent().getShell(), "Add Node", "Enter node name", node.getName(), v);
 		if (dlg.open() == Window.OK) {
 			RenameNodeOperation operation = new RenameNodeOperation(editorId, node, dlg.getValue());
 			context.executeOperation(operation, "Error while renaming node");

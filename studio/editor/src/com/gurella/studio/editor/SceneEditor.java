@@ -41,6 +41,7 @@ import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.engine.utils.Sequence;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.control.Dock;
+import com.gurella.studio.editor.control.ViewRegistry;
 import com.gurella.studio.editor.dnd.DndAssetPlacementManager;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.launch.LaunchManager;
@@ -146,7 +147,8 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 			historyManager = new HistoryManager(this);
 			sceneContext = new SceneEditorContext(this);
 			launchManager = new LaunchManager(sceneContext);
-			viewRegistry = new ViewRegistry(id, sceneContext, dock);
+			viewRegistry = new ViewRegistry(sceneContext, dock);
+			//TODO create canvas in editor and pass it to consumers
 			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 			dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
 			EventService.subscribe(id, this);

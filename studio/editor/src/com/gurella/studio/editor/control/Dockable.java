@@ -2,7 +2,7 @@ package com.gurella.studio.editor.control;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -21,12 +21,14 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.control.DockableView.DockableViewComposite;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -355,7 +357,7 @@ class Dockable extends Composite {
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE, index);
 		tabItem.setText(title);
 		tabItem.setImage(image);
-		tabItem.setControl(view);
+		tabItem.setControl(view.content);
 		tabFolder.setSingle(getItemCount() < 2);
 
 		ToolItem toolItem = new ToolItem(itemsToolBar, SWT.PUSH, index);
@@ -395,11 +397,13 @@ class Dockable extends Composite {
 	}
 
 	boolean contains(DockableView view) {
-		return Arrays.stream(tabFolder.getItems()).filter(i -> i.getControl() == view).findAny().isPresent();
+		Control content = view.content;
+		return Stream.of(tabFolder.getItems()).filter(i -> i.getControl() == content).findAny().isPresent();
 	}
 
 	int getIndex(DockableView view) {
-		return Arrays.stream(tabFolder.getItems()).map(i -> i.getControl()).collect(toList()).indexOf(view);
+		Control content = view.content;
+		return Stream.of(tabFolder.getItems()).map(i -> i.getControl()).collect(toList()).indexOf(content);
 	}
 
 	int getSelectionIndex() {
@@ -422,7 +426,7 @@ class Dockable extends Composite {
 		@Override
 		public void close(CTabFolderEvent event) {
 			CTabItem tabItem = (CTabItem) event.item;
-			DockableView view = (DockableView) tabItem.getControl();
+			DockableViewComposite composite = (DockableViewComposite) tabItem.getControl();
 			ToolItem toolItem = (ToolItem) tabItem.getData();
 			toolItem.dispose();
 			itemsToolBar.pack();
@@ -433,7 +437,7 @@ class Dockable extends Composite {
 
 			event.doit = false;
 			int editorId = getParent().editorId;
-			EventService.post(editorId, ViewActivityListener.class, l -> l.viewClosed(view));
+			EventService.post(editorId, ViewActivityListener.class, l -> l.viewClosed(composite.getView()));
 		}
 	}
 }

@@ -18,7 +18,7 @@ public class ComponentInspectable implements Inspectable<SceneNodeComponent> {
 	}
 
 	@Override
-	public InspectableContainer<SceneNodeComponent> createContainer(InspectorView parent,
+	public InspectableContainer<SceneNodeComponent> createControl(InspectorView parent,
 			SceneNodeComponent target) {
 		return new ComponentInspectableContainer(parent, target);
 	}

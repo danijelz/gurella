@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.control;
 
 import static java.util.stream.Collectors.joining;
 
@@ -10,10 +10,11 @@ import org.eclipse.swt.SWT;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.assets.AssetsView;
-import com.gurella.studio.editor.control.Dock;
-import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
@@ -27,7 +28,7 @@ import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.utils.Try;
 
-class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
+public class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
 		EditorContextMenuContributor, ViewOrientationListener, PreferencesExtension {
 	private static final String editorMenuSectionName = "Editor";
 	private static final String viewMenuGroupName = "&View";
@@ -40,8 +41,8 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 	List<DockableView> registeredViews = new ArrayList<DockableView>();
 
-	public ViewRegistry(int editorId, SceneEditorContext context, Dock dock) {
-		this.editorId = editorId;
+	public ViewRegistry(SceneEditorContext context, Dock dock) {
+		this.editorId = context.editorId;
 		this.context = context;
 		this.dock = dock;
 
@@ -60,16 +61,22 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 
 		int defaultOrientation = type == InspectorView.class ? SWT.RIGHT : SWT.LEFT;
 		int orientation = preferences.node(type).getInt("orientation", defaultOrientation);
-		Try.ofFailable(() -> type.getConstructor(Dock.class, SceneEditorContext.class, int.class))
-				.map(c -> c.newInstance(dock, context, Integer.valueOf(orientation)))
-				.onSuccess(v -> EventService.post(editorId, ViewActivityListener.class, l -> l.viewOpened(v)))
-				.onFailure(e -> e.printStackTrace());
+
+		Try.ofFailable(() -> Reflection.newInstance(type, SceneEditorContext.class, context))
+				.onSuccess(v -> openView(v, orientation))
+				.onFailure(e -> GurellaStudioPlugin.showError(e, "Error creating view."));
+	}
+
+	private void openView(DockableView view, int orientation) {
+		view.createControl(dock.getDockItemParent(orientation));
+		dock.addDockItem(view, orientation);
+		EventService.post(editorId, ViewActivityListener.class, l -> l.viewOpened(view));
 	}
 
 	@Override
 	public void viewOpened(DockableView view) {
 		registeredViews.add(view);
-		view.layout(true, true);
+		view.content.layout(true, true);
 	}
 
 	private int getViewOrder(DockableView view) {

@@ -2,6 +2,8 @@ package com.gurella.studio.editor.control;
 
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
 
+import java.util.Optional;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
@@ -11,7 +13,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class Dock extends Composite {
@@ -69,10 +70,10 @@ public class Dock extends Composite {
 		return center;
 	}
 
-	void addDockItem(DockableView view, String title, Image image, int position) {
-		String resolvedTitle = Values.isBlank(title) ? view.getClass().getSimpleName() : title;
-		Image resolvedImage = image == null ? getImage("icons/palette_view.gif") : image;
-		getDockComponent(position).addItem(view, resolvedTitle, resolvedImage);
+	void addDockItem(DockableView view, int position) {
+		String title = Optional.ofNullable(view.getTitle()).orElse(view.getClass().getSimpleName());
+		Image image = Optional.ofNullable(view.getImage()).orElse(getImage("icons/palette_view.gif"));
+		getDockComponent(position).addItem(view, title, image);
 	}
 
 	private Dockable getDockComponent(int position) {
@@ -87,7 +88,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public Composite getDockItemParent(int position) {
+	Composite getDockItemParent(int position) {
 		if ((position & SWT.RIGHT) != 0) {
 			return east.tabFolder;
 		} else if ((position & SWT.LEFT) != 0) {
@@ -173,7 +174,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public void setSelection(int orientation, int viewIndex) {
+	void setSelection(int orientation, int viewIndex) {
 		switch (orientation) {
 		case SWT.RIGHT:
 			east.setSelection(viewIndex);
@@ -189,7 +190,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public int getIndex(DockableView view) {
+	int getIndex(DockableView view) {
 		int index = east.getIndex(view);
 		if (index > -1) {
 			return index;
@@ -208,7 +209,7 @@ public class Dock extends Composite {
 		return Integer.MAX_VALUE;
 	}
 
-	public int getOrientation(DockableView view) {
+	int getOrientation(DockableView view) {
 		if (east.contains(view)) {
 			return SWT.RIGHT;
 		} else if (south.contains(view)) {
@@ -218,7 +219,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public int getSelectionIndex(int orientation) {
+	int getSelectionIndex(int orientation) {
 		switch (orientation) {
 		case SWT.RIGHT:
 			return east.getSelectionIndex();
@@ -231,7 +232,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public boolean isMinimized(int orientation) {
+	boolean isMinimized(int orientation) {
 		switch (orientation) {
 		case SWT.RIGHT:
 			return east.isMinimized();
@@ -244,7 +245,7 @@ public class Dock extends Composite {
 		}
 	}
 
-	public void setMinimized(int orientation, boolean minimized) {
+	void setMinimized(int orientation, boolean minimized) {
 		switch (orientation) {
 		case SWT.RIGHT:
 			east.setMinimized(minimized);

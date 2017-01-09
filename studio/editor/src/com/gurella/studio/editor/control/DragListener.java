@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.control.DockableView.DockableViewComposite;
 import com.gurella.studio.editor.subscription.ViewOrientationListener;
 
 final class DragListener implements Listener {
@@ -108,10 +109,10 @@ final class DragListener implements Listener {
 		int itemIndex = dockable.addItem(null, dragItem.getText(), dragItem.getImage(), dragItemNewIndex);
 		CTabFolder targetTabFolder = dockable.tabFolder;
 		CTabItem newItem = targetTabFolder.getItem(itemIndex);
-		DockableView view = (DockableView) dragItem.getControl();
-		if (view != null) {
-			view.setParent(targetTabFolder);
-			newItem.setControl(view);
+		DockableViewComposite composite = (DockableViewComposite) dragItem.getControl();
+		if (composite != null) {
+			composite.setParent(targetTabFolder);
+			newItem.setControl(composite);
 			dragItem.setControl(null);
 		}
 
@@ -124,13 +125,14 @@ final class DragListener implements Listener {
 
 		this.dockable.tabFolder.setSingle(this.dockable.tabFolder.getItemCount() < 2);
 		dockable.layout(true);
-		view.setVisible(true);
+		composite.setVisible(true);
 		this.dockable.layoutParent();
 		targetTabFolder.layout(true, true);
 
 		int editorId = dockable.getParent().editorId;
 		int position = dockable.position;
-		EventService.post(editorId, ViewOrientationListener.class, l -> l.orientationChanged(view, position));
+		EventService.post(editorId, ViewOrientationListener.class,
+				l -> l.orientationChanged(composite.getView(), position));
 	}
 
 	private Dockable findDockComponent() {

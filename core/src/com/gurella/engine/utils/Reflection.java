@@ -85,6 +85,26 @@ public class Reflection {
 		}
 	}
 
+	public static <T> T newInstance(Class<T> type, Class<?> parameterType, Object parameter) {
+		try {
+			Constructor constructor = ClassReflection.getDeclaredConstructor(type, parameterType);
+			constructor.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			T instance = (T) constructor.newInstance(parameter);
+			return instance;
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static <T> T newInstanceSilently(Class<T> type, Class<?> parameterType, Object parameter) {
+		try {
+			return newInstance(type, parameterType, parameter);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public static boolean isInnerClass(Class<?> type) {
 		return !type.isPrimitive() && ClassReflection.isMemberClass(type) && !ClassReflection.isStaticClass(type);
 	}

@@ -19,7 +19,7 @@ public class BitmapFontInspectable implements Inspectable<IFile> {
 	}
 
 	@Override
-	public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
+	public InspectableContainer<IFile> createControl(InspectorView parent, IFile target) {
 		return new BitmapFontInspectableContainer(parent, target);
 	}
 }
