@@ -47,11 +47,11 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 
 	@Override
 	public void selectionChanged(Object selection) {
-		Optional.of(adaptSelection(selection)).filter(i -> Values.isNotEqual(target, i.getTarget(), true))
+		Optional.of(toInspectable(selection)).filter(i -> Values.isNotEqual(target, i.getTarget(), true))
 				.ifPresent(i -> Try.run(() -> presentInspectable(i), this::presentException));
 	}
 
-	private static Inspectable<Object> adaptSelection(Object selection) {
+	private static Inspectable<Object> toInspectable(Object selection) {
 		return Optional.ofNullable(selection).filter(Inspectable.class::isInstance)
 				.map(s -> Values.<Inspectable<Object>> cast(s)).orElse(EmptyInspectable.getInstance());
 	}
@@ -60,8 +60,11 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 		Optional.ofNullable(content).ifPresent(c -> c.dispose());
 		target = inspectable.getTarget();
 		content = inspectable.createControl(this);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(200, SWT.DEFAULT)
-				.applyTo(content);
+		layoutContent();
+	}
+
+	private void layoutContent() {
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(content);
 		layout();
 	}
 
@@ -69,7 +72,6 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 		UiUtils.disposeChildren(getContent());
 		target = e;
 		content = new ErrorInspectableContainer(this, e);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(content);
-		layout();
+		layoutContent();
 	}
 }

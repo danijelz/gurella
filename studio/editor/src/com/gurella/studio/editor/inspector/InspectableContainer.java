@@ -23,7 +23,7 @@ public abstract class InspectableContainer<T> extends ScrolledForm {
 	}
 
 	static class EmptyInspectableContainer<T> extends InspectableContainer<T> {
-		public EmptyInspectableContainer(InspectorView parent) {
+		EmptyInspectableContainer(InspectorView parent) {
 			super(parent, null);
 			GurellaStudioPlugin.getToolkit().adapt(this);
 		}

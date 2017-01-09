@@ -23,11 +23,10 @@ public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 		Composite body = getBody();
 		body.setLayout(new GridLayout(1, false));
 
-		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		StringWriter writer = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(writer));
-		Text text = toolkit.createText(getBody(), writer.toString(),
-				SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
-		text.setLayoutData(layoutData);
+		int style = SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY;
+		Text text = toolkit.createText(getBody(), writer.toString(), style);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 }
