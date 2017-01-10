@@ -1,6 +1,9 @@
 package com.gurella.engine.managedobject;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.ObjectOperation.OperationType;
@@ -41,6 +44,7 @@ final class ManagedObjects {
 	private static final Object mutex = new Object();
 
 	// TODO private static pool with initial objects
+	// TODO operations should be bound to application IdentityMap<Application, Array<ObjectOperation>> instances
 	private static Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private static Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
 

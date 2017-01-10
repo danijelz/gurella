@@ -132,8 +132,13 @@ public final class PoolService {
 
 		@Override
 		public void shutdown() {
-			ApplicationPool pool = getPool();
-			pool.cleanAll();
+			ApplicationPool pool;
+			synchronized (instances) {
+				pool = instances.remove(Gdx.app);
+				if (pool == null) {
+					return;
+				}
+			}
 			EventService.unsubscribe(pool);
 		}
 	}

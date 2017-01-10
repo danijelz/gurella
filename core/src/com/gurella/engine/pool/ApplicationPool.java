@@ -41,7 +41,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 
 	private boolean cleaning;
 	private Array<Object> asyncPool = new Array<Object>(128);
-	private Array<Object> cleaningObjects = new Array<Object>(128);
+	private Array<Object> workingObjects = new Array<Object>(128);
 	private final Sort sort = new Sort();
 
 	ApplicationPool() {
@@ -235,8 +235,10 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 		Class<?> currentType = null;
 
 		try {
-			for (int i = 0, n = cleaningObjects.size; i < n; i++) {
-				Object object = cleaningObjects.get(i);
+			sort.sort(workingObjects, comparatorInstance);
+
+			for (int i = 0, n = workingObjects.size; i < n; i++) {
+				Object object = workingObjects.get(i);
 				if (object == null) {
 					continue;
 				}
@@ -261,10 +263,11 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 					}
 				}
 			}
-			cleaningObjects.clear();
 		} catch (Exception e) {
 			Gdx.app.log(PoolService.class.getSimpleName(), "Error occured while freeing objects", e);
 		}
+
+		workingObjects.clear();
 	}
 
 	@Override
@@ -289,26 +292,27 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 	private void prepareForCleaning() {
 		Array<Object> temp = asyncPool;
 		synchronized (asyncPool) {
-			asyncPool = cleaningObjects;
+			asyncPool = workingObjects;
 		}
-		cleaningObjects = temp;
-		sort.sort(cleaningObjects, comparatorInstance);
+		workingObjects = temp;
 	}
 
 	@Override
 	public void debugUpdate() {
-		cleanAll();
+		freeAll();
 	}
 
-	void cleanAll() {
+	private void freeAll() {
 		prepareForCleaning();
 		freeAsync();
+
 		synchronized (asyncPool) {
 			if (asyncPool.size == 0) {
 				return;
 			}
 		}
-		cleanAll();
+
+		freeAll();
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {
