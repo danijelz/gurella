@@ -43,7 +43,7 @@ final class ManagedObjects {
 	private static final Cleaner cleaner = new Cleaner();
 	private static final Object mutex = new Object();
 
-	// TODO private static pool with initial objects
+	// TODO init pools with initial objects
 	// TODO operations should be bound to application IdentityMap<Application, Array<ObjectOperation>> instances
 	private static Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private static Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
