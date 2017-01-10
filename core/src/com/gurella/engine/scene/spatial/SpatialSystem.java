@@ -32,13 +32,7 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 
 	public abstract BoundingBox getBounds(BoundingBox out);
 
-	private void initSpatials() {
-		synchronized (mutex) {
-			doInitSpatials();
-		}
-	}
-
-	protected abstract void doInitSpatials();
+	protected abstract void initSpatials();
 
 	private void add(T spatial) {
 		synchronized (mutex) {
@@ -115,20 +109,6 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 	protected abstract void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out,
 			Predicate<RenderableComponent> predicate);
 
-	public final void clearSpatials() {
-		synchronized (mutex) {
-			Values<T> values = allSpatials.values();
-			while (values.hasNext) {
-				T spatial = values.next();
-				removeSpatial(spatial);
-			}
-			doClearSpatials();
-			allSpatials.clear();
-		}
-	}
-
-	protected abstract void doClearSpatials();
-
 	@Override
 	public void onRenderableChanged(RenderableComponent component) {
 		T spatial = spatialsByRenderableComponent.get(component.getInstanceId());
@@ -167,12 +147,24 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 	}
 
 	@Override
-	public void sceneStarted() {
-		initSpatials();
+	public final void sceneStarted() {
+		synchronized (mutex) {
+			initSpatials();
+		}
 	}
 
 	@Override
-	public void sceneStopped() {
-		clearSpatials();
+	public final void sceneStopped() {
+		synchronized (mutex) {
+			Values<T> values = allSpatials.values();
+			while (values.hasNext) {
+				T spatial = values.next();
+				removeSpatial(spatial);
+			}
+			clearSpatials();
+			allSpatials.clear();
+		}
 	}
+
+	protected abstract void clearSpatials();
 }

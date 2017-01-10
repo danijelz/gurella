@@ -14,7 +14,7 @@ import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 
 public class BvhSpatialSystem extends SpatialSystem<BvhSpatial> implements CleanupUpdateListener {
-	private Bvh bvh = new Bvh(1);
+	private final Bvh bvh = new Bvh(1);
 
 	public BvhSpatialSystem(Scene scene) {
 		super(scene);
@@ -69,13 +69,13 @@ public class BvhSpatialSystem extends SpatialSystem<BvhSpatial> implements Clean
 	}
 
 	@Override
-	protected void doInitSpatials() {
+	protected void initSpatials() {
 		bvh.init(addedSpatials.values().toArray());
 		addedSpatials.clear();
 	}
 
 	@Override
-	protected void doClearSpatials() {
+	protected void clearSpatials() {
 		bvh.clear();
 	}
 
