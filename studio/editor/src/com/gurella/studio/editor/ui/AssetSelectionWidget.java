@@ -100,6 +100,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		return input.getFile();
 	}
 
+	//TODO copy asset if not in project
 	private void assetSelected(final String path) {
 		IFile file = getEditorFile();
 		IPath assetPath = new Path(path).makeRelativeTo(file.getProject().getLocation().append("assets"));
