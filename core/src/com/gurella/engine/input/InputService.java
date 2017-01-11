@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
 
 public class InputService {
@@ -19,6 +21,7 @@ public class InputService {
 		if (input == null) {
 			input = new ApplicationInput();
 			instances.put(Gdx.app, input);
+			EventService.unsubscribe(new Cleaner());
 		}
 		return input;
 	}
@@ -54,6 +57,16 @@ public class InputService {
 		public ApplicationInput() {
 			multiplexer.addProcessor(mapper);
 			Gdx.input.setInputProcessor(multiplexer);
+		}
+	}
+
+	private static class Cleaner implements ApplicationShutdownListener {
+		@Override
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			synchronized (instances) {
+				instances.remove(Gdx.app);
+			}
 		}
 	}
 }

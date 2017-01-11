@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO add closeChannel()
@@ -21,12 +22,15 @@ public class EventService {
 	}
 
 	private static EventBus getGlobal() {
-		EventBus bus = globals.get(Gdx.app);
-		if (bus == null) {
-			bus = new EventBus();
-			globals.put(Gdx.app, bus);
+		synchronized (globals) {
+			EventBus bus = globals.get(Gdx.app);
+			if (bus == null) {
+				bus = new EventBus();
+				globals.put(Gdx.app, bus);
+				EventService.subscribe(new Cleaner());
+			}
+			return bus;
 		}
-		return bus;
 	}
 
 	public static void subscribe(EventSubscription subscriber) {
@@ -153,5 +157,15 @@ public class EventService {
 		}
 
 		PoolService.free(listenersByType);
+	}
+
+	private static class Cleaner implements ApplicationShutdownListener {
+		@Override
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			synchronized (globals) {
+				globals.remove(Gdx.app);
+			}
+		}
 	}
 }

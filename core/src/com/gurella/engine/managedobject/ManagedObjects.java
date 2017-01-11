@@ -1,17 +1,12 @@
 package com.gurella.engine.managedobject;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.ObjectOperation.OperationType;
-import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectDestroyedListener;
@@ -20,8 +15,6 @@ import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
-import com.gurella.engine.utils.priority.Priorities;
-import com.gurella.engine.utils.priority.Priority;
 
 final class ManagedObjects {
 	private static final ObjectsActivatedEvent objectsActivatedEvent = new ObjectsActivatedEvent();
@@ -40,17 +33,7 @@ final class ManagedObjects {
 	private static final ObjectsDestoyedEvent objectsDestoyedEvent = new ObjectsDestoyedEvent();
 	private static final ObjectDestoyedEvent objectDestoyedEvent = new ObjectDestoyedEvent();
 
-	private static final Cleaner cleaner = new Cleaner();
-	private static final Object mutex = new Object();
-
-	// TODO init pools with initial objects
-	// TODO operations should be bound to application IdentityMap<Application, Array<ObjectOperation>> instances
-	private static Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
-	private static Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
-
-	static {
-		EventService.subscribe(cleaner);
-	}
+	private static final IdentityMap<Application, PendingOperations> instances = new IdentityMap<Application, PendingOperations>();
 
 	private ManagedObjects() {
 	}
@@ -80,14 +63,18 @@ final class ManagedObjects {
 	}
 
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
-		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
-		operation.object = object;
-		operation.operationType = operationType;
-		operation.newParent = newParent;
-
-		synchronized (mutex) {
-			operations.add(operation);
+		PendingOperations pendingOperations;
+		synchronized (instances) {
+			pendingOperations = instances.get(Gdx.app);
+			if (pendingOperations == null) {
+				pendingOperations = new PendingOperations();
+				instances.put(Gdx.app, pendingOperations);
+				EventService.subscribe(pendingOperations);
+				EventService.subscribe(new Cleaner());
+			}
 		}
+
+		pendingOperations.addOperation(object, operationType, newParent);
 	}
 
 	// TODO are this notifications needed?
@@ -167,44 +154,20 @@ final class ManagedObjects {
 		parentChangedEvent.newParent = null;
 	}
 
-	@Priorities({ @Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-			@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class),
-			@Priority(value = 0, type = ApplicationShutdownListener.class) })
-	private static class Cleaner
-			implements ApplicationUpdateListener, ApplicationDebugUpdateListener, ApplicationShutdownListener {
-		@Override
-		public void update() {
-			synchronized (mutex) {
-				Array<ObjectOperation> temp = operations;
-				operations = workingOperations;
-				workingOperations = temp;
-			}
-
-			for (int i = 0, n = workingOperations.size; i < n; i++) {
-				workingOperations.get(i).execute();
-			}
-
-			workingOperations.clear();
-		}
-
-		@Override
-		public void debugUpdate() {
-			update();
-		}
-
-		private void cleanAll() {
-			update();
-			synchronized (mutex) {
-				if (operations.size == 0) {
-					return;
-				}
-			}
-			cleanAll();
-		}
-
+	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {
-			cleanAll();
+			EventService.unsubscribe(this);
+
+			PendingOperations pendingOperations;
+			synchronized (instances) {
+				pendingOperations = instances.remove(Gdx.app);
+			}
+
+			if (pendingOperations != null) {
+				EventService.unsubscribe(pendingOperations);
+				pendingOperations.cleanAll();
+			}
 		}
 	}
 

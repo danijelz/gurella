@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
@@ -17,7 +19,7 @@ import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-public class LightDebugRenderer implements ApplicationShutdownListener {
+public class LightDebugRenderer implements ApplicationShutdownListener, Disposable {
 	private static final String pointLightTextureLocation = "com/gurella/engine/scene/light/debug/pointLight.png";
 	private static final String spotLightTextureLocation = "com/gurella/engine/scene/light/debug/spotLight.png";
 
@@ -33,18 +35,20 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	private Vector3 position = new Vector3();
 
 	public static void render(DebugRenderContext context, LightComponent<?> lightComponent) {
-		Application app = Gdx.app;
-		if (app == null) {
-			return;
-		}
-
-		LightDebugRenderer renderer = instances.get(app);
-		if (renderer == null) {
-			renderer = new LightDebugRenderer();
-			instances.put(app, renderer);
-		}
+		LightDebugRenderer renderer = getRenderer();
 
 		renderer.renderLight(context, lightComponent);
+	}
+
+	private static LightDebugRenderer getRenderer() {
+		synchronized (instances) {
+			LightDebugRenderer renderer = instances.get(Gdx.app);
+			if (renderer == null) {
+				renderer = new LightDebugRenderer();
+				instances.put(Gdx.app, renderer);
+			}
+			return renderer;
+		}
 	}
 
 	private LightDebugRenderer() {
@@ -90,12 +94,16 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 
 	@Override
 	public void shutdown() {
-		Application app = Gdx.app;
-		if (instances.get(app) == this) {
-			instances.remove(app);
-			pointLightTexture.dispose();
-			spotLightTexture.dispose();
-			EventService.unsubscribe(this);
+		EventService.unsubscribe(this);
+		DisposablesService.dispose(this);
+		synchronized (instances) {
+			instances.remove(Gdx.app);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		pointLightTexture.dispose();
+		spotLightTexture.dispose();
 	}
 }

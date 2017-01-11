@@ -5,6 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
+import com.gurella.engine.utils.priority.Priority;
 
 public class DisposablesService {
 	private static final IdentityMap<Application, Array<Disposable>> instances = new IdentityMap<Application, Array<Disposable>>();
@@ -18,18 +21,10 @@ public class DisposablesService {
 			if (array == null) {
 				array = new Array<Disposable>();
 				instances.put(Gdx.app, array);
+				EventService.subscribe(new Cleaner());
 			}
 			return array;
 		}
-	}
-
-	public static void disposeAll() {
-		Array<Disposable> disposables = getDisposables();
-		for (int i = disposables.size - 1; i >= 0; i--) {
-			Disposable disposable = disposables.get(i);
-			disposable.dispose();
-		}
-		disposables.clear();
 	}
 
 	public static <T extends Disposable> T add(T disposable) {
@@ -56,6 +51,25 @@ public class DisposablesService {
 	public static void tryDispose(Object object) {
 		if (object instanceof Disposable) {
 			dispose(((Disposable) object));
+		}
+	}
+
+	@Priority(value = Integer.MAX_VALUE, type = ApplicationShutdownListener.class)
+	private static class Cleaner implements ApplicationShutdownListener {
+		@Override
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			Array<Disposable> disposables;
+			synchronized (instances) {
+				disposables = instances.remove(Gdx.app);
+			}
+
+			if (disposables != null) {
+				for (int i = disposables.size - 1; i >= 0; i--) {
+					Disposable disposable = disposables.get(i);
+					disposable.dispose();
+				}
+			}
 		}
 	}
 }

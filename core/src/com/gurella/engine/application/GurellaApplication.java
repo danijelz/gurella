@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
@@ -101,7 +100,6 @@ public final class GurellaApplication implements ApplicationListener {
 	public void dispose() {
 		// TODO sceneManager.stop();
 		EventService.post(shutdownEvent);
-		DisposablesService.disposeAll();
 	}
 
 	private static class ShutdownEvent implements Event<ApplicationShutdownListener> {

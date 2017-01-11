@@ -25,11 +25,16 @@ import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Synchronized;
 
 //Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
+	private final int editorId;
+
 	private final SwtLwjglGraphics graphics;
 	private final OpenALAudio audio;
 	private final SwtLwjglFiles files;
@@ -55,8 +60,10 @@ public class SwtLwjglApplication implements Application {
 	private int backgroundFps = 60;
 	private ApplicationLogger applicationLogger;
 
-	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener) {
-		this.listener = listener;
+	public SwtLwjglApplication(String internalPath, Composite parent, int editorId) {
+		this.editorId = editorId;
+
+		this.listener = new EditorApplicationListener(editorId);
 
 		LwjglNativesLoader.load();
 		setApplicationLogger(new LwjglApplicationLogger());
@@ -94,15 +101,21 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	private void onGlCanvasDisposed() {
-		running = false;
 		synchronized (SwtLwjglGraphics.glMutex) {
+			running = false;
 			setCurrent();
+			EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
+
 			listener.pause();
 			listener.dispose();
+
 			synchronized (lifecycleListeners) {
 				new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
 				lifecycleListeners.clear();
 			}
+
+			EventService.post(editorId, EditorCloseListener.class, l -> l.onEditorClose());
+			EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
 			OpenAlAudioSingletone.dispose(audio);
 		}
 	}
@@ -117,13 +130,10 @@ public class SwtLwjglApplication implements Application {
 		if (!running || glCanvas.isDisposed()) {
 			return;
 		}
-
+		
 		synchronized (SwtLwjglGraphics.glMutex) {
 			setCurrent();
 			update();
-		}
-
-		if (running && !glCanvas.isDisposed()) {
 			glCanvas.getDisplay().timerExec(35, () -> mainLoop());
 		}
 	}
@@ -247,10 +257,6 @@ public class SwtLwjglApplication implements Application {
 		return 0;
 	}
 
-	public void stop() {
-		running = false;
-	}
-
 	@Override
 	public long getJavaHeap() {
 		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -342,7 +348,7 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void exit() {
-		postRunnable(() -> running = false);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

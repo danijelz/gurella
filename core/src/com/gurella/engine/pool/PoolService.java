@@ -10,8 +10,6 @@ import com.gurella.engine.utils.priority.Priority;
 
 public final class PoolService {
 	private static final IdentityMap<Application, ApplicationPool> instances = new IdentityMap<Application, ApplicationPool>();
-	@SuppressWarnings("unused")
-	private static final Cleaner cleaner = new Cleaner();
 
 	private PoolService() {
 	}
@@ -23,6 +21,7 @@ public final class PoolService {
 				pool = new ApplicationPool();
 				instances.put(Gdx.app, pool);
 				EventService.subscribe(pool);
+				EventService.subscribe(new Cleaner());
 			}
 			return pool;
 		}
@@ -124,22 +123,20 @@ public final class PoolService {
 		getPool().freeAll(objects);
 	}
 
-	@Priority(value = 100, type = ApplicationShutdownListener.class)
+	@Priority(value = 1000, type = ApplicationShutdownListener.class)
 	private static class Cleaner implements ApplicationShutdownListener {
-		Cleaner() {
-			EventService.subscribe(this);
-		}
-
 		@Override
 		public void shutdown() {
+			EventService.unsubscribe(this);
+			
 			ApplicationPool pool;
 			synchronized (instances) {
 				pool = instances.remove(Gdx.app);
-				if (pool == null) {
-					return;
-				}
 			}
-			EventService.unsubscribe(pool);
+
+			if (pool != null) {
+				EventService.unsubscribe(pool);
+			}
 		}
 	}
 }

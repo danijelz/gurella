@@ -3,6 +3,8 @@ package com.gurella.engine.audio;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class AudioService {
 	private static final ObjectMap<Application, AudioService> instances = new ObjectMap<Application, AudioService>();
@@ -19,6 +21,7 @@ public class AudioService {
 			if (instance == null) {
 				instance = new AudioService();
 				instances.put(Gdx.app, instance);
+				EventService.subscribe(new Cleaner());
 			}
 			return instance;
 		}
@@ -40,5 +43,15 @@ public class AudioService {
 
 	public static boolean removeVolumeListener(VolumeListener listener) {
 		return getInstance().volumeSignal.removeListener(listener);
+	}
+
+	private static class Cleaner implements ApplicationShutdownListener {
+		@Override
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			synchronized (instances) {
+				instances.remove(Gdx.app);
+			}
+		}
 	}
 }

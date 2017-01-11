@@ -33,7 +33,6 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
-import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
@@ -55,7 +54,7 @@ import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneEditor extends EditorPart implements SceneDirtyListener {
+public class SceneEditor extends EditorPart implements SceneDirtyListener, EditorCloseListener {
 	public final int id = Sequence.next();
 
 	private Composite content;
@@ -70,7 +69,6 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	private PreferencesManager preferencesManager;
 
 	private SwtLwjglApplication application;
-	private SceneEditorApplicationListener applicationListener;
 
 	private boolean dirty;
 
@@ -137,8 +135,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 		dock = new Dock(parent, id);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		applicationListener = new SceneEditorApplicationListener(id);
-		application = new SwtLwjglApplication(getInternalAssetsPath(), dock.getCenter(), applicationListener);
+		application = new SwtLwjglApplication(getInternalAssetsPath(), dock.getCenter(), id);
 		SceneEditorRegistry.put(this, parent, application);
 
 		synchronized (SwtLwjglGraphics.glMutex) {
@@ -149,7 +146,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 			sceneContext = new SceneEditorContext(this);
 			launchManager = new LaunchManager(sceneContext);
 			viewRegistry = new ViewRegistry(sceneContext, dock);
-			//TODO create canvas in editor and pass it to consumers
+			// TODO create canvas in editor and pass it to consumers
 			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 			dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
 			EventService.subscribe(id, this);
@@ -179,15 +176,9 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener {
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
+	public void onEditorClose() {
 		EventService.unsubscribe(id, this);
-		EventService.post(id, EditorCloseListener.class, l -> l.onEditorClose());
-		// TODO context and applicationListener should be unified
-		applicationListener.debugUpdate();
-		application.exit();
 		SceneEditorRegistry.remove(this);
-		DisposablesService.disposeAll();
 	}
 
 	@Override

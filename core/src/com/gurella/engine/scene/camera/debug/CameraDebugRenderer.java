@@ -13,7 +13,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.camera.CameraComponent;
@@ -22,7 +24,7 @@ import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-public class CameraDebugRenderer implements ApplicationShutdownListener {
+public class CameraDebugRenderer implements ApplicationShutdownListener, Disposable {
 	private static final String camera2dTextureLocation = "com/gurella/engine/scene/camera/debug/camera2d.png";
 	private static final String camera3dTextureLocation = "com/gurella/engine/scene/camera/debug/camera3d.png";
 
@@ -44,18 +46,19 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private Vector3 position = new Vector3();
 
 	public static void render(DebugRenderContext context, CameraComponent<?> cameraComponent) {
-		Application app = Gdx.app;
-		if (app == null) {
-			return;
-		}
+		getRenderer().renderCamera(context, cameraComponent);
+	}
 
-		CameraDebugRenderer renderer = instances.get(app);
-		if (renderer == null) {
-			renderer = new CameraDebugRenderer();
-			instances.put(app, renderer);
+	private static CameraDebugRenderer getRenderer() {
+		synchronized (instances) {
+			CameraDebugRenderer renderer = instances.get(Gdx.app);
+			if (renderer == null) {
+				renderer = DisposablesService.add(new CameraDebugRenderer());
+				instances.put(Gdx.app, renderer);
+				EventService.subscribe(renderer);
+			}
+			return renderer;
 		}
-
-		renderer.renderCamera(context, cameraComponent);
 	}
 
 	private CameraDebugRenderer() {
@@ -76,8 +79,6 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		camera3dSprite.setSize(0.2f, 0.2f);
 		camera3dSprite.flip(true, true);
 		camera3dSprite.setOriginCenter();
-		
-		EventService.subscribe(this);
 	}
 
 	private void renderCamera(DebugRenderContext context, CameraComponent<?> cameraComponent) {
@@ -138,13 +139,17 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 
 	@Override
 	public void shutdown() {
-		Application app = Gdx.app;
-		if (instances.get(app) == this) {
-			instances.remove(app);
-			fbo.dispose();
-			camera2dTexture.dispose();
-			camera3dTexture.dispose();
-			EventService.unsubscribe(this);
+		EventService.unsubscribe(this);
+		DisposablesService.dispose(this);
+		synchronized (instances) {
+			instances.remove(Gdx.app);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		fbo.dispose();
+		camera2dTexture.dispose();
+		camera3dTexture.dispose();
 	}
 }
