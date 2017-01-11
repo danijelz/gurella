@@ -17,10 +17,11 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
+import com.gurella.engine.utils.Equality;
 
 //TODO make logic to reparent node and update local transform
 @MetaTypeDescriptor(descriptiveName = "Transform")
-public class TransformComponent extends SceneNodeComponent implements PropertyChangeListener, Poolable {
+public class TransformComponent extends SceneNodeComponent implements PropertyChangeListener, Equality, Poolable {
 	private static final TransformChangedEvent event = new TransformChangedEvent();
 
 	private transient int nodeId;
@@ -927,6 +928,19 @@ public class TransformComponent extends SceneNodeComponent implements PropertyCh
 		transformDirty = true;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
+	}
+
+	@Override
+	public boolean equalAs(Object other) {
+		if (other == this) {
+			return true;
+		} else if (other instanceof TransformComponent) {
+			TransformComponent otherTransform = (TransformComponent) other;
+			return translation.equals(otherTransform.translation) && rotation.equals(otherTransform.rotation)
+					&& scale.equals(otherTransform.scale);
+		} else {
+			return false;
+		}
 	}
 
 	private class NodeParentChangedListener implements ObjectParentChangeListener {

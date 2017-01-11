@@ -9,12 +9,13 @@ import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.utils.Equality;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.Values;
 
 @MetaTypeDescriptor(descriptiveName = "Tags")
 @BeanEditorDescriptor(factory = TagComponentEditorFactory.class)
-public final class TagComponent extends SceneNodeComponent implements Poolable {
+public final class TagComponent extends SceneNodeComponent implements Equality, Poolable {
 	final transient Bits _tags = new Bits();
 	public final transient ImmutableBits tagBits = new ImmutableBits(_tags);
 
@@ -161,6 +162,18 @@ public final class TagComponent extends SceneNodeComponent implements Poolable {
 					getScene().tagManager.tagAdded(this, tag);
 				}
 			}
+		}
+	}
+
+	@Override
+	public boolean equalAs(Object other) {
+		if (other == this) {
+			return true;
+		} else if (other instanceof TagComponent) {
+			TagComponent otherComponent = (TagComponent) other;
+			return _tags.equals(otherComponent._tags);
+		} else {
+			return false;
 		}
 	}
 }

@@ -6,7 +6,6 @@ import com.gurella.engine.metatype.MetaTypeDescriptor;
 
 @MetaTypeDescriptor(descriptiveName = "Directional Light")
 public class DirectionalLightComponent extends LightComponent<DirectionalLight> {
-
 	@Override
 	protected DirectionalLight createLight() {
 		DirectionalLight directionalLight = new DirectionalLight();
@@ -26,5 +25,17 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 	public void reset() {
 		super.reset();
 		light.direction.set(0, -1, 0);
+	}
+
+	@Override
+	public boolean equalAs(Object other) {
+		if (other == this) {
+			return true;
+		} else if (other instanceof DirectionalLightComponent) {
+			DirectionalLight otherLight = ((DirectionalLightComponent) other).light;
+			return light.color.equals(otherLight.color) && light.direction.equals(otherLight.direction);
+		} else {
+			return false;
+		}
 	}
 }

@@ -102,50 +102,56 @@ public class GdxArrayMetaTypeFactory implements MetaTypeFactory {
 			} else if (input.isNull()) {
 				return null;
 			} else {
-				@SuppressWarnings("unchecked")
-				T templateArray = template != null && template.getClass() == type ? (T) template : null;
-
-				Class<?> componentType;
-				if (input.hasProperty(componentTypePropertyName)) {
-					componentType = Reflection.forNameSilently(input.readStringProperty(componentTypePropertyName));
-				} else if (templateArray != null) {
-					componentType = templateArray.items.getClass();
-				} else {
-					componentType = Object.class;
-				}
-
-				T array = createArray(componentType);
-				input.pushObject(array);
-
-				if (input.hasProperty(orderedPropertyName)) {
-					array.ordered = input.readBooleanProperty(orderedPropertyName);
-				} else if (templateArray != null) {
-					array.ordered = templateArray.ordered;
-				}
-
-				if (input.hasProperty(sizePropertyName)) {
-					int size = input.readIntProperty(sizePropertyName);
-					array.ensureCapacity(size);
-					array.size = size;
-				} else if (templateArray != null) {
-					array.ensureCapacity(templateArray.size);
-					array.size = templateArray.size;
-				}
-
-				if (input.hasProperty(itemsPropertyName)) {
-					Object[] items = (Object[]) input.readObjectProperty(itemsPropertyName, componentType,
-							templateArray.items);
-					((Array<Object>) array).items = items;
-				} else if (templateArray != null) {
-					int size = templateArray.size;
-					for (int i = 0; i < size; i++) {
-						((Array<Object>) array).add(input.copyObject(templateArray.get(i)));
-					}
-				}
-
-				input.popObject();
-				return array;
+				return deserializeValue(template, input);
 			}
+		}
+
+		private T deserializeValue(Object template, Input input) {
+			@SuppressWarnings("unchecked")
+			T templateArray = template != null && template.getClass() == type ? (T) template : null;
+
+			Class<?> componentType;
+			if (input.hasProperty(componentTypePropertyName)) {
+				componentType = Reflection.forNameSilently(input.readStringProperty(componentTypePropertyName));
+			} else if (templateArray != null) {
+				componentType = templateArray.items.getClass();
+			} else {
+				componentType = Object.class;
+			}
+
+			T array = createArray(componentType);
+			input.pushObject(array);
+
+			if (input.hasProperty(orderedPropertyName)) {
+				array.ordered = input.readBooleanProperty(orderedPropertyName);
+			} else if (templateArray != null) {
+				array.ordered = templateArray.ordered;
+			}
+
+			if (input.hasProperty(sizePropertyName)) {
+				int size = input.readIntProperty(sizePropertyName);
+				array.ensureCapacity(size);
+				array.size = size;
+			} else if (templateArray != null) {
+				array.ensureCapacity(templateArray.size);
+				array.size = templateArray.size;
+			}
+
+			@SuppressWarnings("unchecked")
+			Array<Object> casted = (Array<Object>) array;
+			if (input.hasProperty(itemsPropertyName)) {
+				Object[] templateItems = templateArray.items;
+				Object[] items = (Object[]) input.readObjectProperty(itemsPropertyName, componentType, templateItems);
+				casted.items = items;
+			} else if (templateArray != null) {
+				int size = templateArray.size;
+				for (int i = 0; i < size; i++) {
+					casted.add(input.copyObject(templateArray.get(i)));
+				}
+			}
+
+			input.popObject();
+			return array;
 		}
 
 		private T createArray(Class<?> componentType) {
@@ -166,7 +172,9 @@ public class GdxArrayMetaTypeFactory implements MetaTypeFactory {
 			array.size = original.size;
 			@SuppressWarnings("unchecked")
 			Array<Object> casted = (Array<Object>) array;
-			casted.items = (Object[]) context.copy(original.items);
+			@SuppressWarnings("cast")
+			Object[] copy = (Object[]) context.copy(original.items);
+			casted.items = copy;
 			context.popObject();
 			return array;
 		}

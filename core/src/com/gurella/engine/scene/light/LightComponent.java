@@ -5,9 +5,10 @@ import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.utils.Equality;
 
 @BaseSceneElement
-public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent implements Poolable {
+public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent implements Equality, Poolable {
 	transient T light;
 
 	public LightComponent() {
@@ -28,9 +29,9 @@ public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeCo
 	public void setColor(Color color) {
 		light.color.set(color);
 	}
-	
+
+	@Override
 	public void reset() {
-		super.resetPoolable();
 		light.setColor(1, 1, 1, 1);
 	}
 }

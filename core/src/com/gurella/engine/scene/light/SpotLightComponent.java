@@ -129,4 +129,18 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 		light.exponent = 1;
 		light.direction.set(0, -1, 0);
 	}
+
+	@Override
+	public boolean equalAs(Object other) {
+		if (other == this) {
+			return true;
+		} else if (other instanceof SpotLightComponent) {
+			SpotLight otherLight = ((SpotLightComponent) other).light;
+			return light.color.equals(otherLight.color) && light.direction.equals(otherLight.direction)
+					&& light.intensity == otherLight.intensity && light.cutoffAngle == otherLight.cutoffAngle
+					&& light.exponent == otherLight.exponent;
+		} else {
+			return false;
+		}
+	}
 }

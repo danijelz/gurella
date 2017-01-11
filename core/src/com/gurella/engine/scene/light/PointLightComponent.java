@@ -98,4 +98,16 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 		light.intensity = 0.1f;
 		dirty = true;
 	}
+
+	@Override
+	public boolean equalAs(Object other) {
+		if (other == this) {
+			return true;
+		} else if (other instanceof PointLightComponent) {
+			PointLight otherLight = ((PointLightComponent) other).light;
+			return light.color.equals(otherLight.color) && light.intensity == otherLight.intensity;
+		} else {
+			return false;
+		}
+	}
 }

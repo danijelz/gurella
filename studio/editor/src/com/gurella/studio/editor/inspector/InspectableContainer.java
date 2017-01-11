@@ -3,7 +3,6 @@ package com.gurella.studio.editor.inspector;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public abstract class InspectableContainer<T> extends ScrolledForm {
@@ -20,12 +19,5 @@ public abstract class InspectableContainer<T> extends ScrolledForm {
 		setSize(200, 100);
 
 		addListener(SWT.Resize, (e) -> reflow(true));
-	}
-
-	static class EmptyInspectableContainer<T> extends InspectableContainer<T> {
-		EmptyInspectableContainer(InspectorView parent) {
-			super(parent, null);
-			GurellaStudioPlugin.getToolkit().adapt(this);
-		}
 	}
 }

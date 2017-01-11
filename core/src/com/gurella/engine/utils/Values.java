@@ -188,6 +188,8 @@ public class Values {
 				return Arrays.equals((float[]) first, (float[]) second);
 			} else if (first instanceof boolean[]) {
 				return Arrays.equals((boolean[]) first, (boolean[]) second);
+			} else if (first instanceof Equality) {
+				return ((Equality) first).equalAs(second);
 			} else {
 				Object[] firstArray = (Object[]) first;
 				Object[] secondArray = (Object[]) second;
