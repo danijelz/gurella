@@ -232,12 +232,26 @@
                   mode="debug">
             </contextLabel>
             <enablement>
-               <with
-                     variable="activeEditorId">
-                  <equals
-                        value="com.gurella.studio.editor.sceneEditor">
-                  </equals>
-               </with>
+               <or>
+                  <with
+                        variable="activeEditorId">
+                     <equals
+                           value="com.gurella.studio.editor.sceneEditor">
+                     </equals>
+                  </with>
+                  <with
+                        variable="selection">
+                     <count
+                           value="1">
+                     </count>
+                     <iterate
+                           operator="or">
+                        <instanceof
+                              value="org.eclipse.core.resources.IFile">
+                        </instanceof>
+                     </iterate>
+                  </with>
+               </or>
             </enablement>
          </contextualLaunch>
       </shortcut>

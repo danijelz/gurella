@@ -125,7 +125,7 @@ public class NewProjectMainPage extends WizardPage {
 	}
 
 	public String getProjectLocation() {
-		if(locationGroup.isUseDefaultSelected()) {
+		if (locationGroup.isUseDefaultSelected()) {
 			return Platform.getLocation() + File.separator + getProjectName();
 		}
 		return locationGroup.getLocation().toOSString();
@@ -244,8 +244,7 @@ public class NewProjectMainPage extends WizardPage {
 		}
 
 		protected String getDefaultPath(String name) {
-			final IPath path = Platform.getLocation().append(name);
-			return path.toOSString();
+			return Platform.getLocation().append(name).toOSString();
 		}
 
 		@Override
@@ -269,11 +268,7 @@ public class NewProjectMainPage extends WizardPage {
 
 		public void setLocation(IPath path) {
 			useDefaults.setSelection(path == null);
-			if (path != null) {
-				location.setText(path.toOSString());
-			} else {
-				location.setText(getDefaultPath(nameGroup.getName()));
-			}
+			location.setText(path == null ? getDefaultPath(nameGroup.getName()) : path.toOSString());
 			fireEvent();
 		}
 

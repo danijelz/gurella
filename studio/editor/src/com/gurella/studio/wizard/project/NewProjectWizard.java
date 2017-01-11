@@ -23,6 +23,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
@@ -67,18 +69,23 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		IRunnableWithProgress runnable = new BuildProjectsRunnable(setupInfo);
 		getContainer().run(true, true, runnable);
 
-		String projectLocation = setupInfo.location;
-		openProject(projectLocation, "");
-		setupInfo.projects.stream().forEach(p -> unchecked(() -> openProject(projectLocation, p.getName())));
+		IWorkingSet[] workingSets = mainPage.getWorkingSets();
+		String location = setupInfo.location;
+		openProject(location, "", workingSets);
+		setupInfo.projects.stream().forEach(p -> unchecked(() -> openProject(location, p.getName(), workingSets)));
 	}
 
-	private static void openProject(String path, String name) throws CoreException {
+	private static void openProject(String path, String name, IWorkingSet[] workingSets) throws CoreException {
 		Path descriptionFile = new Path(path + File.separator + name + File.separator + ".project");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProjectDescription description = workspace.loadProjectDescription(descriptionFile);
 		IProject project = workspace.getRoot().getProject(description.getName());
 		project.create(description, null);
 		project.open(null);
+
+		if (workingSets.length > 0) {
+			PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(project, workingSets);
+		}
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {

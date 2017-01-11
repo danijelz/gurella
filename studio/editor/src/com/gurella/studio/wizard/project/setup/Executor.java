@@ -21,7 +21,7 @@ public class Executor {
 		String file = System.getProperty("os.name").contains("Windows") ? "gradlew.bat" : "gradlew";
 		String exec = workDir.getAbsolutePath() + "/" + file;
 		commands.add(0, exec);
-		callback.log("Executing '" + commands.stream().collect(joining(" ")) + "'\n");
+		callback.log("Executing '" + commands.stream().collect(joining(" ")) + "', this might take awhile!\n");
 		ProcessListener processListener = null;
 
 		try {

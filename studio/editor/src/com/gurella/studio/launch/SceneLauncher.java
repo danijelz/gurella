@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -53,18 +54,18 @@ public class SceneLauncher {
 	}
 
 	//TODO unused
-	public static void launch(IResource resource, String mode) {
-		Try.run(() -> _launch(resource, mode), e -> showError(e, "Error while trying to run a scene."));
+	public static void launch(IFile sceneFile, String mode) {
+		Try.run(() -> _launch(sceneFile, mode), e -> showError(e, "Error while trying to run a scene."));
 	}
 
-	private static void _launch(IResource resource, String mode) throws CoreException {
+	private static void _launch(IFile sceneFile, String mode) throws CoreException {
 		IProgressMonitor monitor = new NullProgressMonitor();
-		IJavaProject javaProject = JavaCore.create(resource.getProject());
+		IJavaProject javaProject = JavaCore.create(sceneFile.getProject());
 		if (javaProject == null) {
 			return;
 		}
 
-		IPath path = resource.getProjectRelativePath().removeFirstSegments(1);
+		IPath path = sceneFile.getProjectRelativePath().removeFirstSegments(1);
 		getLaunchConfiguration(path, javaProject).launch(mode, monitor, true);
 		monitor.done();
 	}
@@ -100,6 +101,20 @@ public class SceneLauncher {
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
 		// TODO cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
+		//		lib/gdx-1.9.5.jar
+		//		lib/gdx-backend-lwjgl-1.9.5.jar
+		//		lib/gdx-box2d-1.9.5.jar
+		//		lib/gdx-box2d-platform-1.9.5-natives-desktop.jar
+		//		lib/gdx-bullet-1.9.5.jar
+		//		lib/gdx-bullet-platform-1.9.5-natives-desktop.jar
+		//		lib/gdx-platform-1.9.5-natives-desktop.jar
+		//		lib/jlayer-1.0.1-gdx.jar
+		//		lib/jorbis-0.0.17.jar
+		//		lib/lwjgl_util-2.9.2.jar
+		//		lib/lwjgl-2.9.2.jar
+		//		lib/lwjgl-platform-2.9.2-natives-linux.jar
+		//		lib/lwjgl-platform-2.9.2-natives-osx.jar
+		//		lib/lwjgl-platform-2.9.2-natives-windows.jar
 		return cp.stream().map(e -> unchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
 	}
 
