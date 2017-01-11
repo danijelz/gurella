@@ -236,6 +236,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
 	}
 
+	//TODO move to SceneProvider
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
 		private Label progressLabel;
 

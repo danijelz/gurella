@@ -127,7 +127,7 @@ class AssetsMenu {
 
 		private void addNewFolder() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "New folder", true, null).map(n -> ((IFolder) selection).getFolder(n))
+			enterNewFileName(parent, "New folder", true, null).map(n -> parent.getFolder(n))
 					.ifPresent(nf -> run(() -> nf.create(true, true, new NullProgressMonitor()),
 							e -> log(e, "Error creating new folder")));
 		}
