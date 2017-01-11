@@ -15,16 +15,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.osgi.framework.Bundle;
 
@@ -44,16 +47,38 @@ public class SceneLauncher {
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(SceneEditorContext context) throws CoreException {
+		IJavaProject javaProject = context.javaProject;
+		IPath path = context.sceneFile.getProjectRelativePath().removeFirstSegments(1);
+		return getLaunchConfiguration(path, javaProject);
+	}
+
+	//TODO unused
+	public static void launch(IResource resource, String mode) {
+		Try.run(() -> _launch(resource, mode), e -> showError(e, "Error while trying to run a scene."));
+	}
+
+	private static void _launch(IResource resource, String mode) throws CoreException {
+		IProgressMonitor monitor = new NullProgressMonitor();
+		IJavaProject javaProject = JavaCore.create(resource.getProject());
+		if (javaProject == null) {
+			return;
+		}
+
+		IPath path = resource.getProjectRelativePath().removeFirstSegments(1);
+		getLaunchConfiguration(path, javaProject).launch(mode, monitor, true);
+		monitor.done();
+	}
+
+	private static ILaunchConfiguration getLaunchConfiguration(IPath path, IJavaProject javaProject)
+			throws CoreException {
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = manager.getLaunchConfigurationType(LAUNCH_SCENE_CONFIGURATION_TYPE);
 		// TODO should find safer way to assets relative path
-		IPath path = context.sceneFile.getProjectRelativePath().removeFirstSegments(1);
 		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
 		Arrays.stream(configs).filter(c -> sceneName.equals(c.getName())).forEach(c -> unchecked(() -> c.delete()));
 
-		IJavaProject javaProject = context.javaProject;
 		String projectName = javaProject.getElementName();
 		String main = LaunchSceneApplication.class.getName();
 
@@ -63,8 +88,7 @@ public class SceneLauncher {
 		workingCopy.setAttribute(SceneLauncherConstants.ATTR_SCENE_NAME, path.toString());
 		workingCopy.setAttribute(ATTR_CLASSPATH, computeClasspath(javaProject));
 		workingCopy.setAttribute(ATTR_DEFAULT_CLASSPATH, false);
-		ILaunchConfiguration config = workingCopy.doSave();
-		return config;
+		return workingCopy.doSave();
 	}
 
 	static List<String> computeClasspath(IJavaProject javaProject) {
