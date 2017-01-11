@@ -329,7 +329,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public Image getImage() {
-		return GurellaStudioPlugin.getImage("icons/Umbrella-16.png");
+		return GurellaStudioPlugin.getImage("icons/logo16.png");
 	}
 
 	private void selectProject() {

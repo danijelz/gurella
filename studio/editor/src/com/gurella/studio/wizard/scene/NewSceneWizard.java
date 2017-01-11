@@ -38,7 +38,7 @@ public class NewSceneWizard extends BasicNewResourceWizard {
 
 	@Override
 	protected void initializeDefaultPageImageDescriptor() {
-		ImageDescriptor desc = GurellaStudioPlugin.getImageDescriptor("icons/Umbrella-16.png");//$NON-NLS-1$
+		ImageDescriptor desc = GurellaStudioPlugin.getImageDescriptor("icons/logo16.png");//$NON-NLS-1$
 		setDefaultPageImageDescriptor(desc);
 	}
 

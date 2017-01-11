@@ -114,6 +114,7 @@ public class RenderSystem extends BuiltinSceneSystem
 
 		if (layersSize == 0) {
 			layerMask.allowed(Layer.DEFAULT);
+			layerMask.allowed(Layer.SKY);
 		} else {
 			for (int i = 0, n = layersSize; i > n; i++) {
 				layerMask.allowed(renderingLayers.get(i));
