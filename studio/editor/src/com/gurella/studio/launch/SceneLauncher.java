@@ -2,6 +2,10 @@ package com.gurella.studio.launch;
 
 import static com.gurella.studio.GurellaStudioPlugin.locateFile;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.common.CommonConstants.jlayerVersion;
+import static com.gurella.studio.common.CommonConstants.jorbisVersion;
+import static com.gurella.studio.common.CommonConstants.libgdxVersion;
+import static com.gurella.studio.common.CommonConstants.lwjglVersion;
 import static com.gurella.studio.editor.utils.Try.unchecked;
 import static com.gurella.studio.launch.SceneLauncherConstants.LAUNCH_SCENE_CONFIGURATION_TYPE;
 import static java.util.stream.Collectors.toList;
@@ -37,8 +41,10 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneLauncher {
+	private static final String errorMsg = "Error while trying to run a scene.";
+
 	public static void launch(SceneEditorContext context, String mode) {
-		Try.run(() -> _launch(context, mode), e -> showError(e, "Error while trying to run a scene."));
+		Try.run(() -> _launch(context, mode), e -> showError(e, errorMsg));
 	}
 
 	private static void _launch(SceneEditorContext context, String mode) throws CoreException {
@@ -54,7 +60,7 @@ public class SceneLauncher {
 	}
 
 	public static void launch(IFile sceneFile, String mode) {
-		Try.run(() -> _launch(sceneFile, mode), e -> showError(e, "Error while trying to run a scene."));
+		Try.run(() -> _launch(sceneFile, mode), e -> showError(e, errorMsg));
 	}
 
 	private static void _launch(IFile sceneFile, String mode) throws CoreException {
@@ -99,22 +105,25 @@ public class SceneLauncher {
 		List<String> cp = new ArrayList<>();
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
-		//TODO extract versions
-		cp.add(locateFile("lib/gdx-1.9.5.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-backend-lwjgl-1.9.5.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-box2d-1.9.5.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-box2d-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-bullet-1.9.5.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-bullet-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
-		cp.add(locateFile("lib/gdx-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
-		cp.add(locateFile("lib/jlayer-1.0.1-gdx.jar").getAbsolutePath());
-		cp.add(locateFile("lib/jorbis-0.0.17.jar").getAbsolutePath());
-		cp.add(locateFile("lib/lwjgl_util-2.9.2.jar").getAbsolutePath());
-		cp.add(locateFile("lib/lwjgl-2.9.2.jar").getAbsolutePath());
-		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-linux.jar").getAbsolutePath());
-		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-osx.jar").getAbsolutePath());
-		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-windows.jar").getAbsolutePath());
+		cp.add(getLibPath("lib/gdx-" + libgdxVersion + ".jar"));
+		cp.add(getLibPath("lib/gdx-backend-lwjgl-" + libgdxVersion + ".jar"));
+		cp.add(getLibPath("lib/gdx-box2d-" + libgdxVersion + ".jar"));
+		cp.add(getLibPath("lib/gdx-box2d-platform-" + libgdxVersion + "-natives-desktop.jar"));
+		cp.add(getLibPath("lib/gdx-bullet-" + libgdxVersion + ".jar"));
+		cp.add(getLibPath("lib/gdx-bullet-platform-" + libgdxVersion + "-natives-desktop.jar"));
+		cp.add(getLibPath("lib/gdx-platform-" + libgdxVersion + "-natives-desktop.jar"));
+		cp.add(getLibPath("lib/jlayer-" + jlayerVersion + "-gdx.jar"));
+		cp.add(getLibPath("lib/jorbis-" + jorbisVersion + ".jar"));
+		cp.add(getLibPath("lib/lwjgl_util-" + lwjglVersion + ".jar"));
+		cp.add(getLibPath("lib/lwjgl-" + lwjglVersion + ".jar"));
+		cp.add(getLibPath("lib/lwjgl-platform-" + lwjglVersion + "-natives-linux.jar"));
+		cp.add(getLibPath("lib/lwjgl-platform-" + lwjglVersion + "-natives-osx.jar"));
+		cp.add(getLibPath("lib/lwjgl-platform-" + lwjglVersion + "-natives-windows.jar"));
 		return cp.stream().map(e -> unchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
+	}
+
+	private static String getLibPath(String bundleLocation) {
+		return locateFile(bundleLocation).getAbsolutePath();
 	}
 
 	private static String getBundleClasspath() {

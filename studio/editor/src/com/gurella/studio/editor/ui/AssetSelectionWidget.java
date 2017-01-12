@@ -38,10 +38,10 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class AssetSelectionWidget<T> extends Composite {
-	private Text text;
-	private Button selectAssetButton;
+	private final Text text;
+	private final Button selectAssetButton;
 
-	private Class<T> assetType;
+	private final Class<T> assetType;
 	private T asset;
 
 	private BiConsumer<T, T> selectionListener;
