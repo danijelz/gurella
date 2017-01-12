@@ -8,9 +8,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.managedobject.ManagedObject;
@@ -44,8 +43,8 @@ public class JsonSerialization {
 	static final String assetReferenceTypeName = "@";
 	static final String assetReferencePathField = "p";
 
-	private static final ObjectIntMap<Class<?>> typeAbbreviations = new ObjectIntMap<Class<?>>();
-	private static final IntMap<Class<?>> abbreviatedTypes = new IntMap<Class<?>>();
+	private static final ObjectMap<String, String> typeAbbreviations = new ObjectMap<String, String>();
+	private static final ObjectMap<Class<?>, String> abbreviatedTypes = new ObjectMap<Class<?>, String>();
 
 	private JsonSerialization() {
 	}
@@ -79,8 +78,23 @@ public class JsonSerialization {
 	}
 
 	private static void addToAbbrevations(Class<?> type, int id) {
-		typeAbbreviations.put(type, id);
-		abbreviatedTypes.put(id, type);
+		String strId = String.valueOf(id);
+		typeAbbreviations.put(strId, type.getName());
+		abbreviatedTypes.put(type, strId);
+	}
+
+	static String deserializeTypeName(String serializedTypeName) {
+		char c = serializedTypeName.charAt(0);
+		if (c >= '0' && c <= '9') {
+			return typeAbbreviations.get(serializedTypeName, serializedTypeName);
+		} else {
+			return serializedTypeName;
+		}
+	}
+
+	static String serializeTypeName(Class<?> type) {
+		String typeName = abbreviatedTypes.get(type);
+		return typeName == null ? type.getName() : typeName;
 	}
 
 	static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
