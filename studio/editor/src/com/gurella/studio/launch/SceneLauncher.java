@@ -1,5 +1,6 @@
 package com.gurella.studio.launch;
 
+import static com.gurella.studio.GurellaStudioPlugin.locateFile;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.Try.unchecked;
 import static com.gurella.studio.launch.SceneLauncherConstants.LAUNCH_SCENE_CONFIGURATION_TYPE;
@@ -16,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -53,7 +53,6 @@ public class SceneLauncher {
 		return getLaunchConfiguration(path, javaProject);
 	}
 
-	//TODO unused
 	public static void launch(IFile sceneFile, String mode) {
 		Try.run(() -> _launch(sceneFile, mode), e -> showError(e, "Error while trying to run a scene."));
 	}
@@ -68,13 +67,13 @@ public class SceneLauncher {
 		IPath path = sceneFile.getProjectRelativePath().removeFirstSegments(1);
 		getLaunchConfiguration(path, javaProject).launch(mode, monitor, true);
 		monitor.done();
+		javaProject.close();
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IPath path, IJavaProject javaProject)
 			throws CoreException {
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = manager.getLaunchConfigurationType(LAUNCH_SCENE_CONFIGURATION_TYPE);
-		// TODO should find safer way to assets relative path
 		String sceneName = "Scene - " + path.removeFileExtension().lastSegment();
 
 		ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
@@ -100,21 +99,21 @@ public class SceneLauncher {
 		List<String> cp = new ArrayList<>();
 		cp.addAll(Arrays.asList(JavaRuntime.computeDefaultRuntimeClassPath(javaProject)));
 		cp.add(getBundleClasspath());
-		// TODO cp.add(GurellaStudioPlugin.locateFile("lib").getAbsolutePath().concat(File.separator + "*"));
-		//		lib/gdx-1.9.5.jar
-		//		lib/gdx-backend-lwjgl-1.9.5.jar
-		//		lib/gdx-box2d-1.9.5.jar
-		//		lib/gdx-box2d-platform-1.9.5-natives-desktop.jar
-		//		lib/gdx-bullet-1.9.5.jar
-		//		lib/gdx-bullet-platform-1.9.5-natives-desktop.jar
-		//		lib/gdx-platform-1.9.5-natives-desktop.jar
-		//		lib/jlayer-1.0.1-gdx.jar
-		//		lib/jorbis-0.0.17.jar
-		//		lib/lwjgl_util-2.9.2.jar
-		//		lib/lwjgl-2.9.2.jar
-		//		lib/lwjgl-platform-2.9.2-natives-linux.jar
-		//		lib/lwjgl-platform-2.9.2-natives-osx.jar
-		//		lib/lwjgl-platform-2.9.2-natives-windows.jar
+		//TODO extract versions
+		cp.add(locateFile("lib/gdx-1.9.5.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-backend-lwjgl-1.9.5.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-box2d-1.9.5.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-box2d-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-bullet-1.9.5.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-bullet-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
+		cp.add(locateFile("lib/gdx-platform-1.9.5-natives-desktop.jar").getAbsolutePath());
+		cp.add(locateFile("lib/jlayer-1.0.1-gdx.jar").getAbsolutePath());
+		cp.add(locateFile("lib/jorbis-0.0.17.jar").getAbsolutePath());
+		cp.add(locateFile("lib/lwjgl_util-2.9.2.jar").getAbsolutePath());
+		cp.add(locateFile("lib/lwjgl-2.9.2.jar").getAbsolutePath());
+		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-linux.jar").getAbsolutePath());
+		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-osx.jar").getAbsolutePath());
+		cp.add(locateFile("lib/lwjgl-platform-2.9.2-natives-windows.jar").getAbsolutePath());
 		return cp.stream().map(e -> unchecked(() -> newStringVariableClasspathEntry(e).getMemento())).collect(toList());
 	}
 

@@ -2,11 +2,37 @@ package com.gurella.engine.serialization.json;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.audio.AudioListenerComponent;
+import com.gurella.engine.scene.audio.AudioSourceComponent;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
+import com.gurella.engine.scene.camera.OrtographicCameraComponent;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
+import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.ShapeComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
+import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
+import com.gurella.engine.scene.tag.TagComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.scene.velocity.LinearVelocityComponent;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
@@ -18,7 +44,43 @@ public class JsonSerialization {
 	static final String assetReferenceTypeName = "@";
 	static final String assetReferencePathField = "p";
 
+	private static final ObjectIntMap<Class<?>> typeAbbreviations = new ObjectIntMap<Class<?>>();
+	private static final IntMap<Class<?>> abbreviatedTypes = new IntMap<Class<?>>();
+
 	private JsonSerialization() {
+	}
+
+	static {
+		int i = 0;
+		addToAbbrevations(ManagedObject.class, i++);
+		addToAbbrevations(Scene.class, i++);
+		addToAbbrevations(SceneNode.class, i++);
+		addToAbbrevations(TransformComponent.class, i++);
+		addToAbbrevations(AudioListenerComponent.class, i++);
+		addToAbbrevations(AudioSourceComponent.class, i++);
+		addToAbbrevations(BulletRigidBodyComponent.class, i++);
+		addToAbbrevations(OrtographicCameraComponent.class, i++);
+		addToAbbrevations(PerspectiveCameraComponent.class, i++);
+		addToAbbrevations(DirectionalLightComponent.class, i++);
+		addToAbbrevations(PointLightComponent.class, i++);
+		addToAbbrevations(SpotLightComponent.class, i++);
+		addToAbbrevations(LinearVelocityComponent.class, i++);
+		addToAbbrevations(TextureComponent.class, i++);
+		addToAbbrevations(ModelComponent.class, i++);
+		addToAbbrevations(ShapeComponent.class, i++);
+		addToAbbrevations(SkyboxComponent.class, i++);
+		addToAbbrevations(TagComponent.class, i++);
+		addToAbbrevations(MaterialDescriptor.class, i++);
+		addToAbbrevations(Texture.class, i++);
+		addToAbbrevations(Pixmap.class, i++);
+		addToAbbrevations(Model.class, i++);
+		addToAbbrevations(Sound.class, i++);
+		addToAbbrevations(Music.class, i++);
+	}
+
+	private static void addToAbbrevations(Class<?> type, int id) {
+		typeAbbreviations.put(type, id);
+		abbreviatedTypes.put(id, type);
 	}
 
 	static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {

@@ -11,19 +11,21 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.priority.Priorities;
 import com.gurella.engine.utils.priority.Priority;
 
-public final class AssetService {
+@Priorities({ @Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
+		@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
+public final class AssetService implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
 	private static final MockAssetManager mockManager = new MockAssetManager();
 
 	private final AssetRegistry assetRegistry = new AssetRegistry();
 	private final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
-	private final RegistryUpdater updateListener = new RegistryUpdater();
 
 	static {
 		Texture.setAssetManager(mockManager);
@@ -31,17 +33,28 @@ public final class AssetService {
 	}
 
 	private AssetService() {
-		EventService.subscribe(updateListener);
+	}
+
+	@Override
+	public void update() {
+		assetRegistry.update();
+	}
+
+	@Override
+	public void debugUpdate() {
+		assetRegistry.update();
 	}
 
 	private static AssetService getInstance() {
 		synchronized (instances) {
-			AssetService input = instances.get(Gdx.app);
-			if (input == null) {
-				input = new AssetService();
-				instances.put(Gdx.app, input);
+			AssetService service = instances.get(Gdx.app);
+			if (service == null) {
+				service = new AssetService();
+				instances.put(Gdx.app, service);
+				EventService.subscribe(service);
+				EventService.subscribe(new Cleaner());
 			}
-			return input;
+			return service;
 		}
 	}
 
@@ -145,17 +158,19 @@ public final class AssetService {
 		getInstance().assetRegistry.reloadInvalidated();
 	}
 
-	@Priorities({ @Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
-			@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
-	private static class RegistryUpdater implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
+	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void update() {
-			getInstance().assetRegistry.update();
-		}
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			AssetService service;
+			synchronized (instances) {
+				service = instances.remove(Gdx.app);
+			}
 
-		@Override
-		public void debugUpdate() {
-			getInstance().assetRegistry.update();
+			if (service != null) {
+				EventService.unsubscribe(service);
+				service.assetRegistry.dispose();
+			}
 		}
 	}
 }

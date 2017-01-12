@@ -224,11 +224,11 @@
             modes="run,debug">
          <contextualLaunch>
             <contextLabel
-                  label="Gurella Scene"
+                  label="Run Gurella Scene"
                   mode="run">
             </contextLabel>
             <contextLabel
-                  label="Gurella Scene"
+                  label="Debug Gurella Scene"
                   mode="debug">
             </contextLabel>
             <enablement>
@@ -245,10 +245,15 @@
                            value="1">
                      </count>
                      <iterate
-                           operator="or">
-                        <instanceof
-                              value="org.eclipse.core.resources.IFile">
-                        </instanceof>
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.eclipse.core.resources.IFile">
+                        </adapt>
+                        <test
+                              property="org.eclipse.debug.ui.matchesPattern"
+                              value="*.gscn">
+                        </test>
                      </iterate>
                   </with>
                </or>
