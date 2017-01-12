@@ -33,6 +33,7 @@ public class NewProjectDetailsPage extends WizardPage {
 		validators.add(detailsGroup);
 
 		projectTypesGroup = new ProjectTypesGroup(this);
+		projectTypesGroup.setProjectTypeListener(this::projectTypeSelectionChanged);
 		validators.add(projectTypesGroup);
 
 		androidSdkGroup = new AndroidSdkGroup(this);
@@ -40,7 +41,6 @@ public class NewProjectDetailsPage extends WizardPage {
 
 		consoleGroup = new ConsoleGroup();
 
-		projectTypesGroup.setProjectTypeListener(this::projectTypeSelectionChanged);
 	}
 
 	private void projectTypeSelectionChanged(ProjectType projectType, Boolean selected) {

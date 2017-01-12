@@ -1,13 +1,13 @@
 package com.gurella.engine.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeName;
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeNameField;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.createAssetDescriptor;
-import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesPropertyName;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveObjectType;
-import static com.gurella.engine.serialization.json.JsonSerialization.typePropertyName;
-import static com.gurella.engine.serialization.json.JsonSerialization.valuePropertyName;
+import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import java.io.ByteArrayInputStream;
 
@@ -80,7 +80,7 @@ public class UBJsonInput implements Input, Poolable {
 		Class<T> resolvedType = resolveObjectType(expectedType, jsonValue);
 		MetaType<T> metaType = MetaTypes.getMetaType(resolvedType);
 
-		push(isSimpleType(resolvedType) ? jsonValue.get(valuePropertyName) : jsonValue);
+		push(isSimpleType(resolvedType) ? jsonValue.get(valueTag) : jsonValue);
 		T object = metaType.deserialize(template, this);
 		pop();
 
@@ -167,7 +167,7 @@ public class UBJsonInput implements Input, Poolable {
 			result = null;
 		} else if (expectedType != null && (expectedType.isPrimitive() || isSimpleType(expectedType))) {
 			if (value.isObject()) {
-				push(value.get(valuePropertyName));
+				push(value.get(valueTag));
 			} else {
 				push(value);
 			}
@@ -177,9 +177,9 @@ public class UBJsonInput implements Input, Poolable {
 			result = deserializeObject(value, expectedType, template);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
-			String itemTypeName = firstItem.getString(typePropertyName, null);
-			if (arrayTypeName.equals(itemTypeName)) {
-				Class<?> arrayType = Reflection.forName(firstItem.getString(arrayTypeNameField));
+			String itemTypeName = firstItem.getString(typeTag, null);
+			if (arrayType.equals(itemTypeName)) {
+				Class<?> arrayType = Reflection.forName(firstItem.getString(arrayTypeTag));
 				@SuppressWarnings("unchecked")
 				T array = (T) deserializeObject(firstItem.next, arrayType, template);
 				result = array;
@@ -308,7 +308,7 @@ public class UBJsonInput implements Input, Poolable {
 		}
 
 		JsonValue lastValue = rootValue.get(size - 1);
-		if (!dependenciesPropertyName.equals(lastValue.name)) {
+		if (!dependenciesTag.equals(lastValue.name)) {
 			return null;
 		}
 

@@ -1,11 +1,11 @@
 package com.gurella.engine.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeName;
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeNameField;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
-import static com.gurella.engine.serialization.json.JsonSerialization.typePropertyName;
-import static com.gurella.engine.serialization.json.JsonSerialization.valuePropertyName;
+import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -101,8 +101,8 @@ public class UBJsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				writeStringProperty(typePropertyName, arrayTypeName);
-				writeStringProperty(arrayTypeNameField, actualType.getName());
+				writeStringProperty(typeTag, arrayType);
+				writeStringProperty(arrayTypeTag, actualType.getName());
 				pop();
 			}
 
@@ -232,7 +232,7 @@ public class UBJsonOutput implements Output, Poolable {
 			} else {
 				object();
 				type(actualType);
-				name(valuePropertyName);
+				name(valueTag);
 				metaType.serialize(value, null, this);
 				pop();
 			}
@@ -393,7 +393,7 @@ public class UBJsonOutput implements Output, Poolable {
 
 	private void type(Class<?> type) {
 		try {
-			writer.set(typePropertyName, resolveOutputType(type).getName());
+			writer.set(typeTag, resolveOutputType(type).getName());
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}
