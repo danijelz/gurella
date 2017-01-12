@@ -5,7 +5,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.BuiltinSceneSystem;
-import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
+import com.gurella.engine.subscriptions.managedobject.ObjectsParentListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;

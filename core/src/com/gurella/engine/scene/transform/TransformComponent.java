@@ -14,7 +14,7 @@ import com.gurella.engine.metatype.PropertyChangeListener;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
+import com.gurella.engine.subscriptions.managedobject.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 import com.gurella.engine.utils.Equality;

@@ -1,4 +1,4 @@
-package com.gurella.engine.subscriptions.base.object;
+package com.gurella.engine.subscriptions.managedobject;
 
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;

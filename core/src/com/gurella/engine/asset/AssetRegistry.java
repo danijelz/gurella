@@ -67,7 +67,7 @@ import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.subscriptions.base.resource.AssetActivityListener;
+import com.gurella.engine.subscriptions.asset.AssetActivityListener;
 import com.gurella.engine.utils.Values;
 
 //TODO exceptions are not handled correctly

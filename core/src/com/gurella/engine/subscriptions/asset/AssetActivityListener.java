@@ -1,4 +1,4 @@
-package com.gurella.engine.subscriptions.base.resource;
+package com.gurella.engine.subscriptions.asset;
 
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 

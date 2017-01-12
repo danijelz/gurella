@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.subscriptions.base.object.ObjectDestroyedListener;
+import com.gurella.engine.subscriptions.managedobject.ObjectDestroyedListener;
 
 //TODO maybe not needed
 public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable {
