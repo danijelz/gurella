@@ -110,7 +110,9 @@ public class Values {
 	}
 
 	public static boolean isEmptyArray(Object value) {
-		if (value instanceof long[]) {
+		if (value == null) {
+			return true;
+		} else if (value instanceof long[]) {
 			return ((long[]) value).length <= 0;
 		} else if (value instanceof int[]) {
 			return ((int[]) value).length <= 0;

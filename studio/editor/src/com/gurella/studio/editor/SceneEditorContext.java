@@ -38,7 +38,7 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
-	// TODO make private and expose methods: loadClass(), createType()...
+	// TODO remove -> should be handled with Reflection
 	public final ClassLoader classLoader;
 
 	private Scene scene;

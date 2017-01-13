@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.inspector.node;
 
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.ui.bean.BeanEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
@@ -92,6 +93,7 @@ import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.ui.bean.BeanEditor;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode> implements EditorSceneActivityListener,
@@ -264,21 +266,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 	private void addScriptMenuItem(Menu menu) {
 		MenuItem item = new MenuItem(menu, PUSH);
 		item.setText("Script");
-		item.addListener(SWT.Selection, (e) -> scriptMenuSeleted());
+		item.addListener(SWT.Selection, e -> scriptMenuSeleted());
 	}
 
 	private void scriptMenuSeleted() {
-		Thread current = Thread.currentThread();
-		ClassLoader contextClassLoader = current.getContextClassLoader();
-		try {
-			current.setContextClassLoader(editorContext.classLoader);
-			addScriptComponent();
-		} catch (Exception e) {
-			String message = "Error occurred while adding script component";
-			GurellaStudioPlugin.showError(e, message);
-		} finally {
-			current.setContextClassLoader(contextClassLoader);
-		}
+		Try.run(this::addScriptComponent, e -> showError(e, "Error occurred while adding script component"));
 	}
 
 	private void addScriptComponent() throws Exception {
@@ -291,15 +283,16 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 		}
 
 		Object[] types = dialog.getResult();
-		if (types != null && types.length > 0) {
-			IType type = (IType) types[0];
-			ClassLoader classLoader = editorContext.classLoader;
-			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
-			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
-			constructor.setAccessible(true);
-			SceneNodeComponent component = Values.cast(constructor.newInstance(new Object[0]));
-			addComponent(component);
+		if (Values.isEmptyArray(types)) {
+			return;
 		}
+
+		IType type = (IType) types[0];
+		Class<?> resolvedClass = Reflection.forName(type.getFullyQualifiedName());
+		Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
+		constructor.setAccessible(true);
+		SceneNodeComponent component = Values.cast(constructor.newInstance(new Object[0]));
+		addComponent(component);
 	}
 
 	@Override

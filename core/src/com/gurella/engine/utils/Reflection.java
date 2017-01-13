@@ -24,20 +24,13 @@ public class Reflection {
 
 	public static ClassResolver getClassResolver() {
 		synchronized (resolvers) {
-			ClassResolver resolver = resolvers.get(Gdx.app);
-			if (resolver == null) {
-				resolver = DefaultClassResolver.instance;
-				resolvers.put(Gdx.app, resolver);
-				EventService.subscribe(new Cleaner());
-			}
-			return resolver;
+			return resolvers.get(Gdx.app, DefaultClassResolver.instance);
 		}
 	}
 
 	public static void setClassResolver(ClassResolver resolver) {
 		synchronized (resolvers) {
-			ClassResolver currentResolver = resolvers.put(Gdx.app, resolver);
-			if (resolver == null) {
+			if (resolvers.put(Gdx.app, resolver) == null) {
 				EventService.subscribe(new Cleaner());
 			}
 		}
