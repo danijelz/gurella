@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -69,7 +70,8 @@ class TypeSelectionWidget<T> extends Composite {
 	}
 
 	private void selectType() {
-		Optional.ofNullable(TypeSelectionUtils.<T> selectType(context, baseType)).ifPresent(t -> updateType(t));
+		IJavaProject javaProject = context.javaProject;
+		Optional.ofNullable(TypeSelectionUtils.<T> selectType(javaProject, baseType)).ifPresent(t -> updateType(t));
 	}
 
 	private void updateType(Class<? extends T> selected) {

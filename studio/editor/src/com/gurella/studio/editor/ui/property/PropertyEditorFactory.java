@@ -27,6 +27,7 @@ import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.engine.property.CustomCompositePropertyEditor;
@@ -132,8 +133,7 @@ public class PropertyEditorFactory {
 				return null;
 			}
 
-			ClassLoader classLoader = context.sceneContext.classLoader;
-			Class<?> factoryClass = classLoader.loadClass(data.customFactoryClass);
+			Class<?> factoryClass = Reflection.forName(data.customFactoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			Object factory = constructor.newInstance(new Object[0]);

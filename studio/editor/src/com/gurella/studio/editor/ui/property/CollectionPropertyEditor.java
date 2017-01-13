@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.ui.property;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,19 +14,12 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.metatype.CopyContext;
@@ -38,6 +31,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collection<T>> {
@@ -123,12 +117,11 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		return componentType;
 	}
 
-	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
-		ClassLoader classLoader = context.sceneContext.classLoader;
+	private Class<Object> resolveComponentType() throws JavaModelException {
 		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
 		if (genericTypes.size() > 0) {
 			try {
-				return Values.cast(classLoader.loadClass(genericTypes.get(0)));
+				return Values.cast(Reflection.forName(genericTypes.get(0)));
 			} catch (Exception e) {
 			}
 		}
@@ -149,9 +142,9 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
 		case Signature.CLASS_TYPE_SIGNATURE:
-			return Values.cast(classLoader.loadClass(Signature.toString(Signature.getTypeErasure(typeArgument))));
+			return Values.cast(Reflection.forName(Signature.toString(Signature.getTypeErasure(typeArgument))));
 		case Signature.ARRAY_TYPE_SIGNATURE:
-			return Values.cast(classLoader.loadClass(typeArgument));
+			return Values.cast(Reflection.forName(typeArgument));
 		default:
 			return Object.class;
 		}
@@ -197,8 +190,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 	private void newTypeInstance() {
 		try {
-			ClassLoader classLoader = context.sceneContext.classLoader;
-			Collection<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
+			Collection<T> value = Values.cast(Reflection.forName(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -208,45 +200,18 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void selectType() {
-		try {
-			IType selectedType = findType();
-			if (selectedType != null) {
-				createType(selectedType);
-			}
-		} catch (Exception e) {
-			String message = "Error occurred while creating value";
-			GurellaStudioPlugin.showError(e, message);
-		}
+		Try.run(() -> selectTypeSafely(), e -> showError(e, "Error occurred while creating value"));
 	}
 
-	private void createType(IType selectedType) throws Exception {
-		ClassLoader classLoader = context.sceneContext.classLoader;
-		Collection<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
-		setValue(value);
-		rebuildUi();
-	}
-
-	private IType findType() throws JavaModelException {
-		SelectionDialog dialog = createJavaSearchDialog();
-		if (dialog.open() != IDialogConstants.OK_ID) {
-			return null;
-		}
-
-		Object[] types = dialog.getResult();
-		return types == null || types.length == 0 ? null : (IType) types[0];
-	}
-
-	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
-		IJavaSearchScope scope = getSearchScope();
-		Shell shell = content.getShell();
-		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
-		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
-	}
-
-	private IJavaSearchScope getSearchScope() throws JavaModelException {
+	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		Class<Collection<T>> propertyType = context.getPropertyType();
 		IJavaProject javaProject = context.sceneContext.javaProject;
-		Class<Collection<T>> type = context.getPropertyType();
-		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
+		Class<? extends Collection<T>> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
+		if (selected != null) {
+			Collection<T> value = selected.newInstance();
+			setValue(value);
+			rebuildUi();
+		}
 	}
 
 	@Override

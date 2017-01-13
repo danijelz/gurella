@@ -71,7 +71,7 @@ public class BeanEditorFactory {
 				return null;
 			}
 
-			Class<?> factoryClass = sceneContext.classLoader.loadClass(customFactoryClass);
+			Class<?> factoryClass = Reflection.forName(customFactoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			return cast(constructor.newInstance(new Object[0]));

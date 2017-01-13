@@ -38,8 +38,6 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
-	// TODO remove -> should be handled with Reflection
-	public final ClassLoader classLoader;
 
 	private Scene scene;
 	private Map<String, Object> editedAssets = new HashMap<>();
@@ -54,8 +52,7 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 		workspace = sceneFile.getWorkspace();
 		project = sceneFile.getProject();
 		javaProject = JavaCore.create(project);
-		classLoader = DynamicURLClassLoader.newInstance(javaProject);
-		Reflection.setClassResolver(classLoader::loadClass);
+		Reflection.setClassResolver(DynamicURLClassLoader.newInstance(javaProject)::loadClass);
 		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
 	}

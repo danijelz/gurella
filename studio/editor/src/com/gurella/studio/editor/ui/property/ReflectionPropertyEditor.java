@@ -6,6 +6,7 @@ import static com.gurella.studio.GurellaStudioPlugin.showError;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -50,8 +51,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void newTypeInstance() {
 		try {
-			ClassLoader classLoader = context.sceneContext.classLoader;
-			Class<?> valueClass = classLoader.loadClass(context.getPropertyType().getName());
+			Class<?> valueClass = Reflection.forName(context.getPropertyType().getName());
 			Constructor<?> constructor = valueClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			P value = Values.cast(constructor.newInstance(new Object[0]));
@@ -105,7 +105,8 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
 		Class<P> propertyType = context.getPropertyType();
-		Class<? extends P> selected = TypeSelectionUtils.selectType(context.sceneContext, propertyType);
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<? extends P> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
 		if (selected != null) {
 			P value = selected.newInstance();
 			setValue(value);

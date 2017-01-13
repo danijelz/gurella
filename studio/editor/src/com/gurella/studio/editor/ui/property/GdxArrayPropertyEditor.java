@@ -112,12 +112,11 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		return componentType;
 	}
 
-	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
-		ClassLoader classLoader = context.sceneContext.classLoader;
+	private Class<Object> resolveComponentType() throws JavaModelException {
 		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
 		if (genericTypes.size() > 0) {
 			try {
-				return Values.cast(classLoader.loadClass(genericTypes.get(0)));
+				return Values.cast(Reflection.forName(genericTypes.get(0)));
 			} catch (Exception e) {
 			}
 		}
@@ -139,9 +138,9 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
 		case Signature.CLASS_TYPE_SIGNATURE:
 			String componentTypeName = Signature.toString(Signature.getTypeErasure(typeArgument));
-			return Values.cast(classLoader.loadClass(componentTypeName));
+			return Values.cast(Reflection.forName(componentTypeName));
 		case Signature.ARRAY_TYPE_SIGNATURE:
-			return Values.cast(classLoader.loadClass(typeArgument));
+			return Values.cast(Reflection.forName(typeArgument));
 		default:
 			return Object.class;
 		}
@@ -202,8 +201,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void newTypeInstance() {
 		try {
-			ClassLoader classLoader = context.sceneContext.classLoader;
-			Array<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
+			Array<T> value = Values.cast(Reflection.forName(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -213,16 +211,13 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void selectType() {
-		try {
-			selectTypeSafely();
-		} catch (Exception e) {
-			showError(e, "Error occurred while creating value");
-		}
+		Try.run(() -> selectTypeSafely(), e -> showError(e, "Error occurred while creating value"));
 	}
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
 		Class<Array<T>> propertyType = context.getPropertyType();
-		Class<? extends Array<T>> selected = TypeSelectionUtils.selectType(context.sceneContext, propertyType);
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<? extends Array<T>> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
 		if (selected != null) {
 			Array<T> value = selected.newInstance();
 			setValue(value);
