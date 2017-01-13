@@ -65,6 +65,7 @@ public class NewProjectDetailsPage extends WizardPage {
 		consoleGroup.createControl(composite);
 
 		setControl(composite);
+		validate();
 	}
 
 	private GridLayout createGridLayout() {

@@ -2,6 +2,7 @@ package com.gurella.studio.wizard.project;
 
 import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.core.runtime.IStatus.ERROR;
 import static org.eclipse.core.runtime.IStatus.WARNING;
 
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -76,7 +79,16 @@ public class ProjectTypesGroup implements Validator {
 			Status status = new Status(WARNING, PLUGIN_ID, "No projects selected. Only core project will be created.");
 			return Collections.singletonList(status);
 		} else {
-			return Collections.emptyList();
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			return getSelectedProjectTypes().stream().map(t -> toProjectName(t))
+					.filter(n -> workspace.getRoot().getProject(n).exists())
+					.map(n -> new Status(ERROR, PLUGIN_ID, "A project with " + n + " already exists."))
+					.collect(toList());
 		}
+	}
+
+	private static String toProjectName(ProjectType t) {
+		// TODO Auto-generated method stub
+		return t.getName();
 	}
 }

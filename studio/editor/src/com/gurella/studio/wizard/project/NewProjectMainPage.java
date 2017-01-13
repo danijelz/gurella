@@ -38,13 +38,14 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
 public class NewProjectMainPage extends WizardPage {
 	private final NameGroup nameGroup;
 	private final LocationGroup locationGroup;
 	private final WorkingSetGroup workingSetGroup;
-	private final Validator fValidator;
+	private final Validator validator;
 
 	public NewProjectMainPage() {
 		super("NewProjectWizardPageOne");
@@ -56,16 +57,12 @@ public class NewProjectMainPage extends WizardPage {
 		locationGroup = new LocationGroup();
 		workingSetGroup = new WorkingSetGroup();
 
-		// establish connections
 		nameGroup.addObserver(locationGroup);
-
-		// initialize all elements
 		nameGroup.notifyObservers();
 
-		// create and connect validator
-		fValidator = new Validator();
-		nameGroup.addObserver(fValidator);
-		locationGroup.addObserver(fValidator);
+		validator = new Validator();
+		nameGroup.addObserver(validator);
+		locationGroup.addObserver(validator);
 
 		setProjectName(""); //$NON-NLS-1$
 		setProjectLocationURI(null);
@@ -158,13 +155,13 @@ public class NewProjectMainPage extends WizardPage {
 	}
 
 	private final class NameGroup extends Observable implements IDialogFieldListener {
-		protected final StringDialogField fNameField;
+		protected final StringDialogField nameField;
 
 		public NameGroup() {
 			// text field for project name
-			fNameField = new StringDialogField();
-			fNameField.setLabelText("&Project name:");
-			fNameField.setDialogFieldListener(this);
+			nameField = new StringDialogField();
+			nameField.setLabelText("&Project name:");
+			nameField.setDialogFieldListener(this);
 		}
 
 		public Control createControl(Composite composite) {
@@ -172,22 +169,22 @@ public class NewProjectMainPage extends WizardPage {
 			nameComposite.setFont(composite.getFont());
 			nameComposite.setLayout(new GridLayout(2, false));
 
-			fNameField.doFillIntoGrid(nameComposite, 2);
-			LayoutUtil.setHorizontalGrabbing(fNameField.getTextControl(null));
+			nameField.doFillIntoGrid(nameComposite, 2);
+			LayoutUtil.setHorizontalGrabbing(nameField.getTextControl(null));
 
 			return nameComposite;
 		}
 
 		public String getName() {
-			return fNameField.getText().trim();
+			return nameField.getText().trim();
 		}
 
 		public void postSetFocus() {
-			fNameField.postSetFocusOnDialogField(getShell().getDisplay());
+			nameField.postSetFocusOnDialogField(getShell().getDisplay());
 		}
 
 		public void setName(String name) {
-			fNameField.setText(name);
+			nameField.setText(name);
 		}
 
 		@Override
@@ -344,9 +341,17 @@ public class NewProjectMainPage extends WizardPage {
 			}
 
 			// check whether project already exists
-			final IProject handle = workspace.getRoot().getProject(name);
+			IProject handle = workspace.getRoot().getProject(name);
 			if (handle.exists()) {
-				setErrorMessage("A project with this name already exists.");
+				setErrorMessage("A project with " + name + " already exists.");
+				setPageComplete(false);
+				return;
+			}
+			
+			String coreProjectName = name + "-" + ProjectType.CORE.getName();
+			handle = workspace.getRoot().getProject(coreProjectName);
+			if (handle.exists()) {
+				setErrorMessage("A project with " + coreProjectName + " already exists.");
 				setPageComplete(false);
 				return;
 			}
