@@ -35,13 +35,13 @@ import com.gurella.engine.scene.velocity.LinearVelocityComponent;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
-	static final String typePropertyName = "#";
-	static final String valuePropertyName = "v";
-	static final String dependenciesPropertyName = "d";
-	static final String arrayTypeName = "[";
-	static final String arrayTypeNameField = "t";
-	static final String assetReferenceTypeName = "@";
-	static final String assetReferencePathField = "p";
+	static final String typeTag = "#";
+	static final String valueTag = "v";
+	static final String dependenciesTag = "d";
+	static final String arrayType = "[";
+	static final String arrayTypeTag = "t";
+	static final String assetReferenceType = "@";
+	static final String assetReferencePathTag = "p";
 
 	private static final ObjectMap<String, String> typeAbbreviations = new ObjectMap<String, String>();
 	private static final ObjectMap<Class<?>, String> abbreviatedTypes = new ObjectMap<Class<?>, String>();
@@ -83,7 +83,11 @@ public class JsonSerialization {
 		abbreviatedTypes.put(type, strId);
 	}
 
-	static String deserializeTypeName(String serializedTypeName) {
+	static String deserializeType(String serializedTypeName) {
+		if (serializedTypeName == null) {
+			return null;
+		}
+
 		char c = serializedTypeName.charAt(0);
 		if (c >= '0' && c <= '9') {
 			return typeAbbreviations.get(serializedTypeName, serializedTypeName);
@@ -92,7 +96,7 @@ public class JsonSerialization {
 		}
 	}
 
-	static String serializeTypeName(Class<?> type) {
+	static String serializeType(Class<?> type) {
 		String typeName = abbreviatedTypes.get(type);
 		return typeName == null ? type.getName() : typeName;
 	}
@@ -112,15 +116,14 @@ public class JsonSerialization {
 		if (serializedObject.isArray()) {
 			if (serializedObject.size > 0) {
 				JsonValue itemValue = serializedObject.child;
-				String itemTypeName = itemValue.getString(typePropertyName, null);
-				if (arrayTypeName.equals(itemTypeName)) {
-					return Reflection.forName(itemValue.getString(arrayTypeNameField));
+				if (arrayType.equals(itemValue.getString(typeTag, null))) {
+					return Reflection.forName(deserializeType(itemValue.getString(arrayTypeTag)));
 				}
 			}
 		} else if (serializedObject.isObject()) {
-			String explicitTypeName = serializedObject.getString(typePropertyName, null);
-			if (explicitTypeName != null) {
-				return Reflection.<T> forName(explicitTypeName);
+			String type = deserializeType(serializedObject.getString(typeTag, null));
+			if (type != null) {
+				return Reflection.<T> forName(type);
 			}
 		}
 

@@ -1,6 +1,16 @@
 package com.gurella.engine.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.*;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferencePathTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
+import static com.gurella.engine.serialization.json.JsonSerialization.createAssetDescriptor;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.deserializeType;
+import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.serialization.json.JsonSerialization.resolveObjectType;
+import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
@@ -63,7 +73,7 @@ public class JsonInput implements Input, Poolable {
 
 	private <T> T deserialize(JsonValue jsonValue, Class<T> expectedType, Object template) {
 		Class<T> resolvedType = resolveObjectType(expectedType, jsonValue);
-		JsonValue resolvedValue = isSimpleType(resolvedType) ? jsonValue.get(valuePropertyName) : jsonValue;
+		JsonValue resolvedValue = isSimpleType(resolvedType) ? jsonValue.get(valueTag) : jsonValue;
 		return deserializeObject(resolvedValue, resolvedType, template);
 	}
 
@@ -165,24 +175,23 @@ public class JsonInput implements Input, Poolable {
 			result = null;
 		} else if (expectedType != null && (expectedType.isPrimitive() || isSimpleType(expectedType))) {
 			if (value.isObject()) {
-				push(value.get(valuePropertyName));
+				push(value.get(valueTag));
 			} else {
 				push(value);
 			}
 			result = MetaTypes.getMetaType(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
-			if (assetReferenceTypeName.equals(value.getString(typePropertyName, null))) {
-				String assetLocation = value.getString(assetReferencePathField);
+			if (assetReferenceType.equals(value.getString(typeTag, null))) {
+				String assetLocation = value.getString(assetReferencePathTag);
 				result = AssetService.get(assetLocation);
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
-			String itemTypeName = firstItem.getString(typePropertyName, null);
-			if (arrayTypeName.equals(itemTypeName)) {
-				Class<?> arrayType = Reflection.forName(firstItem.getString(arrayTypeNameField));
+			if (arrayType.equals(firstItem.getString(typeTag, null))) {
+				Class<?> arrayType = Reflection.forName(deserializeType(firstItem.getString(arrayTypeTag)));
 				@SuppressWarnings("unchecked")
 				T array = (T) deserializeObject(firstItem.next, arrayType, template);
 				result = array;
@@ -311,7 +320,7 @@ public class JsonInput implements Input, Poolable {
 		}
 
 		JsonValue lastValue = rootValue.get(size - 1);
-		if (!dependenciesPropertyName.equals(lastValue.name)) {
+		if (!dependenciesTag.equals(lastValue.name)) {
 			return null;
 		}
 

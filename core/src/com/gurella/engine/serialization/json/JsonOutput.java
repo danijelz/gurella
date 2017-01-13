@@ -1,13 +1,14 @@
 package com.gurella.engine.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeName;
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeNameField;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferencePathField;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceTypeName;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferencePathTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
-import static com.gurella.engine.serialization.json.JsonSerialization.typePropertyName;
-import static com.gurella.engine.serialization.json.JsonSerialization.valuePropertyName;
+import static com.gurella.engine.serialization.json.JsonSerialization.serializeType;
+import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -100,8 +101,8 @@ public class JsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				writeStringProperty(typePropertyName, arrayTypeName);
-				writeStringProperty(arrayTypeNameField, actualType.getName());
+				writeStringProperty(typeTag, arrayType);
+				writeStringProperty(arrayTypeTag, serializeType(actualType));
 				pop();
 			}
 
@@ -232,7 +233,7 @@ public class JsonOutput implements Output, Poolable {
 			} else {
 				object();
 				type(actualType);
-				name(valuePropertyName);
+				name(valueTag);
 				metaType.serialize(value, null, this);
 				pop();
 			}
@@ -246,8 +247,8 @@ public class JsonOutput implements Output, Poolable {
 				writeReference(expectedType, template, value);
 			} else {
 				object();
-				writeStringProperty(typePropertyName, assetReferenceTypeName);
-				writeStringProperty(assetReferencePathField, valueLocation);
+				writeStringProperty(typeTag, assetReferenceType);
+				writeStringProperty(assetReferencePathTag, valueLocation);
 				pop();
 				externalDependencies.add(value.getClass().getName() + " " + valueLocation);
 			}
@@ -422,7 +423,7 @@ public class JsonOutput implements Output, Poolable {
 
 	private void type(Class<?> type) {
 		try {
-			writer.set(typePropertyName, resolveOutputType(type).getName());
+			writer.set(typeTag, serializeType(resolveOutputType(type)));
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}

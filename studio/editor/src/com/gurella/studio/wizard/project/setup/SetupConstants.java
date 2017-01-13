@@ -1,8 +1,10 @@
 package com.gurella.studio.wizard.project.setup;
 
+import com.gurella.studio.common.CommonConstants;
+
 public class SetupConstants {
 	// Versions
-	public static final String libgdxVersion = "1.9.5";
+	public static final String libgdxVersion = CommonConstants.libgdxVersion;
 	// Temporary snapshot version, we need a more dynamic solution for pointing to the latest nightly
 	public static final String libgdxNightlyVersion = "1.9.6-SNAPSHOT";
 	public static final String roboVmPluginVersion = "2.3.0";
