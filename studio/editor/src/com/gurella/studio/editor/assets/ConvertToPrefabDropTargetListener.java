@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.dnd.DND;
@@ -126,9 +125,9 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 		IFile file = project.getFile(projectAssetPath);
 		if (file.exists()) {
-			file.setContents(is, true, true, new NullProgressMonitor());
+			file.setContents(is, true, true, context.getProgressMonitor());
 		} else {
-			file.create(is, true, new NullProgressMonitor());
+			file.create(is, true, context.getProgressMonitor());
 		}
 
 		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);

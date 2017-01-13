@@ -184,7 +184,7 @@ class GraphMenu {
 				IPath projectPath = project.getLocation();
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode node = (SceneNode) selection;
-				IFolder folder = project.getFolder("assets");
+				IFolder folder = project.getFolder(assetsRootPath);
 				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
 				if (!fileName.isPresent()) {
 					return;
@@ -205,9 +205,9 @@ class GraphMenu {
 							&& oldPrefabReference.getFileName().equals(gdxAssetPath.toString())) {
 						// TODO overriding existing prefab
 					}
-					file.setContents(is, true, true, new NullProgressMonitor());
+					file.setContents(is, true, true, context.getProgressMonitor());
 				} else {
-					file.create(is, true, new NullProgressMonitor());
+					file.create(is, true, context.getProgressMonitor());
 				}
 				AssetService.put(prefab, gdxAssetPath.toString());
 				String errMsg = "Error while converting to prefab";

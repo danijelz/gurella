@@ -7,7 +7,6 @@ import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ltk.core.refactoring.IUndoManager;
 import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
@@ -32,8 +31,8 @@ public class RefractoringOperation extends AbstractOperation implements ErrorSta
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while refractoring resource.";
-		return Try.successful(operation).peek(o -> context.workspace.run(o, new NullProgressMonitor()))
-				.map(m -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
+		return Try.successful(operation).peek(o -> context.workspace.run(o, monitor)).map(o -> Status.OK_STATUS)
+				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class RefractoringOperation extends AbstractOperation implements ErrorSta
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while undoing refractoring resource.";
-		return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(m -> Status.OK_STATUS)
+		return Try.successful(undoManager).peek(m -> m.performUndo(null, monitor)).map(o -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).recover(e -> createErrorStatus(errMsg, e));
 	}
 }

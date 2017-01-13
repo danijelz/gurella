@@ -23,10 +23,9 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 	public void dragEnter(DropTargetEvent event) {
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferingResource() == null) {
 			event.detail = DND.DROP_NONE;
-			return;
+		} else {
+			event.detail = DND.DROP_MOVE;
 		}
-
-		event.detail = DND.DROP_MOVE;
 	}
 
 	private static IResource getTransferingResource() {
