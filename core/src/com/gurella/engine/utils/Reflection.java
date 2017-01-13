@@ -2,12 +2,17 @@ package com.gurella.engine.utils;
 
 import java.lang.annotation.Annotation;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 //TODO caches + exceptions description
 public class Reflection {
@@ -15,12 +20,28 @@ public class Reflection {
 	// private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>,
 	// Constructor>();
 
-	public static ClassResolver classResolver = new ClassResolver() {
-		@Override
-		public Class<?> forName(String className) throws Exception {
-			return ClassReflection.forName(className);
+	private static final IdentityMap<Application, ClassResolver> resolvers = new IdentityMap<Application, ClassResolver>();
+
+	public static ClassResolver getClassResolver() {
+		synchronized (resolvers) {
+			ClassResolver resolver = resolvers.get(Gdx.app);
+			if (resolver == null) {
+				resolver = DefaultClassResolver.instance;
+				resolvers.put(Gdx.app, resolver);
+				EventService.subscribe(new Cleaner());
+			}
+			return resolver;
 		}
-	};
+	}
+
+	public static void setClassResolver(ClassResolver resolver) {
+		synchronized (resolvers) {
+			ClassResolver currentResolver = resolvers.put(Gdx.app, resolver);
+			if (resolver == null) {
+				EventService.subscribe(new Cleaner());
+			}
+		}
+	}
 
 	private Reflection() {
 	}
@@ -28,7 +49,7 @@ public class Reflection {
 	public static <T> Class<T> forName(String className) {
 		try {
 			@SuppressWarnings("unchecked")
-			Class<T> resourceType = (Class<T>) classResolver.forName(className);
+			Class<T> resourceType = (Class<T>) getClassResolver().forName(className);
 			return resourceType;
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);
@@ -420,5 +441,27 @@ public class Reflection {
 
 	public interface ClassResolver {
 		Class<?> forName(String className) throws Exception;
+	}
+
+	public static final class DefaultClassResolver implements ClassResolver {
+		public static final ClassResolver instance = new DefaultClassResolver();
+
+		private DefaultClassResolver() {
+		}
+
+		@Override
+		public Class<?> forName(String className) throws Exception {
+			return ClassReflection.forName(className);
+		}
+	}
+
+	private static class Cleaner implements ApplicationShutdownListener {
+		@Override
+		public void shutdown() {
+			EventService.unsubscribe(this);
+			synchronized (resolvers) {
+				resolvers.remove(Gdx.app);
+			}
+		}
 	}
 }

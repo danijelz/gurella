@@ -55,7 +55,7 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 		project = sceneFile.getProject();
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
-		Reflection.classResolver = classLoader::loadClass;
+		Reflection.setClassResolver(classLoader::loadClass);
 		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
 	}
