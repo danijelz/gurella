@@ -35,7 +35,7 @@ import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
  * @author badlogic
  * @author Tomski
  */
-public class Setup {
+public class ProjectSetup {
 	private static final String resourceLoc = "setup/";
 
 	private final SetupInfo setupInfo;
@@ -54,7 +54,7 @@ public class Setup {
 	private String outputDir;
 	private String packageDir;
 
-	public Setup(SetupInfo setupInfo, LogCallback callback) {
+	public ProjectSetup(SetupInfo setupInfo, LogCallback callback) {
 		this.setupInfo = setupInfo;
 		this.callback = callback;
 

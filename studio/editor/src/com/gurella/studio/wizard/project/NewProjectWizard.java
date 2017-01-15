@@ -28,7 +28,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
-import com.gurella.studio.wizard.project.setup.Setup;
+import com.gurella.studio.wizard.project.setup.ProjectSetup;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
@@ -120,7 +120,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
 			log("Generating app in " + setupInfo.location + "\n");
-			new Setup(setupInfo, this).build();
+			new ProjectSetup(setupInfo, this).build();
 			log("Done!\n");
 		}
 
