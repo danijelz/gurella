@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.wizard.project.ProjectType;
 
 public class GradleScriptBuilder {
 	private final String appName;

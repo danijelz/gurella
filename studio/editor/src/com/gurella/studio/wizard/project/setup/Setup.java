@@ -1,10 +1,10 @@
 package com.gurella.studio.wizard.project.setup;
 
-import static com.gurella.studio.wizard.project.setup.ProjectType.ANDROID;
-import static com.gurella.studio.wizard.project.setup.ProjectType.DESKTOP;
-import static com.gurella.studio.wizard.project.setup.ProjectType.HTML;
-import static com.gurella.studio.wizard.project.setup.ProjectType.IOS;
-import static com.gurella.studio.wizard.project.setup.ProjectType.IOSMOE;
+import static com.gurella.studio.wizard.project.ProjectType.ANDROID;
+import static com.gurella.studio.wizard.project.ProjectType.DESKTOP;
+import static com.gurella.studio.wizard.project.ProjectType.HTML;
+import static com.gurella.studio.wizard.project.ProjectType.IOS;
+import static com.gurella.studio.wizard.project.ProjectType.IOSMOE;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.wizard.project.ProjectType;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 
 /**

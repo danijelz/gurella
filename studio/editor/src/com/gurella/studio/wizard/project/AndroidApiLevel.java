@@ -2,16 +2,16 @@ package com.gurella.studio.wizard.project;
 
 import com.gurella.studio.wizard.project.setup.SetupConstants;
 
-class ApiLevel implements Comparable<ApiLevel> {
+class AndroidApiLevel implements Comparable<AndroidApiLevel> {
 	int level;
 
-	static ApiLevel parse(String line) {
+	static AndroidApiLevel parse(String line) {
 		String levelString = line.split("\\=")[1];
 		int level = Integer.parseInt(levelString);
-		return new ApiLevel(level);
+		return new AndroidApiLevel(level);
 	}
 
-	ApiLevel(int level) {
+	AndroidApiLevel(int level) {
 		this.level = level;
 	}
 
@@ -35,7 +35,7 @@ class ApiLevel implements Comparable<ApiLevel> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ApiLevel other = (ApiLevel) obj;
+		AndroidApiLevel other = (AndroidApiLevel) obj;
 		return level == other.level;
 	}
 
@@ -45,7 +45,7 @@ class ApiLevel implements Comparable<ApiLevel> {
 	}
 
 	@Override
-	public int compareTo(ApiLevel other) {
+	public int compareTo(AndroidApiLevel other) {
 		return Integer.compare(level, other.level);
 	}
 }

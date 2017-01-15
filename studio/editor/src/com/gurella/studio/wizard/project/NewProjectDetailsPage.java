@@ -12,7 +12,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
 public class NewProjectDetailsPage extends WizardPage {
@@ -24,7 +23,7 @@ public class NewProjectDetailsPage extends WizardPage {
 	private List<Validator> validators = new ArrayList<>();
 
 	NewProjectDetailsPage() {
-		super("NewProjectWizardPageTwo");
+		super("NewProjectDetailsPage");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");
 		setDescription("Create Gurella project in the workspace or in an external location.");

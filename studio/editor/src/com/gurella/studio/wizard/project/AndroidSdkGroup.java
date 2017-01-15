@@ -48,7 +48,7 @@ public class AndroidSdkGroup implements Validator {
 	private Button runAndroidManagerButton;
 	private ComboViewer buildToolsVersionCombo;
 
-	private List<ApiLevel> apiLevels;
+	private List<AndroidApiLevel> androidApiLevels;
 	private List<BuildToolsVersion> buildToolVersions;
 
 	public AndroidSdkGroup(NewProjectDetailsPage detailsPage) {
@@ -184,12 +184,12 @@ public class AndroidSdkGroup implements Validator {
 
 	private void updateSdkData(String sdkLocation) {
 		IStructuredSelection selection = apiLevelCombo.getStructuredSelection();
-		apiLevels = extractApiLevels(sdkLocation);
-		apiLevelCombo.setInput(apiLevels);
+		androidApiLevels = extractApiLevels(sdkLocation);
+		apiLevelCombo.setInput(androidApiLevels);
 		if (!selection.isEmpty()) {
 			apiLevelCombo.setSelection(selection);
-		} else if (!apiLevels.isEmpty()) {
-			apiLevelCombo.setSelection(new StructuredSelection(apiLevels.get(0)));
+		} else if (!androidApiLevels.isEmpty()) {
+			apiLevelCombo.setSelection(new StructuredSelection(androidApiLevels.get(0)));
 		}
 
 		selection = buildToolsVersionCombo.getStructuredSelection();
@@ -206,16 +206,16 @@ public class AndroidSdkGroup implements Validator {
 		return sdkLocationText.isEnabled() && isSdkLocationValid(sdkLocationText.getText());
 	}
 
-	private static List<ApiLevel> extractApiLevels(String sdkLocation) {
+	private static List<AndroidApiLevel> extractApiLevels(String sdkLocation) {
 		File apis = new File(sdkLocation, "platforms");
 		return Stream.of(apis.listFiles()).map(f -> toApiLevel(f)).filter(al -> al != null && al.isValid())
 				.collect(toList());
 	}
 
-	private static ApiLevel toApiLevel(File parentFile) {
+	private static AndroidApiLevel toApiLevel(File parentFile) {
 		File properties = new File(parentFile, "source.properties");
 		try (FileReader reader = new FileReader(properties); BufferedReader buffer = new BufferedReader(reader)) {
-			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(ApiLevel::parse).findFirst()
+			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(AndroidApiLevel::parse).findFirst()
 					.orElse(null);
 		} catch (Exception e) {
 			GurellaStudioPlugin.log(e, "Error while parsing ApiLevel");
@@ -254,9 +254,9 @@ public class AndroidSdkGroup implements Validator {
 		return getSelectedApiLevel().toString();
 	}
 
-	private ApiLevel getSelectedApiLevel() {
+	private AndroidApiLevel getSelectedApiLevel() {
 		IStructuredSelection selection = (IStructuredSelection) apiLevelCombo.getSelection();
-		return selection.isEmpty() ? null : (ApiLevel) selection.getFirstElement();
+		return selection.isEmpty() ? null : (AndroidApiLevel) selection.getFirstElement();
 	}
 
 	String getBuildToolsVersion() {
@@ -286,9 +286,9 @@ public class AndroidSdkGroup implements Validator {
 
 		List<IStatus> result = new ArrayList<>();
 
-		ApiLevel apiLevel = getSelectedApiLevel();
-		if (apiLevel == null) {
-			String message = Values.isEmpty(apiLevels) ? "You have no Android APIs! Update your Android SDK."
+		AndroidApiLevel androidApiLevel = getSelectedApiLevel();
+		if (androidApiLevel == null) {
+			String message = Values.isEmpty(androidApiLevels) ? "You have no Android APIs! Update your Android SDK."
 					: "Select API level.";
 			Status status = new Status(ERROR, PLUGIN_ID, message);
 			result.add(status);

@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project;
 
 public enum ProjectType {
 	CORE("core", "java"),
@@ -8,7 +8,7 @@ public enum ProjectType {
 	IOSMOE("ios-moe", "moe"),
 	HTML("html", "gwt", "war");
 
-	final String name;
+	public final String name;
 	private final String[] gradlePlugins;
 
 	ProjectType(String name, String... gradlePlugins) {

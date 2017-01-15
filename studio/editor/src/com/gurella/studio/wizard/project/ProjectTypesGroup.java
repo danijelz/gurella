@@ -22,8 +22,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import com.gurella.studio.wizard.project.setup.ProjectType;
-
 public class ProjectTypesGroup implements Validator {
 	private final NewProjectDetailsPage detailsPage;
 	private List<Button> buttons = new ArrayList<>();

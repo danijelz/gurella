@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gurella.studio.wizard.project.ProjectType;
+
 public class SetupInfo {
 	public String appName;
 	public String location;

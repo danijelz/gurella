@@ -3,6 +3,8 @@ package com.gurella.studio.wizard.project.setup;
 import java.util.Collections;
 import java.util.List;
 
+import com.gurella.studio.wizard.project.ProjectType;
+
 /**
  * This enum will hold all dependencies available for libgdx, allowing the setup to pick the ones needed by default, and
  * allow the option to choose extensions as the user wishes.

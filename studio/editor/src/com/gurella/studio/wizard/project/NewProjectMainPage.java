@@ -38,7 +38,6 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.wizard.project.setup.ProjectType;
 import com.gurella.studio.wizard.project.setup.SetupInfo;
 
 public class NewProjectMainPage extends WizardPage {
@@ -48,7 +47,7 @@ public class NewProjectMainPage extends WizardPage {
 	private final Validator validator;
 
 	public NewProjectMainPage() {
-		super("NewProjectWizardPageOne");
+		super("NewProjectMainPage");
 		setPageComplete(false);
 		setTitle("Create Gurella Project");
 		setDescription("Create Gurella project in the workspace or in an external location.");

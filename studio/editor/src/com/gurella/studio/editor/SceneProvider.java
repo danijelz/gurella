@@ -12,6 +12,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
+//TODO merge with SceneEditorContext
 class SceneProvider implements PluginListener, EditorPreCloseListener, EditorCloseListener {
 	private final int editorId;
 	private final Set<SceneProviderExtension> extensions = new HashSet<>();
