@@ -10,8 +10,8 @@ import java.io.File;
 public class TemporaryProjectFile extends ProjectFile {
 	public File file;
 
-	public TemporaryProjectFile(File file, String outputString, boolean isTemplate) {
-		super(outputString, isTemplate);
+	public TemporaryProjectFile(File file, String outputName, boolean isTemplate) {
+		super(outputName, isTemplate);
 		this.file = file;
 	}
 }
