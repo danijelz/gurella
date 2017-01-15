@@ -9,6 +9,7 @@ public class SampleMaterialFile extends GeneratedProjectFile {
 
 	@Override
 	protected String generate() {
+		//@formatter:off
 		return "{\r\n" 
 				+ "		0: {\r\n" 
 				+ "			uuid: " + Uuid.randomUuidString() + "\r\n"
@@ -26,5 +27,6 @@ public class SampleMaterialFile extends GeneratedProjectFile {
 				+ "			shininess: 20\r\n" 
 				+ "		}\r\n" 
 				+ "		}";
+		//@formatter:on
 	}
 }
