@@ -111,11 +111,11 @@ public class ProjectSetup {
 	private void addCoreFiles() {
 		newProjectFile("core/build.gradle");
 		newProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true);
-		
+
 		newProjectFile("core/assets/application.gcfg", "core/assets/application.gcfg", true);
 		newProjectFile("core/assets/initialScene.gscn", "core/assets/scenes/" + initialScene, false);
 		newProjectFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg", false);
-		
+
 		if (setupInfo.projects.contains(HTML)) {
 			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
 		}
@@ -312,14 +312,11 @@ public class ProjectSetup {
 		}
 
 		if (file.isTemplate) {
-			String txt;
 			if (file instanceof TemporaryProjectFile) {
-				txt = readResourceAsString(((TemporaryProjectFile) file).file);
+				writeFile(outFile, replace(readResourceAsString(((TemporaryProjectFile) file).file)));
 			} else {
-				txt = readResourceAsString(resourceLoc, file.resourceName);
+				writeFile(outFile, replace(readResourceAsString(resourceLoc, file.resourceName)));
 			}
-			txt = replace(txt);
-			writeFile(outFile, txt);
 		} else {
 			if (file instanceof TemporaryProjectFile) {
 				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
