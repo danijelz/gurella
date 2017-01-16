@@ -68,7 +68,7 @@ public final class SceneNode extends SceneElement implements NodeContainer, Pool
 
 	@Override
 	protected final boolean isActivationAllowed() {
-		return super.isActivationAllowed() && isParentHierarchyEnabled();
+		return super.isActivationAllowed() && getParent() != null && isParentHierarchyEnabled();
 	}
 
 	public final boolean isHierarchyEnabled() {
