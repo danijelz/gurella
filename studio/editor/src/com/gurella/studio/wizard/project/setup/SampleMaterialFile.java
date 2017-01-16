@@ -10,8 +10,12 @@ public class SampleMaterialFile extends GeneratedProjectFile {
 	@Override
 	protected String generate() {
 		//@formatter:off
-		return "{\n		0: {\n			uuid: " + Uuid.randomUuidString() 
-				+ "\n			diffuseColor: -352264961\r\n		}\n		}";
+		return "{\n"
+				+ "0: {\n"
+				+ "			uuid: " + Uuid.randomUuidString() + "\n"
+				+ "			diffuseColor: -352264961\n"
+				+ "	  }\n"
+				+ "}";
 		//@formatter:on
 	}
 }
