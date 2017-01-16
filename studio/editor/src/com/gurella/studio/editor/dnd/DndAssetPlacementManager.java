@@ -36,16 +36,17 @@ import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.studio.editor.SceneEditorRegistry;
-import com.gurella.studio.editor.SceneProviderExtension;
+import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.assets.AssetSelection;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 
-public class DndAssetPlacementManager implements SceneProviderExtension, CameraProviderExtension,
+public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraProviderExtension,
 		EditorPreRenderUpdateListener, EditorRenderUpdateListener, EditorCloseListener {
 	private final int editorId;
 	private final GLCanvas glCanvas;
@@ -55,6 +56,8 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 	private Scene scene;
 	private InputSystem inputSystem;
 	private Camera camera;
+	private HistoryService historyService;
+
 	private ModelBatch modelBatch;
 	private SpriteBatch spriteBatch;
 
@@ -77,13 +80,18 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 		dropTarget.addDropListener(new DropTargetListener());
 
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
 	public void setScene(Scene scene) {
 		this.scene = scene;
 		inputSystem = scene.inputSystem;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	@Override
@@ -216,7 +224,7 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 	}
 
 	private final class DropTargetListener extends DropTargetAdapter {
@@ -277,7 +285,7 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
 				modelComponent.setModel(AssetService.load(getAssetPath(), Model.class));
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
+				historyService.executeOperation(operation, "Error while adding node");
 			} else {
 				updateSprite();
 				SceneNode node = scene.newNode("Sprite");
@@ -293,7 +301,7 @@ public class DndAssetPlacementManager implements SceneProviderExtension, CameraP
 				}
 
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
+				historyService.executeOperation(operation, "Error while adding node");
 			}
 
 			unloadTemporaryAssets();

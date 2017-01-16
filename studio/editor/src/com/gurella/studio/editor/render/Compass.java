@@ -77,7 +77,7 @@ public class Compass implements EditorCloseListener, EditorPreRenderUpdateListen
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class Compass implements EditorCloseListener, EditorPreRenderUpdateListen
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		compassModel.dispose();
 	}
 }

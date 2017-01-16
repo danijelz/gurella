@@ -1,44 +1,69 @@
 package com.gurella.engine.plugin;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.IdentitySet;
+import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.utils.OrderedIdentitySet;
 
 public class Workbench {
-	private static final ObjectMap<Application, Workbench> instances = new ObjectMap<Application, Workbench>();
+	private static final IntMap<Workbench> instances = new IntMap<Workbench>();
 
-	private final IdentitySet<Plugin> plugins = new IdentitySet<Plugin>();
-	private final IdentitySet<PluginListener> listeners = new IdentitySet<PluginListener>();
+	private final OrderedIdentitySet<Plugin> plugins = new OrderedIdentitySet<Plugin>();
+	private final OrderedIdentitySet<PluginListener> listeners = new OrderedIdentitySet<PluginListener>();
 
 	private Workbench() {
 	}
 
-	private static Workbench getInstance() {
+	public static Workbench newInstance(int channel) {
+		if (channel < 0) {
+			throw new IllegalArgumentException("channel must be positive int");
+		}
+
 		synchronized (instances) {
-			Workbench instance = instances.get(Gdx.app);
+			Workbench instance = instances.get(channel);
+			if (instance != null) {
+				throw new IllegalStateException("Workbench for provided channel already exists.");
+			}
+
+			instance = new Workbench();
+			instances.put(channel, instance);
+			return instance;
+		}
+	}
+
+	public static void close(Workbench workbench) {
+		synchronized (instances) {
+			int channel = instances.findKey(workbench, true, -1);
+			if (channel < 0) {
+				throw new IllegalStateException("Workbench for provided channel doesn't exists.");
+			}
+
+			instances.remove(channel);
+		}
+	}
+
+	private static Workbench getInstance(int channel) {
+		synchronized (instances) {
+			Workbench instance = instances.get(channel);
 			if (instance == null) {
-				instance = new Workbench();
-				instances.put(Gdx.app, instance);
+				throw new IllegalStateException("Workbench for provided channel doesn't exists.");
 			}
 			return instance;
 		}
 	}
 
-	public static boolean activate(Plugin plugin) {
-		return getInstance()._activate(plugin);
+	public static boolean activate(int channel, Plugin plugin) {
+		return getInstance(channel)._activate(plugin);
 	}
 
-	public static boolean deactivate(Plugin plugin) {
-		return getInstance()._deactivate(plugin);
+	public static boolean deactivate(int channel, Plugin plugin) {
+		return getInstance(channel)._deactivate(plugin);
 	}
 
-	public static boolean addListener(PluginListener listener) {
-		return getInstance()._addListener(listener);
+	public static boolean addListener(int channel, PluginListener listener) {
+		return getInstance(channel)._addListener(listener);
 	}
 
-	public static boolean removeListener(PluginListener listener) {
-		return getInstance()._removeListener(listener);
+	public static boolean removeListener(int channel, PluginListener listener) {
+		return getInstance(channel)._removeListener(listener);
 	}
 
 	private boolean _activate(Plugin plugin) {
@@ -50,13 +75,14 @@ public class Workbench {
 			((LifecyclePlugin) plugin).activate();
 		}
 
-		for (PluginListener listener : listeners) {
-			listener.activated(plugin);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).activated(plugin);
 		}
 
 		if (plugin instanceof PluginListener && listeners.add((PluginListener) plugin)) {
 			PluginListener listener = (PluginListener) plugin;
-			for (Plugin active : plugins) {
+			for (int i = 0; i < plugins.size; i++) {
+				Plugin active = plugins.get(i);
 				if (plugin != active) {
 					listener.activated(active);
 				}
@@ -73,13 +99,16 @@ public class Workbench {
 
 		if (plugin instanceof PluginListener && listeners.remove((PluginListener) plugin)) {
 			PluginListener listener = (PluginListener) plugin;
-			for (Plugin active : plugins) {
-				listener.deactivated(active);
+			for (int i = 0; i < plugins.size; i++) {
+				Plugin active = plugins.get(i);
+				if (plugin != active) {
+					listener.deactivated(active);
+				}
 			}
 		}
 
-		for (PluginListener listener : listeners) {
-			listener.deactivated(plugin);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).deactivated(plugin);
 		}
 
 		if (plugin instanceof LifecyclePlugin) {
@@ -94,8 +123,8 @@ public class Workbench {
 			return false;
 		}
 
-		for (Plugin plugin : plugins) {
-			listener.activated(plugin);
+		for (int i = 0; i < plugins.size; i++) {
+			listener.activated(plugins.get(i));
 		}
 
 		return true;
@@ -106,8 +135,8 @@ public class Workbench {
 			return false;
 		}
 
-		for (Plugin plugin : plugins) {
-			listener.deactivated(plugin);
+		for (int i = 0; i < plugins.size; i++) {
+			listener.deactivated(plugins.get(i));
 		}
 
 		return true;

@@ -24,7 +24,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	private final int editorId;
 	private final CameraProvider extensionRegistry;
-	
+
 	private PreferencesNode preferences;
 
 	private final PerspectiveCamera perspectiveCamera;
@@ -43,8 +43,8 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	public CameraManager(int editorId) {
 		this.editorId = editorId;
 		extensionRegistry = new CameraProvider(this);
-		Workbench.activate(this);
-		Workbench.addListener(extensionRegistry);
+		Workbench.activate(editorId, this);
+		Workbench.addListener(editorId, extensionRegistry);
 
 		Graphics graphics = Gdx.graphics;
 		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
@@ -62,11 +62,11 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
-		Workbench.activate(inputController);
+		Workbench.activate(editorId, inputController);
 
 		cameraMenuContributor = new CameraMenuContributor(editorId, this);
 		cameraTypeSelector = new KeyboardCameraSelector(this);
-		Workbench.activate(cameraTypeSelector);
+		Workbench.activate(editorId, cameraTypeSelector);
 
 		EventService.subscribe(editorId, this);
 	}
@@ -93,10 +93,10 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 			return;
 		}
 
-		Workbench.deactivate(inputController);
+		Workbench.deactivate(editorId, inputController);
 		camera = orthographicCamera;
 		inputController = orthographicCameraController;
-		Workbench.activate(inputController);
+		Workbench.activate(editorId, inputController);
 		extensionRegistry.updateCamera(camera);
 		updateCameraPreference(camera2d);
 	}
@@ -116,10 +116,10 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 			return;
 		}
 
-		Workbench.deactivate(inputController);
+		Workbench.deactivate(editorId, inputController);
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
-		Workbench.activate(inputController);
+		Workbench.activate(editorId, inputController);
 		extensionRegistry.updateCamera(camera);
 		updateCameraPreference(camera3d);
 	}
@@ -214,10 +214,10 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(cameraTypeSelector);
-		Workbench.deactivate(inputController);
-		Workbench.removeListener(extensionRegistry);
+		Workbench.deactivate(editorId, cameraTypeSelector);
+		Workbench.deactivate(editorId, inputController);
+		Workbench.removeListener(editorId, extensionRegistry);
+		Workbench.deactivate(editorId, this);
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
 	}
 }

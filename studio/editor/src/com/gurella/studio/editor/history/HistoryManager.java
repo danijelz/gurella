@@ -24,7 +24,8 @@ import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class HistoryManager extends UndoContext implements EditorCloseListener, EditorContextMenuContributor {
+public class HistoryManager extends UndoContext
+		implements HistoryService, EditorCloseListener, EditorContextMenuContributor {
 	private final int editorId;
 
 	private final IOperationHistory operationHistory;
@@ -32,6 +33,8 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 	private final RedoActionHandler redoAction;
 	private final IStatusLineManager statusLineManager;
 	private final UndoRedoActionGroup historyActionGroup;
+
+	private final HistoryContributorRegistry registry;
 
 	public HistoryManager(SceneEditor editor) {
 		editorId = editor.id;
@@ -47,13 +50,17 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		historyActionGroup = new UndoRedoActionGroup(site, this, true);
 		historyActionGroup.fillActionBars(site.getActionBars());
 
+		registry = new HistoryContributorRegistry(this);
+
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.addListener(editorId, registry);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
+		Workbench.removeListener(editorId, registry);
 		EventService.unsubscribe(editorId, this);
 		historyActionGroup.dispose();
 		operationHistory.dispose(this, true, true, true);
@@ -61,6 +68,7 @@ public class HistoryManager extends UndoContext implements EditorCloseListener, 
 		undoAction.dispose();
 	}
 
+	@Override
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {
 		operation.addContext(this);
 		IProgressMonitor monitor = statusLineManager.getProgressMonitor();

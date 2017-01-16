@@ -26,18 +26,29 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
 import com.gurella.studio.editor.utils.Try;
 
-class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
+class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements HistoryContributor {
 	private final SceneEditorContext context;
+
+	private HistoryService historyService;
 
 	ConvertToPrefabDropTargetListener(SceneEditorContext context) {
 		this.context = context;
+		Workbench.activate(context.editorId, this);
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	@Override
@@ -133,6 +144,6 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
 		AssetService.put(prefab, gdxAssetPath.toString());
 		String errMsg = "Error while converting to prefab";
-		context.executeOperation(new ConvertToPrefabOperation(context.editorId, node, prefab), errMsg);
+		historyService.executeOperation(new ConvertToPrefabOperation(context.editorId, node, prefab), errMsg);
 	}
 }

@@ -13,7 +13,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -175,7 +174,7 @@ class GraphMenu {
 			SceneNode node = (SceneNode) selection;
 			int newIndex = node.getScene().nodes.size();
 			String errorMsg = "Error while repositioning node";
-			context.executeOperation(new ReparentNodeOperation(editorId, node, null, newIndex), errorMsg);
+			view.historyService.executeOperation(new ReparentNodeOperation(editorId, node, null, newIndex), errorMsg);
 		}
 
 		private void convertToPrefab() {
@@ -211,7 +210,7 @@ class GraphMenu {
 				}
 				AssetService.put(prefab, gdxAssetPath.toString());
 				String errMsg = "Error while converting to prefab";
-				context.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
+				view.historyService.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
 			} catch (Exception e) {
 				GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
 			}
@@ -387,7 +386,7 @@ class GraphMenu {
 			node.newComponent(TransformComponent.class);
 			node.newComponent(componentType);
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, parent, node);
-			context.executeOperation(operation, "Error while adding node");
+			view.historyService.executeOperation(operation, "Error while adding node");
 		}
 
 		private void addShapeNode(String name, ShapeModel shapeModel, SceneNode parent) {
@@ -397,13 +396,13 @@ class GraphMenu {
 			ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
 			shapeComponent.setShape(shapeModel);
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, parent, node);
-			context.executeOperation(operation, "Error while adding node");
+			view.historyService.executeOperation(operation, "Error while adding node");
 		}
 
 		private void addComponent(SceneNodeComponent component) {
 			SceneNode node = (SceneNode) selection;
 			AddComponentOperation operation = new AddComponentOperation(editorId, node, component);
-			context.executeOperation(operation, "Error while adding component");
+			view.historyService.executeOperation(operation, "Error while adding component");
 		}
 
 		private void addNode(SceneNode parent) {
@@ -419,7 +418,7 @@ class GraphMenu {
 			node.newComponent(TransformComponent.class);
 
 			AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), parent, node);
-			context.executeOperation(operation, "Error while adding node");
+			view.historyService.executeOperation(operation, "Error while adding node");
 		}
 	}
 }

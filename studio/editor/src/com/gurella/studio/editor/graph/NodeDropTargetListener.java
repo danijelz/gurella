@@ -11,22 +11,30 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.ReindexNodeOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
 
-class NodeDropTargetListener extends DropTargetAdapter {
+class NodeDropTargetListener extends DropTargetAdapter implements HistoryContributor {
 	private final Tree graph;
-	private final SceneEditorContext context;
+	private final int editorId;
 
-	NodeDropTargetListener(Tree graph, SceneEditorContext context) {
+	private HistoryService historyService;
+
+	NodeDropTargetListener(Tree graph, int editorId) {
 		this.graph = graph;
-		this.context = context;
+		this.editorId = editorId;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	@Override
 	public void dragEnter(DropTargetEvent event) {
-		//TODO if getTransferedNode() == null add to root
+		// TODO if getTransferedNode() == null add to root
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferedNode() == null) {
 			event.detail = DND.DROP_NONE;
 			return;
@@ -142,14 +150,12 @@ class NodeDropTargetListener extends DropTargetAdapter {
 	}
 
 	private void reindexNode(SceneNode node, int newIndex) {
-		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
-		context.executeOperation(new ReindexNodeOperation(editorId, node, newIndex), errorMsg);
+		historyService.executeOperation(new ReindexNodeOperation(editorId, node, newIndex), errorMsg);
 	}
 
 	private void reparentNode(SceneNode node, SceneNode newParent, int newIndex) {
-		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
-		context.executeOperation(new ReparentNodeOperation(editorId, node, newParent, newIndex), errorMsg);
+		historyService.executeOperation(new ReparentNodeOperation(editorId, node, newParent, newIndex), errorMsg);
 	}
 }

@@ -29,14 +29,15 @@ public class Grid3d implements Grid, CameraProviderExtension, EditorCloseListene
 	public Grid3d(int editorId) {
 		this.editorId = editorId;
 		init();
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 		EventService.subscribe(editorId, this);
 	}
 
 	private void init() {
 		ModelBuilder builder = new ModelBuilder();
 		ColorAttribute diffuse = ColorAttribute.createDiffuse(color);
-		model = builder.createLineGrid(100, 100, 0.5f, 0.5f, new Material(diffuse), Usage.Position | Usage.ColorUnpacked);
+		model = builder.createLineGrid(100, 100, 0.5f, 0.5f, new Material(diffuse),
+				Usage.Position | Usage.ColorUnpacked);
 		instance = new ModelInstance(model);
 
 		environment = new Environment();
@@ -63,7 +64,7 @@ public class Grid3d implements Grid, CameraProviderExtension, EditorCloseListene
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		model.dispose();
 	}
 }

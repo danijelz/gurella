@@ -20,8 +20,8 @@ public class ContextMenuManager implements EditorCloseListener, PluginListener {
 	public ContextMenuManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
-		Workbench.addListener(this);
-		Workbench.activate(gestureDetector);
+		Workbench.addListener(editorId, this);
+		Workbench.activate(editorId, gestureDetector);
 	}
 
 	@Override
@@ -42,8 +42,8 @@ public class ContextMenuManager implements EditorCloseListener, PluginListener {
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(gestureDetector);
-		Workbench.removeListener(this);
+		Workbench.deactivate(editorId, gestureDetector);
+		Workbench.removeListener(editorId, this);
 		EventService.unsubscribe(editorId, this);
 	}
 

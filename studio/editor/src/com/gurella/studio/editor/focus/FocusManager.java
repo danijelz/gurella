@@ -17,20 +17,20 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.studio.editor.SceneProviderExtension;
+import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
-import com.gurella.studio.editor.ui.bean.BeanEditor;
-import com.gurella.studio.editor.ui.bean.BeanEditorContext;
-import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
+import com.gurella.studio.editor.ui.bean.BeanEditor;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
-public class FocusManager implements SceneProviderExtension, EditorSelectionListener, EditorCloseListener,
+public class FocusManager implements SceneConsumer, EditorSelectionListener, EditorCloseListener,
 		EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final int editorId;
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
@@ -49,8 +49,8 @@ public class FocusManager implements SceneProviderExtension, EditorSelectionList
 	public FocusManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
-		Workbench.activate(gestureDetector);
+		Workbench.activate(editorId, this);
+		Workbench.activate(editorId, gestureDetector);
 	}
 
 	@Override
@@ -172,8 +172,8 @@ public class FocusManager implements SceneProviderExtension, EditorSelectionList
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		Optional.ofNullable(scene).ifPresent(s -> EventService.unsubscribe(s.getInstanceId(), this));
-		Workbench.activate(this);
-		Workbench.deactivate(gestureDetector);
+		Workbench.activate(editorId, this);
+		Workbench.deactivate(editorId, gestureDetector);
 	}
 
 	private class FocusTapListener extends GestureAdapter {

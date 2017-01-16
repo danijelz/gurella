@@ -14,7 +14,7 @@ public class Grid2d implements Grid, CameraProviderExtension, EditorCloseListene
 
 	public Grid2d(int editorId) {
 		this.editorId = editorId;
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 		EventService.subscribe(editorId, this);
 	}
 
@@ -67,6 +67,6 @@ public class Grid2d implements Grid, CameraProviderExtension, EditorCloseListene
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 	}
 }

@@ -13,7 +13,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
@@ -39,8 +38,9 @@ public class ScaleOperation extends TransformOperation {
 		if (initial.equals(action)) {
 			return;
 		}
+
 		transform.setScale(initial);
-		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
+		historyService.executeOperation(this, "Error while applying scale.");
 	}
 
 	@Override

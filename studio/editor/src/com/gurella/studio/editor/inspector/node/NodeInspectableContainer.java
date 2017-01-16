@@ -79,6 +79,8 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
@@ -97,7 +99,7 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode> implements EditorSceneActivityListener,
-		NodeNameChangeListener, NodeEnabledChangeListener, PreferencesExtension {
+		NodeNameChangeListener, NodeEnabledChangeListener, PreferencesExtension, HistoryContributor {
 	private Text nameText;
 	private Listener nameChangedlLstener;
 
@@ -110,6 +112,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 	private Map<SceneNodeComponent, Section> editors = new IdentityHashMap<>();
 
 	private PreferencesStore preferencesStore;
+	private HistoryService historyService;
 
 	public NodeInspectableContainer(InspectorView parent, SceneNode target) {
 		super(parent, target);
@@ -118,8 +121,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 
-		addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
+		addDisposeListener(e -> Workbench.deactivate(editorId, this));
+		Workbench.activate(editorId, this);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -161,13 +164,13 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 
 	private void nodeNameChanged() {
 		RenameNodeOperation operation = new RenameNodeOperation(editorContext.editorId, target, nameText.getText());
-		editorContext.executeOperation(operation, "Error while renaming node");
+		historyService.executeOperation(operation, "Error while renaming node");
 	}
 
 	private void nodeEnabledChanged() {
 		SetNodeEnabledOperation operation = new SetNodeEnabledOperation(editorContext.editorId, target,
 				target.isEnabled(), enabledCheck.getSelection());
-		editorContext.executeOperation(operation, "Error while enabling node");
+		historyService.executeOperation(operation, "Error while enabling node");
 	}
 
 	private void showMenu() {
@@ -253,7 +256,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 	private void addComponent(SceneNodeComponent component) {
 		int editorId = editorContext.editorId;
 		AddComponentOperation operation = new AddComponentOperation(editorId, target, component);
-		editorContext.executeOperation(operation, "Error while adding component");
+		historyService.executeOperation(operation, "Error while adding component");
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent> componentType) {
@@ -369,6 +372,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
 		this.preferencesStore = preferencesStore;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	private class ExpansionListener extends ExpansionAdapter {

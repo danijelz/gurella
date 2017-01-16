@@ -11,12 +11,12 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.SceneEditor;
-import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class PreferencesManager implements PreferencesStore, SceneProviderExtension, EditorCloseListener {
+public class PreferencesManager implements PreferencesStore, SceneConsumer, EditorCloseListener {
 	private final int editorId;
 	private PreferencesExtensionRegistry extensionRegistry;
 
@@ -35,8 +35,8 @@ public class PreferencesManager implements PreferencesStore, SceneProviderExtens
 		resourcePreferences = projectPreferences.node(resourcePath.toString().replace('/', '_').replace('.', '_'));
 
 		EventService.subscribe(editorId, this);
-		Workbench.addListener(extensionRegistry);
-		Workbench.activate(this);
+		Workbench.addListener(editorId, extensionRegistry);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -63,8 +63,8 @@ public class PreferencesManager implements PreferencesStore, SceneProviderExtens
 	public void onEditorClose() {
 		String msg = "Error while flushing preferences";
 		Try.run(() -> projectPreferences.flush(), e -> log(e, msg));
-		Workbench.deactivate(this);
-		Workbench.removeListener(extensionRegistry);
+		Workbench.deactivate(editorId, this);
+		Workbench.removeListener(editorId, extensionRegistry);
 		EventService.unsubscribe(editorId, this);
 	}
 }

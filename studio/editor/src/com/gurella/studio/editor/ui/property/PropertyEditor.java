@@ -31,12 +31,15 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.Property;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public abstract class PropertyEditor<P> implements PropertyChangeListener {
+public abstract class PropertyEditor<P> implements PropertyChangeListener, HistoryContributor {
 	private Composite body;
 	protected Composite content;
 	private Label menuButton;
@@ -46,6 +49,8 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 	private List<String> menuItemsOrder = new ArrayList<>();
 
 	protected PropertyEditorContext<?, P> context;
+
+	private HistoryService historyService;
 
 	public PropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		this.context = context;
@@ -62,8 +67,15 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		menuImage = GurellaStudioPlugin.getImage("icons/menu.png");
 
 		int editorId = context.sceneContext.editorId;
-		body.addDisposeListener(e -> EventService.unsubscribe(editorId, this));
+		body.addDisposeListener(e -> onDispose());
+		Workbench.activate(editorId, this);
 		EventService.subscribe(editorId, this);
+	}
+
+	private void onDispose() {
+		int editorId = context.sceneContext.editorId;
+		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(editorId, this);
 	}
 
 	public Composite getBody() {
@@ -102,7 +114,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		P oldValue = getValue();
 		if (Values.isNotEqual(oldValue, value, true)) {
 			SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, oldValue, value);
-			context.sceneContext.executeOperation(operation, "Error updating property.");
+			historyService.executeOperation(operation, "Error updating property.");
 		}
 	}
 
@@ -112,6 +124,11 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 			return;
 		}
 		updateValue(Values.cast(newValue));
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	public void setMenuVisible(boolean visible) {

@@ -22,8 +22,8 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.priority.Priority;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
-import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 @Priority(Integer.MIN_VALUE)
@@ -63,7 +63,7 @@ public class ToolManager extends InputAdapter
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -263,7 +263,7 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		EventService.unsubscribe(editorId, this);
 		scaleTool.dispose();
 		translateTool.dispose();

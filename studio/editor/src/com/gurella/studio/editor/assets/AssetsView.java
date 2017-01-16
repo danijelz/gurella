@@ -57,6 +57,8 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.control.DockableView;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
 import com.gurella.studio.editor.inspector.bitmapfont.BitmapFontInspectable;
@@ -77,7 +79,8 @@ import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.refractoring.CopyAssetsDescriptor;
 
-public class AssetsView extends DockableView implements IResourceChangeListener, PreferencesExtension {
+public class AssetsView extends DockableView
+		implements IResourceChangeListener, PreferencesExtension, HistoryContributor {
 	private Tree tree;
 	private TreeViewer viewer;
 	private AssetsMenu menu;
@@ -85,6 +88,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 	IFolder rootAssetsFolder;
 	PreferencesStore preferencesStore;
+	HistoryService historyService;
 
 	private Object lastSelection;
 
@@ -127,8 +131,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 
 		viewer.setInput(rootAssetsFolder);
 
-		control.addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
+		control.addDisposeListener(e -> Workbench.deactivate(editorId, this));
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -353,7 +357,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 		RefactoringStatus status = new RefactoringStatus();
 		Try.successful(descriptor).map(d -> d.createRefactoring(status))
 				.map(r -> new RefractoringOperation(context, label, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
-				.onSuccess(o -> context.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+				.onSuccess(o -> historyService.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	void delete() {
@@ -375,5 +379,10 @@ public class AssetsView extends DockableView implements IResourceChangeListener,
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
 		this.preferencesStore = preferencesStore;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 }

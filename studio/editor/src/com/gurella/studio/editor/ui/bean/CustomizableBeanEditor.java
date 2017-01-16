@@ -61,8 +61,9 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
-		addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
+		int editorId = context.sceneContext.editorId;
+		addDisposeListener(e -> Workbench.deactivate(editorId, this));
+		Workbench.activate(editorId, this);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 	}
 

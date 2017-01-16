@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -24,13 +23,11 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneProviderExtension, EditorCloseListener {
+public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public final int editorId;
-	private final HistoryManager historyManager;
 
 	public final IEditorSite editorSite;
 	public final IPathEditorInput editorInput;
@@ -44,7 +41,6 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
-		historyManager = editor.historyManager;
 
 		editorSite = editor.getEditorSite();
 		editorInput = (IPathEditorInput) editor.getEditorInput();
@@ -54,13 +50,12 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 		javaProject = JavaCore.create(project);
 		Reflection.setClassResolver(DynamicURLClassLoader.newInstance(javaProject)::loadClass);
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
 		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
@@ -77,10 +72,6 @@ public class SceneEditorContext implements SceneProviderExtension, EditorCloseLi
 
 	public IProgressMonitor getProgressMonitor() {
 		return editorSite.getActionBars().getStatusLineManager().getProgressMonitor();
-	}
-
-	public void executeOperation(IUndoableOperation operation, String errorMsg) {
-		historyManager.executeOperation(operation, errorMsg);
 	}
 
 	public <T> T load(String fileName) {

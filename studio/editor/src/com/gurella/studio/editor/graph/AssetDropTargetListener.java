@@ -16,21 +16,37 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.metatype.CopyContext;
+import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
-import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.SceneEditorRegistry;
+import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.assets.AssetSelection;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 
-class AssetDropTargetListener extends DropTargetAdapter {
-	private final SceneEditorContext context;
+class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer, HistoryContributor {
+	private final int editorId;
+	private Scene scene;
+	private HistoryService historyService;
 
-	AssetDropTargetListener(SceneEditorContext context) {
-		this.context = context;
+	AssetDropTargetListener(int editorId) {
+		this.editorId = editorId;
+		Workbench.activate(editorId, this);
+	}
+
+	@Override
+	public void setScene(Scene scene) {
+		this.scene = scene;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	@Override
@@ -141,10 +157,8 @@ class AssetDropTargetListener extends DropTargetAdapter {
 			if (isPrefab) {
 				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
 				SceneNode instance = CopyContext.copyObject(prefab);
-				int editorId = context.editorId;
-				AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), null, instance);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
-						"Error while instantiating prefab.");
+				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, instance);
+				historyService.executeOperation(operation, "Error while instantiating prefab.");
 			} else {
 				event.detail = DND.DROP_NONE;
 			}
@@ -159,10 +173,8 @@ class AssetDropTargetListener extends DropTargetAdapter {
 			if (isPrefab) {
 				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
 				SceneNode instance = CopyContext.copyObject(prefab);
-				int editorId = context.editorId;
 				AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
-						"Error while instantiating prefab.");
+				historyService.executeOperation(operation, "Error while instantiating prefab.");
 			} else {
 				Class<? extends SceneNodeComponent> type = getComponentType(file);
 				if (node.getComponent(type, true) != null) {
@@ -173,18 +185,14 @@ class AssetDropTargetListener extends DropTargetAdapter {
 				if (type == ModelComponent.class) {
 					ModelComponent modelComponent = node.newComponent(ModelComponent.class);
 					modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
-					int editorId = context.editorId;
 					AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
-					SceneEditorRegistry.getContext(editorId).executeOperation(operation,
-							"Error while adding component");
+					historyService.executeOperation(operation, "Error while adding component");
 				} else if (type == TextureComponent.class) {
 					TextureComponent textureComponent = node.newComponent(TextureComponent.class);
 					Texture texture = AssetService.load(getAssetPath(file), Texture.class);
 					textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
-					int editorId = context.editorId;
 					AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
-					SceneEditorRegistry.getContext(editorId).executeOperation(operation,
-							"Error while adding component");
+					historyService.executeOperation(operation, "Error while adding component");
 				}
 			}
 		}

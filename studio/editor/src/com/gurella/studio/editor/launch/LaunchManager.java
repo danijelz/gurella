@@ -16,7 +16,7 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 
 	public LaunchManager(SceneEditorContext context) {
 		this.context = context;
-		Workbench.activate(this);
+		Workbench.activate(context.editorId, this);
 	}
 
 	@Override
@@ -28,6 +28,6 @@ public class LaunchManager implements EditorContextMenuContributor, EditorCloseL
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(context.editorId, this);
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -49,9 +50,11 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.SceneProviderExtension;
 import com.gurella.studio.editor.control.DockableView;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
@@ -71,7 +74,7 @@ import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneGraphView extends DockableView
-		implements EditorSceneActivityListener, NodeNameChangeListener, SceneProviderExtension {
+		implements EditorSceneActivityListener, NodeNameChangeListener, SceneConsumer, HistoryContributor {
 	private Label searchImageLabel;
 	private Text filterText;
 	private Label menuLabel;
@@ -81,7 +84,9 @@ public class SceneGraphView extends DockableView
 	private GraphMenu menu;
 
 	Clipboard clipboard;
+
 	Scene scene;
+	HistoryService historyService;
 
 	private SceneElement lastSelection;
 
@@ -137,7 +142,7 @@ public class SceneGraphView extends DockableView
 
 		control.addDisposeListener(e -> onDispose(editorId));
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -168,8 +173,8 @@ public class SceneGraphView extends DockableView
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(
-				new ComponentDropTargetListener(graph, context), new NodeDropTargetListener(graph, context),
-				new AssetDropTargetListener(context));
+				new ComponentDropTargetListener(graph, editorId), new NodeDropTargetListener(graph, editorId),
+				new AssetDropTargetListener(editorId));
 		dropTarget.addDropListener(listener);
 	}
 
@@ -244,7 +249,7 @@ public class SceneGraphView extends DockableView
 
 	private void onDispose(int editorId) {
 		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 	}
 
 	@Override
@@ -303,6 +308,11 @@ public class SceneGraphView extends DockableView
 		viewer.setInput(scene);
 	}
 
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
+	}
+
 	void cut() {
 		getSelectedElement().ifPresent(e -> cut(e));
 	}
@@ -351,8 +361,8 @@ public class SceneGraphView extends DockableView
 
 			String errorMsg = "Error while repositioning component";
 			int newIndex = destination.components.size();
-			context.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
-					errorMsg);
+			IUndoableOperation operation = new ReparentComponentOperation(editorId, component, destination, newIndex);
+			historyService.executeOperation(operation, errorMsg);
 		} else {
 			if (source.getParent() == destination) {
 				return;
@@ -361,7 +371,7 @@ public class SceneGraphView extends DockableView
 			SceneNode node = (SceneNode) source;
 			String errorMsg = "Error while repositioning node";
 			int newIndex = destination.childNodes.size();
-			context.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
+			historyService.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
 		}
 
 		clipboard.clearContents();
@@ -376,11 +386,11 @@ public class SceneGraphView extends DockableView
 		if (copy instanceof SceneNode) {
 			SceneNode node = (SceneNode) copy;
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, destination, node);
-			context.executeOperation(operation, "Error while adding component");
+			historyService.executeOperation(operation, "Error while adding component");
 		} else {
 			SceneNodeComponent component = (SceneNodeComponent) copy;
 			AddComponentOperation operation = new AddComponentOperation(editorId, destination, component);
-			context.executeOperation(operation, "Error while adding component");
+			historyService.executeOperation(operation, "Error while adding component");
 		}
 	}
 
@@ -397,12 +407,12 @@ public class SceneGraphView extends DockableView
 			SceneNode node = (SceneNode) element;
 			SceneNode parentNode = node.getParentNode();
 			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
-			context.executeOperation(operation, "Error while removing node");
+			historyService.executeOperation(operation, "Error while removing node");
 		} else if (element instanceof SceneNodeComponent) {
 			SceneNodeComponent component = (SceneNodeComponent) element;
 			SceneNode node = component.getNode();
 			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
-			context.executeOperation(operation, "Error while removing component");
+			historyService.executeOperation(operation, "Error while removing component");
 		}
 	}
 
@@ -415,7 +425,7 @@ public class SceneGraphView extends DockableView
 		InputDialog dlg = new InputDialog(getContent().getShell(), "Add Node", "Enter node name", node.getName(), v);
 		if (dlg.open() == Window.OK) {
 			RenameNodeOperation operation = new RenameNodeOperation(editorId, node, dlg.getValue());
-			context.executeOperation(operation, "Error while renaming node");
+			historyService.executeOperation(operation, "Error while renaming node");
 		}
 	}
 }

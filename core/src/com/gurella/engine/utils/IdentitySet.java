@@ -71,7 +71,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 		hashShift = 31 - Integer.numberOfTrailingZeros(capacity);
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
-		keyTable = Values.cast(PoolService.obtainArray(Object.class, capacity + stashCapacity, 0));
+		keyTable = Values.cast(new Object[capacity + stashCapacity]);
 	}
 
 	/** Creates a new set identical to the specified set. */
@@ -470,7 +470,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 		h *= PRIME2;
 		return (h ^ h >>> hashShift) & mask;
 	}
-	
+
 	@Override
 	public int size() {
 		return size;
@@ -562,9 +562,11 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 	public void reset() {
 		stashSize = 0;
 		size = 0;
-		T[] oldKeyTable = keyTable;
-		init(32, 0.8f);
-		PoolService.free(oldKeyTable);
+		if (keyTable.length > 64) {
+			T[] oldKeyTable = keyTable;
+			init(32, 0.8f);
+			PoolService.free(oldKeyTable);
+		}
 	}
 
 	static public <T> IdentitySet<T> with(@SuppressWarnings("unchecked") T... array) {
@@ -604,8 +606,9 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 
 		@Override
 		public void remove() {
-			if (currentIndex < 0)
+			if (currentIndex < 0) {
 				throw new IllegalStateException("next must be called before remove.");
+			}
 			if (currentIndex >= set.capacity) {
 				set.removeStashIndex(currentIndex);
 				nextIndex = currentIndex - 1;

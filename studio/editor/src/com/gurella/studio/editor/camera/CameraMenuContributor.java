@@ -34,7 +34,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 		this.editorId = editorId;
 		this.manager = manager;
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		EventService.unsubscribe(editorId, this);
 	}
 }

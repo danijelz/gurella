@@ -15,21 +15,21 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 //TODO merge with SceneEditorContext
 class SceneProvider implements PluginListener, EditorPreCloseListener, EditorCloseListener {
 	private final int editorId;
-	private final Set<SceneProviderExtension> extensions = new HashSet<>();
+	private final Set<SceneConsumer> consumers = new HashSet<>();
 
 	private Scene scene;
 
 	SceneProvider(int editorId) {
 		this.editorId = editorId;
-		Workbench.addListener(this);
+		Workbench.addListener(editorId, this);
 		EventService.subscribe(editorId, this);
 	}
 
 	@Override
 	public void activated(Plugin plugin) {
-		if (plugin instanceof SceneProviderExtension) {
-			SceneProviderExtension exstension = (SceneProviderExtension) plugin;
-			if (extensions.add(exstension) && scene != null) {
+		if (plugin instanceof SceneConsumer) {
+			SceneConsumer exstension = (SceneConsumer) plugin;
+			if (consumers.add(exstension) && scene != null) {
 				exstension.setScene(scene);
 			}
 		}
@@ -37,16 +37,16 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 
 	@Override
 	public void deactivated(Plugin plugin) {
-		if (plugin instanceof SceneProviderExtension) {
-			SceneProviderExtension exstension = (SceneProviderExtension) plugin;
-			extensions.remove(exstension);
+		if (plugin instanceof SceneConsumer) {
+			SceneConsumer exstension = (SceneConsumer) plugin;
+			consumers.remove(exstension);
 		}
 	}
 
 	void setScene(Scene scene) {
 		this.scene = scene;
 		scene.start();
-		extensions.forEach(e -> e.setScene(scene));
+		consumers.forEach(e -> e.setScene(scene));
 	}
 
 	@Override
@@ -56,7 +56,7 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 
 	@Override
 	public void onEditorClose() {
-		Workbench.removeListener(this);
+		Workbench.removeListener(editorId, this);
 		EventService.unsubscribe(editorId, this);
 	}
 }

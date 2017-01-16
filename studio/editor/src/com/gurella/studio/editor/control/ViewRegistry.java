@@ -47,7 +47,7 @@ public class ViewRegistry implements ViewActivityListener, EditorPreCloseListene
 		this.dock = dock;
 
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	public boolean isOpen(Class<? extends DockableView> type) {
@@ -157,7 +157,7 @@ public class ViewRegistry implements ViewActivityListener, EditorPreCloseListene
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		EventService.unsubscribe(editorId, this);
 	}
 }

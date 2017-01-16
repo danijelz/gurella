@@ -22,7 +22,7 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 		this.editorId = editorId;
 		this.manager = manager;
 		EventService.subscribe(editorId, this);
-		Workbench.activate(this);
+		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 
 	@Override
 	public void onEditorClose() {
-		Workbench.deactivate(this);
+		Workbench.deactivate(editorId, this);
 		EventService.unsubscribe(editorId, this);
 	}
 }

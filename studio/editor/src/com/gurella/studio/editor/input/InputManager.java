@@ -10,8 +10,8 @@ import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
-import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 
 public class InputManager implements EditorInputUpdateListener, PluginListener, EditorCloseListener {
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
@@ -25,7 +25,7 @@ public class InputManager implements EditorInputUpdateListener, PluginListener, 
 		this.editorId = editorId;
 		InputService.addInputProcessor(inputQueue);
 		EventService.subscribe(editorId, this);
-		Workbench.addListener(this);
+		Workbench.addListener(editorId, this);
 	}
 
 	public void addInputProcessor(InputProcessor processor) {
@@ -42,7 +42,7 @@ public class InputManager implements EditorInputUpdateListener, PluginListener, 
 
 	@Override
 	public void onEditorClose() {
-		Workbench.removeListener(this);
+		Workbench.removeListener(editorId, this);
 		EventService.unsubscribe(editorId, this);
 		InputService.removeInputProcessor(inputQueue);
 	}

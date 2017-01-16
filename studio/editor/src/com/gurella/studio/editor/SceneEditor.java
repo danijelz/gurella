@@ -36,6 +36,7 @@ import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.engine.utils.Sequence;
@@ -56,6 +57,7 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneEditor extends EditorPart implements SceneDirtyListener, EditorCloseListener {
 	public final int id = Sequence.next();
+	private final Workbench workbench = Workbench.newInstance(id);
 
 	private Composite content;
 	private Dock dock;
@@ -64,7 +66,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	private SceneProvider sceneProvider;
 	ViewRegistry viewRegistry;
 	private DndAssetPlacementManager dndAssetPlacementManager;
-	HistoryManager historyManager;
+	private HistoryManager historyManager;
 	private LaunchManager launchManager;
 	private PreferencesManager preferencesManager;
 
@@ -187,6 +189,12 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		firePropertyChange(PROP_DIRTY);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		Workbench.close(workbench);
+	}
+
 	public SceneEditorContext getSceneContext() {
 		return sceneContext;
 	}
@@ -236,7 +244,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
 	}
 
-	//TODO move to SceneProvider
+	// TODO move to SceneProvider
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
 		private Label progressLabel;
 
