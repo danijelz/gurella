@@ -44,11 +44,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
@@ -319,6 +321,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	void refreshMaterial() {
 		synchronized (SwtLwjglGraphics.glMutex) {
+			dirty = true;
+			EventService.post(editorContext.editorId, SceneDirtyListener.class, l -> l.sceneDirty());
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
