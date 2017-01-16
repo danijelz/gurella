@@ -10,23 +10,8 @@ public class SampleMaterialFile extends GeneratedProjectFile {
 	@Override
 	protected String generate() {
 		//@formatter:off
-		return "{\r\n" 
-				+ "		0: {\r\n" 
-				+ "			uuid: " + Uuid.randomUuidString() + "\r\n"
-				+ "			diffuseColor: -352264961\r\n" 
-				+ "			diffuseTexture: {}\r\n"
-				+ "			specularColor: -352264961\r\n" 
-				+ "			specularTexture: {}\r\n"
-				+ "			ambientTexture: {}\r\n" 
-				+ "			emissiveTexture: {}\r\n"
-				+ "			reflectionTexture: {}\r\n" 
-				+ "			bumpTexture: {}\r\n"
-				+ "			normalTexture: {}\r\n" 
-				+ "			blend: {}\r\n" 
-				+ "			depthTest: {}\r\n"
-				+ "			shininess: 20\r\n" 
-				+ "		}\r\n" 
-				+ "		}";
+		return "{\n		0: {\n			uuid: " + Uuid.randomUuidString() 
+				+ "\n			diffuseColor: -352264961\r\n		}\n		}";
 		//@formatter:on
 	}
 }
