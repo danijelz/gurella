@@ -15,7 +15,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	public Consumer<P> valueSetter;
 
 	public PropertyEditorContext(BeanEditorContext<M> parent, Property<P> property) {
-		super(parent.sceneContext, parent, parent.metaType, parent.bean);
+		super(parent.channel, parent.javaProject, parent, parent.metaType, parent.bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
@@ -29,7 +29,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	public PropertyEditorContext(BeanEditorContext<?> parent, MetaType<M> metaType, M bean, Property<P> property) {
-		super(parent.sceneContext, parent, metaType, bean);
+		super(parent.channel, parent.javaProject, parent, metaType, bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;

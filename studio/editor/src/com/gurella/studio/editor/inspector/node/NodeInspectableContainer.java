@@ -234,7 +234,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.addExpansionListener(new ExpansionListener(component));
 
-		BeanEditor<SceneNodeComponent> editor = createEditor(section, editorContext, component);
+		int editorId = editorContext.editorId;
+		IJavaProject javaProject = editorContext.javaProject;
+		BeanEditor<SceneNodeComponent> editor = createEditor(section, editorId, javaProject, component);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> notifySceneChanged());
 

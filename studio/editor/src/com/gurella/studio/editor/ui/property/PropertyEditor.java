@@ -66,16 +66,14 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 
 		menuImage = GurellaStudioPlugin.getImage("icons/menu.png");
 
-		int editorId = context.sceneContext.editorId;
 		body.addDisposeListener(e -> onDispose());
-		Workbench.activate(editorId, this);
-		EventService.subscribe(editorId, this);
+		Workbench.activate(context.channel, this);
+		EventService.subscribe(context.channel, this);
 	}
 
 	private void onDispose() {
-		int editorId = context.sceneContext.editorId;
-		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(editorId, this);
+		EventService.unsubscribe(context.channel, this);
+		Workbench.deactivate(context.channel, this);
 	}
 
 	public Composite getBody() {
@@ -218,20 +216,18 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			context.setValue(oldValue);
-			int editorId = context.sceneContext.editorId;
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, oldValue));
+			post(context.channel, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, oldValue));
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			context.setValue(newValue);
-			int editorId = context.sceneContext.editorId;
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, newValue));
+			post(context.channel, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, newValue));
 			return Status.OK_STATUS;
 		}
 	}

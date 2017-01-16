@@ -40,7 +40,6 @@ import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
@@ -61,9 +60,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
-		int editorId = context.sceneContext.editorId;
-		addDisposeListener(e -> Workbench.deactivate(editorId, this));
-		Workbench.activate(editorId, this);
+		addDisposeListener(e -> Workbench.deactivate(context.channel, this));
+		Workbench.activate(context.channel, this);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 	}
 
@@ -349,8 +347,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 		V value = propertyContext.getValue();
 		Class<V> selected = Optional.ofNullable(value).map(v -> Values.<Class<V>> cast(v.getClass())).orElse(null);
 
-		SceneEditorContext sceneContext = context.sceneContext;
-		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
+		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, context.javaProject, property.getType(),
+				selected);
 		GridDataFactory.fillDefaults().align(FILL, BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
 		selector.addSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 

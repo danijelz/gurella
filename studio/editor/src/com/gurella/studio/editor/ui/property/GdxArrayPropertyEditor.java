@@ -122,7 +122,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		}
 
 		Property<?> property = context.property;
-		IJavaProject javaProject = context.sceneContext.javaProject;
+		IJavaProject javaProject = context.javaProject;
 		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
@@ -215,8 +215,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		IJavaProject javaProject = context.javaProject;
 		Class<Array<T>> propertyType = context.getPropertyType();
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<? extends Array<T>> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
 		if (selected != null) {
 			Array<T> value = selected.newInstance();

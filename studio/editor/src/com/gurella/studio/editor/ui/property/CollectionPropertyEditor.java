@@ -127,7 +127,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		}
 
 		Property<?> property = context.property;
-		IJavaProject javaProject = context.sceneContext.javaProject;
+		IJavaProject javaProject = context.javaProject;
 		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
@@ -204,8 +204,8 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		IJavaProject javaProject = context.javaProject;
 		Class<Collection<T>> propertyType = context.getPropertyType();
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<? extends Collection<T>> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
 		if (selected != null) {
 			Collection<T> value = selected.newInstance();

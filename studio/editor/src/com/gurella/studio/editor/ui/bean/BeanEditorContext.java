@@ -2,29 +2,33 @@ package com.gurella.studio.editor.ui.bean;
 
 import java.util.Optional;
 
+import org.eclipse.jdt.core.IJavaProject;
+
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
-import com.gurella.studio.editor.SceneEditorContext;
 
 public class BeanEditorContext<T> {
-	public final SceneEditorContext sceneContext;
+	public final int channel;
+	public final IJavaProject javaProject;
 	public final BeanEditorContext<?> parent;
 	public final MetaType<T> metaType;
 	public final T bean;
 	public final Signal1<PropertyValueChangedEvent> propertiesSignal = new Signal1<>();
 
-	public BeanEditorContext(SceneEditorContext sceneContext, T bean) {
-		this(sceneContext, null, MetaTypes.getMetaType(bean), bean);
+	public BeanEditorContext(int channel, IJavaProject javaProject, T bean) {
+		this(channel, javaProject, null, MetaTypes.getMetaType(bean), bean);
 	}
 
 	public BeanEditorContext(BeanEditorContext<?> parent, T bean) {
-		this(parent.sceneContext, parent, MetaTypes.getMetaType(bean), bean);
+		this(parent.channel, parent.javaProject, parent, MetaTypes.getMetaType(bean), bean);
 	}
 
-	public BeanEditorContext(SceneEditorContext sceneContext, BeanEditorContext<?> parent, MetaType<T> metaType, T bean) {
-		this.sceneContext = sceneContext;
+	public BeanEditorContext(int channel, IJavaProject javaProject, BeanEditorContext<?> parent, MetaType<T> metaType,
+			T bean) {
+		this.channel = channel;
+		this.javaProject = javaProject;
 		this.parent = parent;
 		this.metaType = metaType;
 		this.bean = bean;
@@ -34,7 +38,7 @@ public class BeanEditorContext<T> {
 	public void propertyValueChanged(Property<?> property, Object oldValue, Object newValue) {
 		propertiesSignal.dispatch(new PropertyValueChangedEvent(metaType, property, bean, oldValue, newValue));
 	}
-	
+
 	public String getQualifiedName() {
 		return metaType.getType().getName();
 	}

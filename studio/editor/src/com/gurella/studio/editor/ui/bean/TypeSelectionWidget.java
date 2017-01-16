@@ -18,12 +18,11 @@ import org.eclipse.swt.widgets.Label;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
 class TypeSelectionWidget<T> extends Composite {
-	private final SceneEditorContext context;
+	private final IJavaProject javaProject;
 	private final Class<T> baseType;
 	private final List<Class<? extends T>> knownTypes = new ArrayList<>();
 
@@ -35,15 +34,15 @@ class TypeSelectionWidget<T> extends Composite {
 
 	private Class<? extends T> selectedType;
 
-	TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType, Class<? extends T> selected) {
-		this(parent, context, baseType, selected, Collections.emptyList());
+	TypeSelectionWidget(Composite parent, IJavaProject javaProject, Class<T> baseType, Class<? extends T> selected) {
+		this(parent, javaProject, baseType, selected, Collections.emptyList());
 	}
 
-	TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType, Class<? extends T> selected,
+	TypeSelectionWidget(Composite parent, IJavaProject javaProject, Class<T> baseType, Class<? extends T> selected,
 			List<Class<? extends T>> knownTypes) {
 		super(parent, SWT.NONE);
 
-		this.context = context;
+		this.javaProject = javaProject;
 		this.baseType = baseType;
 		this.knownTypes.addAll(knownTypes);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).spacing(0, 2).applyTo(this);
@@ -70,7 +69,6 @@ class TypeSelectionWidget<T> extends Composite {
 	}
 
 	private void selectType() {
-		IJavaProject javaProject = context.javaProject;
 		Optional.ofNullable(TypeSelectionUtils.<T> selectType(javaProject, baseType)).ifPresent(t -> updateType(t));
 	}
 

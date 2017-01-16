@@ -3,6 +3,7 @@ package com.gurella.studio.editor.ui.bean;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -10,7 +11,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.ui.property.PropertyEditor;
 
 public abstract class BeanEditor<T> extends Composite {
@@ -19,8 +19,8 @@ public abstract class BeanEditor<T> extends Composite {
 	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
 	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
-	public BeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T bean) {
-		this(parent, new BeanEditorContext<>(sceneEditorContext, bean));
+	public BeanEditor(Composite parent, int channel, IJavaProject javaProject, T bean) {
+		this(parent, new BeanEditorContext<>(channel, javaProject, bean));
 	}
 
 	public BeanEditor(Composite parent, BeanEditorContext<T> context) {

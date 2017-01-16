@@ -104,8 +104,8 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		IJavaProject javaProject = context.javaProject;
 		Class<P> propertyType = context.getPropertyType();
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<? extends P> selected = TypeSelectionUtils.selectType(javaProject, propertyType);
 		if (selected != null) {
 			P value = selected.newInstance();

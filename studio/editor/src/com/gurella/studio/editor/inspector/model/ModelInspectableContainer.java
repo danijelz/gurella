@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.inspector.model;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -65,7 +66,9 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorContext, findProperties(target));
+		int editorId = editorContext.editorId;
+		IJavaProject javaProject = editorContext.javaProject;
+		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, javaProject, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesContainer.setLayoutData(layoutData);
 

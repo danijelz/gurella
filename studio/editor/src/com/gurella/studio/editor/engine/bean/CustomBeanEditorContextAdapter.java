@@ -4,6 +4,7 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.ui.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.ui.property.PropertyEditorFactory.createEditor;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -18,7 +19,6 @@ import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.engine.ui.SwtEditorComposite;
 import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
@@ -37,8 +37,8 @@ public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 		this.factory = factory;
 	}
 
-	public CustomBeanEditorContextAdapter(SceneEditorContext sceneEditorContext, T bean, BeanEditorFactory<T> factory) {
-		super(sceneEditorContext, bean);
+	public CustomBeanEditorContextAdapter(int channel, IJavaProject javaProject, T bean, BeanEditorFactory<T> factory) {
+		super(channel, javaProject, bean);
 		this.factory = factory;
 	}
 
@@ -82,8 +82,7 @@ public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 	}
 
 	@Override
-	public EditorComposite createBeanEditor(EditorComposite parent, Object bean,
-			EditorLayoutData layoutData) {
+	public EditorComposite createBeanEditor(EditorComposite parent, Object bean, EditorLayoutData layoutData) {
 		EditorComposite beanEditor = createBeanEditor(parent, bean);
 		beanEditor.setLayoutData(layoutData);
 		return beanEditor;

@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -40,7 +41,9 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext, findProperties(target));
+		int editorId = editorContext.editorId;
+		IJavaProject javaProject = editorContext.javaProject;
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

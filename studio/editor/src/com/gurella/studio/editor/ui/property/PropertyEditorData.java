@@ -48,16 +48,14 @@ public class PropertyEditorData {
 	}
 
 	public static int getIndex(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return getIndex(javaProject, beanType, property);
+		return getIndex(context.javaProject, beanType, property);
 	}
 
 	public static int getIndex(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
-		return getIndex(javaProject, beanType, property);
+		return getIndex(context.javaProject, beanType, property);
 	}
 
 	public static int getIndex(IJavaProject javaProject, Class<?> beanType, Property<?> property) {
@@ -66,16 +64,14 @@ public class PropertyEditorData {
 	}
 
 	public static String getGroup(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return getGroup(javaProject, beanType, property);
+		return getGroup(context.javaProject, beanType, property);
 	}
 
 	public static String getGroup(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
-		return getGroup(javaProject, beanType, property);
+		return getGroup(context.javaProject, beanType, property);
 	}
 
 	public static String getGroup(IJavaProject javaProject, Class<?> beanType, Property<?> property) {
@@ -84,16 +80,14 @@ public class PropertyEditorData {
 	}
 
 	public static String getDescription(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return getDescription(javaProject, beanType, property);
+		return getDescription(context.javaProject, beanType, property);
 	}
 
 	public static String getDescription(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
-		return getDescription(javaProject, beanType, property);
+		return getDescription(context.javaProject, beanType, property);
 	}
 
 	public static String getDescription(IJavaProject javaProject, Class<?> beanType, Property<?> property) {
@@ -102,16 +96,14 @@ public class PropertyEditorData {
 	}
 
 	public static String getDescriptiveName(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return getDescriptiveName(javaProject, beanType, property);
+		return getDescriptiveName(context.javaProject, beanType, property);
 	}
 
 	public static String getDescriptiveName(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
-		return getDescriptiveName(javaProject, beanType, property);
+		return getDescriptiveName(context.javaProject, beanType, property);
 	}
 
 	public static String getDescriptiveName(IJavaProject javaProject, Class<?> beanType, Property<?> property) {
@@ -121,16 +113,14 @@ public class PropertyEditorData {
 	}
 
 	public static List<String> getGenericTypes(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return getGenericTypes(javaProject, beanType, property);
+		return getGenericTypes(context.javaProject, beanType, property);
 	}
 
 	public static List<String> getGenericTypes(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
-		return getGenericTypes(javaProject, beanType, property);
+		return getGenericTypes(context.javaProject, beanType, property);
 	}
 
 	public static List<String> getGenericTypes(IJavaProject javaProject, Class<?> beanType, Property<?> property) {
@@ -139,10 +129,9 @@ public class PropertyEditorData {
 	}
 
 	public static PropertyEditorData get(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
-		return PropertyEditorData.get(javaProject, beanType, property);
+		return PropertyEditorData.get(context.javaProject, beanType, property);
 	}
 
 	public static PropertyEditorData get(IJavaProject javaProject, Class<?> beanType, Property<?> property) {

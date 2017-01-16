@@ -17,7 +17,6 @@ import com.gurella.engine.editor.bean.BeanEditorDescriptor;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.engine.bean.CustomBeanEditor;
 import com.gurella.studio.editor.engine.bean.CustomBeanEditorContextAdapter;
 import com.gurella.studio.editor.ui.bean.custom.TestCustomizableBeanEditor;
@@ -31,30 +30,31 @@ public class BeanEditorFactory {
 		defaultFactories.put(TestEditorComponent.class, TestCustomizableBeanEditor.class);
 	}
 
-	public static <T> BeanEditor<T> createEditor(Composite parent, SceneEditorContext context, T instance) {
+	public static <T> BeanEditor<T> createEditor(Composite parent, int channel, IJavaProject javaProject, T instance) {
 		Class<CustomBeanEditor<T>> beanEditorType = Values.cast(defaultFactories.get(instance.getClass()));
 		if (beanEditorType != null) {
-			BeanEditorContext<T> editorContext = new BeanEditorContext<>(context, instance);
+			BeanEditorContext<T> editorContext = new BeanEditorContext<>(channel, javaProject, instance);
 			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
 		}
 
-		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance, context);
+		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance, javaProject);
 		if (factory == null) {
-			return new DefaultBeanEditor<T>(parent, context, instance);
+			return new DefaultBeanEditor<T>(parent, channel, javaProject, instance);
 		} else {
-			return new CustomBeanEditor<>(parent, new CustomBeanEditorContextAdapter<>(context, instance, factory));
+			return new CustomBeanEditor<>(parent,
+					new CustomBeanEditorContextAdapter<>(channel, javaProject, instance, factory));
 		}
 	}
 
 	public static <T> BeanEditor<T> createEditor(Composite parent, BeanEditorContext<?> parentContext, T instance) {
-		SceneEditorContext sceneContext = parentContext.sceneContext;
 		Class<CustomBeanEditor<T>> beanEditorType = Values.cast(defaultFactories.get(instance.getClass()));
 		if (beanEditorType != null) {
 			BeanEditorContext<T> editorContext = new BeanEditorContext<>(parentContext, instance);
 			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
 		}
 
-		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance, sceneContext);
+		com.gurella.engine.editor.bean.BeanEditorFactory<T> factory = getCustomFactory(instance,
+				parentContext.javaProject);
 		if (factory == null) {
 			return new DefaultBeanEditor<T>(parent, new BeanEditorContext<>(parentContext, instance));
 		} else {
@@ -64,9 +64,9 @@ public class BeanEditorFactory {
 	}
 
 	private static <T> com.gurella.engine.editor.bean.BeanEditorFactory<T> getCustomFactory(T bean,
-			SceneEditorContext sceneContext) {
+			IJavaProject javaProject) {
 		try {
-			String customFactoryClass = getCustomFactoryClass(bean, sceneContext.javaProject);
+			String customFactoryClass = getCustomFactoryClass(bean, javaProject);
 			if (customFactoryClass == null) {
 				return null;
 			}

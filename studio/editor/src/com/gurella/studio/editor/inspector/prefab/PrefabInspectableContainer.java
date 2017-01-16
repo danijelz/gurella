@@ -187,11 +187,9 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		section.setText(MetaTypes.getMetaType(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		BeanEditor<SceneNodeComponent> componentEditor = createEditor(section, editorContext, component);
-		/*
-		 * componentEditor.getContext().propertyChangedSignal .addListener((event) ->
-		 * postMessage(SceneChangedMessage.instance));
-		 */
+		int editorId = editorContext.editorId;
+		IJavaProject javaProject = editorContext.javaProject;
+		BeanEditor<SceneNodeComponent> componentEditor = createEditor(section, editorId, javaProject, component);
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 
@@ -201,7 +199,6 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private void addComponent(SceneNodeComponent component) {
 		prefab.addComponent(component);
 		componentEditors.add(createSection(component));
-		// TODO postMessage(new ComponentAddedMessage(component));
 		layout(true, true);
 		reflow(true);
 	}
