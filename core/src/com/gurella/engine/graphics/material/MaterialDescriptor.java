@@ -347,6 +347,61 @@ public class MaterialDescriptor extends ManagedObject {
 			scaleV = 1;
 			uvIndex = 0;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Float.floatToIntBits(offsetU);
+			result = prime * result + Float.floatToIntBits(offsetV);
+			result = prime * result + Float.floatToIntBits(scaleU);
+			result = prime * result + Float.floatToIntBits(scaleV);
+			result = prime * result + ((texture == null) ? 0 : texture.hashCode());
+			result = prime * result + uvIndex;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (obj == null) {
+				return false;
+			}
+
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			TextureAttributeProperties other = (TextureAttributeProperties) obj;
+			if (Float.floatToIntBits(offsetU) != Float.floatToIntBits(other.offsetU)) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(offsetV) != Float.floatToIntBits(other.offsetV)) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(scaleU) != Float.floatToIntBits(other.scaleU)) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(scaleV) != Float.floatToIntBits(other.scaleV)) {
+				return false;
+			}
+
+			if (texture != other.texture) {
+				return false;
+			}
+
+			if (uvIndex != other.uvIndex) {
+				return false;
+			}
+
+			return true;
+		}
 	}
 
 	public static class BlendingAttributeProperties {
@@ -360,6 +415,51 @@ public class MaterialDescriptor extends ManagedObject {
 			sourceFunction = BlendFunction.srcAlpha;
 			destFunction = BlendFunction.oneMinusSrcAlpha;
 			opacity = 1.f;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (blended ? 1231 : 1237);
+			result = prime * result + ((destFunction == null) ? 0 : destFunction.hashCode());
+			result = prime * result + Float.floatToIntBits(opacity);
+			result = prime * result + ((sourceFunction == null) ? 0 : sourceFunction.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (obj == null) {
+				return false;
+			}
+
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			BlendingAttributeProperties other = (BlendingAttributeProperties) obj;
+			if (blended != other.blended) {
+				return false;
+			}
+
+			if (destFunction != other.destFunction) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(opacity) != Float.floatToIntBits(other.opacity)) {
+				return false;
+			}
+
+			if (sourceFunction != other.sourceFunction) {
+				return false;
+			}
+
+			return true;
 		}
 	}
 
@@ -376,6 +476,56 @@ public class MaterialDescriptor extends ManagedObject {
 			depthRangeFar = 1;
 			depthMask = true;
 			enabled = false;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((depthFunc == null) ? 0 : depthFunc.hashCode());
+			result = prime * result + (depthMask ? 1231 : 1237);
+			result = prime * result + Float.floatToIntBits(depthRangeFar);
+			result = prime * result + Float.floatToIntBits(depthRangeNear);
+			result = prime * result + (enabled ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (obj == null) {
+				return false;
+			}
+
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			DepthTestAttributeProperties other = (DepthTestAttributeProperties) obj;
+			if (depthFunc != other.depthFunc) {
+				return false;
+			}
+
+			if (depthMask != other.depthMask) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(depthRangeFar) != Float.floatToIntBits(other.depthRangeFar)) {
+				return false;
+			}
+
+			if (Float.floatToIntBits(depthRangeNear) != Float.floatToIntBits(other.depthRangeNear)) {
+				return false;
+			}
+
+			if (enabled != other.enabled) {
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

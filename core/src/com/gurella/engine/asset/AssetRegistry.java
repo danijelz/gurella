@@ -91,9 +91,9 @@ public class AssetRegistry extends AssetManager {
 
 	private final Object mutex = new Object();
 
-	private AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
-	private AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
-	private AssetReloadedEvent assetReloadedEvent = new AssetReloadedEvent();
+	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
+	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
+	private final AssetReloadedEvent assetReloadedEvent = new AssetReloadedEvent();
 
 	public AssetRegistry() {
 		this(new InternalFileHandleResolver(), true);

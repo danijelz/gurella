@@ -1,9 +1,10 @@
 package com.gurella.studio.editor.swtgl;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.backends.lwjgl.LwjglFileHandle;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -23,9 +24,9 @@ public class SwtLwjglFileHandle extends FileHandle {
 	@Override
 	public FileHandle child(String name) {
 		if (file.getPath().length() == 0) {
-			return new LwjglFileHandle(new File(name), type);
+			return new SwtLwjglFileHandle(internalPath, new File(name), type);
 		}
-		return new LwjglFileHandle(new File(file, name), type);
+		return new SwtLwjglFileHandle(internalPath, new File(file, name), type);
 	}
 
 	@Override
@@ -33,7 +34,7 @@ public class SwtLwjglFileHandle extends FileHandle {
 		if (file.getPath().length() == 0) {
 			throw new GdxRuntimeException("Cannot get the sibling of the root.");
 		}
-		return new LwjglFileHandle(new File(file.getParent(), name), type);
+		return new SwtLwjglFileHandle(internalPath, new File(file.getParent(), name), type);
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class SwtLwjglFileHandle extends FileHandle {
 				parent = new File("");
 			}
 		}
-		return new LwjglFileHandle(parent, type);
+		return new SwtLwjglFileHandle(internalPath, parent, type);
 	}
 
 	@Override
@@ -59,5 +60,24 @@ public class SwtLwjglFileHandle extends FileHandle {
 			return file.isAbsolute() ? file : new File(internalPath, file.getPath());
 		}
 		return file;
+	}
+
+	@Override
+	public void mkdirs() {
+		file().mkdirs();
+	}
+
+	@Override
+	public OutputStream write(boolean append) {
+		parent().mkdirs();
+		try {
+			return new FileOutputStream(file(), append);
+		} catch (Exception ex) {
+			if (file().isDirectory()) {
+				throw new GdxRuntimeException("Cannot open a stream to a directory: " + file + " (" + type + ")", ex);
+			} else {
+				throw new GdxRuntimeException("Error writing file: " + file + " (" + type + ")", ex);
+			}
+		}
 	}
 }

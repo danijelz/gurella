@@ -31,6 +31,7 @@ public class AssetPersisters {
 		persisters.put(type, persister);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> AssetPersister<T> get(T asset) {
 		return (AssetPersister<T>) persisters.get(asset.getClass());
 	}
