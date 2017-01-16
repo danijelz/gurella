@@ -66,15 +66,15 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		}
 
 		IResource resource = ((AssetSelection) selection).getAssetResource();
-		if (resource instanceof IFile) {
-			IFile file = (IFile) resource;
-			if (AssetType.prefab.isValidExtension(file.getFileExtension())) {
-				return file;
-			} else {
-				return getComponentType(file) == null ? null : file;
-			}
-		} else {
+		if (!(resource instanceof IFile)) {
 			return null;
+		}
+		
+		IFile file = (IFile) resource;
+		if (AssetType.prefab.isValidExtension(file.getFileExtension())) {
+			return file;
+		} else {
+			return getComponentType(file) == null ? null : file;
 		}
 	}
 
