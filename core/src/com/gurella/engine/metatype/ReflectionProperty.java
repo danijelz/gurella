@@ -24,7 +24,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private boolean editable;
 	private Class<T> type;
 	private Range<?> range;
-	private boolean prefab;
+	private boolean asset;
 	private boolean nullable;
 	private boolean finalProperty;
 	private boolean copyable;
@@ -50,7 +50,7 @@ public class ReflectionProperty<T> implements Property<T> {
 				throw new GdxRuntimeException(name + " is not a property of " + owner.getSimpleName());
 			}
 
-			//TODO not finished
+			// TODO not finished
 			Method boolSetter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, boolean.class);
 			Method setter = getter == null ? null
 					: Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, getter.getReturnType());
@@ -122,7 +122,13 @@ public class ReflectionProperty<T> implements Property<T> {
 			flatSerialization = isDefaultFlatSerialization() ? true : propertyDescriptor.flatSerialization();
 		}
 
-		prefab = Assets.isAssetType(type);
+		AssetProperty assetProperty = findAnnotation(AssetProperty.class);
+		if (assetProperty == null) {
+			asset = Assets.isAssetType(type);
+		} else {
+			asset = assetProperty.value() && Assets.isAssetType(type);
+		}
+
 		range = Range.valueOf(findAnnotation(ValueRange.class), type);
 		PropertyEditorDescriptor editorDescriptor = findAnnotation(PropertyEditorDescriptor.class);
 		if (editorDescriptor == null) {
@@ -200,7 +206,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public boolean isAsset() {
-		return prefab;
+		return asset;
 	}
 
 	@Override
@@ -284,7 +290,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else if (template != null) {
 			T value = getValue(object);
 			T templateValue = getValue(template);
-
 			if (Values.isEqual(value, templateValue)) {
 				return;
 			} else {

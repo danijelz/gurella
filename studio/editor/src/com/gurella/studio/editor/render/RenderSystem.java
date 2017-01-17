@@ -34,7 +34,7 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.editor.SceneConsumer;
-import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
@@ -42,7 +42,7 @@ import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.tool.ToolManager;
 
 public class RenderSystem implements ComponentActivityListener, SceneConsumer, EditorCloseListener, EditorFocusListener,
-		EditorRenderUpdateListener, CameraProviderExtension {
+		EditorRenderUpdateListener, CameraConsumer {
 	private int editorId;
 
 	private Scene scene;

@@ -21,14 +21,16 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.priority.Priority;
-import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.camera.CameraConsumer;
+import com.gurella.studio.editor.history.HistoryContributor;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 @Priority(Integer.MIN_VALUE)
 public class ToolManager extends InputAdapter
-		implements EditorCloseListener, EditorFocusListener, CameraProviderExtension {
+		implements EditorCloseListener, EditorFocusListener, CameraConsumer, HistoryContributor {
 	final int editorId;
 
 	private final TranslateTool translateTool;
@@ -44,6 +46,7 @@ public class ToolManager extends InputAdapter
 	private final ModelIntesector modelIntesector = new ModelIntesector();
 
 	private Camera camera;
+	private HistoryService historyService;
 	private TransformComponent transform;
 
 	private TransformTool selectedTool;
@@ -82,6 +85,14 @@ public class ToolManager extends InputAdapter
 		translateTool.camera = camera;
 		rotateTool.camera = camera;
 		scaleTool.camera = camera;
+	}
+
+	@Override
+	public void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
+		translateTool.historyService = historyService;
+		rotateTool.historyService = historyService;
+		scaleTool.historyService = historyService;
 	}
 
 	private boolean isActive() {
@@ -194,7 +205,7 @@ public class ToolManager extends InputAdapter
 			deactivate();
 			return false;
 		} else {
-			selectedTool.commit();
+			selectedTool.commit(historyService);
 			return true;
 		}
 	}

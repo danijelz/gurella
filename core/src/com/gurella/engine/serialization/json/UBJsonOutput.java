@@ -374,6 +374,11 @@ public class UBJsonOutput implements Output, Poolable {
 		name(name);
 		writeObject(expectedType, template, value, flat);
 	}
+	
+	@Override
+	public void writeAssetProperty(String name, Class<?> assetType, String location) {
+		// TODO Auto-generated method stub
+	}
 
 	private void value(Object value) {
 		try {

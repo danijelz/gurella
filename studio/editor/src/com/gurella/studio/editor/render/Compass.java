@@ -23,7 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 
@@ -32,7 +32,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorCloseListener, EditorPreRenderUpdateListener, CameraProviderExtension {
+public class Compass implements EditorCloseListener, EditorPreRenderUpdateListener, CameraConsumer {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;

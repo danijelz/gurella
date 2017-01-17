@@ -6,6 +6,7 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.Values;
 
 public class Assets {
@@ -21,14 +22,13 @@ public class Assets {
 	private static final char fileInfoDelimiter = ':';
 
 	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
+	private static final ObjectSet<Class<?>> nonAssetTypes = new ObjectSet<Class<?>>();
+
+	private static final AssetType[] assetTypeEnums = AssetType.values();
 
 	static {
-		AssetType[] values = AssetType.values();
-		for (int i = 0; i < values.length; i++) {
-			Class<?> assetType = values[i].assetType;
-			if (assetType != null) {
-				assetTypes.add(assetType);
-			}
+		for (int i = 0, n = assetTypeEnums.length; i < n; i++) {
+			assetTypes.add(assetTypeEnums[i].assetType);
 		}
 	}
 
@@ -40,13 +40,20 @@ public class Assets {
 	}
 
 	public static boolean isAssetType(Class<?> type) {
-		Class<?> temp = type;
-		while (temp != null && temp != Object.class) {
-			if (assetTypes.contains(temp)) {
+		if (assetTypes.contains(type)) {
+			return true;
+		} else if (nonAssetTypes.contains(type)) {
+			return false;
+		}
+
+		for (int i = 0, n = assetTypeEnums.length; i < n; i++) {
+			if (ClassReflection.isAssignableFrom(assetTypeEnums[i].assetType, type)) {
+				assetTypes.add(type);
 				return true;
 			}
-			temp = temp.getSuperclass();
 		}
+
+		nonAssetTypes.add(type);
 		return false;
 	}
 
@@ -66,9 +73,8 @@ public class Assets {
 		}
 
 		extension = extension.toLowerCase();
-		AssetType[] values = AssetType.values();
-		for (int i = 0, n = values.length; i < n; i++) {
-			AssetType type = values[i];
+		for (int i = 0, n = assetTypeEnums.length; i < n; i++) {
+			AssetType type = assetTypeEnums[i];
 			if (type.isValidExtension(extension)) {
 				return type;
 			}
@@ -78,7 +84,7 @@ public class Assets {
 
 	public static <T> Class<T> getAssetClass(final String fileName) {
 		AssetType type = getAssetType(fileName);
-		return type == null ? null : Values.<Class<T>>cast(type.assetType);
+		return type == null ? null : Values.<Class<T>> cast(type.assetType);
 	}
 
 	public static FileHandle getFileHandle(String path) {

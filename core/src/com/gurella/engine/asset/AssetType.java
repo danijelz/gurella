@@ -44,13 +44,13 @@ public enum AssetType {
 	shaderTemplate(ShaderTemplate.class, true, "glslt"),
 	renderTarget(RenderTarget.class, true, "grt"),
 	applicationConfig(ApplicationConfig.class, true, "gcfg"),
-	renderProgram(null),
-	spritterAnimation(null),
-	splineAnimation(null),
-	svg(null),
-	font(null),
-	texture3d(null),
-	particleSystem(null);
+	renderProgram(UnimplementedAsset.class),
+	spritterAnimation(UnimplementedAsset.class),
+	splineAnimation(UnimplementedAsset.class),
+	svg(UnimplementedAsset.class),
+	font(UnimplementedAsset.class),
+	texture3d(UnimplementedAsset.class),
+	particleSystem(UnimplementedAsset.class);
 
 	private static ObjectMap<Class<?>, AssetType> enumsByType = new ObjectMap<Class<?>, AssetType>();
 
@@ -94,5 +94,11 @@ public enum AssetType {
 
 	public static AssetType value(Class<?> assetType) {
 		return enumsByType.get(assetType);
+	}
+	
+	private static final class UnimplementedAsset {
+		private UnimplementedAsset() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

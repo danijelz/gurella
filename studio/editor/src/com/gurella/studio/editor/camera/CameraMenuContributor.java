@@ -11,30 +11,23 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
-import com.gurella.engine.event.EventService;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class CameraMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
+class CameraMenuContributor implements EditorContextMenuContributor {
 	private static final String cameraMenuSectionName = "Camera";
 	private static final String cameraMenuGroupName = "&Camera";
 	private static final String moveToMenuGroupName = "&Navigate";
 
-	private final int editorId;
 	private final CameraManager manager;
 
 	private final Matrix4 lookAt = new Matrix4();
 	private final Quaternion rotation = new Quaternion();
 
-	public CameraMenuContributor(int editorId, CameraManager manager) {
-		this.editorId = editorId;
+	CameraMenuContributor(CameraManager manager) {
 		this.manager = manager;
-		EventService.subscribe(editorId, this);
-		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -65,7 +58,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 	}
 
 	private void moveTo(float px, float py, float pz, float lx, float ly, float lz, float ux, float uy, float uz) {
-		Camera camera = manager.getCamera();
+		Camera camera = manager.camera;
 		camera.position.set(px, py, pz);
 		camera.direction.set(lx, ly, lz);
 		camera.up.set(ux, uy, uz);
@@ -75,7 +68,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 
 	private void selectRotation() {
 		Shell shell = UiUtils.getDisplay().getActiveShell();
-		Camera camera = manager.getCamera();
+		Camera camera = manager.camera;
 		lookAt.setToLookAt(camera.direction, camera.up);
 		lookAt.getRotation(rotation);
 		String rotationZ = String.valueOf(rotation.getRoll());
@@ -100,7 +93,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 	}
 
 	private void setRotation(float rotation) {
-		OrthographicCamera camera = (OrthographicCamera) manager.getCamera();
+		OrthographicCamera camera = (OrthographicCamera) manager.camera;
 		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
 		camera.rotate(rotation);
@@ -109,7 +102,7 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 
 	private void selectZoom() {
 		Shell shell = UiUtils.getDisplay().getActiveShell();
-		String zoom = String.valueOf(((OrthographicCamera) manager.getCamera()).zoom);
+		String zoom = String.valueOf(((OrthographicCamera) manager.camera).zoom);
 		String message = "Please enter new zoom value";
 		InputDialog dlg = new InputDialog(shell, "Zoom", message, zoom, s -> validateZoom(s));
 		if (dlg.open() == Window.OK) {
@@ -131,14 +124,8 @@ public class CameraMenuContributor implements EditorCloseListener, EditorContext
 	}
 
 	private void setZoom(float zoom) {
-		OrthographicCamera camera = (OrthographicCamera) manager.getCamera();
+		OrthographicCamera camera = (OrthographicCamera) manager.camera;
 		camera.zoom = zoom;
 		camera.update();
-	}
-
-	@Override
-	public void onEditorClose() {
-		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(editorId, this);
 	}
 }

@@ -140,7 +140,7 @@ public class SceneGraphView extends DockableView
 
 		UiUtils.paintBordersFor(control);
 
-		control.addDisposeListener(e -> onDispose(editorId));
+		graph.addDisposeListener(e -> onDispose(editorId));
 		EventService.subscribe(editorId, this);
 		Workbench.activate(editorId, this);
 	}
@@ -172,10 +172,18 @@ public class SceneGraphView extends DockableView
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
+
 		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(
 				new ComponentDropTargetListener(graph, editorId), new NodeDropTargetListener(graph, editorId),
-				new AssetDropTargetListener(editorId));
+				createAssetDropTargetListener());
 		dropTarget.addDropListener(listener);
+	}
+
+	private AssetDropTargetListener createAssetDropTargetListener() {
+		AssetDropTargetListener assetDropTargetListener = new AssetDropTargetListener(editorId);
+		graph.addDisposeListener(e -> Workbench.deactivate(editorId, assetDropTargetListener));
+		Workbench.activate(editorId, assetDropTargetListener);
+		return assetDropTargetListener;
 	}
 
 	private void initFocusHandlers() {

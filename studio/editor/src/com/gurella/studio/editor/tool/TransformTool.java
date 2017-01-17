@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.studio.editor.history.HistoryService;
 
 public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_X = Color.RED;
@@ -20,6 +21,7 @@ public abstract class TransformTool implements Disposable {
 	private final Vector3 nodePosition = new Vector3();
 
 	TransformComponent transform;
+	HistoryService historyService;
 	Camera camera;
 
 	ToolHandle activeHandle;
@@ -54,8 +56,8 @@ public abstract class TransformTool implements Disposable {
 		this.activeHandleType = HandleType.none;
 	}
 
-	void commit() {
-		operation.commit();
+	void commit(HistoryService historyService) {
+		operation.commit(historyService);
 		operation = null;
 		activeHandle = null;
 		this.activeHandleType = HandleType.none;

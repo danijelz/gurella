@@ -13,6 +13,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
@@ -33,7 +34,7 @@ public class RotateOperation extends TransformOperation {
 	}
 
 	@Override
-	void commit() {
+	void commit(HistoryService historyService) {
 		transform.getEulerRotation(action);
 		if (initial.equals(action)) {
 			return;

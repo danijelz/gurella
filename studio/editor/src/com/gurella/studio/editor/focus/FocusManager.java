@@ -18,7 +18,7 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.studio.editor.SceneConsumer;
-import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
@@ -31,7 +31,7 @@ import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
 public class FocusManager implements SceneConsumer, EditorSelectionListener, EditorCloseListener,
-		EditorPreRenderUpdateListener, CameraProviderExtension {
+		EditorPreRenderUpdateListener, CameraConsumer {
 	private final int editorId;
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
 

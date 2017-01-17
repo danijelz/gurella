@@ -7,5 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD, ElementType.METHOD})
-public @interface TransientProperty {
+public @interface AssetProperty {
+	boolean value() default true;
 }

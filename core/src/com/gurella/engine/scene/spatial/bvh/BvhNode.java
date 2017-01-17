@@ -263,8 +263,8 @@ public class BvhNode implements Poolable {
 
 	private RotationOption bestRotation(float SAH) {
 		RotationOption bestRotationOption = null;
-		Rotation[] values = Rotation.values();
-		for (int i = 0; i < values.length; i++) {
+		Rotation[] values = Rotation.values;
+		for (int i = 0, n = values.length; i < n; i++) {
 			Rotation rot = values[i];
 			RotationOption opt = getRotationOption(rot, SAH);
 			if (bestRotationOption == null || bestRotationOption.compareTo(opt) > 0) {
@@ -578,6 +578,11 @@ public class BvhNode implements Poolable {
 	}
 
 	private enum Rotation {
-		NONE, L_RL, L_RR, R_LL, R_LR, LL_RR, LL_RL,
+		NONE, L_RL, L_RR, R_LL, R_LR, LL_RR, LL_RL;
+
+		static Rotation[] values;
+		static {
+			values = values();
+		}
 	}
 }

@@ -403,7 +403,8 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 		}
 
 		if (Assets.isAssetType(fieldType)) {
-			return true;
+			AssetProperty assetProperty = Reflection.getDeclaredAnnotation(field, AssetProperty.class);
+			return assetProperty != null && assetProperty.value();
 		}
 
 		ImmutableArray<Property<?>> properties = MetaTypes.getMetaType(fieldType).getProperties();

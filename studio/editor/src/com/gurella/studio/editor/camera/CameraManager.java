@@ -23,7 +23,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		EditorResizeListener, PreferencesExtension {
 
 	private final int editorId;
-	private final CameraProvider extensionRegistry;
+	private final CameraConsumerRegistry extensionRegistry;
 
 	private PreferencesNode preferences;
 
@@ -33,18 +33,14 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	private final OrthographicCamera orthographicCamera;
 	private final CameraController orthographicCameraController;
 
-	private Camera camera;
+	Camera camera;
 	private CameraController inputController;
 
-	@SuppressWarnings("unused")
 	private final CameraMenuContributor cameraMenuContributor;
 	private final KeyboardCameraSelector cameraTypeSelector;
 
 	public CameraManager(int editorId) {
 		this.editorId = editorId;
-		extensionRegistry = new CameraProvider(this);
-		Workbench.activate(editorId, this);
-		Workbench.addListener(editorId, extensionRegistry);
 
 		Graphics graphics = Gdx.graphics;
 		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
@@ -61,10 +57,17 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		orthographicCameraController = new CameraController(orthographicCamera);
 
 		camera = perspectiveCamera;
+		extensionRegistry = new CameraConsumerRegistry();
+		extensionRegistry.updateCamera(camera);
+		Workbench.activate(editorId, this);
+		Workbench.addListener(editorId, extensionRegistry);
+		
 		inputController = perspectiveCameraController;
 		Workbench.activate(editorId, inputController);
 
-		cameraMenuContributor = new CameraMenuContributor(editorId, this);
+		cameraMenuContributor = new CameraMenuContributor(this);
+		Workbench.activate(editorId, cameraMenuContributor);
+
 		cameraTypeSelector = new KeyboardCameraSelector(this);
 		Workbench.activate(editorId, cameraTypeSelector);
 
@@ -122,10 +125,6 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		Workbench.activate(editorId, inputController);
 		extensionRegistry.updateCamera(camera);
 		updateCameraPreference(camera3d);
-	}
-
-	Camera getCamera() {
-		return camera;
 	}
 
 	@Override
@@ -215,6 +214,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, cameraTypeSelector);
+		Workbench.deactivate(editorId, cameraMenuContributor);
 		Workbench.deactivate(editorId, inputController);
 		Workbench.removeListener(editorId, extensionRegistry);
 		Workbench.deactivate(editorId, this);

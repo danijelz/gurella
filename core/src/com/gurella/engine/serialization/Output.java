@@ -80,4 +80,6 @@ public interface Output {
 	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value);
 
 	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat);
+	
+	void writeAssetProperty(String name, Class<?> assetType, String location);
 }

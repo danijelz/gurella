@@ -16,7 +16,6 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -36,7 +35,6 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 
 	AssetDropTargetListener(int editorId) {
 		this.editorId = editorId;
-		Workbench.activate(editorId, this);
 	}
 
 	@Override
@@ -69,7 +67,7 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		if (!(resource instanceof IFile)) {
 			return null;
 		}
-		
+
 		IFile file = (IFile) resource;
 		if (AssetType.prefab.isValidExtension(file.getFileExtension())) {
 			return file;

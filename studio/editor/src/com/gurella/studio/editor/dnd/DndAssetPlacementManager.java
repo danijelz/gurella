@@ -38,7 +38,7 @@ import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.assets.AssetSelection;
-import com.gurella.studio.editor.camera.CameraProviderExtension;
+import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.AddNodeOperation;
@@ -46,7 +46,7 @@ import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 
-public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraProviderExtension,
+public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraConsumer,
 		EditorPreRenderUpdateListener, EditorRenderUpdateListener, EditorCloseListener {
 	private final int editorId;
 	private final GLCanvas glCanvas;

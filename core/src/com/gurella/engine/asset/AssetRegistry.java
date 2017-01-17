@@ -79,6 +79,7 @@ public class AssetRegistry extends AssetManager {
 
 	private final ObjectMap<String, AssetInfo> assetsByFileName = new ObjectMap<String, AssetInfo>();
 	private final IdentityMap<Object, String> fileNamesByAsset = new IdentityMap<Object, String>();
+	private final IdentityMap<Bundle, Object> assetsByBundle = new IdentityMap<Bundle, Object>();
 
 	private final ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> loaders = new ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>>();
 
@@ -138,7 +139,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	// TODO make package private and only accessible for prefabs and bundles
-	public <T> void put(T asset, String fileName) {
+	<T> void put(T asset, String fileName) {
 		// TODO check if asset in other file -> renamed(oldFileName, newFileName);
 		AssetInfo info = AssetInfo.obtain();
 		info.asset = asset;

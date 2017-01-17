@@ -241,16 +241,16 @@ public class JsonOutput implements Output, Poolable {
 			addReferenceDependency(value);
 			serializeObject(expectedType, template, value);
 		} else {
-			String valueLocation = getExternalFileName(value);
-			if (valueLocation == null) {
+			String assetLocation = getAssetLocation(value);
+			if (assetLocation == null) {
 				addReferenceDependency(value);
 				writeReference(expectedType, template, value);
 			} else {
 				object();
 				writeStringProperty(typeTag, assetReferenceType);
-				writeStringProperty(assetReferencePathTag, valueLocation);
+				writeStringProperty(assetReferencePathTag, assetLocation);
 				pop();
-				externalDependencies.add(value.getClass().getName() + " " + valueLocation);
+				externalDependencies.add(value.getClass().getName() + " " + assetLocation);
 			}
 		}
 	}
@@ -274,7 +274,7 @@ public class JsonOutput implements Output, Poolable {
 		}
 	}
 
-	private String getExternalFileName(Object object) {
+	private String getAssetLocation(Object object) {
 		if (object instanceof Reference) {
 			return null;
 		} else if (object instanceof ManagedObject || Assets.isAsset(object)) {
@@ -403,6 +403,12 @@ public class JsonOutput implements Output, Poolable {
 	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat) {
 		name(name);
 		writeObject(expectedType, template, value, flat);
+	}
+	
+	@Override
+	public void writeAssetProperty(String name, Class<?> assetType, String location) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void value(Object value) {
