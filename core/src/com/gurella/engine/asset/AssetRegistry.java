@@ -164,7 +164,7 @@ public class AssetRegistry extends AssetManager {
 				throw new GdxRuntimeException("Asset not loaded: " + fileName);
 			}
 
-			return info.getAssetPart(internalId);
+			return info.getBundledAsset(internalId);
 		}
 	}
 
@@ -955,6 +955,61 @@ public class AssetRegistry extends AssetManager {
 
 		if (!info.isReferenced()) {
 			unloadAsset(oldDependencyFileName, info);
+		}
+	}
+
+	void addToBundle(Bundle bundle, String internalId, Object asset) {
+		String fileName = getRootBundleFileName(bundle);
+		AssetInfo info = assetsByFileName.get(fileName);
+
+		assetBundle.put(asset, bundle);
+		fileNamesByAsset.put(asset, fileName);
+		info.addBundledAsset(internalId, asset);
+
+		if (asset instanceof Bundle) {
+			Bundle bundleAsset = (Bundle) asset;
+			IdentityMap<String, Object> bundledAssets = bundleAsset.getBundledAssets();
+			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
+					.entries()) {
+				Object bundledAsset = bundledAssetsEntry.value;
+				assetBundle.put(bundledAsset, bundle);
+				fileNamesByAsset.put(bundledAsset, fileName);
+				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
+			}
+		}
+	}
+
+	//TODO not implemented
+	void removeFromBundle(Bundle bundle, String internalId, Object asset) {
+		String fileName = getRootBundleFileName(bundle);
+		AssetInfo info = assetsByFileName.get(fileName);
+
+		assetBundle.put(asset, bundle);
+		fileNamesByAsset.put(asset, fileName);
+		info.addBundledAsset(internalId, asset);
+
+		if (asset instanceof Bundle) {
+			Bundle bundleAsset = (Bundle) asset;
+			IdentityMap<String, Object> bundledAssets = bundleAsset.getBundledAssets();
+			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
+					.entries()) {
+				Object bundledAsset = bundledAssetsEntry.value;
+				assetBundle.put(bundledAsset, bundle);
+				fileNamesByAsset.put(bundledAsset, fileName);
+				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
+			}
+		}
+	}
+
+	private String getRootBundleFileName(Bundle bundle) {
+		Bundle last = bundle;
+		while (true) {
+			Bundle temp = assetBundle.get(last);
+			if (temp == null) {
+				return fileNamesByAsset.get(last);
+			} else {
+				last = temp;
+			}
 		}
 	}
 

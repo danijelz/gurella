@@ -191,6 +191,14 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		getInstance().assetRegistry.replaceDependency(asset, oldDependency, newDependency);
 	}
 
+	public static void addToBundle(Bundle bundle, String internalId, Object asset) {
+		getInstance().assetRegistry.addToBundle(bundle, internalId, asset);
+	}
+
+	public static void removeFromBundle(Bundle bundle, String internalId, Object asset) {
+		getInstance().assetRegistry.removeFromBundle(bundle, internalId, asset);
+	}
+
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {

@@ -36,6 +36,7 @@ import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.assets.AssetSelection;
 import com.gurella.studio.editor.camera.CameraConsumer;
@@ -262,7 +263,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 
 		private String getAssetPath() {
 			String path = assetFile.getLocation().toString();
-			IPath rootAssetsFolder = assetFile.getProject().getLocation().append("assets");
+			IPath rootAssetsFolder = AssetsFolderLocator.getAssetsFolder(assetFile).getLocation();
 			IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
 			return assetPath.toString();
 		}

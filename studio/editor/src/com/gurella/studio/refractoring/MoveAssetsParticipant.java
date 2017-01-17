@@ -1,5 +1,8 @@
 package com.gurella.studio.refractoring;
 
+import static com.gurella.studio.common.AssetsFolderLocator.assetsFolderName;
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsFolder;
+
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
@@ -17,6 +20,7 @@ import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.common.AssetsFolderLocator;
 
 public class MoveAssetsParticipant extends MoveParticipant {
 	private IResource resource;
@@ -40,12 +44,12 @@ public class MoveAssetsParticipant extends MoveParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		IFolder assetsFolder = resource.getProject().getFolder("assets");
+		IFolder assetsFolder = getAssetsFolder(resource);
 		if (assetsFolder == null || !assetsFolder.exists()) {
 			return null;
 		}
 
-		if (!"assets".equals(resource.getProjectRelativePath().segment(0))) {
+		if (!assetsFolderName.equals(resource.getProjectRelativePath().segment(0))) {
 			return null;
 		}
 

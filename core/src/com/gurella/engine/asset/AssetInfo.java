@@ -27,7 +27,7 @@ class AssetInfo implements Poolable {
 		return (T) asset;
 	}
 
-	public <T> T getAssetPart(String internalId) {
+	public <T> T getBundledAsset(String internalId) {
 		if (bundledAssets != null) {
 			@SuppressWarnings("unchecked")
 			T casted = (T) bundledAssets.get(internalId);
@@ -65,6 +65,20 @@ class AssetInfo implements Poolable {
 
 	void removeDependent(String dependent) {
 		dependents.remove(dependent);
+	}
+
+	void addBundledAsset(String internalId, Object bundledAsset) {
+		if (bundledAssets == emptyBundledAssets) {
+			bundledAssets = new IdentityMap<String, Object>();
+		}
+		bundledAssets.put(internalId, bundledAsset);
+	}
+
+	void removeBundledAsset(String internalId) {
+		if (bundledAssets == null) {
+			return;
+		}
+		bundledAssets.remove(internalId);
 	}
 
 	boolean isReferenced() {

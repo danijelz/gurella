@@ -1,5 +1,7 @@
 package com.gurella.studio.refractoring;
 
+import static com.gurella.studio.common.AssetsFolderLocator.assetsFolderName;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,6 +22,8 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+import com.gurella.studio.common.AssetsFolderLocator;
+
 @SuppressWarnings("restriction")
 public class RefractoringUtils {
 	private RefractoringUtils() {
@@ -39,7 +43,7 @@ public class RefractoringUtils {
 		HashSet<IProject> resources = new HashSet<>();
 		resources.add(root);
 		appendReferencingProjects(root, resources);
-		return resources.stream().map(r -> r.getFolder("assets")).filter(f -> f != null && f.exists())
+		return resources.stream().map(r -> r.getFolder(assetsFolderName)).filter(f -> f != null && f.exists())
 				.toArray(i -> new IResource[i]);
 	}
 

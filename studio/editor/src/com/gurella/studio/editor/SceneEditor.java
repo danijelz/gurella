@@ -1,6 +1,8 @@
 package com.gurella.studio.editor;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsFolder;
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsRelativePath;
 
 import java.util.function.Consumer;
 
@@ -81,6 +83,11 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	}
 
 	private void save(IProgressMonitor monitor) throws CoreException {
+		Scene scene = sceneContext.getScene();
+		if (scene == null) {
+			return;
+		}
+
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IFile file = input.getFile();
 		IPath path = file.getFullPath();
@@ -90,8 +97,8 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		manager.connect(path, LocationKind.IFILE, monitor);
 
 		JsonOutput output = new JsonOutput();
-		String relativeFileName = file.getProjectRelativePath().toPortableString();
-		String serialized = output.serialize(new FileHandle(relativeFileName), Scene.class, sceneContext.getScene());
+		String relativeFileName = getAssetsRelativePath(file).toString();
+		String serialized = output.serialize(new FileHandle(relativeFileName), Scene.class, scene);
 		String pretty = new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
 
 		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
@@ -137,7 +144,10 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		dock = new Dock(parent, id);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		application = new SwtLwjglApplication(getInternalAssetsPath(), dock.getCenter(), id);
+		IResource resource = getEditorInput().getAdapter(IResource.class);
+		String internalAssetsPath = getAssetsFolder(resource).getLocation().toString();
+
+		application = new SwtLwjglApplication(internalAssetsPath, dock.getCenter(), id);
 		SceneEditorRegistry.put(this, parent, application);
 
 		synchronized (SwtLwjglGraphics.glMutex) {
@@ -154,13 +164,8 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 			EventService.subscribe(id, this);
 		}
 
-		String path = ((IPathEditorInput) getEditorInput()).getPath().toString();
+		String path = getAssetsRelativePath(resource).toString();
 		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
-	}
-
-	private String getInternalAssetsPath() {
-		IResource resource = getEditorInput().getAdapter(IResource.class);
-		return resource.getProject().getFile("assets").getLocation().toString();
 	}
 
 	private void presentException(Throwable exception) {

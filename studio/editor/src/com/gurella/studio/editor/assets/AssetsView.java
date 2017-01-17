@@ -55,6 +55,7 @@ import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.history.HistoryContributor;
@@ -102,7 +103,7 @@ public class AssetsView extends DockableView
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(control);
 
-		rootAssetsFolder = context.project.getFolder("assets");
+		rootAssetsFolder = AssetsFolderLocator.getAssetsFolder(context.project);
 
 		clipboard = new Clipboard(control.getDisplay());
 		control.addDisposeListener(e -> clipboard.dispose());

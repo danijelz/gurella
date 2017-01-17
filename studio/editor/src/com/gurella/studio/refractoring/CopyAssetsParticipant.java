@@ -1,5 +1,7 @@
 package com.gurella.studio.refractoring;
 
+import static com.gurella.studio.common.AssetsFolderLocator.assetsFolderName;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -46,7 +48,7 @@ public class CopyAssetsParticipant extends CopyParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		if (!"assets".equals(file.getProjectRelativePath().segment(0))) {
+		if (!assetsFolderName.equals(file.getProjectRelativePath().segment(0))) {
 			return null;
 		}
 
