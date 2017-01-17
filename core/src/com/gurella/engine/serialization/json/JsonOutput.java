@@ -20,8 +20,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.Assets;
-import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
@@ -246,11 +244,7 @@ public class JsonOutput implements Output, Poolable {
 				addReferenceDependency(value);
 				writeReference(expectedType, template, value);
 			} else {
-				object();
-				writeStringProperty(typeTag, assetReferenceType);
-				writeStringProperty(assetReferencePathTag, assetLocation);
-				pop();
-				externalDependencies.add(value.getClass().getName() + " " + assetLocation);
+				writeAsset(value, assetLocation);
 			}
 		}
 	}
@@ -277,12 +271,18 @@ public class JsonOutput implements Output, Poolable {
 	private String getAssetLocation(Object object) {
 		if (object instanceof Reference) {
 			return null;
-		} else if (object instanceof ManagedObject || Assets.isAsset(object)) {
+		} else {
 			String fileName = AssetService.getFileName(object);
 			return fileName == null || fileName.equals(filePath) ? null : fileName;
-		} else {
-			return null;
 		}
+	}
+
+	private void writeAsset(Object asset, String assetLocation) {
+		object();
+		writeStringProperty(typeTag, assetReferenceType);
+		writeStringProperty(assetReferencePathTag, assetLocation);
+		pop();
+		externalDependencies.add(asset.getClass().getName() + " " + assetLocation);
 	}
 
 	@Override
@@ -404,11 +404,20 @@ public class JsonOutput implements Output, Poolable {
 		name(name);
 		writeObject(expectedType, template, value, flat);
 	}
-	
+
 	@Override
-	public void writeAssetProperty(String name, Class<?> assetType, String location) {
-		// TODO Auto-generated method stub
-		
+	public void writeAssetProperty(String name, Object asset) {
+		name(name);
+
+		if (asset == null) {
+			writeNull();
+		} else {
+			String assetLocation = getAssetLocation(asset);
+			if (assetLocation == null) {
+				throw new IllegalStateException("Asset location lost!");
+			}
+			writeAsset(asset, assetLocation);
+		}
 	}
 
 	private void value(Object value) {

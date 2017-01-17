@@ -132,7 +132,6 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	}
 
 	public static <T> Array<T> find(Class<T> type, Array<T> out) {
-		// TODO ManagedObject
 		return getInstance().assetRegistry.getAll(type, out);
 	}
 

@@ -1,7 +1,7 @@
 package com.gurella.engine.asset;
 
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IdentityMap;
 
 public interface Bundle {
-	public ObjectMap<String, Object> getBundledAssets();
+	public IdentityMap<String, Object> getBundledAssets();
 }

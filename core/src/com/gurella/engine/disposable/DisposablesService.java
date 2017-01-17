@@ -10,6 +10,7 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
 
 public class DisposablesService {
+	//TODO Array<Disposable> -> OrderedIdentitySet<Disposable>
 	private static final IdentityMap<Application, Array<Disposable>> instances = new IdentityMap<Application, Array<Disposable>>();
 
 	private DisposablesService() {

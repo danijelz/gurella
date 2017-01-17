@@ -1,19 +1,19 @@
 package com.gurella.engine.asset;
 
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
 class AssetInfo implements Poolable {
-	private static final ObjectMap<String, Object> emptyBundledAssets = new ObjectMap<String, Object>();
+	private static final IdentityMap<String, Object> emptyBundledAssets = new IdentityMap<String, Object>();
 
 	Object asset;
 	boolean sticky;
 	int refCount = 0;
 	final ObjectSet<String> dependencies = new ObjectSet<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
-	private ObjectMap<String, Object> bundledAssets;
+	private IdentityMap<String, Object> bundledAssets;
 
 	public static AssetInfo obtain() {
 		return PoolService.obtain(AssetInfo.class);
@@ -44,10 +44,11 @@ class AssetInfo implements Poolable {
 		refCount++;
 	}
 
-	void decRefCount() {
+	boolean decRefCount() {
 		if (refCount > 0) {
 			refCount--;
 		}
+		return isReferenced();
 	}
 
 	void addDependency(String dependency) {

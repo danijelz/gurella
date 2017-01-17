@@ -4,7 +4,6 @@ import static com.gurella.engine.managedobject.ManagedObjectState.active;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Bundle;
@@ -445,13 +444,13 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	}
 
 	@Override
-	public ObjectMap<String, Object> getBundledAssets() {
-		ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
+	public IdentityMap<String, Object> getBundledAssets() {
+		IdentityMap<String, Object> bundledAssets = new IdentityMap<String, Object>();
 		appendBundledAssets(bundledAssets, this);
 		return bundledAssets;
 	}
 
-	private static void appendBundledAssets(ObjectMap<String, Object> bundledAssets, ManagedObject object) {
+	private static void appendBundledAssets(IdentityMap<String, Object> bundledAssets, ManagedObject object) {
 		if (object.uuid != null) {
 			bundledAssets.put(object.uuid, object);
 		}

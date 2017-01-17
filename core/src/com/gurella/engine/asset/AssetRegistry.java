@@ -79,7 +79,8 @@ public class AssetRegistry extends AssetManager {
 
 	private final ObjectMap<String, AssetInfo> assetsByFileName = new ObjectMap<String, AssetInfo>();
 	private final IdentityMap<Object, String> fileNamesByAsset = new IdentityMap<Object, String>();
-	private final IdentityMap<Bundle, Object> assetsByBundle = new IdentityMap<Bundle, Object>();
+
+	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
 
 	private final ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> loaders = new ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>>();
 
@@ -414,6 +415,10 @@ public class AssetRegistry extends AssetManager {
 
 	public <T> boolean unload(T asset) {
 		String fileName = fileNamesByAsset.get(asset);
+		if (assetBundle.containsKey(asset)) {
+			return false;
+		}
+
 		if (fileName != null) {
 			unloadAsset(fileName);
 			return true;
@@ -441,8 +446,7 @@ public class AssetRegistry extends AssetManager {
 			return;
 		}
 
-		info.decRefCount();
-		if (!info.isReferenced()) {
+		if (!info.decRefCount()) {
 			unloadAsset(fileName, info);
 		}
 	}
@@ -453,6 +457,7 @@ public class AssetRegistry extends AssetManager {
 		EventService.post(AssetActivityListener.class, assetUnloadedEvent);
 		assetUnloadedEvent.reset();
 
+		unloadBundledAssets(asset);
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
 		dereferenceDependencies(fileName, info);
@@ -462,7 +467,24 @@ public class AssetRegistry extends AssetManager {
 		} else {
 			DisposablesService.tryDispose(asset);
 		}
+
 		info.free();
+	}
+
+	private void unloadBundledAssets(Object asset) {
+		if (asset instanceof Bundle) {
+			IdentityMap<String, Object> bundledAssets = ((Bundle) asset).getBundledAssets();
+			for (Object bundledAsset : bundledAssets.values()) {
+				assetBundle.remove(bundledAsset);
+				fileNamesByAsset.remove(bundledAsset);
+
+				if (asset instanceof Poolable) {
+					PoolService.free(asset);
+				} else {
+					DisposablesService.tryDispose(asset);
+				}
+			}
+		}
 	}
 
 	private void dereferenceDependencies(String fileName, AssetInfo info) {
@@ -528,6 +550,8 @@ public class AssetRegistry extends AssetManager {
 				assetReloadedEvent.reset();
 
 				fileNamesByAsset.remove(asset);
+				unloadBundledAssets(asset);
+
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
 				ConfigurableAssetDescriptor<T> descriptor = AssetService.getAssetDescriptor(fileName);
@@ -554,6 +578,8 @@ public class AssetRegistry extends AssetManager {
 
 					entries.remove();
 					fileNamesByAsset.remove(asset);
+					unloadBundledAssets(asset);
+
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
 					ConfigurableAssetDescriptor<Object> descriptor = AssetService.getAssetDescriptor(fileName);
@@ -723,10 +749,17 @@ public class AssetRegistry extends AssetManager {
 		T asset = info.getAsset();
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, info);
-		if (asset instanceof ManagedObject) {
-
-		}
 		DisposablesService.tryAdd(asset);
+
+		if (asset instanceof Bundle) {
+			Bundle bundle = (Bundle) asset;
+			IdentityMap<String, Object> bundledAssets = bundle.getBundledAssets();
+			for (Object bundledAsset : bundledAssets.values()) {
+				assetBundle.put(bundledAsset, bundle);
+				DisposablesService.tryAdd(bundledAsset);
+			}
+		}
+
 		notifyTaskFinished(task, asset);
 		task.info = null;
 		task.free();
@@ -890,7 +923,9 @@ public class AssetRegistry extends AssetManager {
 			currentTask = null;
 
 			for (AssetInfo info : assetsByFileName.values()) {
-				DisposablesService.tryDispose(info.asset);
+				Object asset = info.asset;
+				DisposablesService.tryDispose(asset);
+				unloadBundledAssets(asset);
 				info.free();
 			}
 
