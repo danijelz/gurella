@@ -199,6 +199,10 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		getInstance().assetRegistry.removeFromBundle(bundle, internalId, asset);
 	}
 
+	public static String getBundledAssetInternalId(Object asset) {
+		return getInstance().assetRegistry.getBundledAssetInternalId(asset);
+	}
+
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {

@@ -959,7 +959,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	void addToBundle(Bundle bundle, String internalId, Object asset) {
-		String fileName = getRootBundleFileName(bundle);
+		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
 		AssetInfo info = assetsByFileName.get(fileName);
 
 		assetBundle.put(asset, bundle);
@@ -979,14 +979,13 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	//TODO not implemented
 	void removeFromBundle(Bundle bundle, String internalId, Object asset) {
-		String fileName = getRootBundleFileName(bundle);
+		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
 		AssetInfo info = assetsByFileName.get(fileName);
 
-		assetBundle.put(asset, bundle);
-		fileNamesByAsset.put(asset, fileName);
-		info.addBundledAsset(internalId, asset);
+		assetBundle.remove(asset);
+		fileNamesByAsset.remove(asset);
+		info.removeBundledAsset(internalId);
 
 		if (asset instanceof Bundle) {
 			Bundle bundleAsset = (Bundle) asset;
@@ -994,19 +993,32 @@ public class AssetRegistry extends AssetManager {
 			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
 					.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.put(bundledAsset, bundle);
-				fileNamesByAsset.put(bundledAsset, fileName);
-				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
+				assetBundle.remove(bundledAsset);
+				fileNamesByAsset.remove(bundledAsset);
+				info.removeBundledAsset(bundledAssetsEntry.key);
 			}
 		}
 	}
 
-	private String getRootBundleFileName(Bundle bundle) {
+	public String getBundledAssetInternalId(Object asset) {
+		Bundle bundle = assetBundle.get(asset);
+		Bundle rootBundle = getRootBundle(bundle);
+		IdentityMap<String, Object> bundledAssets = rootBundle.getBundledAssets();
+		for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
+			if (bundledAssetsEntry.value == asset) {
+				return bundledAssetsEntry.key;
+			}
+		}
+
+		throw new IllegalStateException();
+	}
+
+	private Bundle getRootBundle(Bundle bundle) {
 		Bundle last = bundle;
 		while (true) {
 			Bundle temp = assetBundle.get(last);
 			if (temp == null) {
-				return fileNamesByAsset.get(last);
+				return last;
 			} else {
 				last = temp;
 			}

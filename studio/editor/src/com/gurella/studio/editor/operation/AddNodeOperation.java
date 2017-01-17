@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -36,6 +37,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.addChild(node);
 		}
 
+		AssetService.addToBundle(scene, node.ensureUuid(), node);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
@@ -50,6 +52,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node, false);
 		}
 
+		AssetService.removeFromBundle(scene, node.ensureUuid(), node);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
