@@ -126,7 +126,29 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		return getInstance().assetRegistry.get(fileName, internalId);
 	}
 
-	// TODO replace with save(T asset, String fileName, AssetPersister persister)
+	// TODO replace with save(T asset, String fileName) {
+	// AssetPersister persister ...
+	// public static <T extends ManagedObject> void save(T object, Class<? super T> expectedType, String fileName) {
+	// FileHandle handle = Gdx.files.local(fileName);
+	// if (handle.exists()) {
+	// // TODO exception
+	// }
+	//
+	// JsonOutput output = new JsonOutput();
+	// String string = output.serialize(handle, expectedType, object);
+	// OutputStream outputStream = handle.write(false);
+	//
+	// try {
+	// outputStream.write(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120).getBytes());
+	// outputStream.close();
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	//
+	// AssetService.put(object, fileName);
+	// }
+	// }
 	public static <T> void put(T asset, String fileName) {
 		getInstance().assetRegistry.put(asset, fileName);
 	}

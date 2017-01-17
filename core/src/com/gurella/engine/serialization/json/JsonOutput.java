@@ -33,7 +33,7 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
+	private ObjectSet<String> externalDependencies = new ObjectSet<String>(); // TODO OrderedSet
 
 	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
 		return serialize(file, expectedType, null, rootObject);

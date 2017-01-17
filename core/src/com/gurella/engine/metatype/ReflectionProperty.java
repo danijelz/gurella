@@ -290,9 +290,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else if (template != null) {
 			T value = getValue(object);
 			T templateValue = getValue(template);
-			if (Values.isEqual(value, templateValue)) {
-				return;
-			} else {
+			if (!Values.isEqual(value, templateValue)) {
 				setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));
 			}
 		}
