@@ -46,6 +46,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private BiConsumer<T, T> selectionListener;
 
+	//TODO unload loaded assets
 	public AssetSelectionWidget(Composite parent, Class<T> assetType) {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;

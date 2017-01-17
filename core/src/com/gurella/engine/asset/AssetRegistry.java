@@ -756,6 +756,7 @@ public class AssetRegistry extends AssetManager {
 			IdentityMap<String, Object> bundledAssets = bundle.getBundledAssets();
 			for (Object bundledAsset : bundledAssets.values()) {
 				assetBundle.put(bundledAsset, bundle);
+				fileNamesByAsset.put(bundledAsset, fileName);
 				DisposablesService.tryAdd(bundledAsset);
 			}
 		}
@@ -902,6 +903,59 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public void setErrorListener(AssetErrorListener listener) {
 		throw new UnsupportedOperationException();
+	}
+
+	void addDependency(Object asset, Object dependency) {
+		if (asset == dependency) {
+			throw new IllegalArgumentException("Asset can't depend on itself");
+		}
+
+		String assetFileName = fileNamesByAsset.get(asset);
+		String dependencyFileName = fileNamesByAsset.get(dependency);
+
+		AssetInfo info = assetsByFileName.get(assetFileName);
+		info.addDependency(dependencyFileName);
+
+		info = assetsByFileName.get(dependencyFileName);
+		info.addDependent(assetFileName);
+	}
+
+	void removeDependency(Object asset, Object dependency) {
+		String assetFileName = fileNamesByAsset.get(asset);
+		String dependencyFileName = fileNamesByAsset.get(dependency);
+
+		AssetInfo info = assetsByFileName.get(assetFileName);
+		info.removeDependency(dependencyFileName);
+
+		info = assetsByFileName.get(dependencyFileName);
+		info.removeDependent(assetFileName);
+
+		if (!info.isReferenced()) {
+			unloadAsset(dependencyFileName, info);
+		}
+	}
+
+	void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+		if (asset == newDependency) {
+			throw new IllegalArgumentException("Asset can't depend on itself.");
+		}
+
+		String assetFileName = fileNamesByAsset.get(asset);
+		String oldDependencyFileName = fileNamesByAsset.get(oldDependency);
+		String newDependencyFileName = fileNamesByAsset.get(newDependency);
+
+		AssetInfo info = assetsByFileName.get(assetFileName);
+		info.removeDependency(oldDependencyFileName);
+
+		info = assetsByFileName.get(newDependencyFileName);
+		info.addDependent(assetFileName);
+
+		info = assetsByFileName.get(oldDependencyFileName);
+		info.removeDependent(assetFileName);
+
+		if (!info.isReferenced()) {
+			unloadAsset(oldDependencyFileName, info);
+		}
 	}
 
 	@Override

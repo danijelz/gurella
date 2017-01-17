@@ -405,21 +405,6 @@ public class JsonOutput implements Output, Poolable {
 		writeObject(expectedType, template, value, flat);
 	}
 
-	@Override
-	public void writeAssetProperty(String name, Object asset) {
-		name(name);
-
-		if (asset == null) {
-			writeNull();
-		} else {
-			String assetLocation = getAssetLocation(asset);
-			if (assetLocation == null) {
-				throw new IllegalStateException("Asset location lost!");
-			}
-			writeAsset(asset, assetLocation);
-		}
-	}
-
 	private void value(Object value) {
 		try {
 			writer.value(value);

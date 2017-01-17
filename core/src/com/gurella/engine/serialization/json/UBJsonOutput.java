@@ -86,7 +86,7 @@ public class UBJsonOutput implements Output, Poolable {
 		references.put(object, currentId);
 		String fileName = AssetService.getFileName(object);
 		if (fileName != null) {
-			//TODO
+			// TODO
 		}
 
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
@@ -373,11 +373,6 @@ public class UBJsonOutput implements Output, Poolable {
 	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat) {
 		name(name);
 		writeObject(expectedType, template, value, flat);
-	}
-	
-	@Override
-	public void writeAssetProperty(String name, Object asset) {
-		// TODO Auto-generated method stub
 	}
 
 	private void value(Object value) {

@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
@@ -28,11 +29,18 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		UiUtils.paintBordersFor(content);
 	}
 
-	// TODO handle resource deprendencies and unload old asset
 	private void assetSelectionChanged(T oldAsset, T newAsset) {
-		if (oldAsset != null) {
-			AssetService.unload(oldAsset);
+		BeanEditorContext<?> root = context.getRoot();
+		Object asset = root.bean;
+
+		if (oldAsset != null && newAsset != null) {
+			AssetService.replaceDependency(asset, oldAsset, newAsset);
+		} else if (oldAsset != null) {
+			AssetService.removeDependency(asset, oldAsset);
+		} else if (newAsset != null) {
+			AssetService.addDependency(asset, newAsset);
 		}
+
 		setValue(newAsset);
 	}
 

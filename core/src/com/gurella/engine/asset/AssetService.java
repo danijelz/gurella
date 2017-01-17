@@ -126,6 +126,32 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		return getInstance().assetRegistry.get(fileName, internalId);
 	}
 
+	public static <T> Array<T> find(Class<T> type, Array<T> out) {
+		return getInstance().assetRegistry.getAll(type, out);
+	}
+
+	public static <T> String getFileName(T resource) {
+		return getInstance().assetRegistry.getAssetFileName(resource);
+	}
+
+	public static boolean isManaged(Object obj) {
+		return getFileName(obj) != null;
+	}
+
+	public static <T> T reload(String fileName, int priority) {
+		AssetRegistry assetRegistry = getInstance().assetRegistry;
+		assetRegistry.reload(fileName, null, priority);
+		return assetRegistry.finishLoading(fileName);
+	}
+
+	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
+		getInstance().assetRegistry.reload(fileName, callback, priority);
+	}
+
+	public static void reloadInvalidated() {
+		getInstance().assetRegistry.reloadInvalidated();
+	}
+
 	// TODO replace with save(T asset, String fileName) {
 	// AssetPersister persister ...
 	// public static <T extends ManagedObject> void save(T object, Class<? super T> expectedType, String fileName) {
@@ -152,31 +178,17 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	public static <T> void put(T asset, String fileName) {
 		getInstance().assetRegistry.put(asset, fileName);
 	}
-
-	public static <T> Array<T> find(Class<T> type, Array<T> out) {
-		return getInstance().assetRegistry.getAll(type, out);
+	
+	public static void addDependency(Object asset, Object dependency) {
+		getInstance().assetRegistry.addDependency(asset, dependency);
 	}
-
-	public static <T> String getFileName(T resource) {
-		return getInstance().assetRegistry.getAssetFileName(resource);
+	
+	public static void removeDependency(Object asset, Object dependency) {
+		getInstance().assetRegistry.removeDependency(asset, dependency);
 	}
-
-	public static boolean isManaged(Object obj) {
-		return getFileName(obj) != null;
-	}
-
-	public static <T> T reload(String fileName, int priority) {
-		AssetRegistry assetRegistry = getInstance().assetRegistry;
-		assetRegistry.reload(fileName, null, priority);
-		return assetRegistry.finishLoading(fileName);
-	}
-
-	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		getInstance().assetRegistry.reload(fileName, callback, priority);
-	}
-
-	public static void reloadInvalidated() {
-		getInstance().assetRegistry.reloadInvalidated();
+	
+	public static void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+		getInstance().assetRegistry.replaceDependency(asset, oldDependency, newDependency);
 	}
 
 	private static class Cleaner implements ApplicationShutdownListener {

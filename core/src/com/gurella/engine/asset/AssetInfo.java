@@ -55,6 +55,10 @@ class AssetInfo implements Poolable {
 		dependencies.add(dependency);
 	}
 
+	void removeDependency(String dependency) {
+		dependencies.remove(dependency);
+	}
+
 	void addDependent(String dependent) {
 		dependents.add(dependent);
 	}

@@ -43,6 +43,10 @@ public class BeanEditorContext<T> {
 		return metaType.getType().getName();
 	}
 
+	public BeanEditorContext<?> getRoot() {
+		return parent == null ? this : parent.getRoot();
+	}
+
 	public static final class PropertyValueChangedEvent {
 		public final MetaType<?> metaType;
 		public final Property<?> property;
