@@ -6,6 +6,7 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
@@ -48,6 +49,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
@@ -108,6 +110,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		scrolledComposite.setContent(content);
 		scrolledComposite.setMinSize(200, 100);
 
+		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(editorContext.project);
+
 		/////////////////////////
 		Section group = toolkit.createSection(content,
 				ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -118,7 +122,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setLayout(new GridLayout());
 		ColorTextureAttributeEditor attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
 				() -> materialDescriptor.diffuseColor, c -> materialDescriptor.diffuseColor = c,
-				() -> materialDescriptor.diffuseTexture, this::refreshMaterial);
+				() -> materialDescriptor.diffuseTexture, this::refreshMaterial, assetsFolder);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 
@@ -150,7 +154,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		attributeEditor = new ColorTextureAttributeEditor(client, materialDescriptor,
 				() -> materialDescriptor.specularColor, c -> materialDescriptor.specularColor = c,
-				() -> materialDescriptor.specularTexture, this::refreshMaterial);
+				() -> materialDescriptor.specularTexture, this::refreshMaterial, assetsFolder);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 		group.setClient(client);
 
@@ -163,7 +167,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setLayout(new GridLayout());
 		attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
 				() -> materialDescriptor.emissiveColor, c -> materialDescriptor.emissiveColor = c,
-				() -> materialDescriptor.emissiveTexture, this::refreshMaterial);
+				() -> materialDescriptor.emissiveTexture, this::refreshMaterial, assetsFolder);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 

@@ -3,6 +3,7 @@ package com.gurella.studio.editor.inspector.material;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,7 +45,7 @@ public class ColorTextureAttributeEditor extends Composite {
 
 	public ColorTextureAttributeEditor(Composite parent, MaterialDescriptor materialDescriptor,
 			Supplier<Color> colorGetter, Consumer<Color> colorSetter,
-			Supplier<TextureAttributeProperties> textureGetter, Runnable updater) {
+			Supplier<TextureAttributeProperties> textureGetter, Runnable updater, IFolder assetsFolder) {
 		super(parent, SWT.NONE);
 
 		this.materialDescriptor = materialDescriptor;
@@ -85,7 +86,7 @@ public class ColorTextureAttributeEditor extends Composite {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
 
 		toolkit.createLabel(this, "Texture:");
-		textureSelector = new AssetSelectionWidget<Texture>(this, Texture.class);
+		textureSelector = new AssetSelectionWidget<Texture>(this, Texture.class, assetsFolder);
 		toolkit.adapt(textureSelector);
 		textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 		textureSelector.setSelectionListener(this::assetSelectionChanged);

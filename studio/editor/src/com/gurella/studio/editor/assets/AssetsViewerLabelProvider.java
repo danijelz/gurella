@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import com.gurella.engine.asset.AssetType;
+import static com.gurella.engine.asset.AssetType.*;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -23,24 +23,23 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 			String extension = file.getFileExtension();
 			if (Values.isBlank(extension)) {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
-			} else if (AssetType.texture.isValidExtension(extension)
-					|| AssetType.pixmap.isValidExtension(extension)) {
+			} else if (texture.isValidExtension(extension) || pixmap.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/picture.png");
-			} else if (AssetType.sound.isValidExtension(extension)) {
+			} else if (sound.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/music.png");
-			} else if (AssetType.textureAtlas.isValidExtension(extension)) {
+			} else if (textureAtlas.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/textureAtlas.gif");
-			} else if (AssetType.polygonRegion.isValidExtension(extension)) {
+			} else if (polygonRegion.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/textureAtlas.gif");
-			} else if (AssetType.bitmapFont.isValidExtension(extension)) {
+			} else if (bitmapFont.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/font.png");
-			} else if (AssetType.model.isValidExtension(extension)) {
+			} else if (model.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/16-cube-green_16x16.png");
-			} else if (AssetType.prefab.isValidExtension(extension)) {
+			} else if (prefab.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/ice_cube.png");
-			} else if (AssetType.material.isValidExtension(extension)) {
+			} else if (material.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/material.png");
-			}  else if (AssetType.scene.isValidExtension(extension)) {
+			} else if (scene.isValidExtension(extension) || applicationConfig.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/logo16.png");
 			} else {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);

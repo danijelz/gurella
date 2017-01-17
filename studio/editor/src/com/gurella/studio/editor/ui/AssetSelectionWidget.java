@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -22,12 +23,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
@@ -42,14 +38,18 @@ public class AssetSelectionWidget<T> extends Composite {
 	private final Button selectAssetButton;
 
 	private final Class<T> assetType;
-	private T asset;
+	private IFolder assetsFolder;
 
 	private BiConsumer<T, T> selectionListener;
 
+	private T asset;
+	private T lastLoaded;
+
 	//TODO unload loaded assets
-	public AssetSelectionWidget(Composite parent, Class<T> assetType) {
+	public AssetSelectionWidget(Composite parent, Class<T> assetType, IFolder assetsFolder) {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;
+		this.assetsFolder = assetsFolder;
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
@@ -58,6 +58,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		layout.marginHeight = 2;
 		layout.verticalSpacing = 0;
 		setLayout(layout);
+		addDisposeListener(e -> unloadLastAsset());
 
 		text = UiUtils.createText(this);
 		text.setEditable(false);
@@ -86,30 +87,28 @@ public class AssetSelectionWidget<T> extends Composite {
 		AssetType value = AssetType.value(assetType);
 		String extensions = Arrays.stream(value.extensions).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
-		IPath location = getEditorFile().getLocation();
-		dialog.setFilterPath(location.removeLastSegments(1).toString());
+		dialog.setFilterPath(assetsFolder.getLocation().toString());
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
-	}
-
-	// TODO should find safer way to assets folder
-	private static IFile getEditorFile() {
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
-		IEditorPart editor = page.getActiveEditor();
-		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-		return input.getFile();
 	}
 
 	//TODO copy asset if not in project
 	private void assetSelected(final String path) {
-		IFile file = getEditorFile();
-		IPath assetPath = new Path(path).makeRelativeTo(file.getProject().getLocation().append("assets"));
 		T oldAsset = asset;
+		IPath assetPath = new Path(path).makeRelativeTo(assetsFolder.getLocation());
 		asset = AssetService.load(assetPath.toString(), assetType);
 		text.setText(assetPath.lastSegment());
 		text.setMessage("");
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
+
+		unloadLastAsset();
+
+		lastLoaded = asset;
+	}
+
+	private void unloadLastAsset() {
+		if (lastLoaded != null) {
+			AssetService.unload(lastLoaded);
+		}
 	}
 
 	public void setSelectionListener(BiConsumer<T, T> selectionListener) {
@@ -137,10 +136,17 @@ public class AssetSelectionWidget<T> extends Composite {
 		return index < 0 ? path : path.substring(index + 1);
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		text.setEnabled(enabled);
+		selectAssetButton.setEnabled(enabled);
+	}
+
 	private final class AssetDropTarget extends DropTargetAdapter {
 		@Override
 		public void dragEnter(DropTargetEvent event) {
-			if ((event.operations & DND.DROP_COPY) != 0) {
+			if (isEnabled() && (event.operations & DND.DROP_COPY) != 0) {
 				event.detail = DND.DROP_COPY;
 			} else {
 				event.detail = DND.DROP_NONE;

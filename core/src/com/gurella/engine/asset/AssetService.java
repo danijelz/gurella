@@ -134,8 +134,8 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		return getInstance().assetRegistry.getAssetFileName(resource);
 	}
 
-	public static boolean isManaged(Object obj) {
-		return getFileName(obj) != null;
+	public static boolean isManaged(Object asset) {
+		return getInstance().assetRegistry.containsAsset(asset);
 	}
 
 	public static <T> T reload(String fileName, int priority) {
@@ -178,15 +178,15 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	public static <T> void put(T asset, String fileName) {
 		getInstance().assetRegistry.put(asset, fileName);
 	}
-	
+
 	public static void addDependency(Object asset, Object dependency) {
 		getInstance().assetRegistry.addDependency(asset, dependency);
 	}
-	
+
 	public static void removeDependency(Object asset, Object dependency) {
 		getInstance().assetRegistry.removeDependency(asset, dependency);
 	}
-	
+
 	public static void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
 		getInstance().assetRegistry.replaceDependency(asset, oldDependency, newDependency);
 	}

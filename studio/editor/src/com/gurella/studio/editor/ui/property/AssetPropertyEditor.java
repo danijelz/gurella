@@ -1,17 +1,20 @@
 package com.gurella.studio.editor.ui.property;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.asset.AssetService;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	private AssetSelectionWidget<T> assetWidget;
+	private Object rootAsset;
 
 	public AssetPropertyEditor(Composite parent, PropertyEditorContext<?, T> context, Class<T> assetType) {
 		super(parent, context);
@@ -22,23 +25,37 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		layout.verticalSpacing = 0;
 		content.setLayout(layout);
 
-		assetWidget = new AssetSelectionWidget<>(content, assetType);
+		rootAsset = getRootAsset();
+
+		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(context.javaProject);
+		assetWidget = new AssetSelectionWidget<>(content, assetType, assetsFolder);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
 		assetWidget.setSelectionListener(this::assetSelectionChanged);
+		assetWidget.setEnabled(rootAsset != null);
+
 		UiUtils.paintBordersFor(content);
 	}
 
-	private void assetSelectionChanged(T oldAsset, T newAsset) {
-		BeanEditorContext<?> root = context.getRoot();
-		Object asset = root.bean;
+	private Object getRootAsset() {
+		BeanEditorContext<?> temp = context;
+		while (temp != null) {
+			Object bean = temp.bean;
+			if (AssetService.isManaged(bean)) {
+				return bean;
+			}
+			temp = temp.parent;
+		}
+		return null;
+	}
 
+	private void assetSelectionChanged(T oldAsset, T newAsset) {
 		if (oldAsset != null && newAsset != null) {
-			AssetService.replaceDependency(asset, oldAsset, newAsset);
+			AssetService.replaceDependency(rootAsset, oldAsset, newAsset);
 		} else if (oldAsset != null) {
-			AssetService.removeDependency(asset, oldAsset);
+			AssetService.removeDependency(rootAsset, oldAsset);
 		} else if (newAsset != null) {
-			AssetService.addDependency(asset, newAsset);
+			AssetService.addDependency(rootAsset, newAsset);
 		}
 
 		setValue(newAsset);
