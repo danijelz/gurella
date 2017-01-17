@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglFileHandle extends FileHandle {
 	private final String internalPath;
+	private String resolvedPath;
 
 	public SwtLwjglFileHandle(String internalPath, String fileName, FileType type) {
 		super(fileName, type);
@@ -79,5 +80,21 @@ public class SwtLwjglFileHandle extends FileHandle {
 				throw new GdxRuntimeException("Error writing file: " + file + " (" + type + ")", ex);
 			}
 		}
+	}
+
+	@Override
+	public String path() {
+		if (resolvedPath != null) {
+			return resolvedPath;
+		}
+
+		String path = super.path();
+		if (path != null && type == FileType.Internal && path.startsWith(internalPath)) {
+			resolvedPath = path.substring(0, internalPath.length());
+		} else {
+			resolvedPath = path;
+		}
+
+		return resolvedPath;
 	}
 }
