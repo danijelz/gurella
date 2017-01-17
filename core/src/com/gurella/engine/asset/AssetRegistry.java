@@ -1017,7 +1017,7 @@ public class AssetRegistry extends AssetManager {
 		Bundle last = bundle;
 		while (true) {
 			Bundle temp = assetBundle.get(last);
-			if (temp == null) {
+			if (temp == null || temp == last) {
 				return last;
 			} else {
 				last = temp;

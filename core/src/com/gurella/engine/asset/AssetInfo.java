@@ -68,14 +68,14 @@ class AssetInfo implements Poolable {
 	}
 
 	void addBundledAsset(String internalId, Object bundledAsset) {
-		if (bundledAssets == emptyBundledAssets) {
+		if (bundledAssets == null || bundledAssets == emptyBundledAssets) {
 			bundledAssets = new IdentityMap<String, Object>();
 		}
 		bundledAssets.put(internalId, bundledAsset);
 	}
 
 	void removeBundledAsset(String internalId) {
-		if (bundledAssets == null) {
+		if (bundledAssets == null || bundledAssets == emptyBundledAssets) {
 			return;
 		}
 		bundledAssets.remove(internalId);
