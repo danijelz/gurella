@@ -10,8 +10,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.engine.event.EventService;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -19,9 +17,8 @@ import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.ReindexComponentOperation;
 import com.gurella.studio.editor.operation.ReparentComponentOperation;
-import com.gurella.studio.editor.subscription.EditorCloseListener;
 
-class ComponentDropTargetListener extends DropTargetAdapter implements HistoryContributor, EditorCloseListener {
+class ComponentDropTargetListener extends DropTargetAdapter implements HistoryContributor {
 	private final Tree graph;
 	private final int editorId;
 
@@ -30,19 +27,11 @@ class ComponentDropTargetListener extends DropTargetAdapter implements HistoryCo
 	ComponentDropTargetListener(Tree graph, int editorId) {
 		this.graph = graph;
 		this.editorId = editorId;
-		Workbench.activate(editorId, this);
-		EventService.subscribe(editorId, this);
 	}
 
 	@Override
 	public void setHistoryService(HistoryService historyService) {
 		this.historyService = historyService;
-	}
-
-	@Override
-	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
-		Workbench.deactivate(editorId, this);
 	}
 
 	@Override

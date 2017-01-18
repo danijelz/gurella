@@ -25,7 +25,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		layout.verticalSpacing = 0;
 		content.setLayout(layout);
 
-		rootAsset = getRootAsset();
+		rootAsset = getManagedAsset();
 
 		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(context.javaProject);
 		assetWidget = new AssetSelectionWidget<>(content, assetType, assetsFolder);
@@ -37,7 +37,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		UiUtils.paintBordersFor(content);
 	}
 
-	private Object getRootAsset() {
+	private Object getManagedAsset() {
 		BeanEditorContext<?> temp = context;
 		while (temp != null) {
 			Object bean = temp.bean;

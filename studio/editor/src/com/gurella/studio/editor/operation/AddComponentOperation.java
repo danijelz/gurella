@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -29,6 +30,7 @@ public class AddComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.addComponent(component);
+		AssetService.addToBundle(node, component.ensureUuid(), node);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);
@@ -38,6 +40,7 @@ public class AddComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.removeComponent(component, false);
+		AssetService.removeFromBundle(node, component.ensureUuid(), node);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);

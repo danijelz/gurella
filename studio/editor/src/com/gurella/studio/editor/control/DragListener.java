@@ -105,16 +105,15 @@ final class DragListener implements Listener {
 		}
 	}
 
-	private void transferItem(Dockable dockable, int dragItemNewIndex) {
-		int itemIndex = dockable.addItem(null, dragItem.getText(), dragItem.getImage(), dragItemNewIndex);
-		CTabFolder targetTabFolder = dockable.tabFolder;
-		CTabItem newItem = targetTabFolder.getItem(itemIndex);
+	private void transferItem(Dockable dockable, int newIndex) {
 		DockableViewComposite composite = (DockableViewComposite) dragItem.getControl();
-		if (composite != null) {
-			composite.setParent(targetTabFolder);
-			newItem.setControl(composite);
-			dragItem.setControl(null);
-		}
+		CTabFolder targetTabFolder = dockable.tabFolder;
+		composite.setParent(targetTabFolder);
+		
+		dockable.addItem(composite.getView(), dragItem.getText(), dragItem.getImage(), newIndex);
+		CTabItem newItem = targetTabFolder.getItem(newIndex);
+		newItem.setControl(composite);
+		dragItem.setControl(null);
 
 		ToolItem toolItem = (ToolItem) dragItem.getData();
 		toolItem.dispose();

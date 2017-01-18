@@ -10,7 +10,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
@@ -26,7 +25,6 @@ class NodeDropTargetListener extends DropTargetAdapter implements HistoryContrib
 	NodeDropTargetListener(Tree graph, int editorId) {
 		this.graph = graph;
 		this.editorId = editorId;
-		Workbench.activate(editorId, this);
 	}
 
 	@Override

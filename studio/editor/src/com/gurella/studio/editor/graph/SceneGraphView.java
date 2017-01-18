@@ -173,17 +173,30 @@ public class SceneGraphView extends DockableView
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 
-		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(
-				new ComponentDropTargetListener(graph, editorId), new NodeDropTargetListener(graph, editorId),
-				createAssetDropTargetListener());
+		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(createComponentDropTargetListener(),
+				createNodeDropTargetListener(), createAssetDropTargetListener());
 		dropTarget.addDropListener(listener);
 	}
 
+	private ComponentDropTargetListener createComponentDropTargetListener() {
+		ComponentDropTargetListener listener = new ComponentDropTargetListener(graph, editorId);
+		graph.addDisposeListener(e -> Workbench.deactivate(editorId, listener));
+		Workbench.activate(editorId, listener);
+		return listener;
+	}
+
+	private NodeDropTargetListener createNodeDropTargetListener() {
+		NodeDropTargetListener listener = new NodeDropTargetListener(graph, editorId);
+		graph.addDisposeListener(e -> Workbench.deactivate(editorId, listener));
+		Workbench.activate(editorId, listener);
+		return listener;
+	}
+
 	private AssetDropTargetListener createAssetDropTargetListener() {
-		AssetDropTargetListener assetDropTargetListener = new AssetDropTargetListener(editorId);
-		graph.addDisposeListener(e -> Workbench.deactivate(editorId, assetDropTargetListener));
-		Workbench.activate(editorId, assetDropTargetListener);
-		return assetDropTargetListener;
+		AssetDropTargetListener listener = new AssetDropTargetListener(editorId);
+		graph.addDisposeListener(e -> Workbench.deactivate(editorId, listener));
+		Workbench.activate(editorId, listener);
+		return listener;
 	}
 
 	private void initFocusHandlers() {

@@ -54,10 +54,10 @@ public class ReparentNodeOperation extends AbstractOperation {
 	private void setParent(int newIndex, SceneNode newParent) {
 		if (newParent == null) {
 			scene.addNode(node);
-			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		} else {
 			newParent.addChild(node);
 		}
+
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, newParent, node));
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, newParent, node));

@@ -1,6 +1,7 @@
 package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.IdentityMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
@@ -28,16 +29,19 @@ class AssetInfo implements Poolable {
 	}
 
 	public <T> T getBundledAsset(String internalId) {
-		if (bundledAssets != null) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) bundledAssets.get(internalId);
-			return casted;
+		if (bundledAssets == null) {
+			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
 		}
 
-		bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
 		@SuppressWarnings("unchecked")
 		T casted = (T) bundledAssets.get(internalId);
 		return casted;
+	}
+
+	private void initBundledAssets() {
+		if (bundledAssets == null) {
+
+		}
 	}
 
 	void incRefCount() {
@@ -68,21 +72,41 @@ class AssetInfo implements Poolable {
 	}
 
 	void addBundledAsset(String internalId, Object bundledAsset) {
-		if (bundledAssets == null || bundledAssets == emptyBundledAssets) {
-			bundledAssets = new IdentityMap<String, Object>();
+		if (!(asset instanceof Bundle)) {
+			throw new UnsupportedOperationException();
 		}
+
+		if (bundledAssets == null) {
+			bundledAssets = ((Bundle) asset).getBundledAssets();
+		}
+
 		bundledAssets.put(internalId, bundledAsset);
 	}
 
 	void removeBundledAsset(String internalId) {
-		if (bundledAssets == null || bundledAssets == emptyBundledAssets) {
-			return;
+		if (!(asset instanceof Bundle)) {
+			throw new UnsupportedOperationException();
 		}
+
+		if (bundledAssets == null) {
+			bundledAssets = ((Bundle) asset).getBundledAssets();
+		}
+
 		bundledAssets.remove(internalId);
 	}
 
 	boolean isReferenced() {
 		return sticky || refCount > 0 || dependents.size > 0;
+	}
+
+	public String getBundledAssetInternalId(Object bundledAsset) {
+		for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
+			if (bundledAssetsEntry.value == asset) {
+				return bundledAssetsEntry.key;
+			}
+		}
+
+		throw new IllegalStateException();
 	}
 
 	@Override

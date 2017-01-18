@@ -451,9 +451,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	}
 
 	private static void appendBundledAssets(IdentityMap<String, Object> bundledAssets, ManagedObject object) {
-		if (object.uuid != null) {
-			bundledAssets.put(object.uuid, object);
-		}
+		bundledAssets.put(object.ensureUuid(), object);
 		OrderedIdentitySet<ManagedObject> children = object._children;
 		for (int i = 0, n = children.size; i < n; i++) {
 			appendBundledAssets(bundledAssets, children.get(i));

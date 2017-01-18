@@ -26,7 +26,6 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -43,7 +42,6 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 
 	ConvertToPrefabDropTargetListener(SceneEditorContext context) {
 		this.context = context;
-		Workbench.activate(context.editorId, this);
 	}
 
 	@Override
@@ -136,6 +134,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 		IFile file = project.getFile(projectAssetPath);
 		if (file.exists()) {
+			//TODO warn
 			file.setContents(is, true, true, context.getProgressMonitor());
 		} else {
 			file.create(is, true, context.getProgressMonitor());

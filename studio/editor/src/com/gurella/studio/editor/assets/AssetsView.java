@@ -156,7 +156,14 @@ public class AssetsView extends DockableView
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(this),
-				new ConvertToPrefabDropTargetListener(context)));
+				createConvertToPrefabDropTargetListener()));
+	}
+
+	private ConvertToPrefabDropTargetListener createConvertToPrefabDropTargetListener() {
+		ConvertToPrefabDropTargetListener listener = new ConvertToPrefabDropTargetListener(context);
+		tree.addDisposeListener(e -> Workbench.deactivate(editorId, listener));
+		Workbench.activate(editorId, listener);
+		return listener;
 	}
 
 	private void initFocusHandlers() {

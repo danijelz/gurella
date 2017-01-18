@@ -78,10 +78,6 @@ public class AssetSelectionWidget<T> extends Composite {
 		UiUtils.paintBordersFor(this);
 	}
 
-	private boolean isValidResource(IResource item) {
-		return (item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
-	}
-
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
 		AssetType value = AssetType.value(assetType);
@@ -99,9 +95,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		text.setText(assetPath.lastSegment());
 		text.setMessage("");
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
-
 		unloadLastAsset();
-
 		lastLoaded = asset;
 	}
 
@@ -158,6 +152,10 @@ public class AssetSelectionWidget<T> extends Composite {
 			event.detail = DND.DROP_NONE;
 			Optional.ofNullable((IResource[]) event.data).filter(d -> d.length == 1).map(d -> d[0])
 					.filter(r -> isValidResource(r)).ifPresent(r -> assetSelected(r.getLocation().toString()));
+		}
+
+		private boolean isValidResource(IResource item) {
+			return (item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
 		}
 	}
 }

@@ -959,10 +959,19 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	void addToBundle(Bundle bundle, String internalId, Object asset) {
-		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
+		Bundle rootBundle = getRootBundle(bundle);
+		Bundle assetRootBundle = getAssetRootBundle(asset);
+
+		if (assetRootBundle == rootBundle) {
+			return;
+		} else if (assetRootBundle != null) {
+			removeFromBundle(assetRootBundle, internalId, asset);
+		}
+
+		String fileName = fileNamesByAsset.get(rootBundle);
 		AssetInfo info = assetsByFileName.get(fileName);
 
-		assetBundle.put(asset, bundle);
+		assetBundle.put(asset, rootBundle);
 		fileNamesByAsset.put(asset, fileName);
 		info.addBundledAsset(internalId, asset);
 
@@ -972,7 +981,7 @@ public class AssetRegistry extends AssetManager {
 			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
 					.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.put(bundledAsset, bundle);
+				assetBundle.put(bundledAsset, rootBundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
 				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
 			}
@@ -1002,15 +1011,9 @@ public class AssetRegistry extends AssetManager {
 
 	public String getBundledAssetInternalId(Object asset) {
 		Bundle bundle = assetBundle.get(asset);
-		Bundle rootBundle = getRootBundle(bundle);
-		IdentityMap<String, Object> bundledAssets = rootBundle.getBundledAssets();
-		for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-			if (bundledAssetsEntry.value == asset) {
-				return bundledAssetsEntry.key;
-			}
-		}
-
-		throw new IllegalStateException();
+		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
+		AssetInfo info = assetsByFileName.get(fileName);
+		return info.getBundledAssetInternalId(asset);
 	}
 
 	private Bundle getRootBundle(Bundle bundle) {
@@ -1023,6 +1026,11 @@ public class AssetRegistry extends AssetManager {
 				last = temp;
 			}
 		}
+	}
+
+	private Bundle getAssetRootBundle(Object asset) {
+		Bundle bundle = assetBundle.get(asset);
+		return bundle == null ? null : getRootBundle(bundle);
 	}
 
 	@Override
