@@ -491,7 +491,7 @@ public class AssetRegistry extends AssetManager {
 		for (String dependencyFileName : info.dependencies) {
 			AssetInfo dependencyInfo = assetsByFileName.get(dependencyFileName);
 			dependencyInfo.removeDependent(fileName);
-			if (!dependencyInfo.isReferenced()) {
+			if (!dependencyInfo.isActive()) {
 				unloadAsset(dependencyFileName, dependencyInfo);
 			}
 		}
@@ -499,8 +499,7 @@ public class AssetRegistry extends AssetManager {
 
 	private <T> void cancleTask(AssetLoadingTask<T> task) {
 		AssetInfo info = task.info;
-		info.decRefCount();
-		if (info.isReferenced()) {
+		if (info.decRefCount()) {
 			return;
 		}
 
@@ -930,7 +929,7 @@ public class AssetRegistry extends AssetManager {
 		info = assetsByFileName.get(dependencyFileName);
 		info.removeDependent(assetFileName);
 
-		if (!info.isReferenced()) {
+		if (!info.isActive()) {
 			unloadAsset(dependencyFileName, info);
 		}
 	}
@@ -953,7 +952,7 @@ public class AssetRegistry extends AssetManager {
 		info = assetsByFileName.get(oldDependencyFileName);
 		info.removeDependent(assetFileName);
 
-		if (!info.isReferenced()) {
+		if (!info.isActive()) {
 			unloadAsset(oldDependencyFileName, info);
 		}
 	}

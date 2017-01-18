@@ -52,7 +52,7 @@ class AssetInfo implements Poolable {
 		if (refCount > 0) {
 			refCount--;
 		}
-		return isReferenced();
+		return isActive();
 	}
 
 	void addDependency(String dependency) {
@@ -95,7 +95,7 @@ class AssetInfo implements Poolable {
 		bundledAssets.remove(internalId);
 	}
 
-	boolean isReferenced() {
+	boolean isActive() {
 		return sticky || refCount > 0 || dependents.size > 0;
 	}
 
