@@ -38,7 +38,6 @@ public class JsonObjectLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderP
 	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
 			AssetLoaderParameters<T> parameters) {
 		input.init(file);
-		Array<AssetDescriptor> dependencies = Values.cast(input.getExternalDependencies());
-		return dependencies;
+		return Values.cast(input.getExternalDependencies());
 	}
 }
