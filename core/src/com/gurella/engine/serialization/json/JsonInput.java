@@ -2,7 +2,7 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferencePathTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
 import static com.gurella.engine.serialization.json.JsonSerialization.createAssetDescriptor;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
@@ -35,11 +35,14 @@ public class JsonInput implements Input, Poolable {
 
 	private JsonValue rootValue;
 	private JsonValue value;
-	private Array<JsonValue> valueStack = new Array<JsonValue>();
-	private ArrayExt<Object> objectStack = new ArrayExt<Object>();
+	private final Array<JsonValue> valueStack = new Array<JsonValue>();
+	private final ArrayExt<Object> objectStack = new ArrayExt<Object>();
 
-	private IntMap<Object> references = new IntMap<Object>();
-	private ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
+	private final IntMap<Object> references = new IntMap<Object>();
+	private final ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
+
+	private boolean descriptorsInitialized;
+	private final Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 
 	private CopyContext copyContext = new CopyContext();
 
@@ -183,8 +186,8 @@ public class JsonInput implements Input, Poolable {
 			pop();
 		} else if (value.isObject()) {
 			if (assetReferenceType.equals(value.getString(typeTag, null))) {
-				String assetLocation = value.getString(assetReferencePathTag);
-				result = AssetService.get(assetLocation);
+				int assetIndex = value.getInt(assetReferenceIndexTag);
+				result = AssetService.get(getAssetLocation(assetIndex));
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
@@ -218,6 +221,12 @@ public class JsonInput implements Input, Poolable {
 
 		next();
 		return result;
+	}
+
+	private String getAssetLocation(int index) {
+		initDescriptors();
+		AssetDescriptor<?> assetDescriptor = descriptors.get(index);
+		return assetDescriptor.fileName;
 	}
 
 	@Override
@@ -314,22 +323,29 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
+		initDescriptors();
+		return descriptors.size == 0 ? null : descriptors;
+	}
+
+	private void initDescriptors() {
+		if (descriptorsInitialized) {
+			return;
+		}
+
+		descriptorsInitialized = true;
 		int size = rootValue == null ? 0 : rootValue.size;
 		if (size < 1) {
-			return null;
+			return;
 		}
 
 		JsonValue lastValue = rootValue.get(size - 1);
 		if (!dependenciesTag.equals(lastValue.name)) {
-			return null;
+			return;
 		}
 
-		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
 			descriptors.add(createAssetDescriptor(value.asString()));
 		}
-
-		return descriptors;
 	}
 
 	@Override
@@ -340,6 +356,8 @@ public class JsonInput implements Input, Poolable {
 		objectStack.clear();
 		references.clear();
 		referenceValues.clear();
+		descriptors.clear();
+		descriptorsInitialized = false;
 		copyContext.reset();
 	}
 }

@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.inspector.material;
 
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsRelativePath;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 
@@ -90,7 +91,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
-		materialDescriptor = editorContext.load(target.getLocation().toString());
+		materialDescriptor = editorContext.load(getAssetsRelativePath(target).toString());
 
 		Composite body = getBody();
 		body.setLayout(new GridLayout());

@@ -41,7 +41,7 @@ public class JsonSerialization {
 	static final String arrayType = "[";
 	static final String arrayTypeTag = "t";
 	static final String assetReferenceType = "@";
-	static final String assetReferencePathTag = "p";
+	static final String assetReferenceIndexTag = "p";
 
 	private static final ObjectMap<String, String> typeAbbreviations = new ObjectMap<String, String>();
 	private static final ObjectMap<Class<?>, String> abbreviatedTypes = new ObjectMap<Class<?>, String>();
@@ -147,7 +147,7 @@ public class JsonSerialization {
 		int index = strValue.indexOf(' ');
 		String typeName = strValue.substring(0, index);
 		String fileName = strValue.substring(index + 1, strValue.length());
-		Class<T> assetType = Reflection.forName(typeName);
+		Class<T> assetType = Reflection.forName(deserializeType(typeName));
 		return new AssetDescriptor<T>(Gdx.files.internal(fileName), assetType);
 	}
 }

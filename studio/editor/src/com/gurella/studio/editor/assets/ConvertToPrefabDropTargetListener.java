@@ -53,10 +53,9 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 	public void dragEnter(DropTargetEvent event) {
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferedNode() == null) {
 			event.detail = DND.DROP_NONE;
-			return;
+		} else {
+			event.detail = DND.DROP_MOVE;
 		}
-
-		event.detail = DND.DROP_MOVE;
 	}
 
 	private static SceneNode getTransferedNode() {
@@ -134,7 +133,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 		IFile file = project.getFile(projectAssetPath);
 		if (file.exists()) {
-			//TODO warn
+			// TODO make shure this does not happen
 			file.setContents(is, true, true, context.getProgressMonitor());
 		} else {
 			file.create(is, true, context.getProgressMonitor());

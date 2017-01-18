@@ -2,7 +2,7 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferencePathTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
@@ -16,7 +16,7 @@ import java.io.StringWriter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetService;
@@ -33,7 +33,7 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private ObjectSet<String> externalDependencies = new ObjectSet<String>(); // TODO OrderedSet
+	private OrderedSet<String> externalDependencies = new OrderedSet<String>(); // TODO OrderedSet
 
 	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
 		return serialize(file, expectedType, null, rootObject);
@@ -280,9 +280,18 @@ public class JsonOutput implements Output, Poolable {
 	private void writeAsset(Object asset, String assetLocation) {
 		object();
 		writeStringProperty(typeTag, assetReferenceType);
-		writeStringProperty(assetReferencePathTag, assetLocation);
+		writeIntProperty(assetReferenceIndexTag, getAssetId(asset, assetLocation));
 		pop();
-		externalDependencies.add(asset.getClass().getName() + " " + assetLocation);
+	}
+
+	private int getAssetId(Object asset, String assetLocation) {
+		String dependency = serializeType(asset.getClass()) + " " + assetLocation;
+		if (externalDependencies.add(dependency)) {
+			externalDependencies.add(dependency);
+			return externalDependencies.orderedItems().indexOf(dependency, false);
+		} else {
+			return externalDependencies.size - 1;
+		}
 	}
 
 	@Override
