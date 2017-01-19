@@ -5,7 +5,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
 
-class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
+public class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	private final Scene scene;
 	private UiComponent focusedComponent;
 
@@ -16,45 +16,58 @@ class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	public void activate() {
 		EventService.subscribe(scene.getInstanceId(), this);
 	}
-	
+
 	public void deactivate() {
 		EventService.unsubscribe(scene.getInstanceId(), this);
 	}
 
 	@Override
 	public void keyDown(int keycode) {
-		if(focusedComponent == null) {
+		if (focusedComponent == null) {
 			return;
 		}
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyUp(int keycode) {
-		if(focusedComponent == null) {
+		if (focusedComponent == null) {
 			return;
 		}
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyTyped(char character) {
-		if(focusedComponent == null) {
+		if (focusedComponent == null) {
 			return;
 		}
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void requestFocus(UiComponent uiComponent) {
-		// TODO Auto-generated method stub
-		
+		if (uiComponent.isFocusable()) {
+			if (focusedComponent != null) {
+				focusedComponent.setFocused(false);
+			}
+
+			focusedComponent = uiComponent;
+			focusedComponent.setFocused(true);
+		}
 	}
 
 	public boolean hasFocus(UiComponent uiComponent) {
-		// TODO Auto-generated method stub
-		return false;
+		return uiComponent == focusedComponent;
+	}
+
+	public void nextFocus() {
+		// TODO
+	}
+
+	public void prewFocus() {
+		// TODO
 	}
 }

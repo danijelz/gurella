@@ -416,16 +416,16 @@ public class AssetRegistry extends AssetManager {
 
 	public <T> boolean unload(T asset) {
 		String fileName = fileNamesByAsset.get(asset);
-		if (assetBundle.containsKey(asset)) {
+		if (fileName == null) {
 			return false;
 		}
 
-		if (fileName != null) {
-			unloadAsset(fileName);
-			return true;
-		} else {
+		Bundle bundle = assetBundle.get(asset);
+		if (bundle != null && bundle != asset) {
 			return false;
 		}
+
+		return unloadAsset(fileName);
 	}
 
 	@Override
@@ -441,14 +441,17 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	private void unloadAsset(String fileName) {
+	private boolean unloadAsset(String fileName) {
 		AssetInfo info = assetsByFileName.get(fileName);
 		if (info == null) {
-			return;
+			return false;
 		}
 
 		if (!info.decRefCount()) {
 			unloadAsset(fileName, info);
+			return true;
+		} else {
+			return false;
 		}
 	}
 

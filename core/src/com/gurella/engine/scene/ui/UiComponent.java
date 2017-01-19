@@ -4,18 +4,18 @@ import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent;
 
 @BaseSceneElement
-public class UiComponent extends SceneNodeComponent {
-	public int x;
-	public int y;
-	public int w;
-	public int h;
-	public boolean visible;
-	public boolean blocked;
+public abstract class UiComponent extends SceneNodeComponent {
+	int x;
+	int y;
+	int w;
+	int h;
+	
+	boolean visible;
+	boolean uiEnabled;
 	
 	Composite parent;
 	UiSystem uiSystem;
 
-	// TODO
 	public void requestFocus() {
 		if(isFocusable()) {
 			uiSystem.uiFocusManager.requestFocus(this);
@@ -35,5 +35,9 @@ public class UiComponent extends SceneNodeComponent {
 	}
 
 	public void setFocusable() {
+	}
+	
+	void setFocused(boolean focused) {
+		//TODO FocusInfo
 	}
 }

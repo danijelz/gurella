@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
@@ -51,7 +52,7 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 
 	@Override
 	public void onEditorPreClose() {
-		Optional.ofNullable(scene).ifPresent(s -> s.stop());
+		Optional.ofNullable(scene).ifPresent(s -> AssetService.unload(s));
 	}
 
 	@Override

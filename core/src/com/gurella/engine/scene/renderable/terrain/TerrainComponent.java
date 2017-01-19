@@ -185,20 +185,20 @@ public class TerrainComponent extends RenderableComponent3d {
 	}
 
 	private void setVertex(int index, MeshPartBuilder.VertexInfo info) {
-		index *= stride;
+		int temp = index * stride;
 		if (posPos >= 0) {
-			vertices[index + posPos] = info.position.x;
-			vertices[index + posPos + 1] = info.position.y;
-			vertices[index + posPos + 2] = info.position.z;
+			vertices[temp + posPos] = info.position.x;
+			vertices[temp + posPos + 1] = info.position.y;
+			vertices[temp + posPos + 2] = info.position.z;
 		}
 		if (uvPos >= 0) {
-			vertices[index + uvPos] = info.uv.x;
-			vertices[index + uvPos + 1] = info.uv.y;
+			vertices[temp + uvPos] = info.uv.x;
+			vertices[temp + uvPos + 1] = info.uv.y;
 		}
 		if (norPos >= 0) {
-			vertices[index + norPos] = info.normal.x;
-			vertices[index + norPos + 1] = info.normal.y;
-			vertices[index + norPos + 2] = info.normal.z;
+			vertices[temp + norPos] = info.normal.x;
+			vertices[temp + norPos + 1] = info.normal.y;
+			vertices[temp + norPos + 2] = info.normal.z;
 		}
 	}
 

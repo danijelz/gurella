@@ -1,6 +1,7 @@
 package com.gurella.studio.editor;
 
 import static com.gurella.studio.GurellaStudioPlugin.log;
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsRelativePath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
@@ -73,6 +75,10 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public IProgressMonitor getProgressMonitor() {
 		return editorSite.getActionBars().getStatusLineManager().getProgressMonitor();
 	}
+	
+	public <T> T load(IFile assetFile) {
+		return load(getAssetsRelativePath(assetFile).toString());
+	}
 
 	public <T> T load(String fileName) {
 		Object asset = editedAssets.get(fileName);
@@ -82,11 +88,22 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		}
 		return Values.cast(asset);
 	}
+	
+	public void unload(IFile assetFile) {
+		unload(getAssetsRelativePath(assetFile).toString());
+	}
 
 	public void unload(String fileName) {
+		String location;
+		if(fileName.contains(AssetsFolderLocator.assetsFolderName)) {
+			location
+		} else {
+			location = fileName;
+		}
+		
 		Object asset = editedAssets.remove(fileName);
 		if (asset != null) {
-			AssetService.unload(fileName);
+			AssetService.unload(asset);
 		}
 	}
 

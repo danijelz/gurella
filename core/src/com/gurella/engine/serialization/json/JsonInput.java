@@ -17,7 +17,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -31,7 +30,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonInput implements Input, Poolable {
-	private JsonReader reader = new JsonReader();
+	private PoolableJsonReader reader = new PoolableJsonReader();
 
 	private AssetProvider assetProvider;
 
@@ -190,8 +189,8 @@ public class JsonInput implements Input, Poolable {
 			if (assetReferenceType.equals(value.getString(typeTag, null))) {
 				int assetIndex = value.getInt(assetReferenceIndexTag);
 				String assetLocation = getAssetLocation(assetIndex);
-				result = assetProvider == null ? AssetService.get(assetLocation)
-						: assetProvider.getAsset(assetLocation);
+				result = assetProvider == null ? AssetService.<T> get(assetLocation)
+						: assetProvider.<T> getAsset(assetLocation);
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
@@ -368,5 +367,6 @@ public class JsonInput implements Input, Poolable {
 		descriptorsInitialized = false;
 		descriptors.clear();
 		copyContext.reset();
+		reader.reset();
 	}
 }
