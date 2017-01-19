@@ -114,8 +114,8 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		return getInstance().assetRegistry.isLoaded(fileName);
 	}
 
-	public static <T> boolean unload(T resource) {
-		return getInstance().assetRegistry.unload(resource);
+	public static <T> boolean unload(T asset) {
+		return getInstance().assetRegistry.unload(asset);
 	}
 
 	public static <T> T get(String fileName) {
@@ -130,8 +130,8 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		return getInstance().assetRegistry.getAll(type, out);
 	}
 
-	public static <T> String getFileName(T resource) {
-		return getInstance().assetRegistry.getAssetFileName(resource);
+	public static <T> String getFileName(T asset) {
+		return getInstance().assetRegistry.getAssetFileName(asset);
 	}
 
 	public static boolean isManaged(Object asset) {

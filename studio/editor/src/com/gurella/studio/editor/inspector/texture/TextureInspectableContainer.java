@@ -26,6 +26,8 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 	private Composite imageComposite;
 	private Image image;
 
+	private TextureProperties properties;
+
 	public TextureInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 		setText(target.getName());
@@ -37,9 +39,11 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 
 		int editorId = editorContext.editorId;
 		IJavaProject javaProject = editorContext.javaProject;
-		TextureProperties properties = editorContext.loadAssetProperties(target, Texture.class);
+		properties = editorContext.loadAssetProperties(target, Texture.class);
 		properties = properties == null ? new TextureProperties() : properties;
 		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);
+		textureProperties.getContext().propertiesSignal
+				.addListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

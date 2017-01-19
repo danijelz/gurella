@@ -20,6 +20,7 @@ import org.eclipse.ui.IPathEditorInput;
 import com.badlogic.gdx.Files.FileType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
@@ -39,7 +40,8 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public final IJavaProject javaProject;
 
 	private Scene scene;
-	private Map<String, Object> editedAssets = new HashMap<>();
+	private Map<String, Object> editingAssets = new HashMap<>();
+	private Map<String, Object> modifiedAssets = new HashMap<>();
 
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
@@ -58,7 +60,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		editedAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
+		editingAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
 	}
@@ -91,11 +93,16 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	}
 
 	private <T> T load(String fileName) {
-		Object asset = editedAssets.get(fileName);
+		Object asset = editingAssets.get(fileName);
+		if (asset == null) {
+			asset = modifiedAssets.get(fileName);
+		}
+
 		if (asset == null) {
 			asset = AssetService.load(fileName);
-			editedAssets.put(fileName, asset);
+			editingAssets.put(fileName, asset);
 		}
+
 		return Values.cast(asset);
 	}
 
@@ -104,20 +111,34 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	}
 
 	private void unload(String fileName) {
-		Object asset = editedAssets.remove(fileName);
+		Object asset = editingAssets.remove(fileName);
 		if (asset != null) {
 			AssetService.unload(asset);
 		}
 	}
-	
+
+	public void save(Object asset) {
+		save(asset, AssetService.getFileName(asset));
+	}
+
+	public <T extends AssetProperties<?>> void saveProperties(Object asset, T assetProperties) {
+		save(assetProperties, Assets.getPropertiesFileName(asset));
+	}
+
+	public <T extends AssetProperties<?>> void saveProperties(IFile assetFile, T assetProperties) {
+		String assetFileName = getAssetsRelativePath(assetFile).toString();
+		save(assetProperties, Assets.getPropertiesFileName(assetFileName));
+	}
+
 	public void save(Object asset, String fileName) {
-		//TODO 
+		editingAssets.remove(fileName);
+		modifiedAssets.put(fileName, asset);
 	}
 
 	void persist(IProgressMonitor monitor) {
 		String subMonitorName = "Saving loaded assets";
-		SubMonitor subMonitor = SubMonitor.convert(monitor, subMonitorName, editedAssets.size());
-		for (Entry<String, Object> entry : editedAssets.entrySet()) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, subMonitorName, modifiedAssets.size());
+		for (Entry<String, Object> entry : modifiedAssets.entrySet()) {
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();
 			SubMonitor assetSubMonitor = subMonitor.split(1);

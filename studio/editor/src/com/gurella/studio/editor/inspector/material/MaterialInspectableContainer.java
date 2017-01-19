@@ -279,7 +279,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void onDispose() {
 		synchronized (SwtLwjglGraphics.glMutex) {
-			if (!dirty) {
+			if (dirty) {
+				editorContext.save(target);
+			} else {
 				editorContext.unload(target);
 			}
 			wall.dispose();

@@ -113,6 +113,15 @@ public class Assets {
 		}
 	}
 
+	public static String getPropertiesFileName(Object asset) {
+		AssetType assetType = getAssetType(asset.getClass());
+		if (assetType != null && assetType.propsType != null) {
+			return extractPropertiesFileName(AssetService.getFileName(asset));
+		} else {
+			return null;
+		}
+	}
+
 	public static String getPropertiesFileName(String fileName, Class<?> assetType) {
 		AssetType assetTypeEnum = Assets.getAssetType(assetType);
 		if (assetTypeEnum != null && assetTypeEnum.propsType != null) {
@@ -181,7 +190,7 @@ public class Assets {
 			return AssetService.get(propsHandle.name());
 		}
 	}
-	
+
 	public static <T extends AssetProperties<?>> T loadAssetProperties(Object asset) {
 		String assetFileName = AssetService.getFileName(asset);
 		FileHandle propsHandle = getPropertiesFile(asset.getClass(), assetFileName, FileType.Internal);
