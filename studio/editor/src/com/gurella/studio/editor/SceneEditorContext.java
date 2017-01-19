@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
+import com.badlogic.gdx.Files.FileType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.event.EventService;
@@ -82,7 +83,11 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
 		String propertiesFileName = Assets.getPropertiesFileName(assetFileName, assetType);
-		return propertiesFileName == null ? null : load(assetFileName);
+		if (propertiesFileName != null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
+			return load(propertiesFileName);
+		} else {
+			return null;
+		}
 	}
 
 	private <T> T load(String fileName) {

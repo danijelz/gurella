@@ -125,7 +125,7 @@ public class Assets {
 	private static String extractPropertiesFileName(String assetFileName) {
 		String extension = AssetType.assetProperties.extension();
 		int index = assetFileName.lastIndexOf(fileExtensionDelimiter);
-		return assetFileName.substring(0, index) + extension;
+		return assetFileName.substring(0, index) + '.' + extension;
 	}
 
 	public static boolean hasPropertiesFile(String assetFileName, FileType fileType) {
@@ -134,8 +134,12 @@ public class Assets {
 			return false;
 		}
 
+		return fileExists(propertiesFileName, fileType);
+	}
+
+	public static boolean fileExists(String fileName, FileType fileType) {
 		//TODO garbage
-		FileHandle propsHandle = Gdx.files.getFileHandle(propertiesFileName, fileType);
+		FileHandle propsHandle = Gdx.files.getFileHandle(fileName, fileType);
 		return propsHandle.exists();
 	}
 
@@ -155,8 +159,7 @@ public class Assets {
 			return false;
 		}
 
-		FileHandle propsHandle = Gdx.files.getFileHandle(propertiesFileName, fileType);
-		return propsHandle.exists();
+		return fileExists(propertiesFileName, fileType);
 	}
 
 	public static FileHandle getPropertiesFile(Class<?> assetType, String assetFileName, FileType fileType) {
