@@ -13,6 +13,12 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.gurella.engine.application.ApplicationConfig;
+import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset.properties.AudioClipProperties;
+import com.gurella.engine.asset.properties.ModelProperties;
+import com.gurella.engine.asset.properties.PixmapProperties;
+import com.gurella.engine.asset.properties.TextureAtlasProperties;
+import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.engine.audio.AudioClip;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -24,26 +30,26 @@ import com.gurella.engine.scene.SceneNode;
 
 //TODO convert to plugins
 public enum AssetType {
-	texture(Texture.class, false, true, "png", "jpg", "jpeg"),
-	textureAtlas(TextureAtlas.class, false, true, "atl"),
+	texture(Texture.class, false, TextureProperties.class, "png", "jpg", "jpeg"),
+	textureAtlas(TextureAtlas.class, false, TextureAtlasProperties.class, "atl"),
 	cubemap(Cubemap.class, "ktx", "zktx"),
 	bitmapFont(BitmapFont.class, "fnt"),
 	I18NBundle(I18NBundle.class, "i18n"),
-	model(Model.class, false, true, "g3dj", "g3db", "obj"),
+	model(Model.class, false, ModelProperties.class, "g3dj", "g3db", "obj"),
 	music(Music.class, "wav", "ogg", "mp3", "scl"),
 	sound(Sound.class, "wav", "ogg", "mp3", "scl"),
 	soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
-	audioClip(AudioClip.class, false, true, "wav", "ogg", "mp3", "scl"),
-	pixmap(Pixmap.class, false, true, "png", "bmp", "jpg", "jpeg"),
+	audioClip(AudioClip.class, false, AudioClipProperties.class, "wav", "ogg", "mp3", "scl"),
+	pixmap(Pixmap.class, false, PixmapProperties.class, "png", "bmp", "jpg", "jpeg"),
 	polygonRegion(PolygonRegion.class, "psh"),
-	inputActionMap(InputActionMap.class, true, false, "giam"),
-	prefab(SceneNode.class, true, false, "pref"),
-	scene(Scene.class, true, false, "gscn"),
-	material(MaterialDescriptor.class, true, false, "gmat"),
-	shaderTemplate(ShaderTemplate.class, true, false, "glslt"),
-	renderTarget(RenderTarget.class, true, false, "grt"),
-	applicationConfig(ApplicationConfig.class, true, false, "gcfg"),
-	assetProperties(ApplicationConfig.class, true, false, "gprop"),
+	inputActionMap(InputActionMap.class, true, null, "giam"),
+	prefab(SceneNode.class, true, null, "pref"),
+	scene(Scene.class, true, null, "gscn"),
+	material(MaterialDescriptor.class, true, null, "gmat"),
+	shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
+	renderTarget(RenderTarget.class, true, null, "grt"),
+	applicationConfig(ApplicationConfig.class, true, null, "gcfg"),
+	assetProperties(ApplicationConfig.class, true, null, "gprop"),
 	renderProgram(UnimplementedAsset.class),
 	spritterAnimation(UnimplementedAsset.class),
 	splineAnimation(UnimplementedAsset.class),
@@ -55,17 +61,18 @@ public enum AssetType {
 	public final Class<?> assetType;
 	public final String[] extensions;
 	public final boolean composite;
-	public final boolean hasPropsFile;
+	public final Class<? extends AssetProperties<?>> propsType;
 
 	private AssetType(Class<?> assetType, String... extensions) {
-		this(assetType, false, false, extensions);
+		this(assetType, false, null, extensions);
 	}
 
-	private AssetType(Class<?> assetType, boolean composite, boolean hasPropsFile, String... extensions) {
+	private AssetType(Class<?> assetType, boolean composite, Class<? extends AssetProperties<?>> propsType,
+			String... extensions) {
 		this.assetType = assetType;
 		this.extensions = extensions;
 		this.composite = composite;
-		this.hasPropsFile = hasPropsFile;
+		this.propsType = propsType;
 		Arrays.sort(this.extensions);
 	}
 

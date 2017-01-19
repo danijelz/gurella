@@ -120,12 +120,13 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 
 		Array<AssetDescriptor<?>> descriptors = Values.cast(loader.getDependencies(fileName, file, params));
-		if (Assets.getAssetType(fileName).hasPropsFile) {
+		AssetType assetType = Assets.getAssetType(fileName);
+		if (assetType != null && assetType.propsType != null) {
 			String extension = AssetType.assetProperties.extension();
 			FileHandle propsHandle = Gdx.files.getFileHandle(file.pathWithoutExtension() + extension, file.type());
 			if (propsHandle.exists()) {
 				descriptors = descriptors == null ? new Array<AssetDescriptor<?>>() : descriptors;
-				Class<AssetProperties<?>> propsType = Values.<Class<AssetProperties<?>>> cast(AssetProperties.class);
+				Class<AssetProperties<?>> propsType = Values.<Class<AssetProperties<?>>> cast(assetType.propsType);
 				descriptors.add(new AssetDescriptor<AssetProperties<?>>(propsHandle, propsType));
 			}
 		}
