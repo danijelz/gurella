@@ -33,6 +33,8 @@ import com.gurella.engine.utils.Reflection;
 public class JsonInput implements Input, Poolable {
 	private JsonReader reader = new JsonReader();
 
+	private AssetProvider assetProvider;
+
 	private JsonValue rootValue;
 	private JsonValue value;
 	private final Array<JsonValue> valueStack = new Array<JsonValue>();
@@ -187,7 +189,9 @@ public class JsonInput implements Input, Poolable {
 		} else if (value.isObject()) {
 			if (assetReferenceType.equals(value.getString(typeTag, null))) {
 				int assetIndex = value.getInt(assetReferenceIndexTag);
-				result = AssetService.get(getAssetLocation(assetIndex));
+				String assetLocation = getAssetLocation(assetIndex);
+				result = assetProvider == null ? AssetService.get(assetLocation)
+						: assetProvider.getAsset(assetLocation);
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
@@ -221,6 +225,10 @@ public class JsonInput implements Input, Poolable {
 
 		next();
 		return result;
+	}
+
+	public void setAssetProvider(AssetProvider assetProvider) {
+		this.assetProvider = assetProvider;
 	}
 
 	private String getAssetLocation(int index) {
@@ -350,14 +358,15 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public void reset() {
+		assetProvider = null;
 		rootValue = null;
 		value = null;
 		valueStack.clear();
 		objectStack.clear();
 		references.clear();
 		referenceValues.clear();
-		descriptors.clear();
 		descriptorsInitialized = false;
+		descriptors.clear();
 		copyContext.reset();
 	}
 }

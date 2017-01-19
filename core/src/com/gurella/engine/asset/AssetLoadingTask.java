@@ -93,7 +93,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	}
 
 	@Override
-	@SuppressWarnings("fallthrough")
 	public Void call() throws Exception {
 		try {
 			switch (assetLoadingState) {
@@ -155,6 +154,10 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	}
 
 	private void loadAsync() {
+		if (loader instanceof DependencyTrackerAware) {
+			((DependencyTrackerAware) loader).setDependencyTracker(info);
+		}
+		
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
 			info.asset = syncLoader.load(manager, fileName, file, params);
@@ -164,11 +167,23 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			asyncLoader.loadAsync(manager, fileName, file, params);
 			manager.readyForSyncLoading(this);
 		}
+		
+		if (loader instanceof DependencyTrackerAware) {
+			((DependencyTrackerAware) loader).setDependencyTracker(null);
+		}
 	}
 
 	void loadSync() {
+		if (loader instanceof DependencyTrackerAware) {
+			((DependencyTrackerAware) loader).setDependencyTracker(info);
+		}
+
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
 		info.asset = asyncLoader.loadSync(manager, fileName, file, params);
+
+		if (loader instanceof DependencyTrackerAware) {
+			((DependencyTrackerAware) loader).setDependencyTracker(null);
+		}
 	}
 
 	void updateProgress() {
@@ -281,7 +296,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		PoolService.freeAll(dependencies);
 		dependencies.clear();
 
-		for (int i = 0, n= concurentTasks.size; i < n; i++) {
+		for (int i = 0, n = concurentTasks.size; i < n; i++) {
 			concurentTasks.get(i).free();
 		}
 		concurentTasks.clear();

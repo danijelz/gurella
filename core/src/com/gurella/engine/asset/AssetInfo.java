@@ -2,17 +2,18 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IdentityMap.Entry;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
-class AssetInfo implements Poolable {
+class AssetInfo implements DependencyTracker, Poolable {
 	private static final IdentityMap<String, Object> emptyBundledAssets = new IdentityMap<String, Object>();
 
 	Object asset;
 	boolean sticky;
 	int refCount = 0;
-	final ObjectSet<String> dependencies = new ObjectSet<String>(4);
+	final ObjectIntMap<String> dependencies = new ObjectIntMap<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
 	private IdentityMap<String, Object> bundledAssets;
 
@@ -38,12 +39,6 @@ class AssetInfo implements Poolable {
 		return casted;
 	}
 
-	private void initBundledAssets() {
-		if (bundledAssets == null) {
-
-		}
-	}
-
 	void incRefCount() {
 		refCount++;
 	}
@@ -55,20 +50,35 @@ class AssetInfo implements Poolable {
 		return isActive();
 	}
 
-	void addDependency(String dependency) {
-		dependencies.add(dependency);
+	@Override
+	public void increaseDependencyRefCount(String dependency) {
+		addDependency(dependency);
 	}
 
-	void removeDependency(String dependency) {
-		dependencies.remove(dependency);
+	int addDependency(String dependency) {
+		return dependencies.getAndIncrement(dependency, 0, 1) + 1;
+	}
+
+	int removeDependency(String dependency) {
+		int ref = dependencies.get(dependency, -1);
+		if (ref < 0) {
+			return ref;
+		} else if (ref > 1) {
+			dependencies.getAndIncrement(dependency, 0, -1);
+			return ref - 1;
+		} else {
+			dependencies.remove(dependency, 0);
+			return 0;
+		}
 	}
 
 	void addDependent(String dependent) {
 		dependents.add(dependent);
 	}
 
-	void removeDependent(String dependent) {
+	boolean removeDependent(String dependent) {
 		dependents.remove(dependent);
+		return isActive();
 	}
 
 	void addBundledAsset(String internalId, Object bundledAsset) {
@@ -101,7 +111,7 @@ class AssetInfo implements Poolable {
 
 	public String getBundledAssetInternalId(Object bundledAsset) {
 		for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-			if (bundledAssetsEntry.value == asset) {
+			if (bundledAssetsEntry.value == bundledAsset) {
 				return bundledAssetsEntry.key;
 			}
 		}

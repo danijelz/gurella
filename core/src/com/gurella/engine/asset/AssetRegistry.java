@@ -41,6 +41,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -488,7 +489,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private void dereferenceDependencies(String fileName, AssetInfo info) {
-		for (String dependencyFileName : info.dependencies) {
+		for (String dependencyFileName : info.dependencies.keys()) {
 			AssetInfo dependencyInfo = assetsByFileName.get(dependencyFileName);
 			dependencyInfo.removeDependent(fileName);
 			if (!dependencyInfo.isActive()) {
@@ -911,30 +912,32 @@ public class AssetRegistry extends AssetManager {
 
 		String assetFileName = fileNamesByAsset.get(asset);
 		String dependencyFileName = fileNamesByAsset.get(dependency);
-
 		AssetInfo info = assetsByFileName.get(assetFileName);
-		info.addDependency(dependencyFileName);
 
-		info = assetsByFileName.get(dependencyFileName);
-		info.addDependent(assetFileName);
+		if (info.addDependency(dependencyFileName) == 1) {
+			info = assetsByFileName.get(dependencyFileName);
+			info.addDependent(assetFileName);
+		}
 	}
 
 	void removeDependency(Object asset, Object dependency) {
 		String assetFileName = fileNamesByAsset.get(asset);
 		String dependencyFileName = fileNamesByAsset.get(dependency);
-
 		AssetInfo info = assetsByFileName.get(assetFileName);
-		info.removeDependency(dependencyFileName);
 
-		info = assetsByFileName.get(dependencyFileName);
-		info.removeDependent(assetFileName);
-
-		if (!info.isActive()) {
-			unloadAsset(dependencyFileName, info);
+		if (info.removeDependency(dependencyFileName) == 0) {
+			info = assetsByFileName.get(dependencyFileName);
+			if (!info.removeDependent(assetFileName)) {
+				unloadAsset(dependencyFileName, info);
+			}
 		}
 	}
 
 	void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+		if (oldDependency == newDependency) {
+			return;
+		}
+
 		if (asset == newDependency) {
 			throw new IllegalArgumentException("Asset can't depend on itself.");
 		}
@@ -944,17 +947,29 @@ public class AssetRegistry extends AssetManager {
 		String newDependencyFileName = fileNamesByAsset.get(newDependency);
 
 		AssetInfo info = assetsByFileName.get(assetFileName);
-		info.removeDependency(oldDependencyFileName);
+		int oldDependencyRefCount = info.removeDependency(oldDependencyFileName);
+		int newDependencyRefCount = info.addDependency(newDependencyFileName);
 
-		info = assetsByFileName.get(newDependencyFileName);
-		info.addDependent(assetFileName);
-
-		info = assetsByFileName.get(oldDependencyFileName);
-		info.removeDependent(assetFileName);
-
-		if (!info.isActive()) {
-			unloadAsset(oldDependencyFileName, info);
+		if (newDependencyRefCount == 1) {
+			info = assetsByFileName.get(newDependencyFileName);
+			info.addDependent(assetFileName);
 		}
+
+		if (oldDependencyRefCount == 0) {
+			info = assetsByFileName.get(oldDependencyFileName);
+			if (!info.removeDependent(assetFileName)) {
+				unloadAsset(oldDependencyFileName, info);
+			}
+		}
+	}
+
+	void increaseDependencyRefCount(String assetFileName, String dependencyFileName) {
+		if (assetFileName == dependencyFileName) {
+			throw new IllegalArgumentException("Asset can't depend on itself");
+		}
+
+		AssetInfo info = assetsByFileName.get(assetFileName);
+		info.addDependency(dependencyFileName);
 	}
 
 	void addToBundle(Bundle bundle, String internalId, Object asset) {
@@ -1127,10 +1142,9 @@ public class AssetRegistry extends AssetManager {
 				builder.append(", refCount: ");
 				builder.append(info.refCount);
 
-				ObjectSet<String> dependencies = info.dependencies;
-				int size = dependencies.size;
-				if (size > 0) {
+				if (info.dependencies.size > 0) {
 					builder.append(", deps: [");
+					Keys<String> dependencies = info.dependencies.keys();
 					for (Iterator<String> iter = dependencies.iterator(); iter.hasNext();) {
 						builder.append(iter.next());
 						if (iter.hasNext()) {
@@ -1142,8 +1156,7 @@ public class AssetRegistry extends AssetManager {
 				}
 
 				ObjectSet<String> dependents = info.dependents;
-				size = dependents.size;
-				if (size > 0) {
+				if (dependents.size > 0) {
 					builder.append(", rels: [");
 					for (Iterator<String> iter = dependents.iterator(); iter.hasNext();) {
 						builder.append(iter.next());
@@ -1175,7 +1188,7 @@ public class AssetRegistry extends AssetManager {
 	public Array<String> getDependencies(String fileName) {
 		synchronized (mutex) {
 			AssetInfo info = assetsByFileName.get(fileName);
-			return info == null ? null : info.dependencies.iterator().toArray();
+			return info == null ? null : info.dependencies.keys().toArray();
 		}
 	}
 
