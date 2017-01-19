@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.inspector.material;
 
-import static com.gurella.studio.common.AssetsFolderLocator.getAssetsRelativePath;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 
@@ -91,7 +90,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
-		materialDescriptor = editorContext.load(getAssetsRelativePath(target).toString());
+		materialDescriptor = editorContext.load(target);
 
 		Composite body = getBody();
 		body.setLayout(new GridLayout());
@@ -232,9 +231,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 
-			DefaultShaderProvider provider = new DefaultShaderProvider(getDefaultVertexShader(),
-					getDefaultFragmentShader());
-			modelBatch = new ModelBatch(provider);
+			modelBatch = new ModelBatch(
+					new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
 			builder = new ModelBuilder();
 
 			wall = createWall();
@@ -282,7 +280,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void onDispose() {
 		synchronized (SwtLwjglGraphics.glMutex) {
 			if (!dirty) {
-				editorContext.unload(getAssetsRelativePath(target).toString());
+				editorContext.unload(target);
 			}
 			wall.dispose();
 			model.dispose();

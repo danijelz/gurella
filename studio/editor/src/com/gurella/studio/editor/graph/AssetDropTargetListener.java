@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -77,8 +78,8 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 	}
 
 	protected boolean isValidAssetExtension(String fileExtension) {
-		return AssetType.isValidExtension(Model.class, fileExtension)
-				|| AssetType.isValidExtension(Texture.class, fileExtension)
+		return Assets.isValidExtension(Model.class, fileExtension)
+				|| Assets.isValidExtension(Texture.class, fileExtension)
 				|| AssetType.prefab.isValidExtension(fileExtension);
 	}
 
@@ -127,9 +128,9 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 	private static Class<? extends SceneNodeComponent> getComponentType(IFile file) {
 		String fileExtension = file.getFileExtension();
 
-		if (AssetType.isValidExtension(Model.class, fileExtension)) {
+		if (Assets.isValidExtension(Model.class, fileExtension)) {
 			return ModelComponent.class;
-		} else if (AssetType.isValidExtension(Texture.class, fileExtension)) {
+		} else if (Assets.isValidExtension(Texture.class, fileExtension)) {
 			return TextureComponent.class;
 		} else {
 			return null;

@@ -1,5 +1,6 @@
 package com.gurella.engine.asset;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Values;
@@ -118,6 +120,16 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 
 		Array<AssetDescriptor<?>> descriptors = Values.cast(loader.getDependencies(fileName, file, params));
+		if (Assets.getAssetType(fileName).hasPropsFile) {
+			String extension = AssetType.assetProperties.extension();
+			FileHandle propsHandle = Gdx.files.getFileHandle(file.pathWithoutExtension() + extension, file.type());
+			if (propsHandle.exists()) {
+				descriptors = descriptors == null ? new Array<AssetDescriptor<?>>() : descriptors;
+				Class<AssetProperties<?>> propsType = Values.<Class<AssetProperties<?>>> cast(AssetProperties.class);
+				descriptors.add(new AssetDescriptor<AssetProperties<?>>(propsHandle, propsType));
+			}
+		}
+
 		if (descriptors == null || descriptors.size == 0) {
 			loadAsync();
 		} else {
@@ -157,7 +169,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		if (loader instanceof DependencyTrackerAware) {
 			((DependencyTrackerAware) loader).setDependencyTracker(info);
 		}
-		
+
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
 			info.asset = syncLoader.load(manager, fileName, file, params);
@@ -167,7 +179,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			asyncLoader.loadAsync(manager, fileName, file, params);
 			manager.readyForSyncLoading(this);
 		}
-		
+
 		if (loader instanceof DependencyTrackerAware) {
 			((DependencyTrackerAware) loader).setDependencyTracker(null);
 		}

@@ -56,6 +56,9 @@ import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.asset.loader.audio.SoundClipLoader;
 import com.gurella.engine.asset.loader.object.JsonObjectLoader;
 import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
+import com.gurella.engine.asset.persister.AssetPersister;
+import com.gurella.engine.asset.persister.AssetPersisters;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.disposable.DisposablesService;
@@ -133,6 +136,8 @@ public class AssetRegistry extends AssetManager {
 		setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
 		setLoader(ApplicationConfig.class, "gcfg", new JsonObjectLoader<ApplicationConfig>(resolver, ApplicationConfig.class));
+		Class<AssetProperties<?>> propsClass = Values.<Class<AssetProperties<?>>>cast(AssetProperties.class);
+		setLoader(propsClass, "gprop", new JsonObjectLoader<AssetProperties<?>>(resolver, propsClass));
 		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 		setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
 		setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
@@ -150,6 +155,27 @@ public class AssetRegistry extends AssetManager {
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, info);
 		DisposablesService.tryAdd(asset);
+	}
+
+	<T> void save(T asset, String fileName) {
+		AssetPersister<Object> persister = AssetPersisters.<Object> get(asset);
+		if (persister == null) {
+			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
+		} else {
+			persister.persist(fileName, asset);
+		}
+
+		AssetInfo info = AssetInfo.obtain();
+		info.asset = asset;
+		info.refCount = 1;
+
+		fileNamesByAsset.put(asset, fileName);
+		assetsByFileName.put(fileName, info);
+
+		if (asset instanceof Bundle) {
+			Bundle bundle = (Bundle) asset;
+			assetBundle.put(bundle, bundle);
+		}
 	}
 
 	@Override

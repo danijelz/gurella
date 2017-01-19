@@ -30,6 +30,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.Assets;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -80,7 +81,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
-		AssetType value = AssetType.value(assetType);
+		AssetType value = Assets.getAssetType(assetType);
 		String extensions = Arrays.stream(value.extensions).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
 		dialog.setFilterPath(assetsFolder.getLocation().toString());
@@ -155,7 +156,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		}
 
 		private boolean isValidResource(IResource item) {
-			return (item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
+			return (item instanceof IFile) && Assets.isValidExtension(assetType, item.getFileExtension());
 		}
 	}
 }

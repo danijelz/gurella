@@ -1,10 +1,12 @@
 package com.gurella.engine.asset;
 
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.Values;
@@ -25,10 +27,14 @@ public class Assets {
 	private static final ObjectSet<Class<?>> nonAssetTypes = new ObjectSet<Class<?>>();
 
 	private static final AssetType[] assetTypeEnums = AssetType.values();
+	private static final ObjectMap<Class<?>, AssetType> enumsByType = new ObjectMap<Class<?>, AssetType>();
 
 	static {
 		for (int i = 0, n = assetTypeEnums.length; i < n; i++) {
-			assetTypes.add(assetTypeEnums[i].assetType);
+			AssetType assetType = assetTypeEnums[i];
+			Class<?> type = assetType.assetType;
+			assetTypes.add(type);
+			enumsByType.put(type, assetType);
 		}
 	}
 
@@ -64,6 +70,15 @@ public class Assets {
 			int index = fileName.lastIndexOf(fileExtensionDelimiter);
 			return index > 0 ? fileName.substring(index + 1) : "";
 		}
+	}
+
+	public static boolean isValidExtension(Class<?> assetType, String extension) {
+		AssetType type = enumsByType.get(assetType);
+		return type != null && Arrays.binarySearch(type.extensions, extension) >= 0;
+	}
+
+	public static AssetType getAssetType(final Class<?> assetType) {
+		return enumsByType.get(assetType);
 	}
 
 	public static AssetType getAssetType(final String fileName) {

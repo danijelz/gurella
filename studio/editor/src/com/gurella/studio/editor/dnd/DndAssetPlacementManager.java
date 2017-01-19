@@ -26,7 +26,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
@@ -218,8 +218,8 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 	}
 
 	protected boolean isValidAssetExtension(String fileExtension) {
-		return AssetType.isValidExtension(Model.class, fileExtension)
-				|| AssetType.isValidExtension(Texture.class, fileExtension);
+		return Assets.isValidExtension(Model.class, fileExtension)
+				|| Assets.isValidExtension(Texture.class, fileExtension);
 	}
 
 	@Override
@@ -245,7 +245,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 			event.detail = DND.DROP_COPY;
 
 			String fileExtension = assetFile.getFileExtension();
-			if (AssetType.isValidExtension(Model.class, fileExtension)) {
+			if (Assets.isValidExtension(Model.class, fileExtension)) {
 				model = AssetService.load(getAssetPath(), Model.class);
 				modelInstance = new ModelInstance(model);
 				updateModelInstance();
