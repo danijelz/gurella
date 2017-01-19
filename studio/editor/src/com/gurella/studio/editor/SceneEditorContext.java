@@ -18,6 +18,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
@@ -76,6 +77,12 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 
 	public <T> T load(IFile assetFile) {
 		return load(getAssetsRelativePath(assetFile).toString());
+	}
+
+	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
+		String assetFileName = getAssetsRelativePath(assetFile).toString();
+		String propertiesFileName = Assets.getPropertiesFileName(assetFileName, assetType);
+		return propertiesFileName == null ? null : load(assetFileName);
 	}
 
 	private <T> T load(String fileName) {

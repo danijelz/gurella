@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
@@ -36,7 +37,9 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 
 		int editorId = editorContext.editorId;
 		IJavaProject javaProject = editorContext.javaProject;
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, findProperties(target));
+		TextureProperties properties = editorContext.loadAssetProperties(target, Texture.class);
+		properties = properties == null ? new TextureProperties() : properties;
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 
@@ -92,10 +95,5 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 			gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
 			gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
 		}
-	}
-
-	private TextureProperties findProperties(IFile file) {
-		// TODO Auto-generated method stub
-		return new TextureProperties();
 	}
 }

@@ -178,6 +178,16 @@ public class Assets {
 			return AssetService.get(propsHandle.name());
 		}
 	}
+	
+	public static <T extends AssetProperties<?>> T loadAssetProperties(Object asset) {
+		String assetFileName = AssetService.getFileName(asset);
+		FileHandle propsHandle = getPropertiesFile(asset.getClass(), assetFileName, FileType.Internal);
+		if (propsHandle == null) {
+			return null;
+		} else {
+			return AssetService.load(propsHandle.name());
+		}
+	}
 
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
