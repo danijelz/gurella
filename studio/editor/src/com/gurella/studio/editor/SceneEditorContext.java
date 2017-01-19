@@ -83,7 +83,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
 		String propertiesFileName = Assets.getPropertiesFileName(assetFileName, assetType);
-		if (propertiesFileName != null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
+		if (propertiesFileName == null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
 			return load(propertiesFileName);
 		} else {
 			return null;
@@ -108,6 +108,10 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		if (asset != null) {
 			AssetService.unload(asset);
 		}
+	}
+	
+	public void save(Object asset, String fileName) {
+		//TODO 
 	}
 
 	void persist(IProgressMonitor monitor) {
