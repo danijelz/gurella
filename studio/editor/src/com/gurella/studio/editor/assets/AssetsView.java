@@ -61,6 +61,7 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.inspector.Inspectable;
+import com.gurella.studio.editor.inspector.assetproperties.AssetPropertiesInspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
 import com.gurella.studio.editor.inspector.bitmapfont.BitmapFontInspectable;
 import com.gurella.studio.editor.inspector.material.MaterialInspectable;
@@ -293,6 +294,8 @@ public class AssetsView extends DockableView
 			return new PrefabInspectable(file);
 		} else if (AssetType.material.isValidExtension(extension)) {
 			return new MaterialInspectable(file);
+		} else if (AssetType.assetProperties.isValidExtension(extension)) {
+			return new AssetPropertiesInspectable(file);
 		}
 		return null;
 	}

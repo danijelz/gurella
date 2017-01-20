@@ -76,7 +76,7 @@ import com.gurella.engine.utils.Values;
 
 //TODO exceptions are not handled correctly
 public class AssetRegistry extends AssetManager {
-	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
+	private static final String clearRequestedMessage = "Clear requested on AssetRegistry.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";
 	private static final String loadedAssetInconsistentMessage = "Asset with name '%s' already loaded, but has different type (expected: %s, found: %s).";
 	private static final String queuedAssetInconsistentMessage = "Asset with name '%s' already in preload queue, but has different type (expected: %s, found: %s)";
@@ -412,7 +412,7 @@ public class AssetRegistry extends AssetManager {
 		if (queuedTask == null) {
 			asyncQueue.add(obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
-		} else if (queuedTask.type != type && !ClassReflection.isAssignableFrom(queuedTask.type, type)) {
+		} else if (queuedTask.type != type && !ClassReflection.isAssignableFrom(type, queuedTask.type)) {
 			String typeName = type.getSimpleName();
 			String otherTypeName = queuedTask.type.getSimpleName();
 			String message = Values.format(queuedAssetInconsistentMessage, fileName, typeName, otherTypeName);
@@ -742,7 +742,7 @@ public class AssetRegistry extends AssetManager {
 			asyncQueue.add(dependency);
 			asyncQueue.sort();
 		} else if (queuedTask.type != dependency.type
-				&& !ClassReflection.isAssignableFrom(queuedTask.type, dependency.type)) {
+				&& !ClassReflection.isAssignableFrom(dependency.type, queuedTask.type)) {
 			String type = dependency.type.getSimpleName();
 			String otherType = queuedTask.type.getSimpleName();
 			String message = Values.format(queuedAssetInconsistentMessage, dependency.fileName, type, otherType);

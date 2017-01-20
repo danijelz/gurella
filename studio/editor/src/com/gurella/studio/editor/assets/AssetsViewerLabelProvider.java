@@ -41,6 +41,8 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 				return GurellaStudioPlugin.getImage("icons/material.png");
 			} else if (scene.isValidExtension(extension) || applicationConfig.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/logo16.png");
+			} else if (assetProperties.isValidExtension(extension)) {
+				return GurellaStudioPlugin.getImage("icons/showproperties_obj.gif");
 			} else {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
 			}

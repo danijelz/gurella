@@ -104,10 +104,10 @@ public class Assets {
 		return type == null ? null : Values.<Class<T>> cast(type.assetType);
 	}
 
-	public static String getPropertiesFileName(String fileName) {
-		AssetType assetType = getAssetType(fileName);
+	public static String getPropertiesFileName(String assetFileName) {
+		AssetType assetType = getAssetType(assetFileName);
 		if (assetType != null && assetType.propsType != null) {
-			return extractPropertiesFileName(fileName);
+			return assetFileName + '.' + AssetType.assetProperties.extension();
 		} else {
 			return null;
 		}
@@ -116,38 +116,29 @@ public class Assets {
 	public static String getPropertiesFileName(Object asset) {
 		AssetType assetType = getAssetType(asset.getClass());
 		if (assetType != null && assetType.propsType != null) {
-			return extractPropertiesFileName(AssetService.getFileName(asset));
+			String assetFileName = AssetService.getFileName(asset);
+			return assetFileName + '.' + AssetType.assetProperties.extension();
 		} else {
 			return null;
 		}
 	}
 
-	public static String getPropertiesFileName(String fileName, Class<?> assetType) {
+	public static String getPropertiesFileName(String assetFileName, Class<?> assetType) {
 		AssetType assetTypeEnum = Assets.getAssetType(assetType);
 		if (assetTypeEnum != null && assetTypeEnum.propsType != null) {
-			return extractPropertiesFileName(fileName);
+			return assetFileName + '.' + AssetType.assetProperties.extension();
 		} else {
 			return null;
 		}
-	}
-
-	private static String extractPropertiesFileName(String assetFileName) {
-		String extension = AssetType.assetProperties.extension();
-		int index = assetFileName.lastIndexOf(fileExtensionDelimiter);
-		return assetFileName.substring(0, index) + '.' + extension;
 	}
 
 	public static boolean hasPropertiesFile(String assetFileName, FileType fileType) {
 		String propertiesFileName = getPropertiesFileName(assetFileName);
-		if (propertiesFileName == null) {
-			return false;
-		}
-
-		return fileExists(propertiesFileName, fileType);
+		return propertiesFileName == null ? false: fileExists(propertiesFileName, fileType);
 	}
 
 	public static boolean fileExists(String fileName, FileType fileType) {
-		//TODO garbage
+		// TODO garbage
 		FileHandle propsHandle = Gdx.files.getFileHandle(fileName, fileType);
 		return propsHandle.exists();
 	}

@@ -86,6 +86,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
+		setText(target.getName());
 
 		materialDescriptor = editorContext.load(target);
 

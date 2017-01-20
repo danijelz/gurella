@@ -40,14 +40,16 @@ public class AssetPersisters {
 	public static <T> AssetPersister<T> get(T asset) {
 		@SuppressWarnings("unchecked")
 		AssetPersister<T> persister = (AssetPersister<T>) persisters.get(asset.getClass());
-		if (persister == null) {
-			for (Entry<Class<?>, AssetPersister<?>> entry : persisters.entries()) {
-				if (ClassReflection.isInstance(entry.key, asset)) {
-					@SuppressWarnings("unchecked")
-					AssetPersister<T> casted = (AssetPersister<T>) entry.value;
-					persisters.put(asset.getClass(), casted);
-					return casted;
-				}
+		if (persister != null) {
+			return persister;
+		}
+
+		for (Entry<Class<?>, AssetPersister<?>> entry : persisters.entries()) {
+			if (ClassReflection.isInstance(entry.key, asset)) {
+				@SuppressWarnings("unchecked")
+				AssetPersister<T> derivedPersister = (AssetPersister<T>) entry.value;
+				persisters.put(asset.getClass(), derivedPersister);
+				return derivedPersister;
 			}
 		}
 
