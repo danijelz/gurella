@@ -21,9 +21,9 @@ public class JsonObjectLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderP
 	private final JsonInput input = new JsonInput();
 	private final ObjectMap<String, Object> dependencies = new ObjectMap<String, Object>();
 
-	T result;
-	AssetRegistry registry;
-	DependencyTracker tracker;
+	private T result;
+	private AssetRegistry registry;
+	private DependencyTracker tracker;
 
 	public JsonObjectLoader(FileHandleResolver resolver, Class<T> expectedType) {
 		super(resolver);

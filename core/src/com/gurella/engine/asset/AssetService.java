@@ -179,6 +179,10 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		getInstance().assetRegistry.put(asset, fileName);
 	}
 
+	public static <T> void save(T asset) {
+		getInstance().assetRegistry.save(asset);
+	}
+
 	public static <T> void save(T asset, String fileName) {
 		getInstance().assetRegistry.save(asset, fileName);
 	}

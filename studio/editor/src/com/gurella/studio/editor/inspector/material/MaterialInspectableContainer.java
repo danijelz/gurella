@@ -45,14 +45,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
@@ -85,7 +83,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private MaterialDescriptor materialDescriptor;
-	private boolean dirty;
 
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -279,11 +276,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void onDispose() {
 		synchronized (SwtLwjglGraphics.glMutex) {
-			if (dirty) {
-				editorContext.save(target);
-			} else {
-				editorContext.unload(target);
-			}
+			editorContext.unload(materialDescriptor);
 			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
@@ -326,8 +319,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	void refreshMaterial() {
 		synchronized (SwtLwjglGraphics.glMutex) {
-			dirty = true;
-			EventService.post(editorContext.editorId, SceneDirtyListener.class, l -> l.sceneDirty());
+			editorContext.save(materialDescriptor);
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;

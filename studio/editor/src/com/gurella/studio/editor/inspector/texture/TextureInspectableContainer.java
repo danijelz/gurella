@@ -39,6 +39,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 
 		int editorId = editorContext.editorId;
 		IJavaProject javaProject = editorContext.javaProject;
+		addDisposeListener(e -> editorContext.unload(properties));
 		properties = editorContext.loadAssetProperties(target, Texture.class);
 		properties = properties == null ? new TextureProperties() : properties;
 		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);

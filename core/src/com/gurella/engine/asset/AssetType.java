@@ -49,7 +49,7 @@ public enum AssetType {
 	shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
 	renderTarget(RenderTarget.class, true, null, "grt"),
 	applicationConfig(ApplicationConfig.class, true, null, "gcfg"),
-	assetProperties(ApplicationConfig.class, true, null, "gprop"),
+	assetProperties(AssetProperties.class, true, null, "gprop"),
 	renderProgram(UnimplementedAsset.class),
 	spritterAnimation(UnimplementedAsset.class),
 	splineAnimation(UnimplementedAsset.class),

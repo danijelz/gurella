@@ -21,7 +21,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	int loadRequestId;
 	int priority;
 
-	AssetRegistry manager;
+	AssetRegistry registry;
 	AssetLoader<T, AssetLoaderParameters<T>> loader;
 	AsyncCallback<T> callback;
 
@@ -38,14 +38,15 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	AssetLoadingState assetLoadingState = AssetLoadingState.ready;
 
 	AssetInfo info;
+	private AssetDescriptor<AssetProperties<?>> propertiesDescriptor;
 	Throwable exception;
 
-	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
+	static <T> AssetLoadingTask<T> obtain(AssetRegistry registry, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetLoaderParameters<T> params, int priority, boolean sticky) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
-		task.manager = manager;
-		task.loader = manager.findLoader(type, fileName);
+		task.registry = registry;
+		task.loader = registry.findLoader(type, fileName);
 		task.fileName = fileName.replaceAll("\\\\", "/");
 		task.type = type;
 		task.params = params;
@@ -62,8 +63,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			AssetLoaderParameters<T> params) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
-		task.manager = parent.manager;
-		task.loader = parent.manager.findLoader(type, fileName);
+		task.registry = parent.registry;
+		task.loader = parent.registry.findLoader(type, fileName);
 		task.fileName = fileName;
 		task.file = file;
 		task.type = type;
@@ -76,12 +77,12 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		return task;
 	}
 
-	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
+	static <T> AssetLoadingTask<T> obtain(AssetRegistry registry, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetInfo info, AssetLoaderParameters<T> params, int priority) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
-		task.manager = manager;
-		task.loader = manager.findLoader(type, fileName);
+		task.registry = registry;
+		task.loader = registry.findLoader(type, fileName);
 		task.fileName = fileName;
 		task.type = type;
 		task.params = params;
@@ -119,19 +120,33 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 
 		Array<AssetDescriptor<?>> descriptors = Values.cast(loader.getDependencies(fileName, file, params));
-		AssetType assetType = Assets.getAssetType(type);
-		FileHandle propsHandle = Assets.getPropertiesFile(type, fileName, file.type());
-		if (propsHandle != null) {
-			Class<AssetProperties<?>> propsType = Values.<Class<AssetProperties<?>>> cast(assetType.propsType);
-			descriptors.add(new AssetDescriptor<AssetProperties<?>>(propsHandle, propsType));
+		initPropertiesDescriptor();
+		if (propertiesDescriptor != null) {
+			descriptors = descriptors == null ? new Array<AssetDescriptor<?>>() : descriptors;
+			descriptors.add(propertiesDescriptor);
 		}
 
 		if (descriptors == null || descriptors.size == 0) {
 			loadAsync();
 		} else {
 			initDependencies(descriptors);
-			manager.waitingForDependencies(this);
+			registry.waitingForDependencies(this);
 		}
+	}
+
+	private void initPropertiesDescriptor() {
+		if (params != null) {
+			return;
+		}
+
+		AssetType assetType = Assets.getAssetType(type);
+		FileHandle propsHandle = Assets.getPropertiesFile(type, fileName, file.type());
+		if (propsHandle == null) {
+			return;
+		}
+
+		Class<AssetProperties<?>> propsType = Values.<Class<AssetProperties<?>>> cast(assetType.propsType);
+		propertiesDescriptor = new AssetDescriptor<AssetProperties<?>>(propsHandle, propsType);
 	}
 
 	private void initDependencies(Array<AssetDescriptor<?>> descriptors) {
@@ -165,15 +180,20 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		if (loader instanceof DependencyTrackerAware) {
 			((DependencyTrackerAware) loader).setDependencyTracker(info);
 		}
+		
+		if(propertiesDescriptor != null) {
+			AssetProperties<T> props = registry.get(propertiesDescriptor.fileName);
+			params = props.createLoaderParameters();
+		}
 
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
-			info.asset = syncLoader.load(manager, fileName, file, params);
-			manager.finished(this);
+			info.asset = syncLoader.load(registry, fileName, file, params);
+			registry.finished(this);
 		} else {
 			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
-			asyncLoader.loadAsync(manager, fileName, file, params);
-			manager.readyForSyncLoading(this);
+			asyncLoader.loadAsync(registry, fileName, file, params);
+			registry.readyForSyncLoading(this);
 		}
 
 		if (loader instanceof DependencyTrackerAware) {
@@ -187,7 +207,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
-		info.asset = asyncLoader.loadSync(manager, fileName, file, params);
+		info.asset = asyncLoader.loadSync(registry, fileName, file, params);
 
 		if (loader instanceof DependencyTrackerAware) {
 			((DependencyTrackerAware) loader).setDependencyTracker(null);
@@ -203,7 +223,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			float progress = getDependenciesProgress();
 			notifyProgress(loader instanceof SynchronousAssetLoader ? (0.9f * progress) : (0.8f * progress));
 			if (progress == 1) {
-				manager.readyForAsyncLoading(this);
+				registry.readyForAsyncLoading(this);
 			}
 			break;
 		case readyForAsyncLoading:
@@ -292,13 +312,14 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	public void reset() {
 		loadRequestId = Integer.MAX_VALUE;
 		priority = 0;
-		manager = null;
+		registry = null;
 		loader = null;
 		callback = null;
 		fileName = null;
 		file = null;
 		type = null;
 		params = null;
+		propertiesDescriptor = null;
 		parent = null;
 
 		PoolService.freeAll(dependencies);

@@ -157,14 +157,35 @@ public class AssetRegistry extends AssetManager {
 		DisposablesService.tryAdd(asset);
 	}
 
+	<T> void save(T asset) {
+		save(asset, getAssetFileName(asset));
+	}
+
 	<T> void save(T asset, String fileName) {
-		AssetPersister<Object> persister = AssetPersisters.<Object> get(asset);
+		AssetInfo info = assetsByFileName.get(fileName);
+		if (info == null) {
+			persist(asset, fileName);
+			createInfoForNewAsset(asset, fileName);
+		} else {
+			Bundle bundle = getAssetRootBundle(asset);
+			if (bundle == null) {
+				persist(asset, fileName);
+			} else {
+				persist(bundle, fileName);
+			}
+		}
+	}
+
+	private static <T> void persist(T asset, String fileName) {
+		AssetPersister<T> persister = AssetPersisters.<T> get(asset);
 		if (persister == null) {
 			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
 		} else {
 			persister.persist(fileName, asset);
 		}
+	}
 
+	private <T> void createInfoForNewAsset(T asset, String fileName) {
 		AssetInfo info = AssetInfo.obtain();
 		info.asset = asset;
 		info.refCount = 1;
@@ -175,6 +196,14 @@ public class AssetRegistry extends AssetManager {
 		if (asset instanceof Bundle) {
 			Bundle bundle = (Bundle) asset;
 			assetBundle.put(bundle, bundle);
+
+			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
+					.entries()) {
+				Object bundledAsset = bundledAssetsEntry.value;
+				assetBundle.put(bundledAsset, bundle);
+				fileNamesByAsset.put(bundledAsset, fileName);
+			}
 		}
 	}
 
@@ -276,7 +305,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	public <T> AssetLoader<T, AssetLoaderParameters<T>> getLoader(final Class<T> type, final String fileName) {
 		synchronized (mutex) {
-			final ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
+			ObjectMap<String, AssetLoader<?, ?>> loadersByType = getLoaders(type);
 			if (loadersByType == null || loadersByType.size < 1) {
 				return null;
 			} else if (fileName == null) {
@@ -295,6 +324,19 @@ public class AssetRegistry extends AssetManager {
 				return loader;
 			}
 		}
+	}
+
+	private <T> ObjectMap<String, AssetLoader<?, ?>> getLoaders(final Class<T> type) {
+		ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
+		if (loadersByType == null) {
+			for (Entry<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> entry : loaders.entries()) {
+				if (ClassReflection.isAssignableFrom(entry.key, type)) {
+					loadersByType = entry.value;
+					loaders.put(type, loadersByType);
+				}
+			}
+		}
+		return loadersByType;
 	}
 
 	<T> AssetLoader<T, AssetLoaderParameters<T>> findLoader(Class<T> type, String fileName) {
@@ -370,7 +412,7 @@ public class AssetRegistry extends AssetManager {
 		if (queuedTask == null) {
 			asyncQueue.add(obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
-		} else if (queuedTask.type != type) {
+		} else if (queuedTask.type != type && !ClassReflection.isAssignableFrom(queuedTask.type, type)) {
 			String typeName = type.getSimpleName();
 			String otherTypeName = queuedTask.type.getSimpleName();
 			String message = Values.format(queuedAssetInconsistentMessage, fileName, typeName, otherTypeName);
@@ -417,7 +459,7 @@ public class AssetRegistry extends AssetManager {
 		Object asset = info.asset;
 		Class<?> otherType = asset.getClass();
 
-		if (otherType != type) {
+		if (otherType != type && !ClassReflection.isAssignableFrom(type, otherType)) {
 			String typeName = type.getSimpleName();
 			String otherTypeName = otherType.getSimpleName();
 			String message = Values.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
@@ -699,7 +741,8 @@ public class AssetRegistry extends AssetManager {
 		if (queuedTask == null) {
 			asyncQueue.add(dependency);
 			asyncQueue.sort();
-		} else if (queuedTask.type != dependency.type) {
+		} else if (queuedTask.type != dependency.type
+				&& !ClassReflection.isAssignableFrom(queuedTask.type, dependency.type)) {
 			String type = dependency.type.getSimpleName();
 			String otherType = queuedTask.type.getSimpleName();
 			String message = Values.format(queuedAssetInconsistentMessage, dependency.fileName, type, otherType);
@@ -717,7 +760,7 @@ public class AssetRegistry extends AssetManager {
 		Class<T> type = dependency.type;
 		Class<?> otherType = asset.getClass();
 
-		if (type != otherType) {
+		if (type != otherType && !ClassReflection.isAssignableFrom(type, otherType)) {
 			String typeName = type.getSimpleName();
 			String otherTypeName = otherType.getSimpleName();
 			String message = Values.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
@@ -782,7 +825,7 @@ public class AssetRegistry extends AssetManager {
 
 		if (asset instanceof Bundle) {
 			Bundle bundle = (Bundle) asset;
-			IdentityMap<String, Object> bundledAssets = bundle.getBundledAssets();
+			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
 			for (Object bundledAsset : bundledAssets.values()) {
 				assetBundle.put(bundledAsset, bundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
@@ -1017,6 +1060,7 @@ public class AssetRegistry extends AssetManager {
 		assetBundle.put(asset, rootBundle);
 		fileNamesByAsset.put(asset, fileName);
 		info.addBundledAsset(internalId, asset);
+		DisposablesService.tryAdd(asset);
 
 		if (asset instanceof Bundle) {
 			Bundle bundleAsset = (Bundle) asset;
@@ -1027,6 +1071,7 @@ public class AssetRegistry extends AssetManager {
 				assetBundle.put(bundledAsset, rootBundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
 				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
+				DisposablesService.tryAdd(bundleAsset);
 			}
 		}
 	}

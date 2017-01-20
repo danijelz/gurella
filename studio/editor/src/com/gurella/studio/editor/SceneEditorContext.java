@@ -27,6 +27,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
@@ -85,7 +86,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
 		String propertiesFileName = Assets.getPropertiesFileName(assetFileName, assetType);
-		if (propertiesFileName == null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
+		if (propertiesFileName != null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
 			return load(propertiesFileName);
 		} else {
 			return null;
@@ -108,6 +109,10 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 
 	public void unload(IFile assetFile) {
 		unload(getAssetsRelativePath(assetFile).toString());
+	}
+
+	public void unload(Object asset) {
+		unload(AssetService.getFileName(asset));
 	}
 
 	private void unload(String fileName) {
@@ -133,6 +138,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public void save(Object asset, String fileName) {
 		editingAssets.remove(fileName);
 		modifiedAssets.put(fileName, asset);
+		EventService.post(editorId, SceneDirtyListener.class, l -> l.sceneDirty());
 	}
 
 	void persist(IProgressMonitor monitor) {

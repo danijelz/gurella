@@ -29,16 +29,6 @@ class AssetInfo implements DependencyTracker, Poolable {
 		return (T) asset;
 	}
 
-	public <T> T getBundledAsset(String internalId) {
-		if (bundledAssets == null) {
-			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
-		}
-
-		@SuppressWarnings("unchecked")
-		T casted = (T) bundledAssets.get(internalId);
-		return casted;
-	}
-
 	void incRefCount() {
 		refCount++;
 	}
@@ -79,6 +69,24 @@ class AssetInfo implements DependencyTracker, Poolable {
 	boolean removeDependent(String dependent) {
 		dependents.remove(dependent);
 		return isActive();
+	}
+
+	IdentityMap<String, Object> getBundledAssets() {
+		if (bundledAssets == null) {
+			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
+		}
+
+		return bundledAssets;
+	}
+
+	public <T> T getBundledAsset(String internalId) {
+		if (bundledAssets == null) {
+			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
+		}
+
+		@SuppressWarnings("unchecked")
+		T casted = (T) bundledAssets.get(internalId);
+		return casted;
 	}
 
 	void addBundledAsset(String internalId, Object bundledAsset) {
