@@ -59,6 +59,8 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private ModelInstance modelInstance;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
+	private ModelProperties properties;
+
 	public ModelInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 		Composite body = getBody();
@@ -68,7 +70,10 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		int editorId = editorContext.editorId;
 		IJavaProject javaProject = editorContext.javaProject;
-		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, javaProject, findProperties(target));
+		properties = getProperties(target);
+		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);
+		propertiesContainer.getContext().propertiesSignal
+				.addListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesContainer.setLayoutData(layoutData);
 
@@ -121,7 +126,11 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		render();
 	}
 
-	private static ModelProperties findProperties(IFile target) {
+	private ModelProperties getProperties(IFile target) {
+		ModelProperties persistedProperties = editorContext.loadAssetProperties(target, Model.class);
+		if (persistedProperties != null) {
+			return persistedProperties;
+		}
 		// TODO Auto-generated method stub
 		String fileExtension = target.getFileExtension();
 		if ("obj".equals(fileExtension)) {

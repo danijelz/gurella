@@ -18,6 +18,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.priority.Priorities;
 import com.gurella.engine.utils.priority.Priority;
 
+//TODO add internal files cache???
 @Priorities({ @Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
 		@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
 public final class AssetService implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
