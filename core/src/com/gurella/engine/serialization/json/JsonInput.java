@@ -324,11 +324,6 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public <T> T copyProperties(T source, T target) {
-		return copyContext.copyProperties(source, target);
-	}
-
-	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
 		initDescriptors();
 		return descriptors.size == 0 ? null : descriptors;

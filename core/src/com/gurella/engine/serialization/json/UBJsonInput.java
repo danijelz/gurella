@@ -296,11 +296,6 @@ public class UBJsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public <T> T copyProperties(T source, T target) {
-		return copyContext.copyProperties(source, target);
-	}
-
-	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
 		int size = rootValue.size;
 		if (size < 1) {

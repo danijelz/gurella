@@ -1,5 +1,6 @@
 package com.gurella.engine.metatype;
 
+import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
 import static com.gurella.engine.metatype.MetaTypes.getPrefix;
 import static com.gurella.engine.metatype.MetaTypes.isPrefix;
 import static com.gurella.engine.metatype.MetaTypes.setPrefix;
@@ -7,13 +8,14 @@ import static com.gurella.engine.metatype.MetaTypes.setPrefix;
 import java.lang.annotation.Annotation;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
@@ -257,12 +259,32 @@ public class ReflectionProperty<T> implements Property<T> {
 		if (setter != null) {
 			Reflection.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
-			Object fieldValue = Reflection.getFieldValue(field, object);
-			CopyContext context = PoolService.obtain(CopyContext.class);
-			context.copyProperties(value, fieldValue);
-			PoolService.free(context);
+			T fieldValue = Reflection.getFieldValue(field, object);
+			updateFinalValueProperties(value, fieldValue);
 		} else {
 			Reflection.setFieldValue(field, object, value);
+		}
+	}
+
+	private static <T> void updateFinalValueProperties(T source, T target) {
+		if (source == null || target == null) {
+			return;
+		}
+
+		Class<? extends Object> sourceType = source.getClass();
+		Class<? extends Object> targetType = target.getClass();
+		if (targetType.isArray() && isAssignableFrom(targetType, sourceType)) {
+			int length = Math.min(ArrayReflection.getLength(source), ArrayReflection.getLength(target));
+			System.arraycopy(source, 0, target, 0, length);
+		} else {
+			MetaType<Object> metaType = MetaTypes.getCommonMetaType(source, target);
+			ImmutableArray<Property<?>> properties = metaType.getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				@SuppressWarnings("unchecked")
+				Property<Object> property = (Property<Object>) properties.get(i);
+				Object value = property.getValue(source);
+				property.setValue(target, value);
+			}
 		}
 	}
 
@@ -298,6 +320,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void copy(Object original, Object duplicate, CopyContext context) {
+		//TODO check if value is external asset (different file) and just set original
 		setValue(duplicate, context.copy(getValue(original)));
 	}
 }

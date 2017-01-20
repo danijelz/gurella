@@ -2,7 +2,6 @@ package com.gurella.engine.metatype;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -55,42 +54,10 @@ public class CopyContext implements Poolable {
 		return duplicate;
 	}
 
-	public <T> T copyProperties(T source, T target) {
-		if (source == null || target == null) {
-			return null;
-		}
-
-		copiedObjectStack.add(source);
-		copiedObjects.put(source, target);
-		objectStack.add(target);
-		MetaType<T> metaType = MetaTypes.getMetaType(source);
-		if (metaType.getType().isArray()) {
-			System.arraycopy(source, 0, target, 0, ArrayReflection.getLength(source));
-		} else {
-			ImmutableArray<Property<?>> properties = metaType.getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				Property<?> property = properties.get(i);
-				if (property.isCopyable()) {
-					property.copy(source, target, this);
-				}
-			}
-		}
-		copiedObjectStack.pop();
-		objectStack.pop();
-		return target;
-	}
-
 	public static <T> T copyObject(T original) {
 		CopyContext context = PoolService.obtain(CopyContext.class);
 		T duplicate = context.copy(original);
 		PoolService.free(context);
 		return duplicate;
-	}
-
-	public static <T> T copyObjectProperties(T source, T target) {
-		CopyContext context = PoolService.obtain(CopyContext.class);
-		context.copyProperties(source, target);
-		PoolService.free(context);
-		return target;
 	}
 }

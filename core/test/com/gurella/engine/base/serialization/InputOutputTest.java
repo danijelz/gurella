@@ -84,11 +84,6 @@ public class InputOutputTest {
 		Test duplicate = CopyContext.copyObject(obj);
 		System.out.println(MetaTypes.isEqual(obj, duplicate));
 
-		Object copied = CopyContext.copyObjectProperties(obj, new Test());
-		System.out.println(MetaTypes.isEqual(obj, copied));
-
-		System.out.println("\n\n\n\n");
-
 		String string1 = output.serialize(file, Test.class, obj, duplicate);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 		Test deserialized1 = input.deserialize(Test.class, string1, obj);

@@ -59,8 +59,5 @@ public interface Input {
 
 	<T> T copyObject(T original);
 
-	//TODO unused
-	<T> T copyProperties(T source, T target);
-
 	Array<AssetDescriptor<?>> getExternalDependencies();
 }
