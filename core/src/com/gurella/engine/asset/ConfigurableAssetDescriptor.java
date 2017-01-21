@@ -3,6 +3,7 @@ package com.gurella.engine.asset;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.utils.Array;
 
+//TODO unused
 public class ConfigurableAssetDescriptor<T> {
 	boolean sticky;
 	Class<T> type;

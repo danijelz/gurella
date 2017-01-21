@@ -51,7 +51,6 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -72,7 +71,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private ModelShape modelShape = ModelShape.sphere;
 
-	private LwjglGL20 gl20 = new LwjglGL20();
 	private SwtLwjglInput input;
 
 	private PerspectiveCamera camera;
@@ -227,7 +225,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		synchronized (SwtLwjglGraphics.glMutex) {
 			glCanvas.setCurrent();
-			Gdx.gl20 = gl20;
+			//Gdx.gl20 = gl20;
 
 			modelBatch = new ModelBatch(
 					new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
@@ -261,7 +259,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			modelShape = newShape;
 			synchronized (SwtLwjglGraphics.glMutex) {
 				glCanvas.setCurrent();
-				Gdx.gl20 = gl20;
+				//Gdx.gl20 = gl20;
 				model.dispose();
 				model = createModel();
 				instance = new ModelInstance(model);
@@ -293,22 +291,20 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void render() {
+		if (glCanvas.isDisposed()) {
+			return;
+		}
+
 		input.update();
 		synchronized (SwtLwjglGraphics.glMutex) {
-			if (glCanvas.isDisposed()) {
-				return;
-			}
-
 			glCanvas.setCurrent();
-			Gdx.gl20 = gl20;
 			Point size = glCanvas.getSize();
 			Color color = backgroundColor;
-			gl20.glClearColor(color.r, color.g, color.b, color.a);
-			gl20.glEnable(GL20.GL_DEPTH_TEST);
-			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-			gl20.glViewport(0, 0, size.x, size.y);
+			Gdx.gl20.glClearColor(color.r, color.g, color.b, color.a);
+			Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			Gdx.gl20.glViewport(0, 0, size.x, size.y);
 
-			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(camera);
 			modelBatch.render(wallInstance, environment);
 			modelBatch.render(instance, environment);
@@ -323,7 +319,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			editorContext.save(materialDescriptor);
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
-			Gdx.gl20 = gl20;
+			//Gdx.gl20 = gl20;
 			Matrix4 transform = new Matrix4(instance.transform);
 			model.dispose();
 			model = createModel();

@@ -85,13 +85,14 @@ public class ColorTextureAttributeEditor extends Composite {
 		Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
 
+		TextureAttributeProperties properties = textureGetter.get();
 		toolkit.createLabel(this, "Texture:");
 		textureSelector = new AssetSelectionWidget<Texture>(this, Texture.class, assetsFolder);
 		toolkit.adapt(textureSelector);
 		textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
+		textureSelector.setAsset(properties.texture);
 		textureSelector.setSelectionListener(this::assetSelectionChanged);
 
-		TextureAttributeProperties properties = textureGetter.get();
 		textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 		textureEnabledButton.setSelection(properties.texture != null);
 		textureEnabledButton.addListener(SWT.Selection, e -> enableTexture());

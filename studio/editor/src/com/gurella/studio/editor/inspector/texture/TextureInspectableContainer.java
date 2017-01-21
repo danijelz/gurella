@@ -20,6 +20,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
+import com.gurella.studio.editor.utils.Try;
 
 public class TextureInspectableContainer extends InspectableContainer<IFile> {
 	private DefaultBeanEditor<TextureProperties> textureProperties;
@@ -55,15 +56,17 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		imageComposite.setLayoutData(layoutData);
 		imageComposite.addListener(SWT.Paint, e -> paintImage(e.gc));
 
-		try {
-			InputStream contents = target.getContents(true);
-			image = new Image(getDisplay(), contents);
-			addListener(SWT.Dispose, e -> image.dispose());
-		} catch (CoreException e) {
-			GurellaStudioPlugin.showError(e, "Error loading image");
-		}
+		image = Try.ignored(() -> createImage(), null);
+		addListener(SWT.Dispose, e -> image.dispose());
 
 		reflow(true);
+	}
+
+	private Image createImage() throws CoreException {
+		InputStream contents = target.getContents(true);
+		Image image = new Image(getDisplay(), contents);
+		addListener(SWT.Dispose, e -> image.dispose());
+		return image;
 	}
 
 	private void paintImage(GC gc) {
@@ -89,7 +92,6 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 				ratio = 1;
 			} else {
 				ratio = 1 / Math.max(widthRatio, heightRatio);
-
 			}
 
 			int left = (int) ((paneWidth - imageWidth * ratio) / 2) + 1;
