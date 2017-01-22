@@ -146,14 +146,10 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		String internalAssetsPath = getAssetsFolder(resource).getLocation().toString();
-
 		application = new SwtLwjglApplication(id, dock.getCenter(), internalAssetsPath);
 		SceneEditorRegistry.put(this, parent, application);
 
 		GdxContext.run(id, this::initGdxData);
-
-		String path = getAssetsRelativePath(resource).toString();
-		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
 	}
 
 	private void initGdxData() {
@@ -164,10 +160,14 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		sceneContext = new SceneEditorContext(this);
 		launchManager = new LaunchManager(sceneContext);
 		viewRegistry = new ViewRegistry(sceneContext, dock);
+
 		// TODO create canvas in editor and pass it to consumers
 		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 		dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
 		EventService.subscribe(id, this);
+
+		String path = getAssetsRelativePath(getEditorInput().getAdapter(IResource.class)).toString();
+		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
 	}
 
 	private void presentException(Throwable exception) {

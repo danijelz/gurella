@@ -21,10 +21,6 @@ public class GdxContext {
 		gdxAppByEditorId.remove(editorId);
 	}
 
-	private static SwtLwjglApplication getGdxApplication(int editorId) {
-		return gdxAppByEditorId.get(editorId);
-	}
-
 	public static void run(int editorId, Runnable action) {
 		try {
 			lock.lock();
@@ -35,7 +31,7 @@ public class GdxContext {
 	}
 
 	private static void runSynchronized(int editorId, Runnable action) {
-		SwtLwjglApplication gdxApplication = getGdxApplication(editorId);
+		SwtLwjglApplication gdxApplication = gdxAppByEditorId.get(editorId);
 		if (current == gdxApplication) {
 			action.run();
 		} else {
