@@ -109,12 +109,8 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	private void mainLoop() {
-		GdxContext.run(editorId, this::update);
-		graphics.getGlCanvas().getDisplay().timerExec(35, () -> mainLoop());
-	}
-
-	private void update() {
-		if (!running || graphics.getGlCanvas().isDisposed()) {
+		GLCanvas glCanvas = graphics.getGlCanvas();
+		if (!running || glCanvas.isDisposed()) {
 			return;
 		}
 
@@ -140,6 +136,8 @@ public class SwtLwjglApplication implements Application {
 			listener.render();
 			graphics.swapBuffer();
 		}
+
+		glCanvas.getDisplay().timerExec(35, () -> GdxContext.run(editorId, this::mainLoop));
 	}
 
 	private boolean updateViewport() {
