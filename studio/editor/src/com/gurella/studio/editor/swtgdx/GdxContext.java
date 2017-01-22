@@ -42,17 +42,22 @@ public class GdxContext {
 	private static void runInSwitchedGdxContext(SwtLwjglApplication gdxApplication, Runnable action) {
 		SwtLwjglApplication previous = current;
 		current = gdxApplication;
-		setCurrent(current);
+		setCurrent();
+
 		try {
 			action.run();
 		} finally {
+			if (previous == null) {
+				return;
+			}
+
 			current = previous;
-			setCurrent(current);
+			setCurrent();
 		}
 	}
 
-	private static void setCurrent(SwtLwjglApplication gdxApplication) {
-		if (gdxApplication == null) {
+	private static void setCurrent() {
+		if (current == null) {
 			Gdx.app = null;
 			Gdx.graphics = null;
 			Gdx.audio = null;
@@ -63,13 +68,13 @@ public class GdxContext {
 			Gdx.gl20 = null;
 			Gdx.gl30 = null;
 		} else {
-			Gdx.app = gdxApplication;
-			SwtLwjglGraphics graphics = gdxApplication.getGraphics();
+			Gdx.app = current;
+			SwtLwjglGraphics graphics = current.getGraphics();
 			Gdx.graphics = graphics;
-			Gdx.audio = gdxApplication.getAudio();
-			Gdx.files = gdxApplication.getFiles();
-			Gdx.input = gdxApplication.getInput();
-			Gdx.net = gdxApplication.getNet();
+			Gdx.audio = current.getAudio();
+			Gdx.files = current.getFiles();
+			Gdx.input = current.getInput();
+			Gdx.net = current.getNet();
 			Gdx.gl = graphics.getGL20();
 			Gdx.gl20 = graphics.getGL20();
 			Gdx.gl30 = graphics.getGL30();
