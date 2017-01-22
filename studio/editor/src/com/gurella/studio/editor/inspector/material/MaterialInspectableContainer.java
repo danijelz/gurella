@@ -39,7 +39,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.SphereShapeBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -51,8 +54,9 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
-import com.gurella.studio.editor.swtgl.SwtLwjglInput;
+import com.gurella.studio.editor.swtgdx.GdxContext;
+import com.gurella.studio.editor.swtgdx.SwtLwjglGraphics;
+import com.gurella.studio.editor.swtgdx.SwtLwjglInput;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
@@ -223,26 +227,27 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		directionalAttribute.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 		environment.set(directionalAttribute);
 
-		synchronized (SwtLwjglGraphics.glMutex) {
-			glCanvas.setCurrent();
-
-			modelBatch = new ModelBatch(
-					new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
-			builder = new ModelBuilder();
-
-			wall = createWall();
-			wallInstance = new ModelInstance(wall);
-			Matrix4 transform = wallInstance.transform;
-			transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
-
-			material = materialDescriptor.getMaterial();
-			model = createModel();
-			instance = new ModelInstance(model);
-			materialInputController.instance = instance;
-		}
-
-		addDisposeListener(e -> onDispose());
+		GdxContext.run(editorContext.editorId, this::initGlData);
+		addDisposeListener(e -> GdxContext.run(editorContext.editorId, this::onDispose));
 		render();
+	}
+
+	private void initGlData() {
+		glCanvas.setCurrent();
+
+		modelBatch = new ModelBatch(
+				new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
+		builder = new ModelBuilder();
+
+		wall = createWall();
+		wallInstance = new ModelInstance(wall);
+		Matrix4 transform = wallInstance.transform;
+		transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
+
+		material = materialDescriptor.getMaterial();
+		model = createModel();
+		instance = new ModelInstance(model);
+		materialInputController.instance = instance;
 	}
 
 	public static String getDefaultVertexShader() {
@@ -272,13 +277,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (SwtLwjglGraphics.glMutex) {
-			editorContext.unload(materialDescriptor);
-			wall.dispose();
-			model.dispose();
-			modelBatch.dispose();
-			glCanvas.dispose();
-		}
+		editorContext.unload(materialDescriptor);
+		wall.dispose();
+		model.dispose();
+		modelBatch.dispose();
+		glCanvas.dispose();
 	}
 
 	private void updateSizeByParent() {
@@ -341,7 +344,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		float radius = 0.8f;
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
 		builder.begin();
-		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
+		MeshPartBuilder partBuilder = builder.part("sphere", GL20.GL_TRIANGLES, attributes, material);
+		SphereShapeBuilder.build(partBuilder, radius, radius, radius, 90, 90);
 		Model result = builder.end();
 		calculateTangents(result);
 		return removeDisposables(result);
@@ -350,7 +354,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Model createBox() {
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
 		builder.begin();
-		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.6f, 0.6f, 0.6f);
+		MeshPartBuilder partBuilder = builder.part("box", GL20.GL_TRIANGLES, attributes, material);
+		BoxShapeBuilder.build(partBuilder, 0.6f, 0.6f, 0.6f);
 		Model result = builder.end();
 		calculateTangents(result);
 		return removeDisposables(result);

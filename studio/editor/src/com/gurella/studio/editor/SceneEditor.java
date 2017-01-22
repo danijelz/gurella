@@ -51,8 +51,8 @@ import com.gurella.studio.editor.launch.LaunchManager;
 import com.gurella.studio.editor.preferences.PreferencesManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
-import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
-import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
+import com.gurella.studio.editor.swtgdx.GdxContext;
+import com.gurella.studio.editor.swtgdx.SwtLwjglApplication;
 import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -147,25 +147,27 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		String internalAssetsPath = getAssetsFolder(resource).getLocation().toString();
 
-		application = new SwtLwjglApplication(internalAssetsPath, dock.getCenter(), id);
+		application = new SwtLwjglApplication(id, dock.getCenter(), internalAssetsPath);
 		SceneEditorRegistry.put(this, parent, application);
 
-		synchronized (SwtLwjglGraphics.glMutex) {
-			application.init();
-			sceneProvider = new SceneProvider(id);
-			preferencesManager = new PreferencesManager(this);
-			historyManager = new HistoryManager(this);
-			sceneContext = new SceneEditorContext(this);
-			launchManager = new LaunchManager(sceneContext);
-			viewRegistry = new ViewRegistry(sceneContext, dock);
-			// TODO create canvas in editor and pass it to consumers
-			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
-			dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
-			EventService.subscribe(id, this);
-		}
+		GdxContext.run(id, this::initGdxData);
 
 		String path = getAssetsRelativePath(resource).toString();
 		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
+	}
+
+	private void initGdxData() {
+		application.init();
+		sceneProvider = new SceneProvider(id);
+		preferencesManager = new PreferencesManager(this);
+		historyManager = new HistoryManager(this);
+		sceneContext = new SceneEditorContext(this);
+		launchManager = new LaunchManager(sceneContext);
+		viewRegistry = new ViewRegistry(sceneContext, dock);
+		// TODO create canvas in editor and pass it to consumers
+		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
+		dndAssetPlacementManager = new DndAssetPlacementManager(id, glCanvas);
+		EventService.subscribe(id, this);
 	}
 
 	private void presentException(Throwable exception) {
@@ -198,6 +200,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	public void dispose() {
 		super.dispose();
 		Workbench.close(workbench);
+		application.exit();
 	}
 
 	public SceneEditorContext getSceneContext() {

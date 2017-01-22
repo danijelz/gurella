@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.gurella.engine.event.EventService;

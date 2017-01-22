@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;

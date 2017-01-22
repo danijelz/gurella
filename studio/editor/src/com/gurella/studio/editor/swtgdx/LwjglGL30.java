@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

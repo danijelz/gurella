@@ -38,7 +38,6 @@ import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
-import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.tool.ToolManager;
 
 public class RenderSystem implements ComponentActivityListener, SceneConsumer, EditorCloseListener, EditorFocusListener,
@@ -173,18 +172,16 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 			return;
 		}
 
-		synchronized (SwtLwjglGraphics.glMutex) {
-			updateGlState();
-			if (camera instanceof PerspectiveCamera) {
-				grid3d.render(batch);
-			} else {
-				grid2d.render(batch);
-			}
-			renderScene();
-			compass.render(batch);
-			infoRenderer.renderInfo(camera, batch);
-			toolManager.render(batch);
+		updateGlState();
+		if (camera instanceof PerspectiveCamera) {
+			grid3d.render(batch);
+		} else {
+			grid2d.render(batch);
 		}
+		renderScene();
+		compass.render(batch);
+		infoRenderer.renderInfo(camera, batch);
+		toolManager.render(batch);
 	}
 
 	protected void updateGlState() {

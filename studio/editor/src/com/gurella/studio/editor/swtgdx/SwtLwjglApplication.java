@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +60,9 @@ public class SwtLwjglApplication implements Application {
 	private int backgroundFps = 60;
 	private ApplicationLogger applicationLogger;
 
-	public SwtLwjglApplication(String internalPath, Composite parent, int editorId) {
+	public SwtLwjglApplication(int editorId, Composite parent, String internalAssetsPath) {
 		this.editorId = editorId;
+		GdxContext.put(editorId, this);
 
 		this.listener = new EditorApplicationListener(editorId);
 
@@ -70,7 +71,7 @@ public class SwtLwjglApplication implements Application {
 
 		audio = OpenAlAudioSingletone.getInstance();
 		graphics = new SwtLwjglGraphics(parent);
-		files = new SwtLwjglFiles(internalPath);
+		files = new SwtLwjglFiles(internalAssetsPath);
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
 
@@ -79,45 +80,28 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	public void init() {
-		setCurrent();
 		listener.create();
 
 		final GLCanvas glCanvas = graphics.getGlCanvas();
-		glCanvas.addListener(SWT.Dispose, e -> onGlCanvasDisposed());
+		glCanvas.addListener(SWT.Dispose, e -> GdxContext.run(editorId, this::onGlCanvasDisposed));
 		glCanvas.getDisplay().asyncExec(() -> mainLoop());
 	}
 
-	private void setCurrent() {
-		Gdx.app = this;
-		Gdx.graphics = graphics;
-		Gdx.audio = audio;
-		Gdx.files = files;
-		Gdx.input = input;
-		Gdx.net = net;
-		Gdx.gl = graphics.gl20;
-		Gdx.gl20 = graphics.gl20;
-		Gdx.gl30 = graphics.gl30;
-		graphics.setContext();
-	}
-
 	private void onGlCanvasDisposed() {
-		synchronized (SwtLwjglGraphics.glMutex) {
-			running = false;
-			setCurrent();
-			EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
+		running = false;
+		EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 
-			listener.pause();
-			listener.dispose();
+		listener.pause();
+		listener.dispose();
 
-			synchronized (lifecycleListeners) {
-				new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
-				lifecycleListeners.clear();
-			}
-
-			EventService.post(editorId, EditorCloseListener.class, l -> l.onEditorClose());
-			EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
-			OpenAlAudioSingletone.dispose(audio);
+		synchronized (lifecycleListeners) {
+			new ArrayList<>(lifecycleListeners).stream().forEachOrdered(l -> disposeListener(l));
+			lifecycleListeners.clear();
 		}
+
+		EventService.post(editorId, EditorCloseListener.class, l -> l.onEditorClose());
+		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
+		OpenAlAudioSingletone.dispose(audio);
 	}
 
 	private static void disposeListener(LifecycleListener listener) {
@@ -130,12 +114,9 @@ public class SwtLwjglApplication implements Application {
 		if (!running || glCanvas.isDisposed()) {
 			return;
 		}
-		
-		synchronized (SwtLwjglGraphics.glMutex) {
-			setCurrent();
-			update();
-			glCanvas.getDisplay().timerExec(35, () -> mainLoop());
-		}
+
+		GdxContext.run(editorId, this::update);
+		glCanvas.getDisplay().timerExec(35, () -> mainLoop());
 	}
 
 	private void update() {
@@ -156,7 +137,10 @@ public class SwtLwjglApplication implements Application {
 		}
 
 		if (shouldRender) {
-			render();
+			graphics.setCurrent();
+			graphics.update();
+			listener.render();
+			graphics.swapBuffer();
 		}
 	}
 
@@ -191,13 +175,6 @@ public class SwtLwjglApplication implements Application {
 			}
 		}
 		return isActive;
-	}
-
-	private void render() {
-		graphics.setCurrent();
-		graphics.update();
-		listener.render();
-		graphics.swapBuffer();
 	}
 
 	public boolean executeRunnables() {
@@ -348,7 +325,7 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void exit() {
-		throw new UnsupportedOperationException();
+		GdxContext.remove(editorId);
 	}
 
 	@Override

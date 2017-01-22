@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Graphics.DisplayMode;

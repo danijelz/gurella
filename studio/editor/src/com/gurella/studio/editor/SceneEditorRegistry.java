@@ -7,30 +7,30 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
+import com.gurella.studio.editor.swtgdx.SwtLwjglApplication;
 
 public class SceneEditorRegistry {
 	public static final int invalidId = -1;
 
-	private static final IntMap<SceneEditor> idToEditor = new IntMap<>();
-	private static final ObjectIntMap<Control> partControlToEditorId = new ObjectIntMap<>();
-	private static final ObjectIntMap<SwtLwjglApplication> gdxAppToEditorId = new ObjectIntMap<>();
+	private static final IntMap<SceneEditor> editorsById = new IntMap<>();
+	private static final ObjectIntMap<Control> idByPartControl = new ObjectIntMap<>();
+	private static final ObjectIntMap<SwtLwjglApplication> idByGdxApp = new ObjectIntMap<>();
 
 	private SceneEditorRegistry() {
 	}
 
 	static void put(SceneEditor editor, Composite content, SwtLwjglApplication application) {
 		int id = editor.id;
-		idToEditor.put(id, editor);
-		partControlToEditorId.put(content, id);
-		gdxAppToEditorId.put(application, id);
+		editorsById.put(id, editor);
+		idByPartControl.put(content, id);
+		idByGdxApp.put(application, id);
 	}
 
 	static void remove(SceneEditor editor) {
 		int id = editor.id;
-		idToEditor.remove(id);
-		partControlToEditorId.remove(partControlToEditorId.findKey(id), invalidId);
-		gdxAppToEditorId.remove(gdxAppToEditorId.findKey(id), invalidId);
+		editorsById.remove(id);
+		idByPartControl.remove(idByPartControl.findKey(id), invalidId);
+		idByGdxApp.remove(idByGdxApp.findKey(id), invalidId);
 	}
 
 	static int getEditorId(Control control) {
@@ -38,7 +38,7 @@ public class SceneEditorRegistry {
 		int id = invalidId;
 
 		while (parent != null && id == invalidId) {
-			id = partControlToEditorId.get(parent, invalidId);
+			id = idByPartControl.get(parent, invalidId);
 			parent = parent.getParent();
 		}
 
@@ -48,7 +48,7 @@ public class SceneEditorRegistry {
 	static int getCurrentEditorId() {
 		Application app = Gdx.app;
 		if (app instanceof SwtLwjglApplication) {
-			return gdxAppToEditorId.get((SwtLwjglApplication) app, invalidId);
+			return idByGdxApp.get((SwtLwjglApplication) app, invalidId);
 		} else {
 			return invalidId;
 		}
@@ -57,14 +57,14 @@ public class SceneEditorRegistry {
 	static SceneEditor getCurrentEditor() {
 		Application app = Gdx.app;
 		if (app instanceof SwtLwjglApplication) {
-			return idToEditor.get(gdxAppToEditorId.get((SwtLwjglApplication) app, invalidId));
+			return editorsById.get(idByGdxApp.get((SwtLwjglApplication) app, invalidId));
 		} else {
 			return null;
 		}
 	}
 
 	public static SceneEditorContext getContext(int editorId) {
-		SceneEditor sceneEditor = idToEditor.get(editorId);
+		SceneEditor sceneEditor = editorsById.get(editorId);
 		return sceneEditor == null ? null : sceneEditor.sceneContext;
 	}
 }

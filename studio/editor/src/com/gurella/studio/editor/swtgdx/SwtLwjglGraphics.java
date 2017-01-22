@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.swtgl;
+package com.gurella.studio.editor.swtgdx;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -21,9 +21,6 @@ import com.gurella.studio.editor.utils.Synchronized;
 import com.gurella.studio.editor.utils.Try;
 
 public class SwtLwjglGraphics implements Graphics {
-	// TODO rename to gdxMutex and move to SwtLwjglApplication
-	public static final Object glMutex = new Object();
-
 	private static final int r = 8, g = 8, b = 8, a = 8;
 	private static final int depth = 16, stencil = 0;
 	private static final int samples = 0;
