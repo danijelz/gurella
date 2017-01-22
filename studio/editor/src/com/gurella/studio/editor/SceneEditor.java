@@ -276,7 +276,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 		@Override
 		public void onSuccess(Scene scene) {
-			sceneProvider.setScene(scene);
+			GdxContext.run(id, () -> sceneProvider.setScene(scene));
 			asyncExec(() -> progressLabel.dispose());
 		}
 

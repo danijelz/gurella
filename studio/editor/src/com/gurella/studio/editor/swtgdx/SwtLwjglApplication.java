@@ -81,10 +81,9 @@ public class SwtLwjglApplication implements Application {
 
 	public void init() {
 		listener.create();
-
 		final GLCanvas glCanvas = graphics.getGlCanvas();
 		glCanvas.addListener(SWT.Dispose, e -> GdxContext.run(editorId, this::onGlCanvasDisposed));
-		glCanvas.getDisplay().asyncExec(() -> mainLoop());
+		mainLoop();
 	}
 
 	private void onGlCanvasDisposed() {
@@ -110,16 +109,15 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	private void mainLoop() {
-		GLCanvas glCanvas = graphics.getGlCanvas();
-		if (!running || glCanvas.isDisposed()) {
-			return;
-		}
-
 		GdxContext.run(editorId, this::update);
-		glCanvas.getDisplay().timerExec(35, () -> mainLoop());
+		graphics.getGlCanvas().getDisplay().timerExec(35, () -> mainLoop());
 	}
 
 	private void update() {
+		if (!running || graphics.getGlCanvas().isDisposed()) {
+			return;
+		}
+
 		graphics.lastTime = System.nanoTime();
 		boolean isActive = updateActivity();
 

@@ -65,7 +65,12 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Model wall;
 	private ModelInstance wallInstance;
 
-	private Model model;
+	private Model box;
+	private ModelInstance boxInstance;
+
+	private Model sphere;
+	private ModelInstance sphereInstance;
+
 	private ModelInstance instance;
 	private Material material;
 
@@ -227,16 +232,14 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		directionalAttribute.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 		environment.set(directionalAttribute);
 
-		GdxContext.run(editorContext.editorId, this::initGlData);
 		addDisposeListener(e -> GdxContext.run(editorContext.editorId, this::onDispose));
-		render();
+		GdxContext.run(editorContext.editorId, this::initGlData);
 	}
 
 	private void initGlData() {
 		glCanvas.setCurrent();
 
-		modelBatch = new ModelBatch(
-				new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
+		modelBatch = new ModelBatch(new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
 		builder = new ModelBuilder();
 
 		wall = createWall();
@@ -244,10 +247,18 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		Matrix4 transform = wallInstance.transform;
 		transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
 
+		box = createBox();
+		boxInstance = new ModelInstance(box);
+
+		sphere = createSphere();
+		sphereInstance = new ModelInstance(sphere);
+
 		material = materialDescriptor.getMaterial();
-		model = createModel();
-		instance = new ModelInstance(model);
+
+		instance = boxInstance;
 		materialInputController.instance = instance;
+
+		render();
 	}
 
 	public static String getDefaultVertexShader() {
@@ -261,13 +272,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void updateModelType(ModelShape newShape) {
 		if (modelShape != newShape) {
 			modelShape = newShape;
-			synchronized (SwtLwjglGraphics.glMutex) {
-				glCanvas.setCurrent();
-				model.dispose();
-				model = createModel();
-				instance = new ModelInstance(model);
-				materialInputController.instance = instance;
-			}
+			instance = modelShape == ModelShape.box ? boxInstance : sphereInstance;
+			instance.transform.idt();
+			materialInputController.instance = instance;
 		}
 	}
 
@@ -279,7 +286,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void onDispose() {
 		editorContext.unload(materialDescriptor);
 		wall.dispose();
-		model.dispose();
+		box.dispose();
+		sphere.dispose();
 		modelBatch.dispose();
 		glCanvas.dispose();
 	}
@@ -297,47 +305,34 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		}
 
 		input.update();
-		synchronized (SwtLwjglGraphics.glMutex) {
-			glCanvas.setCurrent();
-			Point size = glCanvas.getSize();
-			Color color = backgroundColor;
-			Gdx.gl20.glClearColor(color.r, color.g, color.b, color.a);
-			Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-			Gdx.gl20.glViewport(0, 0, size.x, size.y);
 
-			modelBatch.begin(camera);
-			modelBatch.render(wallInstance, environment);
-			modelBatch.render(instance, environment);
-			modelBatch.end();
-		}
+		glCanvas.setCurrent();
+		Point size = glCanvas.getSize();
+		Color color = backgroundColor;
+		Gdx.gl20.glClearColor(color.r, color.g, color.b, color.a);
+		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		Gdx.gl20.glViewport(0, 0, size.x, size.y);
 
-		getDisplay().timerExec(60, this::render);
+		modelBatch.begin(camera);
+		modelBatch.render(wallInstance, environment);
+		modelBatch.render(instance, environment);
+		modelBatch.end();
+
+		getDisplay().timerExec(60, () -> GdxContext.run(editorContext.editorId, this::render));
 	}
 
 	void refreshMaterial() {
-		synchronized (SwtLwjglGraphics.glMutex) {
-			editorContext.save(materialDescriptor);
-			materialDescriptor.updateMaterial(material);
+		materialDescriptor.updateMaterial(material);
+		editorContext.save(materialDescriptor);
+		/*instance.materials.get(0).
 			glCanvas.setCurrent();
 			Matrix4 transform = new Matrix4(instance.transform);
 			model.dispose();
 			model = createModel();
 			instance = new ModelInstance(model);
 			instance.transform.set(transform);
-			materialInputController.instance = instance;
-		}
-	}
-
-	private Model createModel() {
-		switch (modelShape) {
-		case sphere:
-			return createSphere();
-		case box:
-			return createBox();
-		default:
-			return createSphere();
-		}
+			materialInputController.instance = instance;*/
 	}
 
 	private Model createSphere() {

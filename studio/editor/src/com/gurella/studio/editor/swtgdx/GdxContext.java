@@ -56,15 +56,28 @@ public class GdxContext {
 	}
 
 	private static void setCurrent(SwtLwjglApplication gdxApplication) {
-		Gdx.app = gdxApplication;
-		Gdx.graphics = gdxApplication.getGraphics();
-		Gdx.audio = gdxApplication.getAudio();
-		Gdx.files = gdxApplication.getFiles();
-		Gdx.input = gdxApplication.getInput();
-		Gdx.net = gdxApplication.getNet();
-		Gdx.gl = graphics.gl20;
-		Gdx.gl20 = graphics.gl20;
-		Gdx.gl30 = graphics.gl30;
-		graphics.setContext();
+		if (gdxApplication == null) {
+			Gdx.app = null;
+			Gdx.graphics = null;
+			Gdx.audio = null;
+			Gdx.files = null;
+			Gdx.input = null;
+			Gdx.net = null;
+			Gdx.gl = null;
+			Gdx.gl20 = null;
+			Gdx.gl30 = null;
+		} else {
+			Gdx.app = gdxApplication;
+			SwtLwjglGraphics graphics = gdxApplication.getGraphics();
+			Gdx.graphics = graphics;
+			Gdx.audio = gdxApplication.getAudio();
+			Gdx.files = gdxApplication.getFiles();
+			Gdx.input = gdxApplication.getInput();
+			Gdx.net = gdxApplication.getNet();
+			Gdx.gl = graphics.getGL20();
+			Gdx.gl20 = graphics.getGL20();
+			Gdx.gl30 = graphics.getGL30();
+			graphics.setContext();
+		}
 	}
 }

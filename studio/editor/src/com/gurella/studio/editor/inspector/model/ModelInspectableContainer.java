@@ -38,7 +38,7 @@ import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.swtgdx.LwjglGL20;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.swtgdx.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgdx.SwtLwjglInput;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
@@ -48,7 +48,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private DefaultBeanEditor<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
 
-	private LwjglGL20 gl20 = new LwjglGL20();
 	private SwtLwjglInput input;
 
 	private PerspectiveCamera cam;
@@ -111,18 +110,18 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		synchronized (SwtLwjglGraphics.glMutex) {
-			glCanvas.setCurrent();
-			Gdx.gl20 = gl20;
-			modelBatch = new ModelBatch();
-			ModelLoader<?> loader = getLoader();
-			FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
-			ModelData modelData = loader.loadModelData(fileHandle);
-			model = new Model(modelData, new DirectTextureProvider());
-			modelInstance = new ModelInstance(model);
-		}
+		addDisposeListener(e -> GdxContext.run(editorContext.editorId, this::onDispose));
+		GdxContext.run(editorId, () -> initGlData(target));
+	}
 
-		addDisposeListener(e -> onDispose());
+	private void initGlData(IFile target) {
+		glCanvas.setCurrent();
+		ModelLoader<?> loader = getLoader();
+		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
+		ModelData modelData = loader.loadModelData(fileHandle);
+		modelBatch = new ModelBatch();
+		model = new Model(modelData, new DirectTextureProvider());
+		modelInstance = new ModelInstance(model);
 		render();
 	}
 
@@ -131,7 +130,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		if (persistedProperties != null) {
 			return persistedProperties;
 		}
-		// TODO Auto-generated method stub
+
 		String fileExtension = target.getFileExtension();
 		if ("obj".equals(fileExtension)) {
 			return new ObjModelProperties();
@@ -157,11 +156,15 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (SwtLwjglGraphics.glMutex) {
+		if (model != null) {
 			model.dispose();
-			modelBatch.dispose();
-			glCanvas.dispose();
 		}
+
+		if (modelBatch != null) {
+			modelBatch.dispose();
+		}
+
+		glCanvas.dispose();
 	}
 
 	private void updateSizeByParent() {
@@ -172,27 +175,25 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void render() {
-		input.update();
-		camController.update();
-		synchronized (SwtLwjglGraphics.glMutex) {
-			if (glCanvas.isDisposed()) {
-				return;
-			}
-
-			glCanvas.setCurrent();
-			Gdx.gl20 = gl20;
-			Point size = glCanvas.getSize();
-			Color color = backgroundColor;
-			gl20.glClearColor(color.r, color.g, color.b, color.a);
-			gl20.glEnable(GL20.GL_DEPTH_TEST);
-			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-			gl20.glViewport(0, 0, size.x, size.y);
-			modelBatch.begin(cam);
-			modelBatch.render(modelInstance, environment);
-			modelBatch.end();
+		if (glCanvas.isDisposed()) {
+			return;
 		}
 
-		getDisplay().timerExec(60, this::render);
+		input.update();
+		camController.update();
+
+		glCanvas.setCurrent();
+		Point size = glCanvas.getSize();
+		Color color = backgroundColor;
+		Gdx.gl20.glClearColor(color.r, color.g, color.b, color.a);
+		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		Gdx.gl20.glViewport(0, 0, size.x, size.y);
+		modelBatch.begin(cam);
+		modelBatch.render(modelInstance, environment);
+		modelBatch.end();
+
+		getDisplay().timerExec(60, () -> GdxContext.run(editorContext.editorId, this::render));
 	}
 
 	private static class DirectTextureProvider implements TextureProvider {
