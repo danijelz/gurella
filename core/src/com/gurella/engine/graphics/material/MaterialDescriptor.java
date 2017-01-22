@@ -50,6 +50,8 @@ public class MaterialDescriptor extends ManagedObject {
 
 	CullFace cullFace = null;
 
+	private final Material sharedMaterial = new Material();
+
 	public MaterialDescriptor() {
 	}
 
@@ -235,6 +237,17 @@ public class MaterialDescriptor extends ManagedObject {
 
 	public Material createMaterial() {
 		Material material = new Material();
+		updateMaterial(material);
+		return material;
+	}
+
+	public Material getMaterial() {
+		updateMaterial(sharedMaterial);
+		return sharedMaterial;
+	}
+
+	public void updateMaterial(Material material) {
+		material.clear();
 
 		if (isDiffuseColorEnabled()) {
 			createColorAttribute(material, ColorAttribute.Diffuse, diffuseColor);
@@ -307,8 +320,6 @@ public class MaterialDescriptor extends ManagedObject {
 			material.set(new DepthTestAttribute(depthFunc, depthTest.depthRangeNear, depthTest.depthRangeFar,
 					depthTest.depthMask));
 		}
-
-		return material;
 	}
 
 	private static void createColorAttribute(Material material, long type, Color color) {

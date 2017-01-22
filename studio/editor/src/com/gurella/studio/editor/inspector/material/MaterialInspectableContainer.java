@@ -225,7 +225,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		synchronized (SwtLwjglGraphics.glMutex) {
 			glCanvas.setCurrent();
-			//Gdx.gl20 = gl20;
 
 			modelBatch = new ModelBatch(
 					new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
@@ -236,7 +235,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			Matrix4 transform = wallInstance.transform;
 			transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
 
-			material = materialDescriptor.createMaterial();
+			material = materialDescriptor.getMaterial();
 			model = createModel();
 			instance = new ModelInstance(model);
 			materialInputController.instance = instance;
@@ -259,7 +258,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			modelShape = newShape;
 			synchronized (SwtLwjglGraphics.glMutex) {
 				glCanvas.setCurrent();
-				//Gdx.gl20 = gl20;
 				model.dispose();
 				model = createModel();
 				instance = new ModelInstance(model);
@@ -317,9 +315,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	void refreshMaterial() {
 		synchronized (SwtLwjglGraphics.glMutex) {
 			editorContext.save(materialDescriptor);
-			material = materialDescriptor.createMaterial();
+			materialDescriptor.updateMaterial(material);
 			glCanvas.setCurrent();
-			//Gdx.gl20 = gl20;
 			Matrix4 transform = new Matrix4(instance.transform);
 			model.dispose();
 			model = createModel();

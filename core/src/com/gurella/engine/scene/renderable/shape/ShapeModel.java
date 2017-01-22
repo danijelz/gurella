@@ -41,7 +41,7 @@ public abstract class ShapeModel implements Disposable {
 
 	public void setMaterialDescriptor(MaterialDescriptor descriptor) {
 		this.materialDescriptor = descriptor;
-		material = descriptor == null ? new Material(defaulMaterial) : descriptor.createMaterial();
+		material = descriptor == null ? new Material(defaulMaterial) : descriptor.getMaterial();
 		if (instance != null) {
 			instance.materials.set(0, material);
 		}
@@ -50,7 +50,7 @@ public abstract class ShapeModel implements Disposable {
 
 	public Material getMaterial() {
 		if (material == null) {
-			material = materialDescriptor == null ? new Material(defaulMaterial) : materialDescriptor.createMaterial();
+			material = materialDescriptor == null ? new Material(defaulMaterial) : materialDescriptor.getMaterial();
 		}
 		return material;
 	}
