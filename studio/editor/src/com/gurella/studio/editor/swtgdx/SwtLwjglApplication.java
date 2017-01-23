@@ -64,7 +64,7 @@ public class SwtLwjglApplication implements Application {
 		this.editorId = editorId;
 		GdxContext.put(editorId, this);
 
-		this.listener = new EditorApplicationListener(editorId);
+		this.listener = new SwtApplicationListener(editorId);
 
 		LwjglNativesLoader.load();
 		setApplicationLogger(new LwjglApplicationLogger());

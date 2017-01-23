@@ -1,5 +1,6 @@
 package com.gurella.engine.asset;
 
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IdentityMap.Entry;
 import com.badlogic.gdx.utils.ObjectIntMap;
@@ -12,6 +13,7 @@ class AssetInfo implements DependencyTracker, Poolable {
 
 	Object asset;
 	boolean sticky;
+	FileType fileType;
 	int refCount = 0;
 	final ObjectIntMap<String> dependencies = new ObjectIntMap<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
@@ -131,6 +133,7 @@ class AssetInfo implements DependencyTracker, Poolable {
 	public void reset() {
 		asset = null;
 		sticky = false;
+		fileType = null;
 		refCount = 0;
 		dependencies.clear();
 		dependents.clear();

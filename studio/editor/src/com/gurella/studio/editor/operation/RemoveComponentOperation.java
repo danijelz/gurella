@@ -13,6 +13,7 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class RemoveComponentOperation extends AbstractOperation {
@@ -31,8 +32,12 @@ public class RemoveComponentOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+		return GdxContext.get(editorId, this::executeInGdxContext);
+	}
+
+	private IStatus executeInGdxContext() {
 		node.removeComponent(component, false);
-		AssetService.removeFromBundle(node, component.ensureUuid(), node);
+		AssetService.removeFromBundle(node, component.ensureUuid(), component);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);
@@ -41,8 +46,12 @@ public class RemoveComponentOperation extends AbstractOperation {
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+		return GdxContext.get(editorId, this::undoInGdxContext);
+	}
+
+	private IStatus undoInGdxContext() {
 		node.addComponent(component);
-		AssetService.addToBundle(node, component.ensureUuid(), node);
+		AssetService.addToBundle(node, component.ensureUuid(), component);
 
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(node, component));

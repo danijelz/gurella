@@ -20,7 +20,7 @@ public class JsonObjectPersister<T> extends AbstractAssetPersister<T> {
 	}
 
 	@Override
-	protected void persist(FileHandle file, T asset) {
+	public void persist(FileHandle file, T asset) {
 		JsonOutput output = new JsonOutput();
 		String string = output.serialize(file, expectedType, asset);
 		OutputStream outputStream = file.write(false);

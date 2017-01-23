@@ -4,6 +4,8 @@ import static com.gurella.engine.asset.AssetLoadingTask.obtain;
 
 import java.util.Iterator;
 
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
@@ -23,6 +25,7 @@ import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -162,34 +165,45 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	<T> void save(T asset, String fileName) {
+		save(asset, fileName, FileType.Internal);
+	}
+
+	<T> void save(T asset, String fileName, FileType fileType) {
+		save(asset, Gdx.files.getFileHandle(fileName, fileType));
+	}
+
+	<T> void save(T asset, FileHandle handle) {
+		String fileName = handle.name();
 		AssetInfo info = assetsByFileName.get(fileName);
 		if (info == null) {
-			persist(asset, fileName);
-			createInfoForNewAsset(asset, fileName);
+			persist(asset, handle);
+			createInfoForNewAsset(asset, handle);
 		} else {
 			Bundle bundle = getAssetRootBundle(asset);
 			if (bundle == null) {
-				persist(asset, fileName);
+				persist(asset, handle);
 			} else {
-				persist(bundle, fileName);
+				persist(bundle, handle);
 			}
 		}
 	}
 
-	private static <T> void persist(T asset, String fileName) {
+	private static <T> void persist(T asset, FileHandle handle) {
 		AssetPersister<T> persister = AssetPersisters.<T> get(asset);
 		if (persister == null) {
 			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
 		} else {
-			persister.persist(fileName, asset);
+			persister.persist(handle, asset);
 		}
 	}
 
-	private <T> void createInfoForNewAsset(T asset, String fileName) {
+	private <T> void createInfoForNewAsset(T asset, FileHandle handle) {
 		AssetInfo info = AssetInfo.obtain();
 		info.asset = asset;
+		info.fileType = handle.type();
 		info.refCount = 1;
 
+		String fileName = handle.name();
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, info);
 
@@ -203,6 +217,28 @@ public class AssetRegistry extends AssetManager {
 				Object bundledAsset = bundledAssetsEntry.value;
 				assetBundle.put(bundledAsset, bundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
+			}
+		}
+	}
+
+	<T> void delete(String fileName) {
+		AssetInfo info = assetsByFileName.remove(fileName);
+		FileHandle handle = Gdx.files.getFileHandle(fileName, info.fileType);
+		handle.delete();
+
+		Object asset = info.asset;
+		fileNamesByAsset.remove(asset);
+
+		if (asset instanceof Bundle) {
+			Bundle bundle = (Bundle) asset;
+			assetBundle.remove(bundle);
+
+			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
+					.entries()) {
+				Object bundledAsset = bundledAssetsEntry.value;
+				assetBundle.remove(bundledAsset);
+				fileNamesByAsset.remove(bundledAsset);
 			}
 		}
 	}

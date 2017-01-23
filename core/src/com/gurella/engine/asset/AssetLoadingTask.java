@@ -189,6 +189,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
 			info.asset = syncLoader.load(registry, fileName, file, params);
+			info.fileType = file.type();
 			registry.finished(this);
 		} else {
 			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
@@ -208,6 +209,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
 		info.asset = asyncLoader.loadSync(registry, fileName, file, params);
+		info.fileType = file.type();
 
 		if (loader instanceof DependencyTrackerAware) {
 			((DependencyTrackerAware) loader).setDependencyTracker(null);

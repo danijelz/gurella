@@ -13,6 +13,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class RemoveNodeOperation extends AbstractOperation {
@@ -33,6 +34,10 @@ public class RemoveNodeOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+		return GdxContext.get(editorId, this::executeInGdxContext);
+	}
+
+	private IStatus executeInGdxContext() {
 		if (parentNode == null) {
 			scene.removeNode(node, false);
 		} else {
@@ -48,6 +53,10 @@ public class RemoveNodeOperation extends AbstractOperation {
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+		return GdxContext.get(editorId, this::undoInGdxContext);
+	}
+
+	private IStatus undoInGdxContext() {
 		if (parentNode == null) {
 			scene.addNode(node);
 		} else {

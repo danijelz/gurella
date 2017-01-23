@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.studio.common.AssetsFolderLocator;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -25,13 +26,14 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		layout.verticalSpacing = 0;
 		content.setLayout(layout);
 
-		rootAsset = getManagedAsset();
+		int channel = context.channel;
+		rootAsset = GdxContext.get(context.channel, this::getManagedAsset);
 
 		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(context.javaProject);
 		assetWidget = new AssetSelectionWidget<>(content, assetType, assetsFolder);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
-		assetWidget.setSelectionListener(this::assetSelectionChanged);
+		assetWidget.setSelectionListener((o, n) -> GdxContext.run(channel, () -> assetSelectionChanged(o, n)));
 		assetWidget.setEnabled(rootAsset != null);
 
 		UiUtils.paintBordersFor(content);

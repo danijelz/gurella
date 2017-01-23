@@ -13,7 +13,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 
-final class EditorApplicationListener extends ApplicationAdapter {
+final class SwtApplicationListener extends ApplicationAdapter {
 	private final int editorId;
 
 	@SuppressWarnings("unused")
@@ -27,7 +27,7 @@ final class EditorApplicationListener extends ApplicationAdapter {
 	@SuppressWarnings("unused")
 	private RenderSystem renderSystem;
 
-	public EditorApplicationListener(int editorId) {
+	public SwtApplicationListener(int editorId) {
 		this.editorId = editorId;
 	}
 

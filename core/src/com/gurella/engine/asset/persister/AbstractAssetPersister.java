@@ -15,8 +15,6 @@ public abstract class AbstractAssetPersister<T> implements AssetPersister<T> {
 		persist(resolve(fileName), asset);
 	}
 
-	protected abstract void persist(FileHandle file, T asset);
-
 	public FileHandle resolve(String fileName) {
 		return resolver.resolve(fileName);
 	}

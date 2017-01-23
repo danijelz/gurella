@@ -2,7 +2,9 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
@@ -190,6 +192,18 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 
 	public static <T> void save(T asset, String fileName) {
 		getInstance().assetRegistry.save(asset, fileName);
+	}
+	
+	public static <T> void save(T asset, String fileName, FileType fileType) {
+		getInstance().assetRegistry.save(asset, fileName, fileType);
+	}
+	
+	public static <T> void save(T asset, FileHandle handle) {
+		getInstance().assetRegistry.save(asset, handle);
+	}
+	
+	public static <T> void delete(String fileName) {
+		getInstance().assetRegistry.delete(fileName);
 	}
 
 	public static void addDependency(Object asset, Object dependency) {
