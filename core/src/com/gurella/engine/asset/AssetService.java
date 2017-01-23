@@ -1,8 +1,8 @@
 package com.gurella.engine.asset;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
@@ -61,11 +61,13 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		}
 	}
 
+	// TODO unused -> should be managed internaly by loader task
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
 		return Values.cast(getInstance().descriptors.get(fileName));
 	}
 
-	public static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
+	// TODO unused
+	private static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
 		ConfigurableAssetDescriptor<T> descriptor = Values.cast(getInstance().descriptors.get(fileName));
 		return descriptor == null ? null : descriptor.getParameters();
 	}
@@ -140,7 +142,7 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	public static boolean isManaged(Object asset) {
 		return getInstance().assetRegistry.containsAsset(asset);
 	}
-	
+
 	public static boolean isManaged(String fileName) {
 		return getInstance().assetRegistry.isLoaded(fileName);
 	}
@@ -193,16 +195,16 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	public static <T> void save(T asset, String fileName) {
 		getInstance().assetRegistry.save(asset, fileName);
 	}
-	
+
 	public static <T> void save(T asset, String fileName, FileType fileType) {
 		getInstance().assetRegistry.save(asset, fileName, fileType);
 	}
-	
+
 	public static <T> void save(T asset, FileHandle handle) {
 		getInstance().assetRegistry.save(asset, handle);
 	}
-	
-	public static <T> void delete(String fileName) {
+
+	public static void delete(String fileName) {
 		getInstance().assetRegistry.delete(fileName);
 	}
 

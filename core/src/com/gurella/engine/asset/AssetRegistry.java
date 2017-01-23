@@ -221,7 +221,7 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	<T> void delete(String fileName) {
+	void delete(String fileName) {
 		AssetInfo info = assetsByFileName.remove(fileName);
 		FileHandle handle = Gdx.files.getFileHandle(fileName, info.fileType);
 		handle.delete();

@@ -78,10 +78,9 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Try.run(() -> save(monitor), e -> showError(e, "Error saving scene"), () -> monitor.done());
+		GdxContext.run(id, () -> Try.run(() -> save(monitor), e -> showError(e, "Error saving scene")));
 	}
 
-	//TODO set GdxContext
 	private void save(IProgressMonitor monitor) throws CoreException {
 		Scene scene = sceneContext.getScene();
 		if (scene == null) {
@@ -110,6 +109,8 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 		dirty = false;
 		firePropertyChange(PROP_DIRTY);
+
+		monitor.done();
 	}
 
 	@Override
