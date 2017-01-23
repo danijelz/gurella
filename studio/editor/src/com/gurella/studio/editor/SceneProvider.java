@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
@@ -12,6 +11,7 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 
 //TODO merge with SceneEditorContext
 class SceneProvider implements PluginListener, EditorPreCloseListener, EditorCloseListener {
@@ -52,7 +52,7 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 
 	@Override
 	public void onEditorPreClose() {
-		Optional.ofNullable(scene).ifPresent(s -> AssetService.unload(s));
+		Optional.ofNullable(scene).ifPresent(s -> GdxContext.unload(editorId, s));
 	}
 
 	@Override

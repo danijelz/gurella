@@ -67,7 +67,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
-		editingAssets.entrySet().forEach(e -> AssetService.unload(e.getValue()));
+		editingAssets.entrySet().forEach(e -> GdxContext.unload(editorId, e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));
 	}
@@ -106,7 +106,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		}
 
 		if (asset == null) {
-			asset = GdxContext.get(editorId, () -> AssetService.load(fileName));
+			asset = GdxContext.load(editorId, fileName);
 			editingAssets.put(fileName, asset);
 		}
 
@@ -122,13 +122,13 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	}
 
 	private String getAssetFileName(Object asset) {
-		return GdxContext.get(editorId, () -> AssetService.getFileName(asset));
+		return GdxContext.getFileName(editorId, asset);
 	}
 
 	private void unload(String fileName) {
 		Object asset = editingAssets.remove(fileName);
 		if (asset != null) {
-			GdxContext.run(editorId, () -> AssetService.unload(asset));
+			GdxContext.unload(editorId, asset);
 		}
 	}
 
@@ -160,7 +160,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();
-			boolean newAsset = !AssetService.isManaged(fileName);
+			boolean newAsset = !GdxContext.isManaged(editorId, fileName);
 			AssetService.save(asset, fileName);
 			if (newAsset) {
 				refreshParentFolder(fileName, assetSubMonitor.split(1));
