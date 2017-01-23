@@ -4,7 +4,6 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IdentityMap;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
