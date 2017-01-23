@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.tool;
 
-import static com.gurella.engine.event.EventService.post;
-
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -9,12 +7,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class RotateOperation extends TransformOperation {
@@ -47,24 +45,27 @@ public class RotateOperation extends TransformOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setEulerRotation(action);
-		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, action));
+		GdxContext.post(editorId, editorId, SceneChangedEvent.instance);
+		GdxContext.post(editorId, editorId, PropertyChangeListener.class,
+				l -> l.propertyChanged(transform, property, action));
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setEulerRotation(action);
-		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, action));
+		GdxContext.post(editorId, editorId, SceneChangedEvent.instance);
+		GdxContext.post(editorId, editorId, PropertyChangeListener.class,
+				l -> l.propertyChanged(transform, property, action));
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setEulerRotation(initial);
-		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, initial));
+		GdxContext.post(editorId, editorId, SceneChangedEvent.instance);
+		GdxContext.post(editorId, editorId, PropertyChangeListener.class,
+				l -> l.propertyChanged(transform, property, initial));
 		return Status.OK_STATUS;
 	}
 }

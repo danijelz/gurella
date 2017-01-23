@@ -24,10 +24,10 @@ public final class PoolService {
 				return lastSelected;
 			}
 			
-			ApplicationPool pool = instances.get(Gdx.app);
+			ApplicationPool pool = instances.get(app);
 			if (pool == null) {
 				pool = new ApplicationPool();
-				instances.put(Gdx.app, pool);
+				instances.put(app, pool);
 				EventService.subscribe(pool);
 				EventService.subscribe(new Cleaner());
 			}

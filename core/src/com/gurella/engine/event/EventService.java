@@ -31,10 +31,10 @@ public class EventService {
 				return lastSelected;
 			}
 
-			EventBus bus = globals.get(Gdx.app);
+			EventBus bus = globals.get(app);
 			if (bus == null) {
 				bus = new EventBus();
-				globals.put(Gdx.app, bus);
+				globals.put(app, bus);
 				EventService.subscribe(new Cleaner());
 			}
 
