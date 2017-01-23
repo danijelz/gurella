@@ -320,7 +320,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void copy(Object original, Object duplicate, CopyContext context) {
-		//TODO check if value is external asset (different file) and just set original
+		//TODO check if value is external asset (different file) and inject original
 		setValue(duplicate, context.copy(getValue(original)));
 	}
 }

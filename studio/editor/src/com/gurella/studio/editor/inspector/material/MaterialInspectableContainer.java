@@ -247,15 +247,19 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		Matrix4 transform = wallInstance.transform;
 		transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
 
+		material = materialDescriptor.getMaterial();
+
 		box = createBox();
 		boxInstance = new ModelInstance(box);
+		boxInstance.materials.set(0, material);
+		boxInstance.nodes.get(0).parts.get(0).material = material;
 
 		sphere = createSphere();
 		sphereInstance = new ModelInstance(sphere);
+		sphereInstance.materials.set(0, material);
+		sphereInstance.nodes.get(0).parts.get(0).material = material;
 
-		material = materialDescriptor.getMaterial();
-
-		instance = boxInstance;
+		instance = sphereInstance;
 		materialInputController.instance = instance;
 
 		render();
@@ -325,14 +329,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	void refreshMaterial() {
 		materialDescriptor.updateMaterial(material);
 		editorContext.save(materialDescriptor);
-		/*instance.materials.get(0).
-			glCanvas.setCurrent();
-			Matrix4 transform = new Matrix4(instance.transform);
-			model.dispose();
-			model = createModel();
-			instance = new ModelInstance(model);
-			instance.transform.set(transform);
-			materialInputController.instance = instance;*/
 	}
 
 	private Model createSphere() {

@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,8 +28,10 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
@@ -36,6 +40,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public final IEditorSite editorSite;
 	public final IPathEditorInput editorInput;
 	public final IFile sceneFile;
+	public final IFolder assetsFolder;
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
@@ -52,6 +57,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		sceneFile = editorInput.getAdapter(IFile.class);
 		workspace = sceneFile.getWorkspace();
 		project = sceneFile.getProject();
+		assetsFolder = AssetsFolderLocator.getAssetsFolder(project);
 		javaProject = JavaCore.create(project);
 		Reflection.setClassResolver(DynamicURLClassLoader.newInstance(javaProject)::loadClass);
 		EventService.subscribe(editorId, this);
@@ -100,7 +106,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		}
 
 		if (asset == null) {
-			asset = AssetService.load(fileName);
+			asset = GdxContext.get(editorId, () -> AssetService.load(fileName));
 			editingAssets.put(fileName, asset);
 		}
 
@@ -112,18 +118,22 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	}
 
 	public void unload(Object asset) {
-		unload(AssetService.getFileName(asset));
+		unload(getAssetFileName(asset));
+	}
+
+	private String getAssetFileName(Object asset) {
+		return GdxContext.get(editorId, () -> AssetService.getFileName(asset));
 	}
 
 	private void unload(String fileName) {
 		Object asset = editingAssets.remove(fileName);
 		if (asset != null) {
-			AssetService.unload(asset);
+			GdxContext.run(editorId, () -> AssetService.unload(asset));
 		}
 	}
 
 	public void save(Object asset) {
-		save(asset, AssetService.getFileName(asset));
+		save(asset, getAssetFileName(asset));
 	}
 
 	public <T extends AssetProperties<?>> void saveProperties(Object asset, T assetProperties) {
@@ -144,15 +154,30 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	void persist(IProgressMonitor monitor) {
 		String subMonitorName = "Saving loaded assets";
 		SubMonitor subMonitor = SubMonitor.convert(monitor, subMonitorName, modifiedAssets.size());
+
 		for (Entry<String, Object> entry : modifiedAssets.entrySet()) {
+			SubMonitor assetSubMonitor = subMonitor.split(1);
+
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();
-			SubMonitor assetSubMonitor = subMonitor.split(1);
+			boolean newAsset = !AssetService.isManaged(fileName);
 			AssetService.save(asset, fileName);
+			if (newAsset) {
+				refreshParentFolder(fileName, assetSubMonitor.split(1));
+			}
+
 			assetSubMonitor.worked(1);
 			assetSubMonitor.done();
 			subMonitor.worked(1);
 		}
+
 		subMonitor.done();
+	}
+
+	private void refreshParentFolder(String fileName, SubMonitor refreshMonitor) {
+		IContainer container = assetsFolder.getFile(fileName).getParent();
+		Try.unchecked(() -> container.refreshLocal(1, refreshMonitor));
+		refreshMonitor.worked(1);
+		refreshMonitor.done();
 	}
 }

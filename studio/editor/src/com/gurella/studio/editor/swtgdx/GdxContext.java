@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.swtgdx;
 
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
@@ -47,12 +48,43 @@ public class GdxContext {
 		try {
 			action.run();
 		} finally {
-			if (previous == null) {
-				return;
+			if (previous != null) {
+				current = previous;
+				setCurrent();
 			}
+		}
+	}
 
-			current = previous;
-			setCurrent();
+	public static <T> T get(int editorId, Supplier<T> supplier) {
+		try {
+			lock.lock();
+			return getSynchronized(editorId, supplier);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	private static <T> T getSynchronized(int editorId, Supplier<T> supplier) {
+		SwtLwjglApplication gdxApplication = gdxAppByEditorId.get(editorId);
+		if (current == gdxApplication) {
+			return supplier.get();
+		} else {
+			return getInSwitchedGdxContext(gdxApplication, supplier);
+		}
+	}
+
+	private static <T> T getInSwitchedGdxContext(SwtLwjglApplication gdxApplication, Supplier<T> supplier) {
+		SwtLwjglApplication previous = current;
+		current = gdxApplication;
+		setCurrent();
+
+		try {
+			return supplier.get();
+		} finally {
+			if (previous != null) {
+				current = previous;
+				setCurrent();
+			}
 		}
 	}
 

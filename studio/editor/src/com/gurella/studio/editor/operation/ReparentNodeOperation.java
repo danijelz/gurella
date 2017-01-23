@@ -12,6 +12,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ReparentNodeOperation extends AbstractOperation {
@@ -58,7 +59,7 @@ public class ReparentNodeOperation extends AbstractOperation {
 			newParent.addChild(node);
 		}
 
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.run(editorId, () -> EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate()));
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, newParent, node));
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, newParent, node));
 

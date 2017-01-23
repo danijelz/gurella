@@ -223,9 +223,9 @@ public abstract class Try<T> {
 		}
 	}
 
-	public static void ignored(TryRunnable runnable) {
+	public static void ignored(TryRunnable action) {
 		try {
-			runnable.run();
+			action.run();
 		} catch (Throwable ignored) {
 		}
 	}
@@ -238,11 +238,31 @@ public abstract class Try<T> {
 		}
 	}
 
-	public static void run(TryRunnable runnable, Consumer<Throwable> exceptionAction) {
+	public static void run(TryRunnable action, Consumer<Throwable> exceptionAction) {
 		try {
-			runnable.run();
+			action.run();
 		} catch (Throwable e) {
 			exceptionAction.accept(e);
+		}
+	}
+
+	public static void run(TryRunnable action, Consumer<Throwable> exceptionAction, TryRunnable finallyAction) {
+		try {
+			action.run();
+		} catch (Throwable e) {
+			exceptionAction.accept(e);
+		} finally {
+			unchecked(finallyAction);
+		}
+	}
+
+	public static void run(TryRunnable action, TryRunnable finallyAction) {
+		try {
+			action.run();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			unchecked(finallyAction);
 		}
 	}
 

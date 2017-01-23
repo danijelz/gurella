@@ -138,6 +138,10 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	public static boolean isManaged(Object asset) {
 		return getInstance().assetRegistry.containsAsset(asset);
 	}
+	
+	public static boolean isManaged(String fileName) {
+		return getInstance().assetRegistry.isLoaded(fileName);
+	}
 
 	public static <T> T reload(String fileName, int priority) {
 		AssetRegistry assetRegistry = getInstance().assetRegistry;
