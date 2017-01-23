@@ -61,7 +61,7 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 			AssetService service = instances.get(app);
 			if (service == null) {
 				service = new AssetService();
-				instances.put(Gdx.app, service);
+				instances.put(app, service);
 				EventService.subscribe(service);
 				EventService.subscribe(new Cleaner());
 			}

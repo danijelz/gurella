@@ -4,18 +4,27 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
 
 public final class PoolService {
 	private static final IdentityMap<Application, ApplicationPool> instances = new IdentityMap<Application, ApplicationPool>();
+	
+	private static ApplicationPool lastSelected;
+	private static Application lastApp;
 
 	private PoolService() {
 	}
 
 	private static ApplicationPool getPool() {
 		synchronized (instances) {
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+			
 			ApplicationPool pool = instances.get(Gdx.app);
 			if (pool == null) {
 				pool = new ApplicationPool();
@@ -23,6 +32,10 @@ public final class PoolService {
 				EventService.subscribe(pool);
 				EventService.subscribe(new Cleaner());
 			}
+			
+			lastApp = app;
+			lastSelected = pool;
+			
 			return pool;
 		}
 	}
