@@ -18,17 +18,29 @@ public class EventService {
 	private static final IntMap<EventBus> channels = new IntMap<EventBus>();
 	private static final SubscriberComparator channelsComparator = new SubscriberComparator();
 
+	private static EventBus lastSelected;
+	private static Application lastApp;
+
 	private EventService() {
 	}
 
 	private static EventBus getGlobal() {
 		synchronized (globals) {
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
 			EventBus bus = globals.get(Gdx.app);
 			if (bus == null) {
 				bus = new EventBus();
 				globals.put(Gdx.app, bus);
 				EventService.subscribe(new Cleaner());
 			}
+
+			lastApp = app;
+			lastSelected = bus;
+
 			return bus;
 		}
 	}

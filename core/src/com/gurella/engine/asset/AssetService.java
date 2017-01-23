@@ -30,6 +30,9 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	private final AssetRegistry assetRegistry = new AssetRegistry();
 	private final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
+	private static AssetService lastSelected;
+	private static Application lastApp;
+
 	static {
 		Texture.setAssetManager(mockManager);
 		Cubemap.setAssetManager(mockManager);
@@ -50,13 +53,22 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 
 	private static AssetService getInstance() {
 		synchronized (instances) {
-			AssetService service = instances.get(Gdx.app);
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
+			AssetService service = instances.get(app);
 			if (service == null) {
 				service = new AssetService();
 				instances.put(Gdx.app, service);
 				EventService.subscribe(service);
 				EventService.subscribe(new Cleaner());
 			}
+
+			lastApp = app;
+			lastSelected = service;
+
 			return service;
 		}
 	}

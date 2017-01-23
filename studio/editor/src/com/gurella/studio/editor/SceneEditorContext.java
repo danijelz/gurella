@@ -20,7 +20,6 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.badlogic.gdx.Files.FileType;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.event.EventService;
@@ -161,7 +160,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();
 			boolean newAsset = !GdxContext.isManaged(editorId, fileName);
-			AssetService.save(asset, fileName);
+			GdxContext.save(editorId, asset, fileName);
 			if (newAsset) {
 				refreshParentFolder(fileName, assetSubMonitor.split(1));
 			}

@@ -35,7 +35,7 @@ public class AddComponentOperation extends AbstractOperation {
 
 	private IStatus executeInGdxContext() {
 		node.addComponent(component);
-		AssetService.addToBundle(node, component.ensureUuid(), component);
+		GdxContext.addToBundle(editorId, node, component.ensureUuid(), component);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);
@@ -49,7 +49,7 @@ public class AddComponentOperation extends AbstractOperation {
 
 	private IStatus undoInGdxContext() {
 		node.removeComponent(component, false);
-		AssetService.removeFromBundle(node, component.ensureUuid(), component);
+		GdxContext.removeFromBundle(editorId, node, component.ensureUuid(), component);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		EventService.post(editorId, SceneChangedEvent.instance);

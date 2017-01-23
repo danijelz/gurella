@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.metatype.CopyContext;
@@ -200,13 +199,9 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 	}
 
 	private <T> T loadAsset(IFile file, Class<T> type) {
-		return GdxContext.get(editorId, () -> AssetService.load(getAssetPath(file), type));
-	}
-
-	private static String getAssetPath(IFile file) {
 		String path = file.getLocation().toString();
 		IPath rootAssetsFolder = file.getProject().getLocation().append("assets");
 		IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
-		return assetPath.toString();
+		return GdxContext.load(editorId, assetPath.toString(), type);
 	}
 }

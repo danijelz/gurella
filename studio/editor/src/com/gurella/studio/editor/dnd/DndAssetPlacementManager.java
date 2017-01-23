@@ -25,7 +25,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
@@ -48,6 +47,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.swtgdx.GdxContext;
 
+//TODO unload assets
 public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraConsumer,
 		EditorPreRenderUpdateListener, EditorRenderUpdateListener, EditorCloseListener {
 	private final int editorId;
@@ -115,11 +115,11 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 	private void unloadTemporaryAssets() {
 		assetFile = null;
 		if (model != null) {
-			AssetService.unload(model);
+			GdxContext.unload(editorId, model);
 			model = null;
 			modelInstance = null;
 		} else {
-			AssetService.unload(texture);
+			GdxContext.unload(editorId, texture);
 			texture = null;
 			sprite.setTexture(null);
 		}
@@ -263,7 +263,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 		}
 
 		private <T> T loadAsset(Class<T> type) {
-			return GdxContext.get(editorId, () -> AssetService.load(getAssetPath(), type));
+			return GdxContext.load(editorId,getAssetPath(), type);
 		}
 
 		private String getAssetPath() {
@@ -289,7 +289,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				transformComponent.setTranslation(position);
 				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
-				modelComponent.setModel(AssetService.load(getAssetPath(), Model.class));
+				modelComponent.setModel(GdxContext.load(editorId, getAssetPath(), Model.class));
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
 				historyService.executeOperation(operation, "Error while adding node");
 			} else {
@@ -297,7 +297,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 				SceneNode node = scene.newNode("Sprite");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-				Texture texture = AssetService.load(getAssetPath(), Texture.class);
+				Texture texture = GdxContext.load(editorId, getAssetPath(), Texture.class);
 				if (camera instanceof OrthographicCamera) {
 					transformComponent.setTranslation(position.x, position.y, 0);
 					textureComponent.setTexture(texture, texture.getWidth(), texture.getHeight());
