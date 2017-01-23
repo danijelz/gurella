@@ -43,7 +43,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -92,7 +91,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		Composite body = getBody();
 		GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(0, 10, 4, 0).applyTo(body);
 
-		prefab = AssetService.load(target.getLocation().toString());
+		prefab = editorContext.load(target);
 
 		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
@@ -122,7 +121,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		UiUtils.paintBordersFor(body);
 		initComponentContainers();
 		layout(true, true);
-		addDisposeListener(e -> AssetService.unload(prefab));
+		addDisposeListener(e -> editorContext.unload(prefab));
 	}
 
 	private void nodeNameChanged() {

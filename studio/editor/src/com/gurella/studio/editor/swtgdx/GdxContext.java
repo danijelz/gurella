@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.swtgdx;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -8,6 +9,7 @@ import com.badlogic.gdx.utils.IntMap;
 
 public class GdxContext {
 	private static final ReentrantLock lock = new ReentrantLock();
+	private static final AtomicInteger lockCounter = new AtomicInteger();
 	private static final IntMap<SwtLwjglApplication> gdxAppByEditorId = new IntMap<>();
 	private static SwtLwjglApplication current;
 
@@ -15,18 +17,30 @@ public class GdxContext {
 	}
 
 	static void put(int editorId, SwtLwjglApplication application) {
-		gdxAppByEditorId.put(editorId, application);
+		try {
+			lock.lock();
+			gdxAppByEditorId.put(editorId, application);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	static void remove(int editorId) {
-		gdxAppByEditorId.remove(editorId);
+		try {
+			lock.lock();
+			gdxAppByEditorId.remove(editorId);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public static void run(int editorId, Runnable action) {
 		try {
 			lock.lock();
+			lockCounter.incrementAndGet();
 			runSynchronized(editorId, action);
 		} finally {
+			lockCounter.decrementAndGet();
 			lock.unlock();
 		}
 	}
@@ -43,23 +57,29 @@ public class GdxContext {
 	private static void runInSwitchedGdxContext(SwtLwjglApplication gdxApplication, Runnable action) {
 		SwtLwjglApplication previous = current;
 		current = gdxApplication;
-		setCurrent();
+		updateContext();
 
 		try {
 			action.run();
 		} finally {
-			if (previous != null) {
-				current = previous;
-				setCurrent();
-			}
+			rollbackContext(previous);
+		}
+	}
+
+	private static void rollbackContext(SwtLwjglApplication previous) {
+		if (previous != null && (gdxAppByEditorId.containsKey(previous.editorId) || lockCounter.get() > 1)) {
+			current = previous;
+			updateContext();
 		}
 	}
 
 	public static <T> T get(int editorId, Supplier<T> supplier) {
 		try {
 			lock.lock();
+			lockCounter.incrementAndGet();
 			return getSynchronized(editorId, supplier);
 		} finally {
+			lockCounter.decrementAndGet();
 			lock.unlock();
 		}
 	}
@@ -76,19 +96,16 @@ public class GdxContext {
 	private static <T> T getInSwitchedGdxContext(SwtLwjglApplication gdxApplication, Supplier<T> supplier) {
 		SwtLwjglApplication previous = current;
 		current = gdxApplication;
-		setCurrent();
+		updateContext();
 
 		try {
 			return supplier.get();
 		} finally {
-			if (previous != null) {
-				current = previous;
-				setCurrent();
-			}
+			rollbackContext(previous);
 		}
 	}
 
-	private static void setCurrent() {
+	private static void updateContext() {
 		if (current == null) {
 			Gdx.app = null;
 			Gdx.graphics = null;

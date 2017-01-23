@@ -46,6 +46,7 @@ import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 
 public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraConsumer,
 		EditorPreRenderUpdateListener, EditorRenderUpdateListener, EditorCloseListener {
@@ -107,7 +108,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 
 	protected void unloadTemporaryAssetsIfDragEnded() {
 		if (assetFile != null && getTransferingAssetFile() != assetFile) {
-			unloadTemporaryAssets();
+			GdxContext.run(editorId, this::unloadTemporaryAssets);
 		}
 	}
 
@@ -246,11 +247,11 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 
 			String fileExtension = assetFile.getFileExtension();
 			if (Assets.isValidExtension(Model.class, fileExtension)) {
-				model = AssetService.load(getAssetPath(), Model.class);
+				model = loadAsset(Model.class);
 				modelInstance = new ModelInstance(model);
 				updateModelInstance();
 			} else {
-				texture = AssetService.load(getAssetPath(), Texture.class);
+				texture = loadAsset(Texture.class);
 				sprite.setTexture(texture);
 				sprite.setRegion(0, 0, texture.getWidth(), texture.getHeight());
 				int ratio = camera instanceof OrthographicCamera ? 1 : 100;
@@ -259,6 +260,10 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 				sprite.setOriginCenter();
 				updateSprite();
 			}
+		}
+
+		private <T> T loadAsset(Class<T> type) {
+			return GdxContext.get(editorId, () -> AssetService.load(getAssetPath(), type));
 		}
 
 		private String getAssetPath() {

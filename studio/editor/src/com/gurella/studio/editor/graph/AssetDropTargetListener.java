@@ -28,6 +28,7 @@ import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
+import com.gurella.studio.editor.swtgdx.GdxContext;
 
 class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer, HistoryContributor {
 	private final int editorId;
@@ -154,7 +155,7 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		boolean isPrefab = AssetType.prefab.isValidExtension(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
-				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
+				SceneNode prefab = loadAsset(file, SceneNode.class);
 				SceneNode instance = CopyContext.copyObject(prefab);
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, instance);
 				historyService.executeOperation(operation, "Error while instantiating prefab.");
@@ -170,7 +171,7 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 
 			SceneNode node = (SceneNode) data;
 			if (isPrefab) {
-				SceneNode prefab = AssetService.load(getAssetPath(file), SceneNode.class);
+				SceneNode prefab = loadAsset(file, SceneNode.class);
 				SceneNode instance = CopyContext.copyObject(prefab);
 				AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
 				historyService.executeOperation(operation, "Error while instantiating prefab.");
@@ -183,18 +184,23 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 
 				if (type == ModelComponent.class) {
 					ModelComponent modelComponent = node.newComponent(ModelComponent.class);
-					modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
+					Model model = loadAsset(file, Model.class);
+					modelComponent.setModel(model);
 					AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
 					historyService.executeOperation(operation, "Error while adding component");
 				} else if (type == TextureComponent.class) {
 					TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-					Texture texture = AssetService.load(getAssetPath(file), Texture.class);
+					Texture texture = loadAsset(file, Texture.class);
 					textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
 					AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
 					historyService.executeOperation(operation, "Error while adding component");
 				}
 			}
 		}
+	}
+
+	private <T> T loadAsset(IFile file, Class<T> type) {
+		return GdxContext.get(editorId, () -> AssetService.load(getAssetPath(file), type));
 	}
 
 	private static String getAssetPath(IFile file) {

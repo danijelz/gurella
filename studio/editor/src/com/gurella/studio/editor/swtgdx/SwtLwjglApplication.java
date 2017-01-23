@@ -33,7 +33,7 @@ import com.gurella.studio.editor.utils.Synchronized;
 
 //Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
-	private final int editorId;
+	final int editorId;
 
 	private final SwtLwjglGraphics graphics;
 	private final OpenALAudio audio;
