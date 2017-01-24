@@ -2,11 +2,11 @@ package com.gurella.studio.editor.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class Grid2d implements Grid, CameraConsumer, EditorCloseListener {
 	private final int editorId;
@@ -15,7 +15,7 @@ public class Grid2d implements Grid, CameraConsumer, EditorCloseListener {
 	public Grid2d(int editorId) {
 		this.editorId = editorId;
 		Workbench.activate(editorId, this);
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class Grid2d implements Grid, CameraConsumer, EditorCloseListener {
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.deactivate(editorId, this);
 	}
 }

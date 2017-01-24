@@ -22,7 +22,6 @@ import org.eclipse.ui.IPathEditorInput;
 import com.badlogic.gdx.Files.FileType;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.properties.AssetProperties;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
@@ -59,13 +58,13 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		assetsFolder = AssetsFolderLocator.getAssetsFolder(project);
 		javaProject = JavaCore.create(project);
 		Reflection.setClassResolver(DynamicURLClassLoader.newInstance(javaProject)::loadClass);
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		editingAssets.entrySet().forEach(e -> GdxContext.unload(editorId, e.getValue()));
 		String msg = "Error closing java project";
 		Try.successful(javaProject).filter(p -> p != null).peek(p -> p.close()).onFailure(e -> log(e, msg));

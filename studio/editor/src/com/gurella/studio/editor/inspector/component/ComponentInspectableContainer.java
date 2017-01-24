@@ -6,7 +6,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.Scene;
@@ -20,6 +19,7 @@ import com.gurella.studio.editor.ui.bean.BeanEditor;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.ui.bean.BeanEditorFactory;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent>
 		implements EditorSceneActivityListener {
@@ -29,8 +29,8 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		super(parent, target);
 
 		int editorId = editorContext.editorId;
-		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
-		EventService.subscribe(editorId, this);
+		addDisposeListener(e -> GdxContext.unsubscribe(editorId, editorId, this));
+		GdxContext.subscribe(editorId, editorId, this);
 
 		Composite head = getForm().getHead();
 		head.setFont(GurellaStudioPlugin.getFont(head, SWT.BOLD));
@@ -46,7 +46,7 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 
 		editor = BeanEditorFactory.createEditor(body, editorId, target);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
-		signal.addListener(e -> EventService.post(editorContext.editorId, SceneChangedEvent.instance));
+		signal.addListener(e -> GdxContext.post(editorId, editorId, SceneChangedEvent.instance));
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		layout(true, true);
 	}

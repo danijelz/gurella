@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.operation;
 
+import static com.gurella.studio.gdx.GdxContext.post;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -7,7 +9,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.Prefabs;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
@@ -31,8 +32,8 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.convertToPrefab(element, prefab, fileName);
-		GdxContext.run(editorId, () -> EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate()));
-		EventService.post(editorId, SceneChangedEvent.instance);
+		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
@@ -44,8 +45,8 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.dettachFromPrefab(element);
-		GdxContext.run(editorId, () -> EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate()));
-		EventService.post(editorId, SceneChangedEvent.instance);
+		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 }

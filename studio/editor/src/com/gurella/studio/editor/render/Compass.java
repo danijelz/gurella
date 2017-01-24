@@ -20,12 +20,12 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
+import com.gurella.studio.gdx.GdxContext;
 
 /**
  * Adapted from https://github.com/mbrlabs/Mundus
@@ -76,7 +76,7 @@ public class Compass implements EditorCloseListener, EditorPreRenderUpdateListen
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -109,7 +109,7 @@ public class Compass implements EditorCloseListener, EditorPreRenderUpdateListen
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.deactivate(editorId, this);
 		compassModel.dispose();
 	}

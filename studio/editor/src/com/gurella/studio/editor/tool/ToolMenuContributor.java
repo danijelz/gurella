@@ -5,11 +5,11 @@ import static com.gurella.studio.editor.tool.ToolType.rotate;
 import static com.gurella.studio.editor.tool.ToolType.scale;
 import static com.gurella.studio.editor.tool.ToolType.translate;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ToolMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
 	private static final String editorMenuSectionName = "Editor";
@@ -21,7 +21,7 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 	public ToolMenuContributor(int editorId, ToolManager manager) {
 		this.editorId = editorId;
 		this.manager = manager;
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -48,6 +48,6 @@ public class ToolMenuContributor implements EditorCloseListener, EditorContextMe
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 }

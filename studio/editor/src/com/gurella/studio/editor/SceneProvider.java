@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
 import com.gurella.engine.plugin.Workbench;
@@ -23,7 +22,7 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 	SceneProvider(int editorId) {
 		this.editorId = editorId;
 		Workbench.addListener(editorId, this);
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 	}
 
 	@Override
@@ -58,6 +57,6 @@ class SceneProvider implements PluginListener, EditorPreCloseListener, EditorClo
 	@Override
 	public void onEditorClose() {
 		Workbench.removeListener(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 }

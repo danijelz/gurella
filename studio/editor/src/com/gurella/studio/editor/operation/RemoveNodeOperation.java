@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.operation;
 
+import static com.gurella.studio.gdx.GdxContext.post;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -7,7 +9,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
@@ -33,10 +34,6 @@ public class RemoveNodeOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		return GdxContext.get(editorId, this::executeInGdxContext);
-	}
-
-	private IStatus executeInGdxContext() {
 		if (parentNode == null) {
 			scene.removeNode(node, false);
 		} else {
@@ -44,18 +41,14 @@ public class RemoveNodeOperation extends AbstractOperation {
 		}
 
 		GdxContext.removeFromBundle(editorId, scene, node.ensureUuid(), node);
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
-		EventService.post(editorId, SceneChangedEvent.instance);
+		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
+		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		return GdxContext.get(editorId, this::undoInGdxContext);
-	}
-
-	private IStatus undoInGdxContext() {
 		if (parentNode == null) {
 			scene.addNode(node);
 		} else {
@@ -63,12 +56,12 @@ public class RemoveNodeOperation extends AbstractOperation {
 		}
 
 		GdxContext.addToBundle(editorId, scene, node.ensureUuid(), node);
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
+		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 
 		node.setIndex(index);
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, index));
-		EventService.post(editorId, SceneChangedEvent.instance);
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, index));
+		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 

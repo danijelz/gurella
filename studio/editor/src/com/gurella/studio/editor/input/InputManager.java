@@ -4,7 +4,6 @@ import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
@@ -12,6 +11,7 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class InputManager implements EditorInputUpdateListener, PluginListener, EditorCloseListener {
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
@@ -24,7 +24,7 @@ public class InputManager implements EditorInputUpdateListener, PluginListener, 
 	public InputManager(int editorId) {
 		this.editorId = editorId;
 		InputService.addInputProcessor(inputQueue);
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.addListener(editorId, this);
 	}
 
@@ -43,7 +43,7 @@ public class InputManager implements EditorInputUpdateListener, PluginListener, 
 	@Override
 	public void onEditorClose() {
 		Workbench.removeListener(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		InputService.removeInputProcessor(inputQueue);
 	}
 

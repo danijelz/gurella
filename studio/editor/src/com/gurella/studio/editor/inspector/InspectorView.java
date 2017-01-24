@@ -8,7 +8,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -17,6 +16,7 @@ import com.gurella.studio.editor.inspector.Inspectable.EmptyInspectable;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class InspectorView extends DockableView implements EditorSelectionListener {
 	private Object target;
@@ -30,8 +30,8 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 	protected void initControl(Composite control) {
 		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(control);
 		GurellaStudioPlugin.getToolkit().adapt(control);
-		control.addDisposeListener(e -> EventService.unsubscribe(editorId, this));
-		EventService.subscribe(editorId, this);
+		control.addDisposeListener(e -> GdxContext.unsubscribe(editorId, editorId, this));
+		GdxContext.subscribe(editorId, editorId, this);
 		presentInspectable(EmptyInspectable.getInstance());
 	}
 

@@ -10,11 +10,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class Grid3d implements Grid, CameraConsumer, EditorCloseListener {
 	private final int editorId;
@@ -30,7 +30,7 @@ public class Grid3d implements Grid, CameraConsumer, EditorCloseListener {
 		this.editorId = editorId;
 		init();
 		Workbench.activate(editorId, this);
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 	}
 
 	private void init() {
@@ -63,7 +63,7 @@ public class Grid3d implements Grid, CameraConsumer, EditorCloseListener {
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.deactivate(editorId, this);
 		model.dispose();
 	}

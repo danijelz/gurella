@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.operation;
 
+import static com.gurella.studio.gdx.GdxContext.post;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -7,13 +9,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
-import com.gurella.studio.gdx.GdxContext;
 
 public class ReparentNodeOperation extends AbstractOperation {
 	final int editorId;
@@ -59,12 +59,12 @@ public class ReparentNodeOperation extends AbstractOperation {
 			newParent.addChild(node);
 		}
 
-		GdxContext.run(editorId, () -> EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate()));
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, newParent, node));
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, newParent, node));
+		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, newParent, node));
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, newParent, node));
 
 		node.setIndex(newIndex);
-		EventService.post(editorId, SceneChangedEvent.instance);
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, newIndex));
+		post(editorId, editorId, SceneChangedEvent.instance);
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, newIndex));
 	}
 }

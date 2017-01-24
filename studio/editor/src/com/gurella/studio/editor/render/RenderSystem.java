@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
@@ -39,6 +38,7 @@ import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.tool.ToolManager;
+import com.gurella.studio.gdx.GdxContext;
 
 public class RenderSystem implements ComponentActivityListener, SceneConsumer, EditorCloseListener, EditorFocusListener,
 		EditorRenderUpdateListener, CameraConsumer {
@@ -96,7 +96,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 
 		DefaultShader.defaultCullFace = 0;
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -109,7 +109,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 	public void setScene(Scene scene) {
 		this.scene = scene;
 		sceneId = scene.getInstanceId();
-		EventService.subscribe(sceneId, this);
+		GdxContext.subscribe(editorId, sceneId, this);
 	}
 
 	@Override
@@ -200,7 +200,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 			return;
 		}
 
-		EventService.post(sceneId, PreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
+		GdxContext.post(editorId, sceneId, PreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 
 		batch.begin(camera);
 		batch.setEnvironment(environment);
@@ -252,8 +252,8 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(sceneId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, sceneId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		batch.dispose();
 	}
 }

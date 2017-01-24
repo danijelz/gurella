@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.operation;
 
+import static com.gurella.studio.gdx.GdxContext.post;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -7,7 +9,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
@@ -45,7 +46,7 @@ public class ReindexComponentOperation extends AbstractOperation {
 
 	private void setIndex(int index) {
 		component.setIndex(index);
-		EventService.post(editorId, SceneChangedEvent.instance);
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentIndexChanged(component, index));
+		post(editorId, editorId, SceneChangedEvent.instance);
+		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentIndexChanged(component, index));
 	}
 }

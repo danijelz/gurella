@@ -16,12 +16,12 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 import com.gurella.studio.editor.tool.ToolType;
+import com.gurella.studio.gdx.GdxContext;
 
 class InfoRenderer implements EditorCloseListener, EditorResizeListener, ToolSelectionListener {
 	private final int editorId;
@@ -59,7 +59,7 @@ class InfoRenderer implements EditorCloseListener, EditorResizeListener, ToolSel
 
 		toolTexture = handTexture;
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 	}
 
 	@Override
@@ -116,7 +116,7 @@ class InfoRenderer implements EditorCloseListener, EditorResizeListener, ToolSel
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		font.dispose();
 	}
 

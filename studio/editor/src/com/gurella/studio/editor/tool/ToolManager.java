@@ -14,7 +14,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.ModelIntesector;
 import com.gurella.engine.plugin.Workbench;
@@ -27,6 +26,7 @@ import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
+import com.gurella.studio.gdx.GdxContext;
 
 @Priority(Integer.MIN_VALUE)
 public class ToolManager extends InputAdapter
@@ -65,7 +65,7 @@ public class ToolManager extends InputAdapter
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -167,7 +167,7 @@ public class ToolManager extends InputAdapter
 		deactivate();
 		selectedTool = newSelection;
 		ToolType type = selectedTool == null ? ToolType.none : selectedTool.getType();
-		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
+		GdxContext.post(editorId, editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
 
 	public void render(GenericBatch batch) {
@@ -275,7 +275,7 @@ public class ToolManager extends InputAdapter
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		scaleTool.dispose();
 		translateTool.dispose();
 		rotateTool.dispose();

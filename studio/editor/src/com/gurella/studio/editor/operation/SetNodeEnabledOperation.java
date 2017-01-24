@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.operation;
 
+import static com.gurella.studio.gdx.GdxContext.post;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -7,7 +9,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
@@ -46,7 +47,7 @@ public class SetNodeEnabledOperation extends AbstractOperation {
 	}
 
 	private void notifyNodeEnabledChanged() {
-		EventService.post(editorId, NodeEnabledChangeListener.class, l -> l.nodeEnabledChanged(node));
-		EventService.post(editorId, SceneChangedEvent.instance);
+		post(editorId, editorId, NodeEnabledChangeListener.class, l -> l.nodeEnabledChanged(node));
+		post(editorId, editorId, SceneChangedEvent.instance);
 	}
 }
