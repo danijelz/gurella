@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -54,6 +53,7 @@ import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.utils.Try;
 
@@ -213,8 +213,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 	}
 
 	private static String getAssetsRelativePath(IResource resource) {
-		IProject project = resource.getProject();
-		IFolder assetsFolder = project.getFolder("assets");
+		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(resource);
 		return resource.getLocation().makeRelativeTo(assetsFolder.getLocation()).toString();
 	}
 
@@ -315,10 +314,7 @@ public class SelectSceneTab extends AbstractLaunchConfigurationTab {
 			IFile sceneFile = (IFile) dialog.getResult()[0];
 			IProject project = sceneFile.getProject();
 			projectText.setText(project.getName());
-
-			IFolder assetsFolder = project.getFolder("assets");
-			IPath relative = sceneFile.getLocation().makeRelativeTo(assetsFolder.getLocation());
-			sceneText.setText(relative.toString());
+			sceneText.setText(AssetsFolderLocator.getAssetsRelativePath(sceneFile).toString());
 		}
 	}
 

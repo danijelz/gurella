@@ -16,6 +16,7 @@ import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.common.AssetsFolderLocator;
 
 public class RenameAssetParticipant extends RenameParticipant {
 	private IResource resource;
@@ -39,12 +40,12 @@ public class RenameAssetParticipant extends RenameParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		IFolder assetsFolder = resource.getProject().getFolder("assets");
+		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(resource);
 		if (assetsFolder == null || !assetsFolder.exists()) {
 			return null;
 		}
 
-		if (!"assets".equals(resource.getProjectRelativePath().segment(0))) {
+		if (!AssetsFolderLocator.assetsFolderName.equals(resource.getProjectRelativePath().segment(0))) {
 			return null;
 		}
 

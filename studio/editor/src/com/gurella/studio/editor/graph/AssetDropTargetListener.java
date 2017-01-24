@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.graph;
 
+import static com.gurella.studio.common.AssetsFolderLocator.getAssetsRelativePath;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.dnd.DND;
@@ -199,9 +199,6 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 	}
 
 	private <T> T loadAsset(IFile file, Class<T> type) {
-		String path = file.getLocation().toString();
-		IPath rootAssetsFolder = file.getProject().getLocation().append("assets");
-		IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
-		return GdxContext.load(editorId, assetPath.toString(), type);
+		return GdxContext.load(editorId, getAssetsRelativePath(file).toString(), type);
 	}
 }
