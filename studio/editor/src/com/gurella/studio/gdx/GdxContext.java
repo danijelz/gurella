@@ -25,6 +25,7 @@ import com.gurella.studio.common.AssetsFolderLocator;
 public class GdxContext {
 	private static final ReentrantLock lock = new ReentrantLock();
 	private static final AtomicInteger lockCounter = new AtomicInteger();
+
 	private static final IntMap<Application> appById = new IntMap<>();
 	private static final IntMap<IJavaProject> javaProjectById = new IntMap<>();
 
@@ -99,10 +100,10 @@ public class GdxContext {
 	}
 
 	private static void rollbackContext(int previousId, Application previous) {
-		//if (previous != null && (appById.containsKey(previousId) || lockCounter.get() > 1)) {
+		if (previous != null && (appById.containsKey(previousId) || lockCounter.get() > 1)) {
 			current = previous;
 			updateContext();
-		//}
+		}
 	}
 
 	public static <T> T get(int contextId, Supplier<T> supplier) {
