@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
@@ -27,6 +26,7 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
 		EditorContextMenuContributor, ViewOrientationListener, PreferencesExtension {
@@ -46,7 +46,7 @@ public class ViewRegistry implements ViewActivityListener, EditorPreCloseListene
 		this.context = context;
 		this.dock = dock;
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -70,7 +70,7 @@ public class ViewRegistry implements ViewActivityListener, EditorPreCloseListene
 	private void openView(DockableView view, int orientation) {
 		view.createControl(dock.getDockItemParent(orientation));
 		dock.addDockItem(view, orientation);
-		EventService.post(editorId, ViewActivityListener.class, l -> l.viewOpened(view));
+		GdxContext.post(editorId, editorId, ViewActivityListener.class, l -> l.viewOpened(view));
 	}
 
 	@Override
@@ -158,6 +158,6 @@ public class ViewRegistry implements ViewActivityListener, EditorPreCloseListene
 	@Override
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 }

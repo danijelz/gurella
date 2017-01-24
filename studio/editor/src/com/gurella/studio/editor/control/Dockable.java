@@ -27,10 +27,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.control.DockableView.DockableViewComposite;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 class Dockable extends Composite {
 	int extent = 300;
@@ -437,7 +437,7 @@ class Dockable extends Composite {
 
 			event.doit = false;
 			int editorId = getParent().editorId;
-			EventService.post(editorId, ViewActivityListener.class, l -> l.viewClosed(composite.getView()));
+			GdxContext.post(editorId, editorId, ViewActivityListener.class, l -> l.viewClosed(composite.getView()));
 		}
 	}
 }

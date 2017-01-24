@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.focus;
 
-import java.util.Optional;
-
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
@@ -10,7 +8,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector.GestureAdapter;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -29,6 +26,7 @@ import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.ui.bean.BeanEditor;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
+import com.gurella.studio.gdx.GdxContext;
 
 public class FocusManager implements SceneConsumer, EditorSelectionListener, EditorCloseListener,
 		EditorPreRenderUpdateListener, CameraConsumer {
@@ -48,7 +46,7 @@ public class FocusManager implements SceneConsumer, EditorSelectionListener, Edi
 
 	public FocusManager(int editorId) {
 		this.editorId = editorId;
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 		Workbench.activate(editorId, gestureDetector);
 	}
@@ -56,7 +54,6 @@ public class FocusManager implements SceneConsumer, EditorSelectionListener, Edi
 	@Override
 	public void setScene(Scene scene) {
 		this.scene = scene;
-		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
 	@Override
@@ -119,7 +116,7 @@ public class FocusManager implements SceneConsumer, EditorSelectionListener, Edi
 
 	private void focusChanged() {
 		EditorFocusData focusData = new EditorFocusData(focusedNode, focusedComponent);
-		EventService.post(editorId, EditorFocusListener.class, l -> l.focusChanged(focusData));
+		GdxContext.post(editorId, editorId, EditorFocusListener.class, l -> l.focusChanged(focusData));
 	}
 
 	private void updateSelection(float x, float y) {
@@ -170,8 +167,7 @@ public class FocusManager implements SceneConsumer, EditorSelectionListener, Edi
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
-		Optional.ofNullable(scene).ifPresent(s -> EventService.unsubscribe(s.getInstanceId(), this));
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 		Workbench.deactivate(editorId, gestureDetector);
 	}

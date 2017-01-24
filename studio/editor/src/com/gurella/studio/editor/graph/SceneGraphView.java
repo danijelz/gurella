@@ -41,7 +41,6 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.swt.IFocusService;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
@@ -72,6 +71,7 @@ import com.gurella.studio.editor.utils.ControlExpression;
 import com.gurella.studio.editor.utils.DelegatingDragSourceListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class SceneGraphView extends DockableView
 		implements EditorSceneActivityListener, NodeNameChangeListener, SceneConsumer, HistoryContributor {
@@ -141,7 +141,7 @@ public class SceneGraphView extends DockableView
 		UiUtils.paintBordersFor(control);
 
 		graph.addDisposeListener(e -> onDispose(editorId));
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -269,7 +269,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	private void onDispose(int editorId) {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.deactivate(editorId, this);
 	}
 
@@ -283,7 +283,7 @@ public class SceneGraphView extends DockableView
 		}
 		viewer.setSelection(new StructuredSelection(node), true);
 		NodeInspectable inspectable = new NodeInspectable(node);
-		EventService.post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(inspectable));
+		GdxContext.post(editorId, editorId, EditorSelectionListener.class, l -> l.selectionChanged(inspectable));
 	}
 
 	@Override

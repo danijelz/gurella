@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
@@ -18,6 +17,7 @@ import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class CameraManager implements EditorPreCloseListener, EditorCloseListener, EditorPreRenderUpdateListener,
 		EditorResizeListener, PreferencesExtension {
@@ -61,7 +61,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		extensionRegistry.updateCamera(camera);
 		Workbench.activate(editorId, this);
 		Workbench.addListener(editorId, extensionRegistry);
-		
+
 		inputController = perspectiveCameraController;
 		Workbench.activate(editorId, inputController);
 
@@ -71,7 +71,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		cameraTypeSelector = new KeyboardCameraSelector(this);
 		Workbench.activate(editorId, cameraTypeSelector);
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 	}
 
 	void switchCamera(CameraType cameraType) {
@@ -218,6 +218,6 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		Workbench.deactivate(editorId, inputController);
 		Workbench.removeListener(editorId, extensionRegistry);
 		Workbench.deactivate(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 }

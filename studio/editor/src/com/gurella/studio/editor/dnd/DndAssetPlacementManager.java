@@ -26,7 +26,6 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.asset.Assets;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -81,7 +80,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 		dropTarget.setTransfer(new Transfer[] { transfer });
 		dropTarget.addDropListener(new DropTargetListener());
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}
 
@@ -225,7 +224,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		Workbench.deactivate(editorId, this);
 	}
 
@@ -263,7 +262,7 @@ public class DndAssetPlacementManager implements SceneConsumer, HistoryContribut
 		}
 
 		private <T> T loadAsset(Class<T> type) {
-			return GdxContext.load(editorId,getAssetPath(), type);
+			return GdxContext.load(editorId, getAssetPath(), type);
 		}
 
 		private String getAssetPath() {
