@@ -12,10 +12,12 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.control.ViewRegistry;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.gdx.GdxContext;
 
-public class SceneEditorActionBarContributor extends EditorActionBarContributor implements ViewActivityListener {
+public class SceneEditorActionBarContributor extends EditorActionBarContributor
+		implements ViewActivityListener, EditorCloseListener {
 	private SceneEditor editor;
 	private ViewRegistry views;
 
@@ -71,10 +73,6 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor 
 	@Override
 	public void dispose() {
 		super.dispose();
-		if (editor != null) {
-			int editorId = editor.id;
-			GdxContext.unsubscribe(editorId, editorId, this);
-		}
 	}
 
 	@Override
@@ -85,6 +83,14 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor 
 	@Override
 	public void viewClosed(DockableView view) {
 		updateActions();
+	}
+
+	@Override
+	public void onEditorClose() {
+		if (editor != null) {
+			int editorId = editor.id;
+			GdxContext.unsubscribe(editorId, editorId, this);
+		}
 	}
 
 	private class ToggleEditorViewAction extends Action {

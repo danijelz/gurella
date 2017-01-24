@@ -99,10 +99,10 @@ public class GdxContext {
 	}
 
 	private static void rollbackContext(int previousId, Application previous) {
-		if (previous != null && (appById.containsKey(previousId) || lockCounter.get() > 1)) {
+		//if (previous != null && (appById.containsKey(previousId) || lockCounter.get() > 1)) {
 			current = previous;
 			updateContext();
-		}
+		//}
 	}
 
 	public static <T> T get(int contextId, Supplier<T> supplier) {
