@@ -147,7 +147,7 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public void save(Object asset, String fileName) {
 		editingAssets.remove(fileName);
 		modifiedAssets.put(fileName, asset);
-		EventService.post(editorId, SceneDirtyListener.class, l -> l.sceneDirty());
+		GdxContext.post(editorId, editorId, SceneDirtyListener.class, l -> l.sceneDirty());
 	}
 
 	void persist(IProgressMonitor monitor) {
