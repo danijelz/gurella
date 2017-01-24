@@ -16,13 +16,13 @@ import org.eclipse.ui.operations.RedoActionHandler;
 import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.gdx.GdxContext;
 
 public class HistoryManager extends UndoContext
 		implements HistoryService, EditorCloseListener, EditorContextMenuContributor {
@@ -52,7 +52,7 @@ public class HistoryManager extends UndoContext
 
 		registry = new HistoryContributorRegistry(this);
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.addListener(editorId, registry);
 		Workbench.activate(editorId, this);
 	}
@@ -61,7 +61,7 @@ public class HistoryManager extends UndoContext
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, this);
 		Workbench.removeListener(editorId, registry);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 		historyActionGroup.dispose();
 		operationHistory.dispose(this, true, true, true);
 		redoAction.dispose();

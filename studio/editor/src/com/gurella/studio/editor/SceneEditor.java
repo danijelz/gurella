@@ -188,7 +188,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 	@Override
 	public void onEditorClose() {
-		EventService.unsubscribe(id, this);
+		GdxContext.unsubscribe(id, id, this);
 	}
 
 	@Override
@@ -221,36 +221,44 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	}
 
 	public static void subscribeToCurrentEditor(EventSubscription subscriber) {
-		EventService.subscribe(getCurrentEditorId(), subscriber);
+		int editorId = getCurrentEditorId();
+		GdxContext.subscribe(editorId, editorId, subscriber);
 	}
 
 	public static <T extends Control & EventSubscription> void subscribeToControlEditor(T subscriber) {
-		EventService.subscribe(getEditorId(subscriber), subscriber);
+		int editorId = getEditorId(subscriber);
+		GdxContext.subscribe(editorId, editorId, subscriber);
 	}
 
 	public static void unsubscribeFromCurrentEditor(EventSubscription subscriber) {
-		EventService.unsubscribe(getCurrentEditorId(), subscriber);
+		int editorId = getCurrentEditorId();
+		GdxContext.unsubscribe(editorId, editorId, subscriber);
 	}
 
 	public static <T extends Control & EventSubscription> void unsubscribeFromControlEditor(T subscriber) {
-		EventService.unsubscribe(getEditorId(subscriber), subscriber);
+		int editorId = getEditorId(subscriber);
+		GdxContext.unsubscribe(editorId, editorId, subscriber);
 	}
 
 	public static <L extends EventSubscription> void postToControlEditor(Control source, Event<L> event) {
-		EventService.post(getEditorId(source), event);
+		int editorId = getEditorId(source);
+		GdxContext.post(editorId, editorId, event);
 	}
 
 	public static <L extends EventSubscription> void postToControlEditor(Control source, Class<L> type,
 			Consumer<L> dispatcher) {
-		EventService.post(getEditorId(source), type, l -> dispatcher.accept(l));
+		int editorId = getEditorId(source);
+		GdxContext.post(editorId, editorId, type, l -> dispatcher.accept(l));
 	}
 
 	public static <L extends EventSubscription> void postToCurrentEditor(Event<L> event) {
-		EventService.post(getCurrentEditorId(), event);
+		int editorId = getCurrentEditorId();
+		GdxContext.post(editorId, editorId, event);
 	}
 
 	public static <L extends EventSubscription> void postToCurrentEditor(Class<L> type, Consumer<L> dispatcher) {
-		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
+		int editorId = getCurrentEditorId();
+		GdxContext.post(editorId, editorId, type, l -> dispatcher.accept(l));
 	}
 
 	// TODO move to SceneProvider

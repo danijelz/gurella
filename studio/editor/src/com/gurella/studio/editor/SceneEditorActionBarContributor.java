@@ -7,13 +7,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.control.ViewRegistry;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
+import com.gurella.studio.gdx.GdxContext;
 
 public class SceneEditorActionBarContributor extends EditorActionBarContributor implements ViewActivityListener {
 	private SceneEditor editor;
@@ -45,13 +45,15 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor 
 		super.setActiveEditor(part);
 
 		if (editor != null) {
-			EventService.unsubscribe(editor.id, this);
+			int editorId = editor.id;
+			GdxContext.unsubscribe(editorId, editorId, this);
 		}
 
 		if (part instanceof SceneEditor) {
 			editor = (SceneEditor) part;
 			views = editor.viewRegistry;
-			EventService.subscribe(editor.id, this);
+			int editorId = editor.id;
+			GdxContext.subscribe(editorId, editorId, this);
 		} else {
 			editor = null;
 			views = null;
@@ -70,7 +72,8 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor 
 	public void dispose() {
 		super.dispose();
 		if (editor != null) {
-			EventService.unsubscribe(editor.id, this);
+			int editorId = editor.id;
+			GdxContext.unsubscribe(editorId, editorId, this);
 		}
 	}
 
