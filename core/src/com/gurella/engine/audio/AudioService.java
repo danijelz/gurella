@@ -9,22 +9,42 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 public class AudioService {
 	private static final ObjectMap<Application, AudioService> instances = new ObjectMap<Application, AudioService>();
 
+	private static AudioService lastSelected;
+	private static Application lastApp;
+
 	private final Volume volume = new Volume();
-	private VolumeSignal volumeSignal = new VolumeSignal();
+	private final VolumeSignal volumeSignal = new VolumeSignal();
 
 	private AudioService() {
 	}
 
 	private static AudioService getInstance() {
+		AudioService instance;
+		boolean subscribe = false;
+
 		synchronized (instances) {
-			AudioService instance = instances.get(Gdx.app);
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
+			instance = instances.get(app);
 			if (instance == null) {
 				instance = new AudioService();
-				instances.put(Gdx.app, instance);
-				EventService.subscribe(new Cleaner());
+				instances.put(app, instance);
+				subscribe = true;
 			}
-			return instance;
+
+			lastApp = app;
+			lastSelected = instance;
+
 		}
+
+		if (subscribe) {
+			EventService.subscribe(new Cleaner());
+		}
+
+		return instance;
 	}
 
 	public static float getVolume() {
@@ -49,8 +69,12 @@ public class AudioService {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
+
 			synchronized (instances) {
-				instances.remove(Gdx.app);
+				if (instances.remove(Gdx.app) == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 		}
 	}

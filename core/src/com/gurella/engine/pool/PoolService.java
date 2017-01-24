@@ -10,7 +10,7 @@ import com.gurella.engine.utils.priority.Priority;
 
 public final class PoolService {
 	private static final IdentityMap<Application, ApplicationPool> instances = new IdentityMap<Application, ApplicationPool>();
-	
+
 	private static ApplicationPool lastSelected;
 	private static Application lastApp;
 
@@ -18,25 +18,32 @@ public final class PoolService {
 	}
 
 	private static ApplicationPool getPool() {
+		ApplicationPool pool;
+		boolean subscribe = false;
+
 		synchronized (instances) {
 			Application app = Gdx.app;
 			if (lastApp == app) {
 				return lastSelected;
 			}
-			
-			ApplicationPool pool = instances.get(app);
+
+			pool = instances.get(app);
 			if (pool == null) {
 				pool = new ApplicationPool();
 				instances.put(app, pool);
-				EventService.subscribe(pool);
-				EventService.subscribe(new Cleaner());
+				subscribe = true;
 			}
-			
+
 			lastApp = app;
 			lastSelected = pool;
-			
-			return pool;
 		}
+
+		if (subscribe) {
+			EventService.subscribe(pool);
+			EventService.subscribe(new Cleaner());
+		}
+
+		return pool;
 	}
 
 	public static <T> T obtain(Class<T> type) {
@@ -140,15 +147,18 @@ public final class PoolService {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
-			
 			ApplicationPool pool;
+
 			synchronized (instances) {
 				pool = instances.remove(Gdx.app);
+
+				if (pool == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 
-			if (pool != null) {
-				EventService.unsubscribe(pool);
-			}
+			EventService.unsubscribe(pool);
 		}
 	}
 }

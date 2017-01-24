@@ -1,5 +1,6 @@
 package com.gurella.studio.editor;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -8,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.studio.editor.swtgdx.SwtLwjglApplication;
+import com.gurella.studio.gdx.GdxContext;
 
 public class SceneEditorRegistry {
 	public static final int invalidId = -1;
@@ -19,11 +21,12 @@ public class SceneEditorRegistry {
 	private SceneEditorRegistry() {
 	}
 
-	static void put(SceneEditor editor, Composite content, SwtLwjglApplication application) {
+	static void put(SceneEditor editor, Composite content, SwtLwjglApplication application, IJavaProject javaProject) {
 		int id = editor.id;
 		editorsById.put(id, editor);
 		idByPartControl.put(content, id);
 		idByGdxApp.put(application, id);
+		GdxContext.activate(id, application, javaProject);
 	}
 
 	static void remove(SceneEditor editor) {
@@ -31,6 +34,7 @@ public class SceneEditorRegistry {
 		editorsById.remove(id);
 		idByPartControl.remove(idByPartControl.findKey(id), invalidId);
 		idByGdxApp.remove(idByGdxApp.findKey(id), invalidId);
+		GdxContext.deactivate(id);
 	}
 
 	static int getEditorId(Control control) {

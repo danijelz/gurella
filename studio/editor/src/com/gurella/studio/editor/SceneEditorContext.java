@@ -30,8 +30,8 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.gdx.GdxContext;
 
 public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 	public final int editorId;

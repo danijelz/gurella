@@ -22,17 +22,37 @@ public class Reflection {
 
 	private static final IdentityMap<Application, ClassResolver> resolvers = new IdentityMap<Application, ClassResolver>();
 
+	private static ClassResolver lastSelected;
+	private static Application lastApp;
+
 	public static ClassResolver getClassResolver() {
 		synchronized (resolvers) {
-			return resolvers.get(Gdx.app, DefaultClassResolver.instance);
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
+			ClassResolver resolver = resolvers.get(app, DefaultClassResolver.instance);
+			lastApp = app;
+			lastSelected = resolver;
+
+			return resolver;
 		}
 	}
 
 	public static void setClassResolver(ClassResolver resolver) {
+		ClassResolver oldResolver;
+
 		synchronized (resolvers) {
-			if (resolvers.put(Gdx.app, resolver) == null) {
-				EventService.subscribe(new Cleaner());
+			oldResolver = resolvers.put(Gdx.app, resolver);
+
+			if (lastSelected != null && lastSelected == oldResolver) {
+				lastSelected = resolver == null ? DefaultClassResolver.instance : resolver;
 			}
+		}
+
+		if (oldResolver == null) {
+			EventService.subscribe(new Cleaner());
 		}
 	}
 
@@ -452,8 +472,12 @@ public class Reflection {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
+
 			synchronized (resolvers) {
-				resolvers.remove(Gdx.app);
+				if (resolvers.remove(Gdx.app) == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 		}
 	}

@@ -35,7 +35,39 @@ final class ManagedObjects {
 
 	private static final IdentityMap<Application, PendingOperations> instances = new IdentityMap<Application, PendingOperations>();
 
+	private static PendingOperations lastSelected;
+	private static Application lastApp;
+
 	private ManagedObjects() {
+	}
+
+	private static PendingOperations getOperations() {
+		PendingOperations operations;
+		boolean subscribe = false;
+
+		synchronized (instances) {
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
+			operations = instances.get(app);
+			if (operations == null) {
+				operations = new PendingOperations();
+				instances.put(app, operations);
+				subscribe = true;
+			}
+
+			lastApp = app;
+			lastSelected = operations;
+		}
+
+		if (subscribe) {
+			EventService.subscribe(operations);
+			EventService.subscribe(new Cleaner());
+		}
+
+		return operations;
 	}
 
 	static void activate(ManagedObject object) {
@@ -63,18 +95,7 @@ final class ManagedObjects {
 	}
 
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
-		PendingOperations pendingOperations;
-		synchronized (instances) {
-			pendingOperations = instances.get(Gdx.app);
-			if (pendingOperations == null) {
-				pendingOperations = new PendingOperations();
-				instances.put(Gdx.app, pendingOperations);
-				EventService.subscribe(pendingOperations);
-				EventService.subscribe(new Cleaner());
-			}
-		}
-
-		pendingOperations.addOperation(object, operationType, newParent);
+		getOperations().addOperation(object, operationType, newParent);
 	}
 
 	// TODO are this notifications needed?
@@ -158,16 +179,19 @@ final class ManagedObjects {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
+			PendingOperations operations;
 
-			PendingOperations pendingOperations;
 			synchronized (instances) {
-				pendingOperations = instances.remove(Gdx.app);
+				operations = instances.remove(Gdx.app);
+
+				if (operations == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 
-			if (pendingOperations != null) {
-				EventService.unsubscribe(pendingOperations);
-				pendingOperations.cleanAll();
-			}
+			EventService.unsubscribe(operations);
+			operations.cleanAll();
 		}
 	}
 

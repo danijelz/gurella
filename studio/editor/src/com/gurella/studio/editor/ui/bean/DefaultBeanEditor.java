@@ -4,14 +4,13 @@ import static com.gurella.studio.editor.ui.property.PropertyEditorData.compare;
 
 import java.util.Arrays;
 
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.metatype.Property;
 
 public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
-	public DefaultBeanEditor(Composite parent, int channel, IJavaProject javaProject, T bean) {
-		this(parent, new BeanEditorContext<>(channel, javaProject, bean));
+	public DefaultBeanEditor(Composite parent, int gdxContextId, T bean) {
+		this(parent, new BeanEditorContext<>(gdxContextId, bean));
 	}
 
 	public DefaultBeanEditor(Composite parent, BeanEditorContext<T> context) {

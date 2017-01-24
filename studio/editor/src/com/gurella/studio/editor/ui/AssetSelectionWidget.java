@@ -28,29 +28,31 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.asset.Assets;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class AssetSelectionWidget<T> extends Composite {
 	private final Text text;
 	private final Button selectAssetButton;
 
+	private final int gdxContextId;
 	private final Class<T> assetType;
-	private IFolder assetsFolder;
+	private final IFolder assetsFolder;
 
 	private BiConsumer<T, T> selectionListener;
 
 	private T asset;
 	private T lastLoaded;
 
-	//TODO unload loaded assets
-	public AssetSelectionWidget(Composite parent, Class<T> assetType, IFolder assetsFolder) {
+	// TODO unload loaded assets
+	public AssetSelectionWidget(Composite parent, int gdxContextId, Class<T> assetType) {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;
-		this.assetsFolder = assetsFolder;
+		this.gdxContextId = gdxContextId;
+		this.assetsFolder = GdxContext.getAssetsFolder(gdxContextId);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
@@ -88,11 +90,11 @@ public class AssetSelectionWidget<T> extends Composite {
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
 	}
 
-	//TODO copy asset if not in project
+	// TODO copy asset if not in project
 	private void assetSelected(final String path) {
 		T oldAsset = asset;
 		IPath assetPath = new Path(path).makeRelativeTo(assetsFolder.getLocation());
-		asset = AssetService.load(assetPath.toString(), assetType);
+		asset = GdxContext.load(gdxContextId, assetPath.toString(), assetType);
 		text.setText(assetPath.lastSegment());
 		text.setMessage("");
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
@@ -102,7 +104,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void unloadLastAsset() {
 		if (lastLoaded != null) {
-			AssetService.unload(lastLoaded);
+			GdxContext.unload(gdxContextId, lastLoaded);
 		}
 	}
 
@@ -120,7 +122,7 @@ public class AssetSelectionWidget<T> extends Composite {
 			text.setText("");
 			text.setMessage("null");
 		} else {
-			String path = AssetService.getFileName(asset);
+			String path = GdxContext.getFileName(gdxContextId, asset);
 			text.setText(extractFileName(path));
 			text.setMessage("");
 		}

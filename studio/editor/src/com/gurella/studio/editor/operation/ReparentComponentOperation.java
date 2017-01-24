@@ -12,8 +12,8 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ReparentComponentOperation extends AbstractOperation {
 	final int editorId;

@@ -25,24 +25,31 @@ public class EventService {
 	}
 
 	private static EventBus getGlobal() {
+		EventBus bus;
+		boolean subscribe = false;
+
 		synchronized (globals) {
 			Application app = Gdx.app;
 			if (lastApp == app) {
 				return lastSelected;
 			}
 
-			EventBus bus = globals.get(app);
+			bus = globals.get(app);
 			if (bus == null) {
 				bus = new EventBus();
 				globals.put(app, bus);
-				EventService.subscribe(new Cleaner());
+				subscribe = true;
 			}
 
 			lastApp = app;
 			lastSelected = bus;
-
-			return bus;
 		}
+
+		if (subscribe) {
+			subscribe(new Cleaner());
+		}
+
+		return bus;
 	}
 
 	public static void subscribe(EventSubscription subscriber) {
@@ -175,8 +182,12 @@ public class EventService {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
+
 			synchronized (globals) {
-				globals.remove(Gdx.app);
+				if (globals.remove(Gdx.app) == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 		}
 	}

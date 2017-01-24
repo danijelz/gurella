@@ -46,7 +46,6 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.plugin.Workbench;
@@ -97,6 +96,7 @@ import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedE
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode> implements EditorSceneActivityListener,
 		NodeNameChangeListener, NodeEnabledChangeListener, PreferencesExtension, HistoryContributor {
@@ -118,8 +118,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 		super(parent, target);
 
 		int editorId = editorContext.editorId;
-		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
-		EventService.subscribe(editorId, this);
+		addDisposeListener(e -> GdxContext.unsubscribe(editorId, editorId, this));
+		GdxContext.subscribe(editorId, editorId, this);
 
 		addDisposeListener(e -> Workbench.deactivate(editorId, this));
 		Workbench.activate(editorId, this);
@@ -234,9 +234,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.addExpansionListener(new ExpansionListener(component));
 
-		int editorId = editorContext.editorId;
-		IJavaProject javaProject = editorContext.javaProject;
-		BeanEditor<SceneNodeComponent> editor = createEditor(section, editorId, javaProject, component);
+		BeanEditor<SceneNodeComponent> editor = createEditor(section, editorContext.editorId, component);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> notifySceneChanged());
 
@@ -252,7 +250,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode> im
 	}
 
 	private void notifySceneChanged() {
-		EventService.post(editorContext.editorId, SceneChangedEvent.instance);
+		int editorId = editorContext.editorId;
+		GdxContext.post(editorId, editorId, SceneChangedEvent.instance);
 	}
 
 	private void addComponent(SceneNodeComponent component) {

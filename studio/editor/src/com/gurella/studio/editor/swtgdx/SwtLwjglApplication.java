@@ -7,7 +7,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Audio;
@@ -25,14 +24,15 @@ import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Synchronized;
+import com.gurella.studio.gdx.ContextAwareApplication;
+import com.gurella.studio.gdx.GdxContext;
 
 //Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
-public class SwtLwjglApplication implements Application {
+public class SwtLwjglApplication implements ContextAwareApplication {
 	final int editorId;
 
 	private final SwtLwjglGraphics graphics;
@@ -62,8 +62,6 @@ public class SwtLwjglApplication implements Application {
 
 	public SwtLwjglApplication(int editorId, Composite parent, String internalAssetsPath) {
 		this.editorId = editorId;
-		GdxContext.put(editorId, this);
-
 		this.listener = new SwtApplicationListener(editorId);
 
 		LwjglNativesLoader.load();
@@ -88,7 +86,7 @@ public class SwtLwjglApplication implements Application {
 
 	private void onGlCanvasDisposed() {
 		running = false;
-		EventService.post(editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
+		GdxContext.post(editorId, editorId, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 
 		listener.pause();
 		listener.dispose();
@@ -98,8 +96,8 @@ public class SwtLwjglApplication implements Application {
 			lifecycleListeners.clear();
 		}
 
-		EventService.post(editorId, EditorCloseListener.class, l -> l.onEditorClose());
-		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
+		GdxContext.post(editorId, editorId, EditorCloseListener.class, l -> l.onEditorClose());
+		GdxContext.post(editorId, ApplicationShutdownListener.class, l -> l.shutdown());
 		OpenAlAudioSingletone.dispose(audio);
 	}
 
@@ -321,7 +319,7 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void exit() {
-		GdxContext.remove(editorId);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -346,5 +344,10 @@ public class SwtLwjglApplication implements Application {
 	@Override
 	public ApplicationLogger getApplicationLogger() {
 		return applicationLogger;
+	}
+
+	@Override
+	public void activate() {
+		graphics.setCurrent();
 	}
 }

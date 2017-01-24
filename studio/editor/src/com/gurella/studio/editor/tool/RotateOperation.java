@@ -12,8 +12,8 @@ import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.gdx.GdxContext;
 
 public class RotateOperation extends TransformOperation {
 	private Property<?> property;

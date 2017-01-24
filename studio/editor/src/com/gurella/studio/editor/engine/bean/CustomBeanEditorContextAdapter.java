@@ -4,7 +4,6 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.ui.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.ui.property.PropertyEditorFactory.createEditor;
 
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -37,8 +36,8 @@ public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 		this.factory = factory;
 	}
 
-	public CustomBeanEditorContextAdapter(int channel, IJavaProject javaProject, T bean, BeanEditorFactory<T> factory) {
-		super(channel, javaProject, bean);
+	public CustomBeanEditorContextAdapter(int gdxContextId, T bean, BeanEditorFactory<T> factory) {
+		super(gdxContextId, bean);
 		this.factory = factory;
 	}
 

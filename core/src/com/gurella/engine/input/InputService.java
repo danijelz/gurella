@@ -13,16 +13,38 @@ public class InputService {
 	private static final ObjectMap<Application, ApplicationInput> instances = new ObjectMap<Application, ApplicationInput>();
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 
+	private static ApplicationInput lastSelected;
+	private static Application lastApp;
+
 	private InputService() {
 	}
 
 	private static ApplicationInput getInstance() {
-		ApplicationInput input = instances.get(Gdx.app);
-		if (input == null) {
-			input = new ApplicationInput();
-			instances.put(Gdx.app, input);
+		ApplicationInput input;
+		boolean subscribe = false;
+
+		synchronized (instances) {
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
+			}
+
+			input = instances.get(Gdx.app);
+			if (input == null) {
+				input = new ApplicationInput();
+				instances.put(Gdx.app, input);
+				subscribe = true;
+			}
+
+			lastApp = app;
+			lastSelected = input;
+
+		}
+
+		if (subscribe) {
 			EventService.unsubscribe(new Cleaner());
 		}
+
 		return input;
 	}
 
@@ -33,10 +55,7 @@ public class InputService {
 	}
 
 	public static void removeInputProcessor(InputProcessor processor) {
-		ApplicationInput input = instances.get(Gdx.app);
-		if (input != null) {
-			input.multiplexer.removeProcessor(processor);
-		}
+		getInstance().multiplexer.removeProcessor(processor);
 	}
 
 	public static void addInputContext(InputContext inputContext) {
@@ -44,10 +63,7 @@ public class InputService {
 	}
 
 	public static void removeInputContext(InputContext inputContext) {
-		ApplicationInput input = instances.get(Gdx.app);
-		if (input != null) {
-			input.mapper.removeInputContext(inputContext);
-		}
+		getInstance().mapper.removeInputContext(inputContext);
 	}
 
 	private static class ApplicationInput {
@@ -64,8 +80,12 @@ public class InputService {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
+
 			synchronized (instances) {
-				instances.remove(Gdx.app);
+				if (instances.remove(Gdx.app) == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 		}
 	}

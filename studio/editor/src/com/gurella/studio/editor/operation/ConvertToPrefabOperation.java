@@ -7,13 +7,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.Prefabs;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ConvertToPrefabOperation extends AbstractOperation {
 	private final int editorId;
@@ -26,7 +25,7 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 		this.editorId = editorId;
 		this.element = element;
 		this.prefab = prefab;
-		this.fileName = AssetService.getFileName(prefab);
+		this.fileName = GdxContext.getFileName(editorId, prefab);
 	}
 
 	@Override

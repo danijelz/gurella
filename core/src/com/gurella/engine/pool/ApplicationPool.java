@@ -264,6 +264,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 				}
 			}
 		} catch (Exception e) {
+			// TODO LogService
 			Gdx.app.log(PoolService.class.getSimpleName(), "Error occured while freeing objects", e);
 		}
 

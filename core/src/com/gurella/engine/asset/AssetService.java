@@ -52,25 +52,33 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	}
 
 	private static AssetService getInstance() {
+		AssetService service;
+		boolean subscribe = false;
+
 		synchronized (instances) {
 			Application app = Gdx.app;
 			if (lastApp == app) {
 				return lastSelected;
 			}
 
-			AssetService service = instances.get(app);
+			service = instances.get(app);
 			if (service == null) {
 				service = new AssetService();
 				instances.put(app, service);
-				EventService.subscribe(service);
-				EventService.subscribe(new Cleaner());
+				subscribe = true;
 			}
 
 			lastApp = app;
 			lastSelected = service;
 
-			return service;
 		}
+
+		if (subscribe) {
+			EventService.subscribe(new Cleaner());
+			EventService.subscribe(service);
+		}
+
+		return service;
 	}
 
 	// TODO unused -> should be managed internaly by loader task
@@ -248,15 +256,19 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
-			AssetService service;
+			AssetService removed;
+
 			synchronized (instances) {
-				service = instances.remove(Gdx.app);
+				removed = instances.remove(Gdx.app);
+
+				if (removed == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 
-			if (service != null) {
-				EventService.unsubscribe(service);
-				service.assetRegistry.dispose();
-			}
+			EventService.unsubscribe(removed);
+			removed.assetRegistry.dispose();
 		}
 	}
 }

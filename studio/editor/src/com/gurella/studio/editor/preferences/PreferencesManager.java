@@ -7,7 +7,6 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IPath;
 import org.osgi.service.prefs.Preferences;
 
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -15,6 +14,7 @@ import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.gdx.GdxContext;
 
 public class PreferencesManager implements PreferencesStore, SceneConsumer, EditorCloseListener {
 	private final int editorId;
@@ -34,7 +34,7 @@ public class PreferencesManager implements PreferencesStore, SceneConsumer, Edit
 		IPath resourcePath = resource.getProjectRelativePath();
 		resourcePreferences = projectPreferences.node(resourcePath.toString().replace('/', '_').replace('.', '_'));
 
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.addListener(editorId, extensionRegistry);
 		Workbench.activate(editorId, this);
 	}
@@ -65,6 +65,6 @@ public class PreferencesManager implements PreferencesStore, SceneConsumer, Edit
 		Try.run(() -> projectPreferences.flush(), e -> log(e, msg));
 		Workbench.deactivate(editorId, this);
 		Workbench.removeListener(editorId, extensionRegistry);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 }

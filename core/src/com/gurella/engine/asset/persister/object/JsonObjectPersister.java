@@ -30,6 +30,7 @@ public class JsonObjectPersister<T> extends AbstractAssetPersister<T> {
 			outputStream.close();
 		} catch (Exception e) {
 			String message = "Error while saving asset '" + file.path() + "'.";
+			//TODO LogService
 			Gdx.app.log(JsonObjectPersister.class.getName(), message, e);
 			throw new GdxRuntimeException(message, e);
 		}

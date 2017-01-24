@@ -37,7 +37,8 @@ public class AssetPropertiesInspectableContainer extends InspectableContainer<IF
 
 		addDisposeListener(e -> editorContext.unload(properties));
 		properties = editorContext.load(target);
-		editor = BeanEditorFactory.createEditor(body, editorContext.editorId, editorContext.javaProject, properties);
+		editor = BeanEditorFactory.createEditor(body, editorContext.editorId, properties);
+		//TODO add methods for listeners -> editor.addPropertiesListener()
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> editorContext.save(properties));
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,11 +52,11 @@ import com.gurella.studio.editor.launch.LaunchManager;
 import com.gurella.studio.editor.preferences.PreferencesManager;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.swtgdx.SwtLwjglApplication;
 import com.gurella.studio.editor.ui.ErrorComposite;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class SceneEditor extends EditorPart implements SceneDirtyListener, EditorCloseListener {
 	public final int id = Sequence.next();
@@ -148,7 +149,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		String internalAssetsPath = getAssetsFolder(resource).getLocation().toString();
 		application = new SwtLwjglApplication(id, dock.getCenter(), internalAssetsPath);
-		SceneEditorRegistry.put(this, parent, application);
+		SceneEditorRegistry.put(this, parent, application, JavaCore.create(resource.getProject()));
 
 		GdxContext.run(id, this::initGdxData);
 	}
@@ -188,7 +189,6 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	@Override
 	public void onEditorClose() {
 		EventService.unsubscribe(id, this);
-		SceneEditorRegistry.remove(this);
 	}
 
 	@Override
@@ -201,7 +201,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	public void dispose() {
 		super.dispose();
 		Workbench.close(workbench);
-		application.exit();
+		SceneEditorRegistry.remove(this);
 	}
 
 	public SceneEditorContext getSceneContext() {

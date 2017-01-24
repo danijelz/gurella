@@ -11,7 +11,7 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
+import com.gurella.studio.gdx.GdxContext;
 
 //TODO merge with SceneEditorContext
 class SceneProvider implements PluginListener, EditorPreCloseListener, EditorCloseListener {

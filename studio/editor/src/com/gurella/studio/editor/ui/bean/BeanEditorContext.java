@@ -8,27 +8,30 @@ import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
+import com.gurella.studio.gdx.GdxContext;
 
 public class BeanEditorContext<T> {
-	public final int channel;
-	public final IJavaProject javaProject;
+	public final int gdxContextId;
+
 	public final BeanEditorContext<?> parent;
 	public final MetaType<T> metaType;
 	public final T bean;
+
+	public final IJavaProject javaProject;
+
 	public final Signal1<PropertyValueChangedEvent> propertiesSignal = new Signal1<>();
 
-	public BeanEditorContext(int channel, IJavaProject javaProject, T bean) {
-		this(channel, javaProject, null, MetaTypes.getMetaType(bean), bean);
+	public BeanEditorContext(int gdxContextId, T bean) {
+		this(gdxContextId, null, MetaTypes.getMetaType(bean), bean);
 	}
 
 	public BeanEditorContext(BeanEditorContext<?> parent, T bean) {
-		this(parent.channel, parent.javaProject, parent, MetaTypes.getMetaType(bean), bean);
+		this(parent.gdxContextId, parent, MetaTypes.getMetaType(bean), bean);
 	}
 
-	public BeanEditorContext(int channel, IJavaProject javaProject, BeanEditorContext<?> parent, MetaType<T> metaType,
-			T bean) {
-		this.channel = channel;
-		this.javaProject = javaProject;
+	public BeanEditorContext(int gdxContextId, BeanEditorContext<?> parent, MetaType<T> metaType, T bean) {
+		this.gdxContextId = gdxContextId;
+		this.javaProject = GdxContext.getJavaProject(gdxContextId);
 		this.parent = parent;
 		this.metaType = metaType;
 		this.bean = bean;

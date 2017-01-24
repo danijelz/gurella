@@ -27,7 +27,7 @@ import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
-import com.gurella.studio.editor.swtgdx.GdxContext;
+import com.gurella.studio.gdx.GdxContext;
 
 class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer, HistoryContributor {
 	private final int editorId;

@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.inspector.model;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -38,11 +37,11 @@ import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.swtgdx.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgdx.SwtLwjglInput;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private DefaultBeanEditor<ModelProperties> propertiesContainer;
@@ -68,9 +67,8 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		toolkit.adapt(this);
 
 		int editorId = editorContext.editorId;
-		IJavaProject javaProject = editorContext.javaProject;
 		properties = getProperties(target);
-		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);
+		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, properties);
 		propertiesContainer.getContext().propertiesSignal
 				.addListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);

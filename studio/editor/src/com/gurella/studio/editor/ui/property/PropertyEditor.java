@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.Assets;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;
@@ -38,6 +37,7 @@ import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public abstract class PropertyEditor<P> implements PropertyChangeListener, HistoryContributor {
 	private Composite body;
@@ -67,13 +67,13 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 		menuImage = GurellaStudioPlugin.getImage("icons/menu.png");
 
 		body.addDisposeListener(e -> onDispose());
-		Workbench.activate(context.channel, this);
-		EventService.subscribe(context.channel, this);
+		Workbench.activate(context.gdxContextId, this);
+		GdxContext.subscribe(context.gdxContextId, context.gdxContextId, this);
 	}
 
 	private void onDispose() {
-		EventService.unsubscribe(context.channel, this);
-		Workbench.deactivate(context.channel, this);
+		GdxContext.unsubscribe(context.gdxContextId, context.gdxContextId, this);
+		Workbench.deactivate(context.gdxContextId, this);
 	}
 
 	public Composite getBody() {
@@ -218,7 +218,8 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 			context.setValue(oldValue);
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(context.channel, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, oldValue));
+			post(context.gdxContextId, PropertyChangeListener.class,
+					l -> l.propertyChanged(instance, property, oldValue));
 			return Status.OK_STATUS;
 		}
 
@@ -227,7 +228,8 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 			context.setValue(newValue);
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(context.channel, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, newValue));
+			post(context.gdxContextId, PropertyChangeListener.class,
+					l -> l.propertyChanged(instance, property, newValue));
 			return Status.OK_STATUS;
 		}
 	}

@@ -10,22 +10,41 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
 
 public class DisposablesService {
-	//TODO Array<Disposable> -> OrderedIdentitySet<Disposable>
+	// TODO Array<Disposable> -> OrderedIdentitySet<Disposable>
 	private static final IdentityMap<Application, Array<Disposable>> instances = new IdentityMap<Application, Array<Disposable>>();
+
+	private static Array<Disposable> lastSelected;
+	private static Application lastApp;
 
 	private DisposablesService() {
 	}
 
 	private static Array<Disposable> getDisposables() {
+		Array<Disposable> disposables;
+		boolean subscribe = false;
+
 		synchronized (instances) {
-			Array<Disposable> array = instances.get(Gdx.app);
-			if (array == null) {
-				array = new Array<Disposable>();
-				instances.put(Gdx.app, array);
-				EventService.subscribe(new Cleaner());
+			Application app = Gdx.app;
+			if (lastApp == app) {
+				return lastSelected;
 			}
-			return array;
+
+			disposables = instances.get(app);
+			if (disposables == null) {
+				disposables = new Array<Disposable>();
+				instances.put(app, disposables);
+				subscribe = true;
+			}
+
+			lastApp = app;
+			lastSelected = disposables;
 		}
+
+		if (subscribe) {
+			EventService.subscribe(new Cleaner());
+		}
+
+		return disposables;
 	}
 
 	public static <T extends Disposable> T add(T disposable) {
@@ -61,15 +80,19 @@ public class DisposablesService {
 		public void shutdown() {
 			EventService.unsubscribe(this);
 			Array<Disposable> disposables;
+
 			synchronized (instances) {
 				disposables = instances.remove(Gdx.app);
+
+				if (disposables == lastSelected) {
+					lastSelected = null;
+					lastApp = null;
+				}
 			}
 
-			if (disposables != null) {
-				for (int i = disposables.size - 1; i >= 0; i--) {
-					Disposable disposable = disposables.get(i);
-					disposable.dispose();
-				}
+			for (int i = disposables.size - 1; i >= 0; i--) {
+				Disposable disposable = disposables.get(i);
+				disposable.dispose();
 			}
 		}
 	}

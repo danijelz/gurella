@@ -45,7 +45,7 @@ import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
-import com.gurella.studio.editor.swtgdx.GdxContext;
+import com.gurella.studio.gdx.GdxContext;
 
 //TODO unload assets
 public class DndAssetPlacementManager implements SceneConsumer, HistoryContributor, CameraConsumer,

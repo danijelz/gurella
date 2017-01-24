@@ -186,9 +186,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		section.setText(MetaTypes.getMetaType(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		int editorId = editorContext.editorId;
-		IJavaProject javaProject = editorContext.javaProject;
-		BeanEditor<SceneNodeComponent> componentEditor = createEditor(section, editorId, javaProject, component);
+		BeanEditor<SceneNodeComponent> componentEditor = createEditor(section, editorContext.editorId, component);
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 

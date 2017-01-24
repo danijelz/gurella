@@ -4,7 +4,6 @@ import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -38,12 +37,10 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		int editorId = editorContext.editorId;
-		IJavaProject javaProject = editorContext.javaProject;
 		addDisposeListener(e -> editorContext.unload(properties));
 		properties = editorContext.loadAssetProperties(target, Texture.class);
 		properties = properties == null ? new TextureProperties() : properties;
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, properties);
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, properties);
 		textureProperties.getContext().propertiesSignal
 				.addListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);

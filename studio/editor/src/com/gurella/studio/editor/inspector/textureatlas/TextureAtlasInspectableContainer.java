@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -48,9 +47,7 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		int editorId = editorContext.editorId;
-		IJavaProject javaProject = editorContext.javaProject;
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorId, javaProject, findProperties(target));
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

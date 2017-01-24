@@ -5,12 +5,12 @@ import java.util.Set;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.input.GestureDetector.GestureAdapter;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ContextMenuManager implements EditorCloseListener, PluginListener {
 	private final int editorId;
@@ -19,7 +19,7 @@ public class ContextMenuManager implements EditorCloseListener, PluginListener {
 
 	public ContextMenuManager(int editorId) {
 		this.editorId = editorId;
-		EventService.subscribe(editorId, this);
+		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.addListener(editorId, this);
 		Workbench.activate(editorId, gestureDetector);
 	}
@@ -44,7 +44,7 @@ public class ContextMenuManager implements EditorCloseListener, PluginListener {
 	public void onEditorClose() {
 		Workbench.deactivate(editorId, gestureDetector);
 		Workbench.removeListener(editorId, this);
-		EventService.unsubscribe(editorId, this);
+		GdxContext.unsubscribe(editorId, editorId, this);
 	}
 
 	private class MenuTapListener extends GestureAdapter {

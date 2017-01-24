@@ -1,17 +1,14 @@
 package com.gurella.studio.editor.ui.property;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.asset.AssetService;
-import com.gurella.studio.common.AssetsFolderLocator;
-import com.gurella.studio.editor.swtgdx.GdxContext;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	private AssetSelectionWidget<T> assetWidget;
@@ -26,24 +23,23 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		layout.verticalSpacing = 0;
 		content.setLayout(layout);
 
-		int channel = context.channel;
-		rootAsset = GdxContext.get(context.channel, this::getManagedAsset);
+		rootAsset = getManagedAsset();
 
-		IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(context.javaProject);
-		assetWidget = new AssetSelectionWidget<>(content, assetType, assetsFolder);
+		assetWidget = new AssetSelectionWidget<>(content, context.gdxContextId, assetType);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
-		assetWidget.setSelectionListener((o, n) -> GdxContext.run(channel, () -> assetSelectionChanged(o, n)));
+		assetWidget.setSelectionListener((o, n) -> assetSelectionChanged(o, n));
 		assetWidget.setEnabled(rootAsset != null);
 
 		UiUtils.paintBordersFor(content);
 	}
 
 	private Object getManagedAsset() {
+		int gdxContextId = context.gdxContextId;
 		BeanEditorContext<?> temp = context;
 		while (temp != null) {
 			Object bean = temp.bean;
-			if (AssetService.isManaged(bean)) {
+			if (GdxContext.isManaged(gdxContextId, bean)) {
 				return bean;
 			}
 			temp = temp.parent;
@@ -52,12 +48,13 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	}
 
 	private void assetSelectionChanged(T oldAsset, T newAsset) {
+		int gdxContextId = context.gdxContextId;
 		if (oldAsset != null && newAsset != null) {
-			AssetService.replaceDependency(rootAsset, oldAsset, newAsset);
+			GdxContext.replaceDependency(gdxContextId, rootAsset, oldAsset, newAsset);
 		} else if (oldAsset != null) {
-			AssetService.removeDependency(rootAsset, oldAsset);
+			GdxContext.removeDependency(gdxContextId, rootAsset, oldAsset);
 		} else if (newAsset != null) {
-			AssetService.addDependency(rootAsset, newAsset);
+			GdxContext.addDependency(gdxContextId, rootAsset, newAsset);
 		}
 
 		setValue(newAsset);
