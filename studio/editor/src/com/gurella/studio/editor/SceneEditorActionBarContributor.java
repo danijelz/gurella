@@ -71,11 +71,6 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-	@Override
 	public void viewOpened(DockableView view) {
 		updateActions();
 	}

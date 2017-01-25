@@ -178,7 +178,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		IStatus status = GurellaStudioPlugin.log(exception, message);
 		ErrorComposite errorComposite = new ErrorComposite(content, status, message);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		content.layout();
+		content.layout(true, true);
 	}
 
 	@Override
