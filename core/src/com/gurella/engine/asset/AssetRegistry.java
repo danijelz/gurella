@@ -78,6 +78,7 @@ import com.gurella.engine.subscriptions.asset.AssetActivityListener;
 import com.gurella.engine.utils.Values;
 
 //TODO exceptions are not handled correctly
+//TODO allow loading same file by different type (Texture, Pixmap)
 public class AssetRegistry extends AssetManager {
 	private static final String clearRequestedMessage = "Clear requested on AssetRegistry.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";
