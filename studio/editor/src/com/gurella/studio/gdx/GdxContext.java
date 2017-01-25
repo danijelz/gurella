@@ -1,6 +1,5 @@
 package com.gurella.studio.gdx;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -20,11 +19,12 @@ import com.gurella.engine.event.Dispatcher;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.studio.common.AssetsFolderLocator;
 
 public class GdxContext {
 	private static final ReentrantLock lock = new ReentrantLock();
-	private static final AtomicInteger lockCounter = new AtomicInteger();
+	private static int counter = 0;
 
 	private static final IntMap<Application> appById = new IntMap<>();
 	private static final IntMap<IJavaProject> javaProjectById = new IntMap<>();
@@ -66,10 +66,10 @@ public class GdxContext {
 	public static void run(int contextId, Runnable action) {
 		try {
 			lock.lock();
-			lockCounter.incrementAndGet();
+			counter++;
 			runSynchronized(contextId, action);
 		} finally {
-			lockCounter.decrementAndGet();
+			counter--;
 			lock.unlock();
 		}
 	}
@@ -85,8 +85,6 @@ public class GdxContext {
 
 	private static void runInSwitchedGdxContext(Application gdxApplication, int contextId, Runnable action) {
 		Application previous = current;
-		int previousId = currentId;
-
 		current = gdxApplication;
 		currentId = contextId;
 
@@ -95,13 +93,14 @@ public class GdxContext {
 		try {
 			action.run();
 		} finally {
-			rollbackContext(previousId, previous);
+			rollbackContext(previous);
 		}
 	}
 
-	private static void rollbackContext(int previousId, Application previous) {
-		if (previous != null && (appById.containsKey(previousId) || lockCounter.get() > 1)) {
-			current = previous;
+	private static void rollbackContext(Application previous) {
+		Application app = counter > 1 ? previous : appById.containsKey(currentId) ? current : null;
+		if (current != app) {
+			current = app;
 			updateContext();
 		}
 	}
@@ -109,10 +108,10 @@ public class GdxContext {
 	public static <T> T get(int contextId, Supplier<T> supplier) {
 		try {
 			lock.lock();
-			lockCounter.incrementAndGet();
+			counter++;
 			return getSynchronized(contextId, supplier);
 		} finally {
-			lockCounter.decrementAndGet();
+			counter--;
 			lock.unlock();
 		}
 	}
@@ -128,8 +127,6 @@ public class GdxContext {
 
 	private static <T> T getInSwitchedGdxContext(Application gdxApplication, int contextId, Supplier<T> supplier) {
 		Application previous = current;
-		int previousId = currentId;
-
 		current = gdxApplication;
 		currentId = contextId;
 
@@ -138,7 +135,7 @@ public class GdxContext {
 		try {
 			return supplier.get();
 		} finally {
-			rollbackContext(previousId, previous);
+			rollbackContext(previous);
 		}
 	}
 
@@ -205,6 +202,10 @@ public class GdxContext {
 	public static <L extends EventSubscription> void post(int contextId, int channel, Class<L> subscriptionType,
 			Dispatcher<L> dispatcher) {
 		run(contextId, () -> EventService.post(channel, subscriptionType, dispatcher));
+	}
+
+	public static void clean(int contextId) {
+		run(contextId, () -> EventService.post(ApplicationCleanupListener.class, l -> l.cleanup()));
 	}
 
 	// assets

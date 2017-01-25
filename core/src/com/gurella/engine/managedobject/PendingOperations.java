@@ -3,15 +3,11 @@ package com.gurella.engine.managedobject;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.managedobject.ObjectOperation.OperationType;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.utils.priority.Priorities;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.priority.Priority;
 
-@Priorities({ @Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-		@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
-class PendingOperations implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
+@Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
+class PendingOperations implements ApplicationCleanupListener {
 	private Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
 
@@ -29,7 +25,7 @@ class PendingOperations implements ApplicationUpdateListener, ApplicationDebugUp
 	}
 
 	@Override
-	public void update() {
+	public void cleanup() {
 		synchronized (mutex) {
 			Array<ObjectOperation> temp = operations;
 			operations = workingOperations;
@@ -43,13 +39,8 @@ class PendingOperations implements ApplicationUpdateListener, ApplicationDebugUp
 		workingOperations.clear();
 	}
 
-	@Override
-	public void debugUpdate() {
-		update();
-	}
-
 	void cleanAll() {
-		update();
+		cleanup();
 		synchronized (mutex) {
 			if (operations.size == 0) {
 				return;

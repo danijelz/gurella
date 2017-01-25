@@ -2,7 +2,7 @@ package com.gurella.studio.editor.swtgdx;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.studio.editor.camera.CameraManager;
 import com.gurella.studio.editor.focus.FocusManager;
 import com.gurella.studio.editor.input.InputManager;
@@ -48,8 +48,8 @@ final class SwtApplicationListener extends ApplicationAdapter {
 	@Override
 	public void render() {
 		EventService.post(editorId, EditorInputUpdateListener.class, l -> l.onInputUpdate());
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorPreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 		EventService.post(editorId, EditorRenderUpdateListener.class, l -> l.onRenderUpdate());
+		EventService.post(ApplicationCleanupListener.class, l -> l.cleanup());
 	}
 }

@@ -661,7 +661,7 @@ public class AssetRegistry extends AssetManager {
 
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
-				ConfigurableAssetDescriptor<T> descriptor = AssetService.getAssetDescriptor(fileName);
+				AssetConfig<T> descriptor = AssetService.getAssetConfig(fileName);
 				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
 				asyncQueue.add(obtain(this, callback, fileName, type, info, parameters, priority));
 				asyncQueue.sort();
@@ -689,7 +689,7 @@ public class AssetRegistry extends AssetManager {
 
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
-					ConfigurableAssetDescriptor<Object> descriptor = AssetService.getAssetDescriptor(fileName);
+					AssetConfig<Object> descriptor = AssetService.getAssetConfig(fileName);
 					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
 					asyncQueue.add(obtain(this, null, fileName, type, info, params, Integer.MAX_VALUE));
 				}

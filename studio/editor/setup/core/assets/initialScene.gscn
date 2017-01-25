@@ -1,48 +1,70 @@
 {
 0: {
-	uuid: d8eadbe6567245db8009558a15c3debb
+	uuid: 9f4d19837eea4195ba8ed399116beb4c
 	nodes: {
 		elements: [ 3, 1, 2, 3 ]
 	}
 }
 1: {
-	#: com.gurella.engine.scene.SceneNode
-	uuid: 0e09e9691308437395deea13c2fa5962
-	name: Main camera
-	components: {
+	#: 2
+	uuid: da395374041240e289e0ff89d681d2ec
+	name: Environment
+	children: {
 		elements: [ 2, 4, 5 ]
 	}
 }
 2: {
-	#: com.gurella.engine.scene.SceneNode
-	uuid: cd06704a71fe451dae888deae05307eb
-	name: Directional light
+	#: 2
+	uuid: 902bef88aa4f4b528024b4515ef9aa55
+	name: Main camera
 	components: {
 		elements: [ 2, 6, 7 ]
 	}
 }
 3: {
-	#: com.gurella.engine.scene.SceneNode
-	uuid: 616263fc35824934b4c0b7f07bb6888b
-	name: Skybox
+	#: 2
+	uuid: 748883055e584d97a47331b23cc9f6e2
+	name: Box
 	components: {
 		elements: [ 2, 8, 9 ]
 	}
 }
-4: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: 5e8ed28e9da5415f8aee79ce8e1d9398 }
+4: {
+	#: 2
+	uuid: 99ba86f292af4a34be33f47f7206a5b8
+	name: Sun
+	components: {
+		elements: [ 1, 10 ]
+	}
+}
 5: {
-	#: com.gurella.engine.scene.camera.PerspectiveCameraComponent
-	uuid: 33055008f0e046adaadb4be18920c965
-	viewport: { worldWidth: 6, worldHeight: 1 }
+	#: 2
+	uuid: 987304a46aa2457896010b98259e6bc0
+	name: Sky
+	components: {
+		elements: [ 1, 11 ]
+	}
 }
-6: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: cef74e38c0ee4188b56440709bf0d80a }
-7: { #: com.gurella.engine.scene.light.DirectionalLightComponent, uuid: 114cb752593f4a5cbee4ed675b93846c }
-8: { #: com.gurella.engine.scene.transform.TransformComponent, uuid: 5f2e345362d342179c09c3d556c114fc }
-9: {
-	#: com.gurella.engine.scene.renderable.skybox.SkyboxComponent
-	uuid: 5d003e8cbbc64a0e9a1fee1c3f28a379
-	layer: 0:Default
-	texture: { #: @, p: sky/cloudySea.jpg }
+6: {
+	#: 3
+	uuid: 63b736d1b5a44651a6b7d3467e586344
+	translation: { y: 1, z: 3 }
 }
-d: [ com.badlogic.gdx.graphics.Pixmap sky/cloudySea.jpg ]
+7: {
+	#: 8
+	uuid: 4694343fbc0b475c91321b9eaf40ed93
+}
+8: { #: 3, uuid: 71da7dfbbc314f04a8f3a21dc2b47e68 }
+9: { #: 15, uuid: adfff07b2cfb44a999bc8e25052dfbdf, shape: 12 }
+10: { #: 9, uuid: 6e100f9efbd54109a7f7b11faeb632b3, color: -14081 }
+11: {
+	#: 16
+	uuid: a15bb72ade7f4015895aad54abb117f8
+	texture: { #: @, p: 0 }
+}
+12: {
+	#: com.gurella.engine.scene.renderable.shape.BoxShapeModel
+	materialDescriptor: { #: @, p: 1 }
+}
+d: [ 20 sky/cloudySea.jpg, 18 material/material1.gmat ]
 }

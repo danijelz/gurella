@@ -11,9 +11,9 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ReparentComponentOperation extends AbstractOperation {
 	final int editorId;
@@ -52,7 +52,7 @@ public class ReparentComponentOperation extends AbstractOperation {
 
 	private void setIndex(SceneNode oldParent, SceneNode newParent, int index) {
 		newParent.addComponent(component);
-		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(oldParent, component));
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
 

@@ -12,18 +12,12 @@ import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.Values;
-import com.gurella.engine.utils.priority.Priorities;
-import com.gurella.engine.utils.priority.Priority;
 
 //TODO factory pools, 
 //TODO handle Disposables
-@Priorities({ @Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-		@Priority(value = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
-class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener {
+class ApplicationPool implements AsyncTask<Void>, ApplicationCleanupListener {
 	private final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
 	private final BooleanArrayPool booleanArrayPool;
@@ -282,7 +276,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 	}
 
 	@Override
-	public void update() {
+	public void cleanup() {
 		if (!cleaning && asyncPool.size > 0) {
 			cleaning = true;
 			prepareForCleaning();
@@ -298,12 +292,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationUpdateListener, App
 		workingObjects = temp;
 	}
 
-	@Override
-	public void debugUpdate() {
-		freeAll();
-	}
-
-	private void freeAll() {
+	void freeAll() {
 		prepareForCleaning();
 		freeAsync();
 

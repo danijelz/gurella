@@ -11,6 +11,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -21,6 +22,7 @@ public final class GurellaApplication implements ApplicationListener {
 	private static final PauseEvent pauseEvent = new PauseEvent();
 	private static final ResumeEvent resumeEvent = new ResumeEvent();
 	private static final UpdateEvent updateEvent = new UpdateEvent();
+	private static final CleanupEvent cleanupEvent = new CleanupEvent();
 	private static final ResizeEvent resizeEvent = new ResizeEvent();
 	private static final ShutdownEvent shutdownEvent = new ShutdownEvent();
 
@@ -63,6 +65,7 @@ public final class GurellaApplication implements ApplicationListener {
 	@Override
 	public final void render() {
 		EventService.post(updateEvent);
+		EventService.post(cleanupEvent);
 	}
 
 	@Override
@@ -75,9 +78,11 @@ public final class GurellaApplication implements ApplicationListener {
 	public final void resume() {
 		paused = false;
 		if (Gdx.app.getType() == ApplicationType.Android) {
+			//TODO move to AssetService
 			AssetService.reloadInvalidated();
 		}
 		EventService.post(resumeEvent);
+		EventService.post(cleanupEvent);
 	}
 
 	public final boolean isPaused() {
@@ -147,6 +152,18 @@ public final class GurellaApplication implements ApplicationListener {
 		@Override
 		public void dispatch(ApplicationUpdateListener listener) {
 			listener.update();
+		}
+	}
+
+	private static class CleanupEvent implements Event<ApplicationCleanupListener> {
+		@Override
+		public Class<ApplicationCleanupListener> getSubscriptionType() {
+			return ApplicationCleanupListener.class;
+		}
+
+		@Override
+		public void dispatch(ApplicationCleanupListener listener) {
+			listener.cleanup();
 		}
 	}
 

@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.managedobject.Prefabs;
 import com.gurella.engine.scene.SceneElement;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.gdx.GdxContext;
 
@@ -32,7 +31,7 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.convertToPrefab(element, prefab, fileName);
-		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.clean(editorId);
 		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
@@ -45,7 +44,7 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.dettachFromPrefab(element);
-		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.clean(editorId);
 		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

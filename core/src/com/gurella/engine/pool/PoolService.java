@@ -159,6 +159,7 @@ public final class PoolService {
 			}
 
 			EventService.unsubscribe(pool);
+			pool.freeAll();
 		}
 	}
 }

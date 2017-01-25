@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.gdx.GdxContext;
@@ -34,7 +33,7 @@ public class RemoveComponentOperation extends AbstractOperation {
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.removeComponent(component, false);
 		GdxContext.removeFromBundle(editorId, node, component.ensureUuid(), component);
-		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		post(editorId, editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
@@ -45,7 +44,7 @@ public class RemoveComponentOperation extends AbstractOperation {
 		node.addComponent(component);
 		GdxContext.addToBundle(editorId, node, component.ensureUuid(), component);
 
-		post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentAdded(node, component));
 
 		component.setIndex(index);

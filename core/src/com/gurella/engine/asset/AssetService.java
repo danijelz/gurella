@@ -12,26 +12,24 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
-import com.gurella.engine.utils.priority.Priorities;
 import com.gurella.engine.utils.priority.Priority;
 
 //TODO add internal files cache???
-@Priorities({ @Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
-		@Priority(value = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
-public final class AssetService implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
-	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
+@Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
+public final class AssetService implements ApplicationCleanupListener {
 	private static final MockAssetManager mockManager = new MockAssetManager();
-
-	private final AssetRegistry assetRegistry = new AssetRegistry();
-	private final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
-
+	
+	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
 	private static AssetService lastSelected;
 	private static Application lastApp;
+	
+	private final AssetRegistry assetRegistry = new AssetRegistry();
+	private final ObjectMap<String, AssetConfig<?>> configs = new ObjectMap<String, AssetConfig<?>>();
+
 
 	static {
 		Texture.setAssetManager(mockManager);
@@ -42,12 +40,7 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	}
 
 	@Override
-	public void update() {
-		assetRegistry.update();
-	}
-
-	@Override
-	public void debugUpdate() {
+	public void cleanup() {
 		assetRegistry.update();
 	}
 
@@ -82,13 +75,13 @@ public final class AssetService implements ApplicationUpdateListener, Applicatio
 	}
 
 	// TODO unused -> should be managed internaly by loader task
-	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
-		return Values.cast(getInstance().descriptors.get(fileName));
+	public static <T> AssetConfig<T> getAssetConfig(String fileName) {
+		return Values.cast(getInstance().configs.get(fileName));
 	}
 
 	// TODO unused
 	private static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		ConfigurableAssetDescriptor<T> descriptor = Values.cast(getInstance().descriptors.get(fileName));
+		AssetConfig<T> descriptor = Values.cast(getInstance().configs.get(fileName));
 		return descriptor == null ? null : descriptor.getParameters();
 	}
 
