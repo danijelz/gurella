@@ -33,11 +33,11 @@ public class FileDialogUtils {
 	}
 
 	public static Optional<String> selectNewFileName(IFolder parent, String defaultName, AssetType type) {
-		return selectNewFileName(parent.getLocation(), defaultName, type.extensions);
+		return selectNewFileName(parent.getLocation(), defaultName, type.fileExtensions);
 	}
 
 	public static Optional<String> selectNewFileName(IPath parent, String defaultName, AssetType type) {
-		return selectNewFileName(parent, defaultName, type.extensions);
+		return selectNewFileName(parent, defaultName, type.fileExtensions);
 	}
 
 	public static Optional<String> selectNewFileName(IPath parent, String defaultName, String... extensions) {

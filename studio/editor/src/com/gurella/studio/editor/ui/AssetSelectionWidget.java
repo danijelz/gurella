@@ -84,7 +84,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
 		AssetType value = Assets.getAssetType(assetType);
-		String extensions = Arrays.stream(value.extensions).map(e -> "*." + e).collect(joining(";"));
+		String extensions = Arrays.stream(value.fileExtensions).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
 		dialog.setFilterPath(assetsFolder.getLocation().toString());
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));

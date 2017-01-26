@@ -161,17 +161,20 @@ public class AssetRegistry {
 		}
 	}
 
-	public void remove(Object asset) {
+	public boolean remove(Object asset) {
 		synchronized (mutex) {
 			Object toRemove = getAssetOrRootBundle(asset);
 			AssetId id = idsByAsset.get(toRemove);
 			if (id == null) {
-				return;
+				return false;
 			}
 
 			AssetSlot slot = assetsById.get(id);
 			if (!slot.decRefCount()) {
 				remove(id, slot);
+				return true;
+			} else {
+				return false;
 			}
 		}
 	}

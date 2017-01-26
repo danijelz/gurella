@@ -15,7 +15,6 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
-import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.priority.Priority;
 
 //TODO add internal files cache???
@@ -28,7 +27,6 @@ public final class AssetService implements ApplicationCleanupListener {
 	private static Application lastApp;
 
 	private final AssetRegistry assetRegistry = new AssetRegistry();
-	private final ObjectMap<String, AssetConfig<?>> configs = new ObjectMap<String, AssetConfig<?>>();
 
 	static {
 		Texture.setAssetManager(mockManager);
@@ -75,12 +73,12 @@ public final class AssetService implements ApplicationCleanupListener {
 
 	// TODO unused -> should be managed internaly by loader task
 	public static <T> AssetConfig<T> getAssetConfig(String fileName) {
-		return Values.cast(getInstance().configs.get(fileName));
+		return null;
 	}
 
 	// TODO unused
 	private static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		AssetConfig<T> descriptor = Values.cast(getInstance().configs.get(fileName));
+		AssetConfig<T> descriptor = null;
 		return descriptor == null ? null : descriptor.getParameters();
 	}
 
@@ -143,7 +141,7 @@ public final class AssetService implements ApplicationCleanupListener {
 		return getInstance().assetRegistry.get(fileName, internalId);
 	}
 
-	public static <T> Array<T> find(Class<T> type, Array<T> out) {
+	public static <T> Array<T> getAll(Class<T> type, Array<T> out) {
 		return getInstance().assetRegistry.getAll(type, out);
 	}
 

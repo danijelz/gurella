@@ -59,7 +59,7 @@ public enum AssetType {
 	particleSystem(UnimplementedAsset.class);
 
 	public final Class<?> assetType;
-	public final String[] extensions;
+	public final String[] fileExtensions;
 	public final boolean composite;
 	public final Class<? extends AssetProperties<?>> propsType;
 
@@ -70,18 +70,18 @@ public enum AssetType {
 	private AssetType(Class<?> assetType, boolean composite, Class<? extends AssetProperties<?>> propsType,
 			String... extensions) {
 		this.assetType = assetType;
-		this.extensions = extensions;
+		this.fileExtensions = extensions;
 		this.composite = composite;
 		this.propsType = propsType;
-		Arrays.sort(this.extensions);
+		Arrays.sort(this.fileExtensions);
 	}
 
 	public boolean isValidExtension(String extension) {
-		return Arrays.binarySearch(extensions, extension) >= 0;
+		return Arrays.binarySearch(fileExtensions, extension) >= 0;
 	}
 
 	public String extension() {
-		return extensions.length == 0 ? null : extensions[0];
+		return fileExtensions.length == 0 ? null : fileExtensions[0];
 	}
 
 	private static final class UnimplementedAsset {

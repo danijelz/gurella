@@ -87,7 +87,7 @@ public class Assets {
 
 	public static boolean isValidExtension(Class<?> assetType, String extension) {
 		AssetType type = enumsByType.get(assetType);
-		return type != null && Arrays.binarySearch(type.extensions, extension) >= 0;
+		return type != null && Arrays.binarySearch(type.fileExtensions, extension) >= 0;
 	}
 
 	public static AssetType getAssetType(final Class<?> assetType) {
