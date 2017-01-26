@@ -34,19 +34,12 @@ class AssetSlot implements Poolable {
 	}
 
 	void incDependencyCount(AssetId id) {
-		// TODO
-		int count = dependencies.get(id, -1);
-		if (count < 0) {
-
-		}
+		dependencies.getAndIncrement(id, 0, 1);
 	}
 
-	void decDependencyCount(AssetId id) {
-		// TODO
-		int count = dependencies.get(id, -1);
-		if (count < 0) {
-
-		}
+	boolean decDependencyCount(AssetId id) {
+		dependencies.getAndIncrement(id, 0, -1);
+		return isActive();
 	}
 
 	void addDependent(AssetId dependent) {
@@ -114,7 +107,7 @@ class AssetSlot implements Poolable {
 		throw new IllegalStateException();
 	}
 
-	public void merge(AssetSlot other) {
+	void merge(AssetSlot other) {
 		sticky |= other.sticky;
 		refCount += other.refCount;
 		dependents.addAll(other.dependents);

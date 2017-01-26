@@ -14,9 +14,11 @@ import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.priority.Priority;
 
 //TODO factory pools, 
 //TODO handle Disposables
+@Priority(value = Integer.MAX_VALUE, type = ApplicationCleanupListener.class)
 class ApplicationPool implements AsyncTask<Void>, ApplicationCleanupListener {
 	private final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 

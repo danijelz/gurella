@@ -114,6 +114,12 @@ public class Assets {
 		AssetType type = getAssetType(fileName);
 		return type == null ? null : Values.<Class<T>> cast(type.assetType);
 	}
+	
+	public static <T> Class<T> getAssetRootClass(final Object asset) {
+		//TODO
+		AssetType type = getAssetType(fileName);
+		return type == null ? null : Values.<Class<T>> cast(type.assetType);
+	}
 
 	public static String getPropertiesFileName(String assetFileName) {
 		AssetType assetType = getAssetType(assetFileName);

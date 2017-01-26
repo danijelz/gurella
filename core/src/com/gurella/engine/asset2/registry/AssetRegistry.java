@@ -58,17 +58,17 @@ public class AssetRegistry {
 	public <T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
-			return _get(tempAssetId, bundleId);
+			return getAndValidate(tempAssetId, bundleId);
 		}
 	}
 
 	public <T> T get(AssetId assetId, String bundleId) {
 		synchronized (mutex) {
-			return _get(assetId, bundleId);
+			return getAndValidate(assetId, bundleId);
 		}
 	}
 
-	private <T> T _get(AssetId assetId, String bundleId) {
+	private <T> T getAndValidate(AssetId assetId, String bundleId) {
 		AssetSlot slot = assetsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
@@ -163,21 +163,21 @@ public class AssetRegistry {
 
 	public void remove(Object asset) {
 		synchronized (mutex) {
-			_remove(getAssetOrRootBundle(asset));
+			Object toRemove = getAssetOrRootBundle(asset);
+			AssetId id = idsByAsset.get(toRemove);
+			if (id == null) {
+				return;
+			}
+
+			AssetSlot slot = assetsById.get(id);
+			if (!slot.decRefCount()) {
+				remove(id, slot);
+			}
 		}
 	}
 
-	private void _remove(Object asset) {
-		AssetId id = idsByAsset.get(asset);
-		if (id == null) {
-			return;
-		}
-
-		AssetSlot slot = assetsById.get(id);
-		if (slot.decRefCount()) {
-			return;
-		}
-
+	private void remove(AssetId id, AssetSlot slot) {
+		Object asset = slot.asset;
 		assetUnloadedEvent.post(id.fileName, asset);
 		unloadBundledAssets(slot);
 		dereferenceDependencies(id, slot);
@@ -210,7 +210,7 @@ public class AssetRegistry {
 		for (AssetId dependencyId : slot.dependencies.keys()) {
 			AssetSlot dependencySlot = assetsById.get(dependencyId);
 			if (!dependencySlot.removeDependent(id)) {
-				_remove(dependencySlot.asset);
+				remove(dependencyId, dependencySlot);
 			}
 		}
 	}
@@ -227,22 +227,36 @@ public class AssetRegistry {
 	}
 
 	public void addDependency(Object asset, Object dependency) {
-		AssetId id = idsByAsset.get(asset);
-		AssetSlot slot = assetsById.get(id);
-		slot.incDependencyCount(idsByAsset.get(dependency));
+		synchronized (mutex) {
+			AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+			AssetSlot slot = assetsById.get(id);
+			slot.incDependencyCount(idsByAsset.get(dependency));
+		}
 	}
 
 	public void removeDependency(Object asset, Object dependency) {
-		AssetId id = idsByAsset.get(asset);
-		AssetSlot slot = assetsById.get(id);
-		slot.decDependencyCount(idsByAsset.get(dependency));
-
-		if (!slot.isActive()) {
-			_remove(slot.asset);
+		synchronized (mutex) {
+			AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+			AssetSlot slot = assetsById.get(id);
+			if (!slot.decDependencyCount(idsByAsset.get(dependency))) {
+				remove(id, slot);
+			}
 		}
 	}
 
 	public void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+		if (oldDependency == newDependency) {
+			return;
+		}
+
+		if (asset == newDependency) {
+			throw new IllegalArgumentException("Asset can't depend on itself.");
+		}
+
+		synchronized (mutex) {
+			AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+			AssetSlot slot = assetsById.get(id);
+		}
 		// TODO getInstance().assetRegistry.replaceDependency(asset, oldDependency, newDependency);
 	}
 
@@ -320,20 +334,18 @@ public class AssetRegistry {
 	}
 
 	private void removeFromBundle(AssetSlot bundleSlot, Object asset) {
-		AssetId id = idsByAsset.remove(asset);
+		idsByAsset.remove(asset);
 		assetBundle.remove(asset);
 		bundleSlot.removeBundledAsset(asset);
-		assetIdPool.free(id);
 
 		if (asset instanceof Bundle) {
 			((Bundle) asset).getBundledAssets(tempBundledAssets);
 			for (Entry<String, Object> entry : tempBundledAssets.entries()) {
 				Object bundledAsset = entry.value;
 				if (bundledAsset != asset) {
-					AssetId bundledAssetId = idsByAsset.remove(bundledAsset);
-					assetsById.remove(id);
+					idsByAsset.remove(bundledAsset);
+					assetBundle.remove(bundledAsset);
 					bundleSlot.removeBundledAsset(entry.key);
-					assetIdPool.free(bundledAssetId);
 				}
 			}
 			tempBundledAssets.clear();

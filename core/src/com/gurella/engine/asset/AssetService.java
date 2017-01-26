@@ -15,7 +15,6 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.priority.Priority;
 
@@ -23,14 +22,13 @@ import com.gurella.engine.utils.priority.Priority;
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
 public final class AssetService implements ApplicationCleanupListener {
 	private static final MockAssetManager mockManager = new MockAssetManager();
-	
+
 	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
 	private static AssetService lastSelected;
 	private static Application lastApp;
-	
+
 	private final AssetRegistry assetRegistry = new AssetRegistry();
 	private final ObjectMap<String, AssetConfig<?>> configs = new ObjectMap<String, AssetConfig<?>>();
-
 
 	static {
 		Texture.setAssetManager(mockManager);
