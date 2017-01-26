@@ -10,16 +10,13 @@ import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.bundle.BundleAware;
 
 class AssetSlot implements Poolable {
-	private static final ObjectMap<String, Object> emptyBundledAssets = new ObjectMap<String, Object>();
-
 	Object asset;
 
 	boolean sticky;
-
 	int refCount = 0;
 	final ObjectIntMap<AssetId> dependencies = new ObjectIntMap<AssetId>(4);
 	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>(4);
-	ObjectMap<String, Object> bundledAssets;
+	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 
 	boolean isActive() {
 		return sticky || refCount > 0 || dependents.size > 0;
@@ -61,13 +58,9 @@ class AssetSlot implements Poolable {
 		return isActive();
 	}
 
-	ObjectMap<String, Object> getBundledAssets() {
-		if (bundledAssets == null) {
-			if (asset instanceof Bundle) {
-				bundledAssets = ((Bundle) asset).getBundledAssets(new ObjectMap<String, Object>());
-			} else {
-				bundledAssets = emptyBundledAssets;
-			}
+	ObjectMap<String, Object> initBundledAssets() {
+		if (asset instanceof Bundle) {
+			((Bundle) asset).getBundledAssets(bundledAssets);
 		}
 
 		return bundledAssets;
@@ -79,7 +72,7 @@ class AssetSlot implements Poolable {
 		}
 
 		@SuppressWarnings("unchecked")
-		T casted = (T) getBundledAssets().get(bundleId);
+		T casted = (T) bundledAssets.get(bundleId);
 		return casted;
 	}
 
@@ -88,7 +81,7 @@ class AssetSlot implements Poolable {
 			throw new UnsupportedOperationException();
 		}
 
-		getBundledAssets().put(bundleId, bundledAsset);
+		bundledAssets.put(bundleId, bundledAsset);
 	}
 
 	void removeBundledAsset(String bundleId) {
@@ -96,29 +89,45 @@ class AssetSlot implements Poolable {
 			throw new UnsupportedOperationException();
 		}
 
-		getBundledAssets().remove(bundleId);
+		bundledAssets.remove(bundleId);
 	}
 
 	void removeBundledAsset(Object bundledAsset) {
-		getBundledAssets().remove(getBundleId(bundledAsset));
+		bundledAssets.remove(getBundleId(bundledAsset));
 	}
 
 	String getBundleId(Object bundledAsset) {
 		if (!(asset instanceof Bundle)) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		if (bundledAsset instanceof BundleAware) {
 			return ((BundleAware) bundledAsset).getBundleId();
 		}
 
-		for (Entry<String, Object> bundledAssetsEntry : getBundledAssets().entries()) {
+		for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
 			if (bundledAssetsEntry.value == bundledAsset) {
 				return bundledAssetsEntry.key;
 			}
 		}
 
 		throw new IllegalStateException();
+	}
+
+	public void merge(AssetSlot other) {
+		sticky |= other.sticky;
+		refCount += other.refCount;
+		dependents.addAll(other.dependents);
+
+		for (ObjectIntMap.Entry<AssetId> entry : other.dependencies.entries()) {
+			dependencies.put(entry.key, entry.value);
+		}
+
+		if (other.bundledAssets.size > 0) {
+			for (ObjectMap.Entry<String, Object> entry : other.bundledAssets.entries()) {
+				bundledAssets.put(entry.key, entry.value);
+			}
+		}
 	}
 
 	@Override
@@ -128,6 +137,6 @@ class AssetSlot implements Poolable {
 		refCount = 0;
 		dependencies.clear();
 		dependents.clear();
-		bundledAssets = null;
+		bundledAssets.clear();
 	}
 }

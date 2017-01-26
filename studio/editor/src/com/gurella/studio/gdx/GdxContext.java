@@ -13,7 +13,7 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.Bundle;
+import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.Dispatcher;
 import com.gurella.engine.event.Event;

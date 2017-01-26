@@ -31,15 +31,6 @@ public class AssetRegistry {
 	private final AssetId tempAssetId = new AssetId();
 	private final ObjectMap<String, Object> tempBundledAssets = new ObjectMap<String, Object>();
 
-	public <T> T getDependency(String fileName, FileType fileType, Class<T> assetType) {
-		tempAssetId.set(fileName, fileType, assetType);
-		AssetSlot slot = assetsById.get(tempAssetId);
-		slot.incDependencyCount(tempAssetId);
-		@SuppressWarnings("unchecked")
-		T casted = (T) slot.asset;
-		return casted;
-	}
-
 	public <T> T get(String fileName) {
 		return get(fileName, FileType.Internal, Assets.<T> getAssetClass(fileName), null);
 	}
@@ -60,11 +51,11 @@ public class AssetRegistry {
 		return get(fileName, FileType.Internal, Assets.<T> getAssetClass(fileName), bundleId);
 	}
 
-	public <T> T get(String fileName, Class<T> assetType, String bundleId) {
+	public <T> T get(String fileName, Class<?> assetType, String bundleId) {
 		return get(fileName, FileType.Internal, assetType, bundleId);
 	}
 
-	public <T> T get(String fileName, FileType fileType, Class<T> assetType, String bundleId) {
+	public <T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
 			return _get(tempAssetId, bundleId);
@@ -97,7 +88,7 @@ public class AssetRegistry {
 		synchronized (mutex) {
 			boolean all = type == null || type == Object.class;
 			for (Object asset : idsByAsset.keys()) {
-				if (all || ClassReflection.isAssignableFrom(type, asset.getClass())) {
+				if (all || ClassReflection.isInstance(type, asset)) {
 					@SuppressWarnings("unchecked")
 					T casted = (T) asset;
 					out.add(casted);
@@ -117,7 +108,7 @@ public class AssetRegistry {
 	public <T> AssetId getAssetId(T asset, AssetId out) {
 		synchronized (mutex) {
 			out.reset();
-			AssetId id = idsByAsset.get(asset);
+			AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 			return id == null ? out : out.set(id);
 		}
 	}
@@ -143,70 +134,112 @@ public class AssetRegistry {
 		}
 	}
 
-	public void unload(Object asset) {
+	public <T> void add(String fileName, FileType fileType, Class<T> assetType, T asset, boolean sticky) {
 		synchronized (mutex) {
-			AssetId id = idsByAsset.get(asset);
-			if (id == null) {
-				return;
+			if (idsByAsset.containsKey(asset)) {
+				throw new IllegalStateException("Asset is already loaded: " + fileName);
 			}
 
-			Bundle bundle = assetBundle.get(asset);
-			if (bundle != null && bundle != asset) {
-				return;
+			AssetId assetId = assetIdPool.obtain().set(fileName, fileType, assetType);
+			idsByAsset.put(asset, assetId);
+
+			AssetSlot slot = assetSlotPool.obtain();
+			assetsById.put(assetId, slot);
+			slot.asset = asset;
+			slot.sticky = sticky;
+
+			if (asset instanceof Bundle) {
+				ObjectMap<String, Object> bundledAssets = slot.initBundledAssets();
+				if (bundledAssets.size > 0) {
+					Bundle bundle = (Bundle) asset;
+					for (Object bundledAsset : bundledAssets.values()) {
+						idsByAsset.put(bundledAsset, assetId);
+						assetBundle.put(bundledAsset, bundle);
+					}
+				}
 			}
+		}
+	}
 
-			AssetSlot slot = assetsById.get(id);
-			if (slot.decRefCount()) {
-				return;
-			}
+	public void remove(Object asset) {
+		synchronized (mutex) {
+			_remove(getAssetOrRootBundle(asset));
+		}
+	}
 
-			assetUnloadedEvent.post(id.fileName, asset);
-			unloadBundledAssets(slot);
-			dereferenceDependencies(id, slot);
+	private void _remove(Object asset) {
+		AssetId id = idsByAsset.get(asset);
+		if (id == null) {
+			return;
+		}
 
-			assetsById.remove(id);
-			assetBundle.remove(asset);
-			idsByAsset.remove(asset);
+		AssetSlot slot = assetsById.get(id);
+		if (slot.decRefCount()) {
+			return;
+		}
 
-			assetIdPool.free(id);
-			assetSlotPool.free(slot);
+		assetUnloadedEvent.post(id.fileName, asset);
+		unloadBundledAssets(slot);
+		dereferenceDependencies(id, slot);
 
-			if (asset instanceof Poolable) {
-				PoolService.free(asset);
-			} else {
-				DisposablesService.tryDispose(asset);
-			}
+		idsByAsset.remove(asset);
+		assetsById.remove(id);
+		assetIdPool.free(id);
+		assetSlotPool.free(slot);
+
+		if (asset instanceof Poolable) {
+			PoolService.free(asset);
+		} else {
+			DisposablesService.tryDispose(asset);
 		}
 	}
 
 	private void unloadBundledAssets(AssetSlot slot) {
 		ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
-		if(bundledAssets == null || bundledAssets.size == 0) {
+		if (bundledAssets.size == 0) {
 			return;
 		}
-		
-		for(Object asset : bundledAssets.values()) {
-			AssetId id = idsByAsset.get(asset);
+
+		for (Object asset : bundledAssets.values()) {
+			idsByAsset.remove(asset);
+			assetBundle.remove(asset);
 		}
-		
-		// TODO Auto-generated method stub
 	}
 
 	private void dereferenceDependencies(AssetId id, AssetSlot slot) {
 		for (AssetId dependencyId : slot.dependencies.keys()) {
 			AssetSlot dependencySlot = assetsById.get(dependencyId);
 			if (!dependencySlot.removeDependent(id)) {
-				unload(dependencySlot.asset);
+				_remove(dependencySlot.asset);
 			}
 		}
 	}
 
+	public <T> T getDependency(String fileName, FileType fileType, Class<T> assetType) {
+		synchronized (mutex) {
+			tempAssetId.set(fileName, fileType, assetType);
+			AssetSlot slot = assetsById.get(tempAssetId);
+			slot.incDependencyCount(tempAssetId);
+			@SuppressWarnings("unchecked")
+			T casted = (T) slot.asset;
+			return casted;
+		}
+	}
+
 	public void addDependency(Object asset, Object dependency) {
-		// TODO getInstance().assetRegistry.addDependency(asset, dependency);
+		AssetId id = idsByAsset.get(asset);
+		AssetSlot slot = assetsById.get(id);
+		slot.incDependencyCount(idsByAsset.get(dependency));
 	}
 
 	public void removeDependency(Object asset, Object dependency) {
-		// TODO getInstance().assetRegistry.removeDependency(asset, dependency);
+		AssetId id = idsByAsset.get(asset);
+		AssetSlot slot = assetsById.get(id);
+		slot.decDependencyCount(idsByAsset.get(dependency));
+
+		if (!slot.isActive()) {
+			_remove(slot.asset);
+		}
 	}
 
 	public void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
@@ -226,27 +259,45 @@ public class AssetRegistry {
 
 			if (assetRootBundle == rootBundle) {
 				return;
-			} else if (idsByAsset.containsKey(asset)) {
-				// TODO
-			} else if (assetRootBundle != null) {
+			}
+
+			assetBundle.put(asset, rootBundle);
+
+			AssetId id = idsByAsset.get(asset);
+			AssetSlot slot = id == null ? null : assetsById.remove(id);
+			if (slot != null) {
+				ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
+				if (bundledAssets != null && bundledAssets.size > 0) {
+					for (Object bundledAsset : slot.bundledAssets.values()) {
+						assetBundle.put(bundledAsset, rootBundle);
+					}
+				}
+				rootBundleSlot.merge(slot);
+				assetSlotPool.free(slot);
+				return;
+			}
+
+			if (assetRootBundle != null) {
 				removeFromBundle(rootBundleSlot, asset);
 			}
 
-			AssetId id = assetIdPool.obtain().set(rootBundleId);
-			id.assetType = asset.getClass();
+			if (id == null) {
+				id = assetIdPool.obtain().set(rootBundleId);
+				id.assetType = asset.getClass();
+				idsByAsset.put(asset, id);
+			}
 
-			idsByAsset.put(asset, id);
-			assetBundle.put(asset, rootBundle);
 			rootBundleSlot.addBundledAsset(asset, bundleId);
 
 			if (asset instanceof Bundle) {
 				((Bundle) asset).getBundledAssets(tempBundledAssets);
 				for (Entry<String, Object> entry : tempBundledAssets.entries()) {
-					if (entry.value != asset) {
+					Object bundledAsset = entry.value;
+					if (bundledAsset != asset) {
 						id = assetIdPool.obtain().set(rootBundleId);
-						id.assetType = entry.value.getClass();
-						idsByAsset.put(asset, id);
-						assetBundle.put(asset, rootBundle);
+						id.assetType = bundledAsset.getClass();
+						idsByAsset.put(bundledAsset, id);
+						assetBundle.put(bundledAsset, rootBundle);
 						rootBundleSlot.addBundledAsset(asset, entry.key);
 					}
 				}
@@ -317,6 +368,11 @@ public class AssetRegistry {
 	private Bundle getAssetRootBundle(Object asset) {
 		Bundle bundle = assetBundle.get(asset);
 		return bundle == null ? null : getRootBundle(bundle);
+	}
+
+	private Object getAssetOrRootBundle(Object asset) {
+		Bundle bundle = assetBundle.get(asset);
+		return bundle == null ? asset : getRootBundle(bundle);
 	}
 
 	private static class AssetSlotPool extends Pool<AssetSlot> {
