@@ -62,6 +62,7 @@ import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.AssetPersisters;
 import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.disposable.DisposablesService;
@@ -189,12 +190,12 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	private static <T> void persist(T asset, FileHandle handle) {
+	private <T> void persist(T asset, FileHandle handle) {
 		AssetPersister<T> persister = AssetPersisters.<T> get(asset);
 		if (persister == null) {
 			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
 		} else {
-			persister.persist(handle, asset);
+			persister.persist(this, handle, asset);
 		}
 	}
 
@@ -212,9 +213,8 @@ public class AssetRegistry extends AssetManager {
 			Bundle bundle = (Bundle) asset;
 			assetBundle.put(bundle, bundle);
 
-			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
-					.entries()) {
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
 				assetBundle.put(bundledAsset, bundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
@@ -234,9 +234,8 @@ public class AssetRegistry extends AssetManager {
 			Bundle bundle = (Bundle) asset;
 			assetBundle.remove(bundle);
 
-			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
-					.entries()) {
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
 				assetBundle.remove(bundledAsset);
 				fileNamesByAsset.remove(bundledAsset);
@@ -566,7 +565,7 @@ public class AssetRegistry extends AssetManager {
 		EventService.post(AssetActivityListener.class, assetUnloadedEvent);
 		assetUnloadedEvent.reset();
 
-		unloadBundledAssets(asset);
+		unloadBundledAssets(asset, info);
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
 		dereferenceDependencies(fileName, info);
@@ -580,9 +579,9 @@ public class AssetRegistry extends AssetManager {
 		info.free();
 	}
 
-	private void unloadBundledAssets(Object asset) {
+	private void unloadBundledAssets(Object asset, AssetInfo info) {
 		if (asset instanceof Bundle) {
-			IdentityMap<String, Object> bundledAssets = ((Bundle) asset).getBundledAssets();
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
 			for (Object bundledAsset : bundledAssets.values()) {
 				assetBundle.remove(bundledAsset);
 				fileNamesByAsset.remove(bundledAsset);
@@ -658,7 +657,7 @@ public class AssetRegistry extends AssetManager {
 				assetReloadedEvent.reset();
 
 				fileNamesByAsset.remove(asset);
-				unloadBundledAssets(asset);
+				unloadBundledAssets(asset, info);
 
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
@@ -686,7 +685,7 @@ public class AssetRegistry extends AssetManager {
 
 					entries.remove();
 					fileNamesByAsset.remove(asset);
-					unloadBundledAssets(asset);
+					unloadBundledAssets(asset, info);
 
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
@@ -862,7 +861,7 @@ public class AssetRegistry extends AssetManager {
 
 		if (asset instanceof Bundle) {
 			Bundle bundle = (Bundle) asset;
-			IdentityMap<String, Object> bundledAssets = info.getBundledAssets();
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
 			for (Object bundledAsset : bundledAssets.values()) {
 				assetBundle.put(bundledAsset, bundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
@@ -1101,9 +1100,8 @@ public class AssetRegistry extends AssetManager {
 
 		if (asset instanceof Bundle) {
 			Bundle bundleAsset = (Bundle) asset;
-			IdentityMap<String, Object> bundledAssets = bundleAsset.getBundledAssets();
-			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
-					.entries()) {
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
 				assetBundle.put(bundledAsset, rootBundle);
 				fileNamesByAsset.put(bundledAsset, fileName);
@@ -1122,10 +1120,8 @@ public class AssetRegistry extends AssetManager {
 		info.removeBundledAsset(internalId);
 
 		if (asset instanceof Bundle) {
-			Bundle bundleAsset = (Bundle) asset;
-			IdentityMap<String, Object> bundledAssets = bundleAsset.getBundledAssets();
-			for (com.badlogic.gdx.utils.IdentityMap.Entry<String, Object> bundledAssetsEntry : bundledAssets
-					.entries()) {
+			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
+			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
 				Object bundledAsset = bundledAssetsEntry.value;
 				assetBundle.remove(bundledAsset);
 				fileNamesByAsset.remove(bundledAsset);
@@ -1178,8 +1174,8 @@ public class AssetRegistry extends AssetManager {
 
 			for (AssetInfo info : assetsByFileName.values()) {
 				Object asset = info.asset;
+				unloadBundledAssets(asset, info);
 				DisposablesService.tryDispose(asset);
-				unloadBundledAssets(asset);
 				info.free();
 			}
 

@@ -203,7 +203,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 		public SetPropertyValueOperation(PropertyEditorContext<?, P> context, P oldValue, P newValue) {
 			super("Property");
 			this.context = context;
-			this.oldValue = Assets.isAsset(oldValue) ? oldValue : CopyContext.copyObject(oldValue);
+			this.oldValue = Assets.hasAssetType(oldValue) ? oldValue : CopyContext.copyObject(oldValue);
 			this.newValue = newValue;
 		}
 

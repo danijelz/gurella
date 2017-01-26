@@ -1,15 +1,16 @@
 package com.gurella.engine.asset;
 
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.utils.IdentityMap;
-import com.badlogic.gdx.utils.IdentityMap.Entry;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.pool.PoolService;
 
 class AssetInfo implements DependencyTracker, Poolable {
-	private static final IdentityMap<String, Object> emptyBundledAssets = new IdentityMap<String, Object>();
+	private static final ObjectMap<String, Object> emptyBundledAssets = new ObjectMap<String, Object>();
 
 	Object asset;
 	boolean sticky;
@@ -17,7 +18,7 @@ class AssetInfo implements DependencyTracker, Poolable {
 	int refCount = 0;
 	final ObjectIntMap<String> dependencies = new ObjectIntMap<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
-	private IdentityMap<String, Object> bundledAssets;
+	private ObjectMap<String, Object> bundledAssets;
 
 	public static AssetInfo obtain() {
 		return PoolService.obtain(AssetInfo.class);
@@ -73,21 +74,21 @@ class AssetInfo implements DependencyTracker, Poolable {
 		return isActive();
 	}
 
-	IdentityMap<String, Object> getBundledAssets() {
+	ObjectMap<String, Object> getBundledAssets() {
 		if (bundledAssets == null) {
-			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
+			if (asset instanceof Bundle) {
+				bundledAssets = ((Bundle) asset).getBundledAssets(new ObjectMap<String, Object>());
+			} else {
+				bundledAssets = emptyBundledAssets;
+			}
 		}
 
 		return bundledAssets;
 	}
 
 	public <T> T getBundledAsset(String internalId) {
-		if (bundledAssets == null) {
-			bundledAssets = asset instanceof Bundle ? ((Bundle) asset).getBundledAssets() : emptyBundledAssets;
-		}
-
 		@SuppressWarnings("unchecked")
-		T casted = (T) bundledAssets.get(internalId);
+		T casted = (T) getBundledAssets().get(internalId);
 		return casted;
 	}
 
@@ -96,11 +97,7 @@ class AssetInfo implements DependencyTracker, Poolable {
 			throw new UnsupportedOperationException();
 		}
 
-		if (bundledAssets == null) {
-			bundledAssets = ((Bundle) asset).getBundledAssets();
-		}
-
-		bundledAssets.put(internalId, bundledAsset);
+		getBundledAssets().put(internalId, bundledAsset);
 	}
 
 	void removeBundledAsset(String internalId) {
@@ -108,11 +105,7 @@ class AssetInfo implements DependencyTracker, Poolable {
 			throw new UnsupportedOperationException();
 		}
 
-		if (bundledAssets == null) {
-			bundledAssets = ((Bundle) asset).getBundledAssets();
-		}
-
-		bundledAssets.remove(internalId);
+		getBundledAssets().remove(internalId);
 	}
 
 	boolean isActive() {

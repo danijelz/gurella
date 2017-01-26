@@ -4,9 +4,11 @@ import static com.gurella.engine.managedobject.ManagedObjectState.active;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.Bundle;
+import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset2.bundle.BundleAware;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
@@ -22,7 +24,7 @@ import com.gurella.engine.utils.Sequence;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
-public abstract class ManagedObject implements Bundle, Comparable<ManagedObject> {
+public abstract class ManagedObject implements Bundle, BundleAware, Comparable<ManagedObject> {
 	transient int instanceId;
 	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to int
 
@@ -444,18 +446,18 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	}
 
 	@Override
-	public IdentityMap<String, Object> getBundledAssets() {
-		IdentityMap<String, Object> bundledAssets = new IdentityMap<String, Object>();
-		appendBundledAssets(bundledAssets, this);
-		return bundledAssets;
+	public ObjectMap<String, Object> getBundledAssets(ObjectMap<String, Object> out) {
+		out.put(ensureUuid(), this);
+		OrderedIdentitySet<ManagedObject> children = _children;
+		for (int i = 0, n = children.size; i < n; i++) {
+			children.get(i).getBundledAssets(out);
+		}
+		return out;
 	}
 
-	private static void appendBundledAssets(IdentityMap<String, Object> bundledAssets, ManagedObject object) {
-		bundledAssets.put(object.ensureUuid(), object);
-		OrderedIdentitySet<ManagedObject> children = object._children;
-		for (int i = 0, n = children.size; i < n; i++) {
-			appendBundledAssets(bundledAssets, children.get(i));
-		}
+	@Override
+	public String getBundleId() {
+		return ensureUuid();
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package com.gurella.engine.asset.persister;
 
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -15,44 +13,60 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.Values;
 
 public class AssetPersisters {
-	private static final ObjectMap<Class<?>, AssetPersister<?>> persisters = new ObjectMap<Class<?>, AssetPersister<?>>();
+	private static final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
 	static {
-		FileHandleResolver resolver = new InternalFileHandleResolver();
-		setPersister(Scene.class, new JsonObjectPersister<Scene>(resolver, Scene.class));
-		setPersister(SceneNode.class, new JsonObjectPersister<SceneNode>(resolver, SceneNode.class));
-		setPersister(MaterialDescriptor.class,
-				new JsonObjectPersister<MaterialDescriptor>(resolver, MaterialDescriptor.class));
-		setPersister(ManagedObject.class, new JsonObjectPersister<ManagedObject>(resolver, ManagedObject.class));
-		setPersister(ApplicationConfig.class,
-				new JsonObjectPersister<ApplicationConfig>(resolver, ApplicationConfig.class));
+		register(Scene.class, true, new JsonObjectPersister<Scene>(Scene.class));
+		register(SceneNode.class, true, new JsonObjectPersister<SceneNode>(SceneNode.class));
+		register(MaterialDescriptor.class, true, new JsonObjectPersister<MaterialDescriptor>(MaterialDescriptor.class));
+		register(ManagedObject.class, true, new JsonObjectPersister<ManagedObject>(ManagedObject.class));
+		register(ApplicationConfig.class, true, new JsonObjectPersister<ApplicationConfig>(ApplicationConfig.class));
 		Class<AssetProperties<?>> propertiesClass = Values.cast(AssetProperties.class);
-		setPersister(propertiesClass, new JsonObjectPersister<AssetProperties<?>>(resolver, propertiesClass));
+		register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
 	private AssetPersisters() {
 	}
 
-	private static <T> void setPersister(Class<T> type, AssetPersister<T> persister) {
-		persisters.put(type, persister);
+	public static <T> void register(Class<T> type, boolean derivable, AssetPersister<T> persister) {
+		synchronized (persisters) {
+			persisters.put(type, new PersisterInfo<T>(derivable, persister));
+		}
 	}
 
 	public static <T> AssetPersister<T> get(T asset) {
-		@SuppressWarnings("unchecked")
-		AssetPersister<T> persister = (AssetPersister<T>) persisters.get(asset.getClass());
-		if (persister != null) {
-			return persister;
-		}
+		return get(asset.getClass());
+	}
 
-		for (Entry<Class<?>, AssetPersister<?>> entry : persisters.entries()) {
-			if (ClassReflection.isInstance(entry.key, asset)) {
-				@SuppressWarnings("unchecked")
-				AssetPersister<T> derivedPersister = (AssetPersister<T>) entry.value;
-				persisters.put(asset.getClass(), derivedPersister);
-				return derivedPersister;
+	private static <T> AssetPersister<T> get(Class<? extends Object> type) {
+		synchronized (persisters) {
+			@SuppressWarnings("unchecked")
+			PersisterInfo<T> info = (PersisterInfo<T>) persisters.get(type);
+			if (info != null) {
+				return info.persister;
+			}
+
+			for (Entry<Class<?>, PersisterInfo<?>> entry : persisters.entries()) {
+				PersisterInfo<?> derivedInfo = entry.value;
+				if (derivedInfo.derivable && ClassReflection.isAssignableFrom(entry.key, type)) {
+					@SuppressWarnings("unchecked")
+					AssetPersister<T> derivedPersister = (AssetPersister<T>) derivedInfo.persister;
+					persisters.put(type, info);
+					return derivedPersister;
+				}
 			}
 		}
 
 		return null;
+	}
+
+	private static class PersisterInfo<T> {
+		private final boolean derivable;
+		private final AssetPersister<T> persister;
+
+		PersisterInfo(boolean strict, AssetPersister<T> persister) {
+			this.derivable = strict;
+			this.persister = persister;
+		}
 	}
 }
