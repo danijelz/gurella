@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;

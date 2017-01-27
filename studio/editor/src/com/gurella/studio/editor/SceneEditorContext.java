@@ -20,8 +20,8 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.badlogic.gdx.Files.FileType;
-import com.gurella.engine.asset.Assets;
-import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;

@@ -4,7 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset2.Assets;
 //import com.gurella.engine.application.ApplicationConfig;
 //import com.gurella.engine.asset.persister.object.JsonObjectPersister;
 //import com.gurella.engine.asset.properties.AssetProperties;
@@ -20,14 +20,15 @@ public class AssetPersisters {
 	private final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
 	static {
-		//TODO
-		//		register(Scene.class, true, new JsonObjectPersister<Scene>(Scene.class));
-		//		register(SceneNode.class, true, new JsonObjectPersister<SceneNode>(SceneNode.class));
-		//		register(MaterialDescriptor.class, true, new JsonObjectPersister<MaterialDescriptor>(MaterialDescriptor.class));
-		//		register(ManagedObject.class, true, new JsonObjectPersister<ManagedObject>(ManagedObject.class));
-		//		register(ApplicationConfig.class, true, new JsonObjectPersister<ApplicationConfig>(ApplicationConfig.class));
-		//		Class<AssetProperties<?>> propertiesClass = Values.cast(AssetProperties.class);
-		//		register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
+		// TODO
+		// register(Scene.class, true, new JsonObjectPersister<Scene>(Scene.class));
+		// register(SceneNode.class, true, new JsonObjectPersister<SceneNode>(SceneNode.class));
+		// register(MaterialDescriptor.class, true, new
+		// JsonObjectPersister<MaterialDescriptor>(MaterialDescriptor.class));
+		// register(ManagedObject.class, true, new JsonObjectPersister<ManagedObject>(ManagedObject.class));
+		// register(ApplicationConfig.class, true, new JsonObjectPersister<ApplicationConfig>(ApplicationConfig.class));
+		// Class<AssetProperties<?>> propertiesClass = Values.cast(AssetProperties.class);
+		// register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
 	public AssetPersisters(AssetRegistry registry) {
@@ -73,6 +74,7 @@ public class AssetPersisters {
 		} else {
 			persister.persist(registry, handle, asset);
 			Class<Object> assetType = Assets.getAssetRootClass(asset);
+			//TODO service should handle addition
 			registry.add(handle.path(), handle.type(), assetType, asset, sticky);
 		}
 	}

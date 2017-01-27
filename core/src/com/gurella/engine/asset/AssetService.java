@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset2.config.AssetConfig;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
@@ -101,7 +103,7 @@ public final class AssetService implements ApplicationCleanupListener {
 
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
 			boolean sticky) {
-		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
+		AssetLoaderParameters<T> parameters = getAssetLoaderParameters(fileName);
 		getInstance().assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
@@ -119,7 +121,7 @@ public final class AssetService implements ApplicationCleanupListener {
 	}
 
 	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
-		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
+		AssetLoaderParameters<T> parameters = getAssetLoaderParameters(fileName);
 		AssetRegistry assetRegistry = getInstance().assetRegistry;
 		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
 		return assetRegistry.finishLoading(fileName);

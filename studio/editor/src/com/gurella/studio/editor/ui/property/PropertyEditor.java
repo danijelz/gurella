@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;

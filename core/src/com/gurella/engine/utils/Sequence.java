@@ -12,4 +12,8 @@ public final class Sequence {
 	public static int next() {
 		return sequence.getAndIncrement();
 	}
+
+	public static final class Id {
+		public final int val = next();
+	}
 }

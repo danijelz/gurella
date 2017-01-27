@@ -27,7 +27,7 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.pool.PoolService;

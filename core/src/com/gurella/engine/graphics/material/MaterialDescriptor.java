@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.properties.TextureProperties;
+import com.gurella.engine.asset2.properties.TextureProperties;
 import com.gurella.engine.graphics.render.gl.BlendFunction;
 import com.gurella.engine.graphics.render.gl.CullFace;
 import com.gurella.engine.graphics.render.gl.DepthTestFunction;

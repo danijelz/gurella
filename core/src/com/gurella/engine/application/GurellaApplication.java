@@ -9,12 +9,14 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.utils.Sequence;
 
 public final class GurellaApplication implements ApplicationListener {
 	private static final String defaultConfigLocation = "application.gcfg";
@@ -25,6 +27,9 @@ public final class GurellaApplication implements ApplicationListener {
 	private static final CleanupEvent cleanupEvent = new CleanupEvent();
 	private static final ResizeEvent resizeEvent = new ResizeEvent();
 	private static final ShutdownEvent shutdownEvent = new ShutdownEvent();
+
+	public final int id = Sequence.next();
+	private final Workbench workbench = Workbench.newInstance(id);
 
 	private String configLocation;
 	private ApplicationConfig config;
@@ -72,13 +77,14 @@ public final class GurellaApplication implements ApplicationListener {
 	public final void pause() {
 		paused = true;
 		EventService.post(pauseEvent);
+		EventService.post(cleanupEvent);
 	}
 
 	@Override
 	public final void resume() {
 		paused = false;
 		if (Gdx.app.getType() == ApplicationType.Android) {
-			//TODO move to AssetService
+			// TODO move to AssetService
 			AssetService.reloadInvalidated();
 		}
 		EventService.post(resumeEvent);
@@ -105,6 +111,7 @@ public final class GurellaApplication implements ApplicationListener {
 	public void dispose() {
 		// TODO sceneManager.stop();
 		EventService.post(shutdownEvent);
+		Workbench.close(workbench);
 	}
 
 	private static class ShutdownEvent implements Event<ApplicationShutdownListener> {

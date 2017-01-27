@@ -1,4 +1,4 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.asset2.pack;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset2.bundle.Bundle;
@@ -7,11 +7,13 @@ import com.gurella.engine.asset2.bundle.Bundle;
 public class AssetsPack implements Bundle {
 	int count;
 	String[] ids;
-	int[] offsets;
+	Object[] assets;
 
 	@Override
 	public ObjectMap<String, Object> getBundledAssets(ObjectMap<String, Object> out) {
-		// TODO Auto-generated method stub
-		return null;
+		for (int i = 0; i < count; i++) {
+			out.put(ids[i], assets[i]);
+		}
+		return out;
 	}
 }

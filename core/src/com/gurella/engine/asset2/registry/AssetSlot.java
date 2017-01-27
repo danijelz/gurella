@@ -22,33 +22,45 @@ class AssetSlot implements Poolable {
 		return sticky || refCount > 0 || dependents.size > 0;
 	}
 
+	SlotActivity getActivity() {
+		return isActive() ? SlotActivity.active : SlotActivity.inactive;
+	}
+
 	void incRefCount() {
 		refCount++;
 	}
 
-	boolean decRefCount() {
+	SlotActivity decRefCount() {
 		if (refCount > 0) {
 			refCount--;
 		}
-		return isActive();
+		return getActivity();
 	}
 
-	void incDependencyCount(AssetId id) {
-		dependencies.getAndIncrement(id, 0, 1);
+	int incDependencyCount(AssetId id) {
+		return dependencies.getAndIncrement(id, 0, 1) + 1;
 	}
 
-	boolean decDependencyCount(AssetId id) {
-		dependencies.getAndIncrement(id, 0, -1);
-		return isActive();
+	int decDependencyCount(AssetId id) {
+		int ref = dependencies.get(id, -1);
+		if (ref < 0) {
+			return ref;
+		} else if (ref > 1) {
+			dependencies.getAndIncrement(id, 0, -1);
+			return ref - 1;
+		} else {
+			dependencies.remove(id, 0);
+			return 0;
+		}
 	}
 
 	void addDependent(AssetId dependent) {
 		dependents.add(dependent);
 	}
 
-	boolean removeDependent(AssetId dependent) {
+	SlotActivity removeDependent(AssetId dependent) {
 		dependents.remove(dependent);
-		return isActive();
+		return getActivity();
 	}
 
 	ObjectMap<String, Object> initBundledAssets() {
@@ -69,7 +81,7 @@ class AssetSlot implements Poolable {
 		return casted;
 	}
 
-	void addBundledAsset(Object bundledAsset, String bundleId) {
+	void addBundledAsset(String bundleId, Object bundledAsset) {
 		if (!(asset instanceof Bundle)) {
 			throw new UnsupportedOperationException();
 		}
@@ -131,5 +143,9 @@ class AssetSlot implements Poolable {
 		dependencies.clear();
 		dependents.clear();
 		bundledAssets.clear();
+	}
+
+	public enum SlotActivity {
+		active, inactive;
 	}
 }

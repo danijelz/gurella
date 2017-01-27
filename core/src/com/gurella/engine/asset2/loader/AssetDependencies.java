@@ -7,12 +7,15 @@ import com.gurella.engine.asset2.AssetIdPool;
 import com.gurella.engine.asset2.registry.AssetRegistry;
 
 class AssetDependencies implements DependencyCollector, DependencyProvider {
-	final AssetRegistry registry;
+	private final AssetId loadingAssetId = new AssetId();
+	private final AssetId tempAssetId = new AssetId();
 	private final ObjectSet<AssetId> dependencies = new ObjectSet<AssetId>();
 	private final AssetIdPool pool = new AssetIdPool();
 
-	AssetDependencies(AssetRegistry registry) {
-		this.registry = registry;
+	private AssetRegistry registry;
+
+	void init(AssetRegistry registry, String fileName, FileType fileType, Class<?> assetType) {
+		loadingAssetId.set(fileName, fileType, assetType);
 	}
 
 	@Override
@@ -28,10 +31,16 @@ class AssetDependencies implements DependencyCollector, DependencyProvider {
 		for (AssetId assetId : dependencies) {
 			pool.free(assetId);
 		}
+		dependencies.clear();
 	}
 
 	@Override
-	public <T> T getDependency(String fileName, FileType fileType, Class<T> assetType) {
-		return registry.getDependency(fileName, fileType, assetType);
+	public <T> T getDependency(String depFileName, FileType depFileType, Class<T> depAssetType) {
+		tempAssetId.set(depFileName, depFileType, depAssetType);
+		return registry.getDependencyAndIncCount(loadingAssetId, tempAssetId);
+	}
+
+	public boolean isEmpty() {
+		return dependencies.size == 0;
 	}
 }

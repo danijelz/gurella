@@ -7,7 +7,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.event.Signal1;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;

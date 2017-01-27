@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.properties;
+package com.gurella.engine.asset2.properties;
 
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.gurella.engine.audio.AudioClip;

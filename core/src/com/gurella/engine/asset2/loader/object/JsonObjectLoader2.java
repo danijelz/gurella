@@ -1,10 +1,10 @@
 package com.gurella.engine.asset2.loader.object;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.serialization.json.JsonInput;
 
 public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T>> {

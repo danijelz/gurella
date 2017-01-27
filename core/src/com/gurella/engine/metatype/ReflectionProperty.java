@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;

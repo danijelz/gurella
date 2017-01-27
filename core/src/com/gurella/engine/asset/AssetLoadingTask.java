@@ -10,7 +10,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
-import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Values;
@@ -140,7 +141,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 
 		AssetType assetType = Assets.getAssetType(type);
-		FileHandle propsHandle = Assets.getPropertiesFile(type, fileName, file.type());
+		FileHandle propsHandle = Assets.getPropertiesFile(fileName, file.type(), type);
 		if (propsHandle == null) {
 			return;
 		}

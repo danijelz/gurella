@@ -1,4 +1,4 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.asset2;
 
 import java.util.Arrays;
 import java.util.StringTokenizer;
@@ -10,20 +10,24 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.utils.Values;
 
 public class Assets {
-	private static final String filePathDelimiters = "\\/";
-	private static final char unixFilePathDelimiter = '/';
-	private static final char windowsFilePathDelimiter = '\\';
-	private static final char fileExtensionDelimiter = '.';
-	private static final char localFileType = 'l';
-	private static final char absoluteFileType = 'a';
-	private static final char externalFileType = 'e';
-	private static final char classpathFileType = 'c';
-	private static final char internalFileType = 'i';
-	private static final char fileTypeInfoDelimiter = '|';
+	public static final String filePathDelimiters = "\\/";
+	public static final char homePathAlias = '~';
+	public static final char unixFilePathDelimiter = '/';
+	public static final char windowsFilePathDelimiter = '\\';
+	public static final char windowsDriveLetterDelimiter = ':';
+	public static final char fileExtensionDelimiter = '.';
+	public static final char localFileType = 'l';
+	public static final char absoluteFileType = 'a';
+	public static final char externalFileType = 'e';
+	public static final char classpathFileType = 'c';
+	public static final char internalFileType = 'i';
+	public static final char fileTypeInfoDelimiter = '|';
 
 	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
 	private static final ObjectSet<Class<?>> nonAssetTypes = new ObjectSet<Class<?>>();
@@ -54,16 +58,23 @@ public class Assets {
 			return false;
 		}
 
+		initTypeInfo(type);
+		return assetTypes.contains(type);
+	}
+
+	private static AssetType initTypeInfo(Class<?> type) {
 		synchronized (assetTypes) {
 			for (int i = 0, n = assetTypeEnums.length; i < n; i++) {
-				if (ClassReflection.isAssignableFrom(assetTypeEnums[i].assetType, type)) {
+				AssetType assetType = assetTypeEnums[i];
+				if (ClassReflection.isAssignableFrom(assetType.assetType, type)) {
 					assetTypes.add(type);
-					return true;
+					enumsByType.put(type, assetType);
+					return assetType;
 				}
 			}
 
 			nonAssetTypes.add(type);
-			return false;
+			return null;
 		}
 	}
 
@@ -114,11 +125,17 @@ public class Assets {
 		AssetType type = getAssetType(fileName);
 		return type == null ? null : Values.<Class<T>> cast(type.assetType);
 	}
-	
+
 	public static <T> Class<T> getAssetRootClass(final Object asset) {
-		//TODO
-		AssetType type = getAssetType(fileName);
-		return type == null ? null : Values.<Class<T>> cast(type.assetType);
+		Class<? extends Object> type = asset.getClass();
+		AssetType assetType = enumsByType.get(type);
+		if (assetType == null) {
+			assetType = initTypeInfo(type);
+		}
+
+		@SuppressWarnings("unchecked")
+		Class<T> casted = (Class<T>) assetType.assetType;
+		return casted;
 	}
 
 	public static String getPropertiesFileName(String assetFileName) {
@@ -177,7 +194,7 @@ public class Assets {
 		return fileExists(propertiesFileName, fileType);
 	}
 
-	public static FileHandle getPropertiesFile(Class<?> assetType, String assetFileName, FileType fileType) {
+	public static FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
 		String propertiesFileName = getPropertiesFileName(assetFileName, assetType);
 		if (propertiesFileName == null) {
 			return null;
@@ -189,7 +206,7 @@ public class Assets {
 
 	public static <T extends AssetProperties<?>> T getAssetProperties(Object asset) {
 		String assetFileName = AssetService.getFileName(asset);
-		FileHandle propsHandle = getPropertiesFile(asset.getClass(), assetFileName, FileType.Internal);
+		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());
 		if (propsHandle == null) {
 			return null;
 		} else {
@@ -199,7 +216,7 @@ public class Assets {
 
 	public static <T extends AssetProperties<?>> T loadAssetProperties(Object asset) {
 		String assetFileName = AssetService.getFileName(asset);
-		FileHandle propsHandle = getPropertiesFile(asset.getClass(), assetFileName, FileType.Internal);
+		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());
 		if (propsHandle == null) {
 			return null;
 		} else {
@@ -229,13 +246,27 @@ public class Assets {
 	}
 
 	private static char getDefaultFileTypeInfo(String path) {
-		if (path.length() < 1) {
-			return internalFileType;
-		} else {
-			char firstChar = path.charAt(0);
-			return firstChar == unixFilePathDelimiter || firstChar == windowsFilePathDelimiter ? absoluteFileType
-					: internalFileType;
+		return isAbsolutePath(path) ? absoluteFileType : internalFileType;
+	}
+
+	public static boolean isAbsolutePath(String path) {
+		int length = path.length();
+		if (length < 1) {
+			return false;
 		}
+
+		char firstChar = path.charAt(0);
+		if (isPathDelimiter(firstChar) || firstChar == homePathAlias) {
+			return true;
+		} else if (length < 3 || path.charAt(1) != windowsDriveLetterDelimiter) {
+			return false;
+		} else {
+			return isPathDelimiter(path.charAt(2));
+		}
+	}
+
+	private static boolean isPathDelimiter(char c) {
+		return c == unixFilePathDelimiter || c == windowsFilePathDelimiter;
 	}
 
 	private static boolean hasFileTypeInfo(String path) {

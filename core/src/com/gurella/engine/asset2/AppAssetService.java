@@ -1,71 +1,101 @@
 package com.gurella.engine.asset2;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.AssetConfig;
-import com.gurella.engine.asset.AssetService;
+import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset2.config.AssetConfig;
 import com.gurella.engine.asset2.loader.AssetLoaders;
+import com.gurella.engine.asset2.loader.AssetLoadingExecutor;
 import com.gurella.engine.asset2.persister.AssetPersisters;
 import com.gurella.engine.asset2.registry.AssetRegistry;
 import com.gurella.engine.async.AsyncCallback;
 
 public class AppAssetService {
+	private final Object mutex = new Object();
+
+	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
-	private final AssetLoaders loaders = new AssetLoaders(registry);
+	private final AssetLoaders loaders = new AssetLoaders(mutex, registry);
+	private final AssetLoadingExecutor executor = new AssetLoadingExecutor();
 	private final AssetPersisters persisters = new AssetPersisters(registry);
 
-	//TODO 
+	private final AssetId tempAssetId = new AssetId();
+
+	// TODO
 	public <T> AssetConfig<T> getAssetConfig(String fileName) {
 		return null;
 	}
 
-	// TODO unused
-	private <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		AssetConfig<T> descriptor = null;
-		return descriptor == null ? null : descriptor.getParameters();
-	}
-
-	public <T> void loadAsync(String fileName, AsyncCallback<T> callback) {
+	public <T> void loadAsync(AsyncCallback<T> callback, String fileName) {
 		Class<T> type = getAssetType(fileName);
 		loadAsync(fileName, type, callback, priority, false);
 	}
 
-	public <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		Class<T> type = getAssetType(fileName);
-		loadAsync(fileName, type, callback, priority, false);
+	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, int priority) {
+		Class<T> assetType = getAssetType(fileName);
+		loadAsync(fileName, assetType, callback, priority, false);
 	}
 
-	public <T> void loadAsync(String fileName, Class<T> assetType, AsyncCallback<T> callback, int priority) {
-		loadAsync(fileName, type, callback, priority, false);
-	}
-
-	public <T> void loadAsync(String fileName, Class<T> assetType, AsyncCallback<T> callback, int priority,
-			boolean sticky) {
-		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
+	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, Class<T> assetType, int priority) {
 		getInstance().assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
+	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+			int priority) {
+		getInstance().assetRegistry.load(fileName, assetType, props, callback, priority, sticky);
+	}
+
 	public <T> T load(String fileName) {
-		Class<T> type = getAssetType(fileName);
-		return load(fileName, type, 0, false);
+		synchronized (mutex) {
+			tempAssetId.set(fileName);
+			return getLoadedOrLoad(tempAssetId, 0);
+		}
 	}
 
 	public <T> T load(String fileName, Class<T> assetType) {
-		return load(fileName, type, 0, false);
+		synchronized (mutex) {
+			tempAssetId.set(fileName, assetType);
+			return getLoadedOrLoad(tempAssetId, 0);
+		}
 	}
 
 	public <T> T load(String fileName, Class<T> assetType, int priority) {
-		return load(fileName, type, priority, false);
+		synchronized (mutex) {
+			tempAssetId.set(fileName, assetType);
+			return getLoadedOrLoad(tempAssetId, priority);
+		}
 	}
 
-	public <T> T load(String fileName, FileType fileType, Class<T> assetType, int priority, boolean sticky) {
-		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
-		AssetRegistry assetRegistry = getInstance().assetRegistry;
-		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
-		return assetRegistry.finishLoading(fileName);
+	public <T> T load(String fileName, FileType fileType, Class<T> assetType, int priority) {
+		synchronized (mutex) {
+			tempAssetId.set(fileName, fileType, assetType);
+			return getLoadedOrLoad(tempAssetId, priority);
+		}
+	}
+
+	public <T> T load(AssetId assetId, int priority) {
+		synchronized (mutex) {
+			return getLoadedOrLoad(assetId, priority);
+		}
+	}
+
+	private <T> T getLoadedOrLoad(String fileName, FileType fileType, Class<T> assetType, int priority) {
+		if (registry.isLoaded(fileName, fileType, assetType)) {
+			return registry.get(assetId);
+		}
+		
+		executor.load(assetId, priority);
+		
+		while (!registry.isLoaded(assetId)) {
+			executor.update();
+			ThreadUtils.yield();
+		}
+		
+		return registry.get(assetId);
 	}
 
 	public boolean isLoaded(String fileName) {
@@ -89,15 +119,19 @@ public class AppAssetService {
 	}
 
 	public <T> String getFileName(T asset) {
-		return registry.getAssetFileName(asset);
+		return registry.getFileName(asset);
+	}
+
+	public <T> FileType getFileType(T asset) {
+		return registry.getFileType(asset);
+	}
+
+	public <T> AssetId getId(T asset, AssetId out) {
+		return registry.getAssetId(asset, out);
 	}
 
 	public boolean isManaged(Object asset) {
-		return registry.containsAsset(asset);
-	}
-
-	public boolean isManaged(String fileName) {
-		return registry.isLoaded(fileName);
+		return registry.isManaged(asset);
 	}
 
 	public <T> void save(T asset) {
@@ -105,14 +139,14 @@ public class AppAssetService {
 	}
 
 	public <T> void save(T asset, String fileName) {
-		getInstance().assetRegistry.save(asset, fileName);
+		persisters.save(asset, fileName);
 	}
 
 	public <T> void save(T asset, String fileName, FileType fileType) {
-		getInstance().assetRegistry.save(asset, fileName, fileType);
+		persisters.save(asset, fileName, fileType);
 	}
 
-	public <T> void save(T asset, FileHandle handle) {
+	public <T> void save(FileHandle handle, T asset, boolean sticky) {
 		persisters.persist(asset, handle);
 	}
 
@@ -140,7 +174,7 @@ public class AppAssetService {
 		registry.removeFromBundle(bundle, asset);
 	}
 
-	public String getBundledAssetInternalId(Object asset) {
+	public String getBundledId(Object asset) {
 		return registry.getBundleId(asset);
 	}
 }

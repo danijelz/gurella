@@ -22,6 +22,27 @@ public final class AssetId implements Poolable {
 		return this;
 	}
 
+	public AssetId set(String fileName) {
+		this.fileName = fileName;
+		this.fileType = FileType.Internal;
+		this.assetType = Assets.getAssetClass(fileName);
+		return this;
+	}
+
+	public AssetId set(String fileName, FileType fileType) {
+		this.fileName = fileName;
+		this.fileType = fileType;
+		this.assetType = Assets.getAssetClass(fileName);
+		return this;
+	}
+
+	public AssetId set(String fileName, Class<?> assetType) {
+		this.fileName = fileName;
+		this.fileType = FileType.Internal;
+		this.assetType = assetType;
+		return this;
+	}
+
 	@Override
 	public void reset() {
 		fileName = null;

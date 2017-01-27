@@ -1,4 +1,4 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.asset2.config;
 
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.utils.Array;
