@@ -2,6 +2,7 @@ package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.utils.Values;
 
 public final class AssetId implements Poolable {
 	public String fileName;
@@ -75,6 +76,11 @@ public final class AssetId implements Poolable {
 		}
 
 		AssetId other = (AssetId) obj;
-		return fileType == other.fileType && assetType == other.assetType && fileName.equals(other.fileName);
+		return equals(other.fileName, other.fileType, other.assetType);
+	}
+
+	public boolean equals(String fileName, FileType fileType, Class<?> assetType) {
+		return this.fileType == fileType && this.assetType == assetType
+				&& Values.isEqual(this.fileName, fileName, false);
 	}
 }

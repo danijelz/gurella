@@ -2,8 +2,8 @@ package com.gurella.engine.asset2.loader;
 
 import static com.gurella.engine.asset2.loader.AssetLoadingState.error;
 
+import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
@@ -20,7 +20,7 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	int requestId;
 	final AssetId assetId = new AssetId();
 	final AssetDependencies dependencies = new AssetDependencies();
-	
+
 	AssetLoadingTask<A, T> parent;
 	AssetLoadingExecutor executor;
 
@@ -84,21 +84,21 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 		if (propsHandle == null) {
 			return;
 		}
-		
+
 		dependencies.addDependency(propsHandle.path(), assetId.fileType, AssetProperties.class);
 	}
 
 	private void loadAsync() {
 		asyncData = loader.loadAsyncData(dependencies, file, props);
 	}
-	
+
 	private void initDependencies() {
 		for (int i = 0; i < descriptors.size; i++) {
 			AssetLoaderParameters<Object> castedParams = Values.cast(descriptor.params);
 			Class<Object> dependencyType = descriptor.type;
 			String dependencyFileName = descriptor.fileName;
 
-			AssetLoadingTask<?,?> duplicate = findDuplicate(dependencyFileName);
+			AssetLoadingTask<?, ?> duplicate = findDuplicate(dependencyFileName);
 			if (duplicate == null) {
 				info.addDependency(dependencyFileName);
 				dependencies.add(obtain(this, dependencyFileName, descriptor.file, dependencyType, castedParams));
@@ -107,7 +107,7 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 			}
 		}
 	}
-	
+
 	private AssetLoadingTask<?, ?> findDuplicate(String otherFileName) {
 		for (int i = 0; i < dependencies.size; i++) {
 			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
@@ -117,9 +117,10 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 		}
 		return null;
 	}
-	
+
 	T consumeAsyncData() {
-		return loader.consumeAsyncData(dependencies, file, props, asyncData);
+		asset = loader.consumeAsyncData(dependencies, file, props, asyncData);
+		return asset;
 	}
 
 	@Override

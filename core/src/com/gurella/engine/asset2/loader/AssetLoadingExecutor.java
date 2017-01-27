@@ -7,11 +7,9 @@ import static com.gurella.engine.asset2.loader.AssetLoadingState.waitingDependen
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
-import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 
@@ -36,6 +34,34 @@ public class AssetLoadingExecutor {
 			}
 			asyncQueue.sort();
 		}
+	}
+
+	private <T> AssetLoadingTask<?, T> findTaskInQueues(String fileName, FileType fileType, Class<?> assetType) {
+		AssetLoadingTask<?, T> task = findTaskInQueue(asyncQueue, fileName, fileType, assetType);
+		if (task != null) {
+			return task;
+		}
+
+		task = findTaskInQueue(waitingQueue, fileName, fileType, assetType);
+		if (task != null) {
+			return task;
+		}
+
+		return findTaskInQueue(syncQueue, fileName, fileType, assetType);
+	}
+
+	private static <T> AssetLoadingTask<?, T> findTaskInQueue(Array<AssetLoadingTask<?, ?>> queue, String fileName,
+			FileType fileType, Class<?> assetType) {
+		for (int i = 0; i < queue.size; i++) {
+			AssetLoadingTask<?, ?> task = queue.get(i);
+			if (task.assetId.equals(fileName, fileType, assetType)) {
+				@SuppressWarnings("unchecked")
+				AssetLoadingTask<?, T> casted = (AssetLoadingTask<?, T>) task;
+				return casted;
+			}
+		}
+
+		return null;
 	}
 
 	public boolean update() {

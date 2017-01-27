@@ -45,7 +45,7 @@ public class AssetRegistry {
 	}
 
 	public <T> T get(AssetId assetId) {
-		return get(assetId, null);
+		return get(assetId.fileName, assetId.fileType, assetId.assetType, null);
 	}
 
 	public <T> T get(String fileName, String bundleId) {
@@ -57,19 +57,19 @@ public class AssetRegistry {
 	}
 
 	public <T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
-		tempAssetId.set(fileName, fileType, assetType);
-		return getAndValidate(tempAssetId, bundleId);
+		return getAndValidate(fileName, fileType, assetType, bundleId);
 	}
 
 	public <T> T get(AssetId assetId, String bundleId) {
-		return getAndValidate(assetId, bundleId);
+		return getAndValidate(assetId.fileName, assetId.fileType, assetId.assetType, bundleId);
 	}
 
-	private <T> T getAndValidate(AssetId assetId, String bundleId) {
+	private <T> T getAndValidate(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
-			throw new GdxRuntimeException("Asset not loaded: " + assetId.fileName);
+			throw new GdxRuntimeException("Asset not loaded: " + fileName);
 		}
 
 		if (bundleId == null) {
