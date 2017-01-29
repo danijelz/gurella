@@ -6,7 +6,7 @@ import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.plugin.Plugin;
 
 //TODO unused, should replace AssetType
-public class AssetServiceExtensionDescriptor<T> implements Plugin {
+public class AssetDescriptor<T> implements Plugin {
 	public final Class<T> assetType = null;
 	public final String[] fileExtensions = null;
 	public final boolean composite = false;

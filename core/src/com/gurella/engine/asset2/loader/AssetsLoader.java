@@ -1,32 +1,31 @@
 package com.gurella.engine.asset2.loader;
 
-import static com.gurella.engine.asset2.loader.AssetLoadingState.waitingDependencies;
-
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.AssetId;
+import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 
-public class AssetsLoader implements Disposable {
+public class AssetsLoader implements Disposable, AsyncTask<Void> {
 	private final Object mutex = new Object();
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 	private final TaskPool taskPool = new TaskPool();
+	private boolean executing;
 
 	private final ObjectMap<AssetId, AssetLoadingTask<?, ?>> allTasks = new ObjectMap<AssetId, AssetLoadingTask<?, ?>>();
 	private final Array<AssetLoadingTask<?, ?>> asyncQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Array<AssetLoadingTask<?, ?>> waitingQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> syncQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> failedTasks = new Array<AssetLoadingTask<?, ?>>();
+	private final Array<AssetLoadingTask<?, ?>> finishedQueue = new Array<AssetLoadingTask<?, ?>>();
+	private final Array<AssetLoadingTask<?, ?>> temp = new Array<AssetLoadingTask<?, ?>>();
 	private final Sort sort = new Sort();
 
 	private final AssetId tempAssetId = new AssetId();
@@ -37,11 +36,12 @@ public class AssetsLoader implements Disposable {
 			@SuppressWarnings("unchecked")
 			AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 			if (queuedTask == null) {
+				//TODO 
+				AssetLoader<?, T, AssetProperties<T>> loader = null;
 				@SuppressWarnings("unchecked")
 				AssetLoadingTask<T, ?> task = (AssetLoadingTask<T, ?>) taskPool.obtain();
-				task.init(this, loader, file, callback, priority);
-				asyncQueue.add(task);
-				sort.sort(asyncQueue);
+				task.init(loader, file, callback, priority);
+				loadAsync(task);
 			} else {
 				queuedTask.merge(callback, priority);
 			}
@@ -50,54 +50,82 @@ public class AssetsLoader implements Disposable {
 
 	public boolean update() {
 		synchronized (mutex) {
-			processFailedTasks();
-			processSyncQueue();
-			processNextAsyncTask();
-			return asyncQueue.size == 0 && syncQueue.size == 0 && waitingQueue.size == 0;
+			temp.addAll(finishedQueue);
+			finishedQueue.clear();
 		}
-	}
 
-	private void processFailedTasks() {
-		for (int i = 0, n = failedTasks.size; i < n; i++) {
-			AssetLoadingTask<?, ?> task = failedTasks.get(i);
-			notifyException(task);
-		}
-		syncQueue.clear();
-	}
-
-	private void processSyncQueue() {
-		for (int i = 0, n = syncQueue.size; i < n; i++) {
-			AssetLoadingTask<?, ?> task = syncQueue.get(i);
+		for (int i = 0, n = temp.size; i < n; i++) {
+			AssetLoadingTask<?, ?> task = temp.get(i);
 			task.consumeAsyncData();
 			finishTask(task);
 		}
-		syncQueue.clear();
-	}
+		temp.clear();
 
-	private void notifyException(AssetLoadingTask<?, ?> task) {
-		unloadLoadedDependencies(task);
-		Throwable ex = task.exception;
-		propagateException(task, ex);
-		task.free();
+		return asyncQueue.size == 0 && waitingQueue.size == 0;
 	}
 
 	private <T> void finishTask(AssetLoadingTask<?, T> task) {
-		//TODO add to registry
-		notifyTaskFinished(task);
+		if (task.exception == null) {
+			//TODO add to registry
+			notifyTaskFinished(task);
+		} else {
+			unloadLoadedDependencies(task);
+			Throwable ex = task.exception;
+			propagateException(task, ex);
+		}
+
 		taskPool.free(task);
 	}
 
-	private void processNextAsyncTask() {
-		if (asyncQueue.size > 0) {
-			AssetLoadingTask<?, ?> nextTask = asyncQueue.pop();
-			waitingQueue.add(nextTask);
-			executor.submit(nextTask);
+	public void loadAsync(AssetLoadingTask<?, ?> task) {
+		synchronized (mutex) {
+			asyncQueue.add(task);
+			sort.sort(asyncQueue);
+			if (!executing) {
+				executing = true;
+				executor.submit(this);
+			}
 		}
 	}
 
-	void waitingDependencies(AssetLoadingTask<?, ?> task) {
+	@Override
+	public Void call() throws Exception {
+		while (true) {
+			AssetLoadingTask<?, ?> nextTask;
+			synchronized (mutex) {
+				if (asyncQueue.size > 0) {
+					nextTask = asyncQueue.removeIndex(0);
+				} else {
+					executing = false;
+					return null;
+				}
+			}
+
+			nextTask.process();
+
+			synchronized (mutex) {
+				switch (nextTask.state) {
+				case waitingDependencies:
+					loadDependencies(nextTask);
+					waitingQueue.add(nextTask);
+					break;
+				case asyncLoading:
+					asyncQueue.add(nextTask);
+					break;
+				case finished:
+					finishedQueue.add(nextTask);
+					break;
+				default:
+					//TODO error
+					break;
+				}
+			}
+		}
+	}
+
+	void loadDependencies(AssetLoadingTask<?, ?> task) {
 		synchronized (mutex) {
-			Array<AssetLoadingTask<?, ?>> dependencies = task.dependencies;
+			AssetDependencies dependencies = task.dependencies;
 			for (int i = 0; i < dependencies.size; i++) {
 				AssetLoadingTask<?, ?> dependency = dependencies.get(i);
 				AssetInfo info = assetsByFileName.get(dependency.fileName);
@@ -110,22 +138,6 @@ public class AssetsLoader implements Disposable {
 		}
 	}
 
-	public void loadSync(AssetLoadingTask<?, ?> assetLoadingTask) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void loadAsync(AssetLoadingTask<?, ?> assetLoadingTask) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void finishLoading() {
-		while (!update()) {
-			ThreadUtils.yield();
-		}
-	}
-
 	public boolean update(int millis) {
 		long endTime = TimeUtils.millis() + millis;
 		while (true) {
@@ -133,6 +145,12 @@ public class AssetsLoader implements Disposable {
 			if (done || TimeUtils.millis() > endTime) {
 				return done;
 			}
+			ThreadUtils.yield();
+		}
+	}
+
+	public void finishLoading() {
+		while (!update()) {
 			ThreadUtils.yield();
 		}
 	}

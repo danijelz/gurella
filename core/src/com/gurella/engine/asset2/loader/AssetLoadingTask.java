@@ -1,24 +1,20 @@
 package com.gurella.engine.asset2.loader;
 
-import static com.gurella.engine.asset2.loader.AssetLoadingState.error;
 import static com.gurella.engine.asset2.loader.AssetLoadingState.finished;
 import static com.gurella.engine.asset2.loader.AssetLoadingState.syncLoading;
 import static com.gurella.engine.asset2.loader.AssetLoadingState.waitingDependencies;
 
-import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.asset2.AssetId;
 import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
 
-class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoadingTask<?, ?>>, Poolable {
-	private static int requestIdIndex = Integer.MIN_VALUE;
+class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Poolable {
+	private static int requestSequence = Integer.MIN_VALUE;
 
 	int priority;
 	int requestId;
@@ -26,7 +22,6 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	final AssetDependencies dependencies = new AssetDependencies();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
-	AssetsLoader executor;
 	AssetLoadingTask<A, T> parent;
 
 	FileHandle file;
@@ -40,10 +35,8 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	T asset;
 	Throwable exception;
 
-	void init(AssetsLoader executor, AssetLoader<A, T, AssetProperties<T>> loader, FileHandle file,
-			AsyncCallback<T> callback, int priority) {
-		requestId = requestIdIndex++;
-		this.executor = executor;
+	void init(AssetLoader<A, T, AssetProperties<T>> loader, FileHandle file, AsyncCallback<T> callback, int priority) {
+		requestId = requestSequence++;
 		this.loader = loader;
 		this.file = file;
 		this.callback.delegate = callback;
@@ -52,17 +45,15 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 
 	void init(AssetLoadingTask<A, T> parent, AssetLoader<A, T, AssetProperties<T>> loader, FileHandle file,
 			AsyncCallback<T> callback, int priority) {
-		requestId = requestIdIndex++;
+		requestId = requestSequence++;
 		this.parent = parent;
-		this.executor = parent.executor;
 		this.loader = loader;
 		this.file = file;
 		this.callback.delegate = callback;
 		this.priority = priority;
 	}
 
-	@Override
-	public Void call() throws Exception {
+	public void process() throws Exception {
 		try {
 			switch (state) {
 			case ready:
@@ -76,12 +67,10 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 			}
 		} catch (Exception exception) {
 			this.exception = exception;
-			state = error;
+			state = finished;
 		} finally {
 			updateProgress();
 		}
-
-		return null;
 	}
 
 	private void start() {
@@ -91,9 +80,7 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 		if (dependencies.isEmpty()) {
 			loadAsync();
 		} else {
-			initDependencies();
 			state = waitingDependencies;
-			executor.waitingDependencies(this);
 		}
 	}
 
@@ -112,34 +99,16 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 
 	private void loadAsync() {
 		asyncData = loader.deserializeAsync(dependencies, file, props);
-		state = syncLoading;
-		executor.loadSync(this);
-	}
-
-	private void initDependencies() {
-		for (int i = 0; i < descriptors.size; i++) {
-			AssetLoaderParameters<Object> castedParams = Values.cast(descriptor.params);
-			Class<Object> dependencyType = descriptor.type;
-			String dependencyFileName = descriptor.fileName;
-
-			AssetLoadingTask<?, ?> duplicate = findDuplicate(dependencyFileName);
-			if (duplicate == null) {
-				info.addDependency(dependencyFileName);
-				dependencies.add(obtain(this, dependencyFileName, descriptor.file, dependencyType, castedParams));
-			} else if (dependencyType != duplicate.type) {
-				throw new GdxRuntimeException("Dependencies conflict.");
-			}
-		}
+		state = finished;
 	}
 
 	void consumeAsyncData() {
 		try {
 			asset = loader.consumeAsyncData(dependencies, file, props, asyncData);
-			state = finished;
 		} catch (Exception e) {
 			exception = e;
-			state = error;
 		} finally {
+			state = finished;
 			updateProgress();
 		}
 	}
@@ -150,11 +119,8 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 			notifyProgress(0);
 			break;
 		case waitingDependencies:
-			float progress = dependencies.getDependenciesProgress();
+			float progress = dependencies.getProgress();
 			notifyProgress(0.8f * progress);
-			if (progress == 1) {
-				executor.loadAsync(this);
-			}
 			break;
 		case asyncLoading:
 			notifyProgress(0.8f);
@@ -163,7 +129,6 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 			notifyProgress(0.9f);
 			break;
 		case finished:
-		case error:
 			notifyProgress(1);
 			break;
 		default:
@@ -186,8 +151,9 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 
 	public void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
 		callback.concurrentCallbacks.add(concurrentCallback);
+		concurrentCallback.onProgress(progress);
 		if (priority < newPriority) {
-			reniceHierarchy(requestIdIndex++, newPriority);
+			reniceHierarchy(requestSequence++, newPriority);
 		}
 	}
 

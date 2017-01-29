@@ -395,15 +395,15 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, String extension,
 			AssetLoader<T, P> loader) {
+		if (type == null) {
+			throw new IllegalArgumentException("type cannot be null.");
+		}
+
+		if (loader == null) {
+			throw new IllegalArgumentException("loader cannot be null.");
+		}
+
 		synchronized (mutex) {
-			if (type == null) {
-				throw new IllegalArgumentException("type cannot be null.");
-			}
-
-			if (loader == null) {
-				throw new IllegalArgumentException("loader cannot be null.");
-			}
-
 			ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
 			if (loadersByType == null) {
 				loadersByType = new ObjectMap<String, AssetLoader<?, ?>>();

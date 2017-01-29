@@ -44,7 +44,12 @@ public class AssetRegistry {
 			T asset = (T) slot.asset;
 			return asset;
 		} else {
-			return slot.getBundledAsset(bundleId);
+			Object asset = slot.asset;
+			if (asset instanceof Bundle) {
+				return slot.getBundledAsset(bundleId);
+			} else {
+				throw new IllegalArgumentException("Asset is not a Bundle: " + fileName);
+			}
 		}
 	}
 

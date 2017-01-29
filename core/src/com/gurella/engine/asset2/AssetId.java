@@ -9,6 +9,8 @@ public final class AssetId implements Poolable {
 	public String fileName;
 	public FileType fileType;
 	public Class<?> assetType;
+	
+	public FileHandle file;
 
 	public AssetId set(AssetId other) {
 		this.fileName = other.fileName;
@@ -56,6 +58,7 @@ public final class AssetId implements Poolable {
 		this.fileName = file.path();
 		this.fileType = file.type();
 		this.assetType = Assets.getAssetClass(fileName);
+		this.file = file;
 		return this;
 	}
 

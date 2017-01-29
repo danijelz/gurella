@@ -15,9 +15,4 @@ public abstract class ModelProperties implements AssetProperties<Model> {
 	@PropertyDescriptor(nullable = false)
 	public TextureWrap wrapV = TextureWrap.ClampToEdge;
 	public boolean genMipMaps = false;
-
-	@Override
-	public Class<Model> getAssetType() {
-		return Model.class;
-	}
 }

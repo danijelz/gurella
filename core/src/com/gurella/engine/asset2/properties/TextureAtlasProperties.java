@@ -13,9 +13,4 @@ public class TextureAtlasProperties implements AssetProperties<TextureAtlas> {
 		textureAtlasParameter.flip = flip;
 		return textureAtlasParameter;
 	}
-
-	@Override
-	public Class<TextureAtlas> getAssetType() {
-		return TextureAtlas.class;
-	}
 }

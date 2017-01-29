@@ -25,9 +25,4 @@ public class BitmapFontProperties implements AssetProperties<BitmapFont> {
 		parameter.atlasName = atlasName;
 		return parameter;
 	}
-
-	@Override
-	public Class<BitmapFont> getAssetType() {
-		return BitmapFont.class;
-	}
 }
