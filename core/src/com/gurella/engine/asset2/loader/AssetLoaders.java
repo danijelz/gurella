@@ -7,14 +7,10 @@ import com.gurella.engine.asset2.registry.AssetRegistry;
 import com.gurella.engine.async.AsyncCallback;
 
 public class AssetLoaders {
-	private final Object mutex;
 	private final AssetRegistry registry;
-	private final AssetDependencies dependencies;
 
-	public AssetLoaders(Object mutex, AssetRegistry registry) {
-		this.mutex = mutex;
+	public AssetLoaders(AssetRegistry registry) {
 		this.registry = registry;
-		dependencies = new AssetDependencies(registry);
 	}
 
 	public <T> void loadAsync(String fileName, FileType fileType, Class<T> assetType, AsyncCallback<T> callback,

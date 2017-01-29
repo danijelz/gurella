@@ -1,9 +1,11 @@
 package com.gurella.engine.asset2.loader;
 
 import static com.gurella.engine.asset2.loader.AssetLoadingState.error;
+import static com.gurella.engine.asset2.loader.AssetLoadingState.*;
 
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
@@ -21,25 +23,40 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	final AssetId assetId = new AssetId();
 	final AssetDependencies dependencies = new AssetDependencies();
 
+	AssetLoader executor;
 	AssetLoadingTask<A, T> parent;
-	AssetLoadingExecutor executor;
 
 	FileHandle file;
-	AssetLoader<A, T, AssetProperties<T>> loader;
+	AssetDeserializer<A, T, AssetProperties<T>> deserializer;
 	AssetProperties<T> props;
 	AsyncCallback<T> callback;
 
 	volatile float progress = 0;
-	AssetLoadingState state = AssetLoadingState.ready;
+	volatile AssetLoadingState state = AssetLoadingState.ready;
 
 	A asyncData;
 	T asset;
 	Throwable exception;
 
-	@Override
-	public int compareTo(AssetLoadingTask<?, ?> other) {
-		int result = Values.compare(other.priority, priority);
-		return result == 0 ? Values.compare(requestId, other.requestId) : result;
+	void init(AssetLoader executor, AssetDeserializer<A, T, AssetProperties<T>> deserializer, FileHandle file,
+			AsyncCallback<T> callback, int priority) {
+		requestId = counter++;
+		this.executor = executor;
+		this.deserializer = deserializer;
+		this.file = file;
+		this.callback = callback;
+		this.priority = priority;
+	}
+
+	void init(AssetLoadingTask<A, T> parent, AssetDeserializer<A, T, AssetProperties<T>> deserializer, FileHandle file,
+			AsyncCallback<T> callback, int priority) {
+		requestId = counter++;
+		this.parent = parent;
+		this.executor = parent.executor;
+		this.deserializer = deserializer;
+		this.file = file;
+		this.callback = callback;
+		this.priority = priority;
 	}
 
 	@Override
@@ -58,19 +75,22 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 		} catch (Exception exception) {
 			this.exception = exception;
 			state = error;
+		} finally {
+			updateProgress();
 		}
 
 		return null;
 	}
 
 	private void start() {
-		loader.injectDependencies(dependencies, file);
+		deserializer.injectDependencies(dependencies, file);
 		initProps();
 
 		if (dependencies.isEmpty()) {
 			loadAsync();
 		} else {
 			initDependencies();
+			state = waitingDependencies;
 			executor.waitingDependencies(this);
 		}
 	}
@@ -89,7 +109,9 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	}
 
 	private void loadAsync() {
-		asyncData = loader.loadAsyncData(dependencies, file, props);
+		asyncData = deserializer.deserializeAsync(dependencies, file, props);
+		state = syncLoading;
+		//TODO executor.loadSync(this);
 	}
 
 	private void initDependencies() {
@@ -108,24 +130,103 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 		}
 	}
 
-	private AssetLoadingTask<?, ?> findDuplicate(String otherFileName) {
-		for (int i = 0; i < dependencies.size; i++) {
-			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
-			if (dependency.fileName.equals(otherFileName)) {
-				return dependency;
-			}
+	void consumeAsyncData() {
+		try {
+			asset = deserializer.consumeAsyncData(dependencies, file, props, asyncData);
+			state = finished;
+		} catch (Exception e) {
+			exception = e;
+			state = error;
+		} finally {
+			updateProgress();
 		}
-		return null;
 	}
 
-	T consumeAsyncData() {
-		asset = loader.consumeAsyncData(dependencies, file, props, asyncData);
-		return asset;
+	void updateProgress() {
+		switch (state) {
+		case ready:
+			notifyProgress(0);
+			break;
+		case waitingDependencies:
+			float progress = dependencies.getDependenciesProgress();
+			notifyProgress(0.8f * progress);
+			if (progress == 1) {
+				//TODO executor.loadAsync(this);
+			}
+			break;
+		case asyncLoading:
+			notifyProgress(0.8f);
+			break;
+		case syncLoading:
+			notifyProgress(0.9f);
+			break;
+		case finished:
+		case error:
+			notifyProgress(1);
+			break;
+		default:
+			throw new IllegalStateException();
+		}
+	}
+
+	private void notifyProgress(float progress) {
+		this.progress = progress;
+		if (parent != null) {
+			parent.updateProgress();
+		} else {
+			callback.onProgress(progress);
+		}
+
+		for (int i = 0; i < concurentTasks.size; i++) {
+			concurentTasks.get(i).notifyProgress(progress);
+		}
 	}
 
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public int compareTo(AssetLoadingTask<?, ?> other) {
+		int result = Values.compare(other.priority, priority);
+		return result == 0 ? Values.compare(requestId, other.requestId) : result;
+	}
+	
+	private static class TaskCallback<T> implements AsyncCallback<T> {
+		private AsyncCallback<T> clientCallback;
+		private Array<AsyncCallback<T>> concurrentCallbacks = new Array<AsyncCallback<T>>();
+		
+		@Override
+		public void onSuccess(T value) {
+			clientCallback.onSuccess(value);
+			for(int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				concurrentCallbacks.get(i).onSuccess(value);
+			}
+		}
+
+		@Override
+		public void onException(Throwable exception) {
+			clientCallback.onException(exception);
+			for(int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				concurrentCallbacks.get(i).onException(exception);
+			}
+		}
+
+		@Override
+		public void onCancled(String message) {
+			clientCallback.onCancled(message);
+			for(int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				concurrentCallbacks.get(i).onCancled(message);
+			}
+		}
+
+		@Override
+		public void onProgress(float progress) {
+			clientCallback.onProgress(progress);
+			for(int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				concurrentCallbacks.get(i).onProgress(progress);
+			}
+		}
 	}
 }

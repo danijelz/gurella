@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.config.AssetConfig;
 import com.gurella.engine.asset2.loader.AssetLoaders;
-import com.gurella.engine.asset2.loader.AssetLoadingExecutor;
+import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.persister.AssetPersisters;
 import com.gurella.engine.asset2.registry.AssetRegistry;
 import com.gurella.engine.async.AsyncCallback;
@@ -19,8 +19,8 @@ public class AppAssetService {
 
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
-	private final AssetLoaders loaders = new AssetLoaders(mutex, registry);
-	private final AssetLoadingExecutor executor = new AssetLoadingExecutor();
+	private final AssetLoaders loaders = new AssetLoaders(registry);
+	private final AssetLoader loader = new AssetLoader();
 	private final AssetPersisters persisters = new AssetPersisters(registry);
 
 	private final AssetId tempAssetId = new AssetId();
@@ -88,10 +88,10 @@ public class AppAssetService {
 			return registry.get(assetId);
 		}
 		
-		executor.load(assetId, priority);
+		loader.load(assetId, priority);
 		
 		while (!registry.isLoaded(assetId)) {
-			executor.update();
+			loader.update();
 			ThreadUtils.yield();
 		}
 		
