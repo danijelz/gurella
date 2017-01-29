@@ -10,9 +10,10 @@ import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.config.AssetConfig;
 import com.gurella.engine.asset2.loader.AssetLoaders;
 import com.gurella.engine.asset2.loader.AssetsLoader;
-import com.gurella.engine.asset2.persister.AssetPersisters;
+import com.gurella.engine.asset2.persister.AssetsPersister;
 import com.gurella.engine.asset2.registry.AssetRegistry;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.async.SimpleAsyncCallback;
 
 public class AppAssetService {
 	private final Object mutex = new Object();
@@ -21,7 +22,7 @@ public class AppAssetService {
 	private final AssetRegistry registry = new AssetRegistry();
 	private final AssetLoaders loaders = new AssetLoaders(registry);
 	private final AssetsLoader loader = new AssetsLoader();
-	private final AssetPersisters persisters = new AssetPersisters(registry);
+	private final AssetsPersister persister = new AssetsPersister(registry);
 
 	private final AssetId tempAssetId = new AssetId();
 
@@ -63,43 +64,39 @@ public class AppAssetService {
 		}
 	}
 
-	public <T> T load(String fileName, Class<T> assetType, int priority) {
-		synchronized (mutex) {
-			tempAssetId.set(fileName, assetType);
-			return getLoadedOrLoad(tempAssetId, priority);
-		}
-	}
-
-	public <T> T load(String fileName, FileType fileType, Class<T> assetType, int priority) {
+	public <T> T load(String fileName, FileType fileType, Class<T> assetType) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
 			return getLoadedOrLoad(tempAssetId, priority);
 		}
 	}
 
-	public <T> T load(AssetId assetId, int priority) {
+	public <T> T load(AssetId assetId) {
 		synchronized (mutex) {
-			return getLoadedOrLoad(assetId, priority);
+			return getLoadedOrLoad(assetId.fileName, assetId.fileType, assetId.assetType);
 		}
 	}
 
-	private <T> T getLoadedOrLoad(String fileName, FileType fileType, Class<T> assetType, int priority) {
-		if (registry.isLoaded(fileName, fileType, assetType)) {
-			return registry.get(assetId);
+	private <T> T getLoadedOrLoad(String fileName, FileType fileType, Class<T> assetType) {
+		T asset = registry.getIfLoaded(fileName, fileType, assetType, null);
+		if (asset != null) {
+			return asset;
 		}
-		
-		loader.load(assetId, priority);
-		
-		while (!registry.isLoaded(assetId)) {
+
+		SimpleAsyncCallback<T> callback = SimpleAsyncCallback.obtain();
+		loader.load(callback, fileName, fileType, assetType, Integer.MAX_VALUE);
+
+		while (asset != null) {
 			loader.update();
 			ThreadUtils.yield();
+			asset = registry.getIfLoaded(fileName, fileType, assetType, null);
 		}
-		
-		return registry.get(assetId);
+
+		return asset;
 	}
 
 	public boolean isLoaded(String fileName) {
-		return registry.isLoaded(fileName);
+		return registry.isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
 	}
 
 	public <T> boolean unload(T asset) {
@@ -135,19 +132,19 @@ public class AppAssetService {
 	}
 
 	public <T> void save(T asset) {
-		persisters.save(asset);
+		persister.save(asset);
 	}
 
 	public <T> void save(T asset, String fileName) {
-		persisters.save(asset, fileName);
+		persister.save(asset, fileName);
 	}
 
 	public <T> void save(T asset, String fileName, FileType fileType) {
-		persisters.save(asset, fileName, fileType);
+		persister.save(asset, fileName, fileType);
 	}
 
 	public <T> void save(FileHandle handle, T asset, boolean sticky) {
-		persisters.persist(asset, handle);
+		persister.persist(asset, handle);
 	}
 
 	public void delete(String fileName) {

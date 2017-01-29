@@ -15,7 +15,7 @@ import com.gurella.engine.asset2.Assets;
 //import com.gurella.engine.utils.Values;
 import com.gurella.engine.asset2.registry.AssetRegistry;
 
-public class AssetPersisters {
+public class AssetsPersister {
 	private final AssetRegistry registry;
 	private final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
@@ -31,7 +31,7 @@ public class AssetPersisters {
 		// register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
-	public AssetPersisters(AssetRegistry registry) {
+	public AssetsPersister(AssetRegistry registry) {
 		this.registry = registry;
 	}
 

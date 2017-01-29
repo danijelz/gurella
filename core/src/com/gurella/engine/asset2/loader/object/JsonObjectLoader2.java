@@ -1,13 +1,13 @@
 package com.gurella.engine.asset2.loader.object;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.asset2.loader.AssetDeserializer;
+import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.serialization.json.JsonInput;
 
-public class JsonObjectLoader2<T> implements AssetDeserializer<T, T, AssetProperties<T>> {
+public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T>> {
 	private final Class<T> expectedType;
 	private final JsonInput input = new JsonInput();
 
@@ -27,7 +27,7 @@ public class JsonObjectLoader2<T> implements AssetDeserializer<T, T, AssetProper
 	}
 
 	@Override
-	public void injectDependencies(DependencyCollector collector, FileHandle file, AssetProperties<T> properties) {
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		// TODO Auto-generated method stub
 		// input.init(file);
 		// input.getExternalDependencies()

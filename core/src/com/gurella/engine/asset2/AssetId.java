@@ -1,6 +1,7 @@
 package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.utils.Values;
 
@@ -41,6 +42,20 @@ public final class AssetId implements Poolable {
 		this.fileName = fileName;
 		this.fileType = FileType.Internal;
 		this.assetType = assetType;
+		return this;
+	}
+
+	public AssetId set(FileHandle file, Class<?> assetType) {
+		this.fileName = file.path();
+		this.fileType = file.type();
+		this.assetType = assetType;
+		return this;
+	}
+
+	public AssetId set(FileHandle file) {
+		this.fileName = file.path();
+		this.fileType = file.type();
+		this.assetType = Assets.getAssetClass(fileName);
 		return this;
 	}
 

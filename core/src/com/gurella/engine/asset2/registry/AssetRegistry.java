@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset2.AssetId;
 import com.gurella.engine.asset2.AssetIdPool;
-import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.bundle.BundleAware;
 import com.gurella.engine.asset2.registry.AssetSlot.SlotActivity;
@@ -32,39 +31,7 @@ public class AssetRegistry {
 	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
 	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 
-	public <T> T get(String fileName) {
-		return get(fileName, FileType.Internal, Assets.<T> getAssetClass(fileName), null);
-	}
-
-	public <T> T get(String fileName, Class<T> assetType) {
-		return get(fileName, FileType.Internal, assetType, null);
-	}
-
-	public <T> T get(String fileName, FileType fileType, Class<T> assetType) {
-		return get(fileName, fileType, assetType, null);
-	}
-
-	public <T> T get(AssetId assetId) {
-		return get(assetId.fileName, assetId.fileType, assetId.assetType, null);
-	}
-
-	public <T> T get(String fileName, String bundleId) {
-		return get(fileName, FileType.Internal, Assets.<T> getAssetClass(fileName), bundleId);
-	}
-
-	public <T> T get(String fileName, Class<?> assetType, String bundleId) {
-		return get(fileName, FileType.Internal, assetType, bundleId);
-	}
-
 	public <T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
-		return getAndValidate(fileName, fileType, assetType, bundleId);
-	}
-
-	public <T> T get(AssetId assetId, String bundleId) {
-		return getAndValidate(assetId.fileName, assetId.fileType, assetId.assetType, bundleId);
-	}
-
-	private <T> T getAndValidate(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 
@@ -114,23 +81,29 @@ public class AssetRegistry {
 		return id == null ? null : id.fileType;
 	}
 
-	public boolean isLoaded(String fileName) {
-		return isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
-	}
-
-	public boolean isLoaded(String fileName, Class<?> assetType) {
-		return isLoaded(fileName, FileType.Internal, assetType);
-	}
-
 	public boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 		return slot != null && slot.asset != null;
 	}
 
-	public boolean isLoaded(AssetId assetId) {
-		AssetSlot slot = slotsById.get(assetId);
-		return slot != null && slot.asset != null;
+	public <T> T getIfLoaded(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+		tempAssetId.set(fileName, fileType, assetType);
+		AssetSlot slot = slotsById.get(tempAssetId);
+
+		if (slot == null || slot.asset == null) {
+			return null;
+		}
+
+		slot.incRefCount();
+
+		if (bundleId == null) {
+			@SuppressWarnings("unchecked")
+			T asset = (T) slot.asset;
+			return asset;
+		} else {
+			return slot.getBundledAsset(bundleId);
+		}
 	}
 
 	public void init(AssetId assetId) {
