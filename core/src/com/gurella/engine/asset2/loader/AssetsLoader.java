@@ -30,16 +30,16 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 
 	private final AssetId tempAssetId = new AssetId();
 
-	public <T> void load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
+	public <T, A> void load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
 		synchronized (mutex) {
 			tempAssetId.set(file, assetType);
 			@SuppressWarnings("unchecked")
 			AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 			if (queuedTask == null) {
 				//TODO 
-				AssetLoader<?, T, AssetProperties<T>> loader = null;
+				AssetLoader<A, T, AssetProperties<T>> loader = null;
 				@SuppressWarnings("unchecked")
-				AssetLoadingTask<T, ?> task = (AssetLoadingTask<T, ?>) taskPool.obtain();
+				AssetLoadingTask<A, T> task = (AssetLoadingTask<A, T>) taskPool.obtain();
 				task.init(loader, file, callback, priority);
 				loadAsync(task);
 			} else {
@@ -77,7 +77,7 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 		taskPool.free(task);
 	}
 
-	public void loadAsync(AssetLoadingTask<?, ?> task) {
+	private void loadAsync(AssetLoadingTask<?, ?> task) {
 		synchronized (mutex) {
 			asyncQueue.add(task);
 			sort.sort(asyncQueue);

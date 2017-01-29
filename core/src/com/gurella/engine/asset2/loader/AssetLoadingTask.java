@@ -99,7 +99,7 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	private void loadAsync() {
 		asyncData = loader.deserializeAsync(dependencies, file, props);
-		state = finished;
+		state = syncLoading;
 	}
 
 	void consumeAsyncData() {
