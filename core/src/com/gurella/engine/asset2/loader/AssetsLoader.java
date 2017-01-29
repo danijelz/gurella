@@ -14,7 +14,7 @@ import com.gurella.engine.asset2.AssetId;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 
-public class AssetLoader implements Disposable {
+public class AssetsLoader implements Disposable {
 	private final Object mutex = new Object();
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 

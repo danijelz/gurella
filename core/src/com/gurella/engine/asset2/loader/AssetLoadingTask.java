@@ -23,7 +23,7 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	final AssetId assetId = new AssetId();
 	final AssetDependencies dependencies = new AssetDependencies();
 
-	AssetLoader executor;
+	AssetsLoader executor;
 	AssetLoadingTask<A, T> parent;
 
 	FileHandle file;
@@ -38,7 +38,7 @@ class AssetLoadingTask<A, T> implements AsyncTask<Void>, Comparable<AssetLoading
 	T asset;
 	Throwable exception;
 
-	void init(AssetLoader executor, AssetDeserializer<A, T, AssetProperties<T>> deserializer, FileHandle file,
+	void init(AssetsLoader executor, AssetDeserializer<A, T, AssetProperties<T>> deserializer, FileHandle file,
 			AsyncCallback<T> callback, int priority) {
 		requestId = counter++;
 		this.executor = executor;
