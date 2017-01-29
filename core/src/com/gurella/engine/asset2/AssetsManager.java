@@ -27,7 +27,8 @@ public class AssetsManager {
 		synchronized (mutex) {
 			asset = registry.getIfLoaded(fileName, fileType, assetType, null);
 			if (asset == null) {
-				loader.load(callback, fileName, fileType, assetType, priority);
+				FileHandle file = null;//TODO resolve by config
+				loader.load(callback, file, assetType, priority);
 			}
 		}
 
@@ -45,7 +46,8 @@ public class AssetsManager {
 			}
 
 			SimpleAsyncCallback<T> callback = SimpleAsyncCallback.obtain();
-			loader.load(callback, fileName, fileType, assetType, Integer.MAX_VALUE);
+			FileHandle file = null;//TODO resolve by config
+			loader.load(callback, file, assetType, Integer.MAX_VALUE);
 
 			while (!callback.isDone()) {
 				loader.update();
@@ -53,10 +55,14 @@ public class AssetsManager {
 			}
 
 			if (callback.isDoneWithException()) {
-				throw new RuntimeException("Error loading asset " + fileName, callback.getException());
+				Throwable exception = callback.getException();
+				callback.free();
+				throw new RuntimeException("Error loading asset " + fileName, exception);
+			} else {
+				asset = callback.getValue();
+				callback.free();
+				return asset;
 			}
-
-			return callback.getValue();
 		}
 	}
 

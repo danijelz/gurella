@@ -25,7 +25,6 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 	private final Array<AssetLoadingTask<?, ?>> asyncQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Array<AssetLoadingTask<?, ?>> waitingQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Array<AssetLoadingTask<?, ?>> finishedQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> temp = new Array<AssetLoadingTask<?, ?>>();
 	private final Sort sort = new Sort();
 
 	private final AssetId tempAssetId = new AssetId();
@@ -50,18 +49,15 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 
 	public boolean update() {
 		synchronized (mutex) {
-			temp.addAll(finishedQueue);
+			for (int i = 0, n = finishedQueue.size; i < n; i++) {
+				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
+				task.consumeAsyncData();
+				finishTask(task);
+			}
 			finishedQueue.clear();
-		}
 
-		for (int i = 0, n = temp.size; i < n; i++) {
-			AssetLoadingTask<?, ?> task = temp.get(i);
-			task.consumeAsyncData();
-			finishTask(task);
+			return asyncQueue.size == 0 && waitingQueue.size == 0;
 		}
-		temp.clear();
-
-		return asyncQueue.size == 0 && waitingQueue.size == 0;
 	}
 
 	private <T> void finishTask(AssetLoadingTask<?, T> task) {
@@ -111,6 +107,9 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 					break;
 				case asyncLoading:
 					asyncQueue.add(nextTask);
+					break;
+				case syncLoading:
+					finishedQueue.add(nextTask);
 					break;
 				case finished:
 					finishedQueue.add(nextTask);
