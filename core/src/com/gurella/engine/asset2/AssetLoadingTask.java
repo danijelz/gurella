@@ -68,8 +68,7 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 	private void processSafely() {
 		switch (state) {
 		case ready:
-			initDependencies();
-			if (dependencies.isEmpty()) {
+			if (!initDependencies()) {
 				state = asyncLoading;
 				processSafely();
 			} else {
@@ -91,18 +90,15 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 	}
 
-	private void initDependencies() {
+	private boolean initDependencies() {
 		loader.initDependencies(dependencies, file);
-		if (properties != null) {
-			return;
-		}
-
 		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle == null) {
-			return;
+			return !dependencies.isEmpty();
+		} else {
+			dependencies.addDependency(propsHandle.path(), assetId.fileType, AssetProperties.class);
+			return true;
 		}
-
-		dependencies.addDependency(propsHandle.path(), assetId.fileType, AssetProperties.class);
 	}
 
 	void consumeAsyncData() {
