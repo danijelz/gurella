@@ -1,14 +1,14 @@
-package com.gurella.engine.asset2.loader;
+package com.gurella.engine.asset2;
 
-import static com.gurella.engine.asset2.loader.AssetLoadingState.finished;
-import static com.gurella.engine.asset2.loader.AssetLoadingState.syncLoading;
-import static com.gurella.engine.asset2.loader.AssetLoadingState.waitingDependencies;
+import static com.gurella.engine.asset2.AssetLoadingState.asyncLoading;
+import static com.gurella.engine.asset2.AssetLoadingState.finished;
+import static com.gurella.engine.asset2.AssetLoadingState.syncLoading;
+import static com.gurella.engine.asset2.AssetLoadingState.waitingDependencies;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset2.AssetId;
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
@@ -63,7 +63,8 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 				loadAsync();
 				break;
 			default:
-				throw new IllegalStateException();
+				this.exception = new IllegalStateException("Invalid loading state.");
+				state = finished;
 			}
 		} catch (Exception exception) {
 			this.exception = exception;
@@ -113,14 +114,18 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 	}
 
-	int updateProgress() {
+	void updateProgress() {
 		switch (state) {
 		case ready:
 			notifyProgress(0);
 			break;
 		case waitingDependencies:
-			float progress = dependencies.getProgress();
-			notifyProgress(0.8f * progress);
+			float depProgress = dependencies.getProgress();
+			notifyProgress(0.8f * depProgress);
+			if (depProgress == 1) {
+				state = asyncLoading;
+				// TODO notify state changes
+			}
 			break;
 		case asyncLoading:
 			notifyProgress(0.8f);
@@ -151,15 +156,16 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	public void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
 		callback.concurrentCallbacks.add(concurrentCallback);
-		concurrentCallback.onProgress(progress);
 		if (priority < newPriority) {
 			reniceHierarchy(requestSequence++, newPriority);
 		}
+		concurrentCallback.onProgress(progress);
 	}
 
 	private void reniceHierarchy(int newRequestId, int newPriority) {
 		requestId = newRequestId;
 		priority = newPriority;
+
 		for (int i = 0; i < dependencies.size; i++) {
 			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
 			dependency.reniceHierarchy(newRequestId, newPriority);
@@ -173,7 +179,7 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	@Override
 	public int compareTo(AssetLoadingTask<?, ?> other) {
-		int result = Values.compare(other.priority, priority);
+		int result = Values.compare(priority, other.priority);
 		return result == 0 ? Values.compare(requestId, other.requestId) : result;
 	}
 

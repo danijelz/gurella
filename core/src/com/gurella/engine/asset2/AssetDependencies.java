@@ -1,11 +1,10 @@
-package com.gurella.engine.asset2.loader;
+package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.asset2.AssetId;
-import com.gurella.engine.asset2.AssetIdPool;
-import com.gurella.engine.asset2.registry.AssetRegistry;
+import com.gurella.engine.asset2.loader.DependencyCollector;
+import com.gurella.engine.asset2.loader.DependencyProvider;
 
 class AssetDependencies implements DependencyCollector, DependencyProvider {
 	private final AssetId loadingAssetId = new AssetId();
@@ -38,6 +37,21 @@ class AssetDependencies implements DependencyCollector, DependencyProvider {
 
 	public boolean isEmpty() {
 		return dependencies.size == 0;
+	}
+
+	public float getProgress() {
+		int size = dependencies.size;
+		if (size == 0) {
+			return 1;
+		}
+
+		float progres = 0;
+		for (int i = 0; i < size; i++) {
+			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
+			progres += dependency.progress;
+		}
+
+		return Math.min(1, progres / size);
 	}
 
 	void reset() {

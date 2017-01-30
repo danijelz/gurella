@@ -1,4 +1,4 @@
-package com.gurella.engine.asset2.loader;
+package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
-import com.gurella.engine.asset2.AssetId;
+import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
@@ -90,7 +90,7 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 			AssetLoadingTask<?, ?> nextTask;
 			synchronized (mutex) {
 				if (asyncQueue.size > 0) {
-					nextTask = asyncQueue.removeIndex(0);
+					nextTask = asyncQueue.pop();
 				} else {
 					executing = false;
 					return null;

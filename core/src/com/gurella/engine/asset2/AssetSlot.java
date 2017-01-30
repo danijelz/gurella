@@ -1,11 +1,10 @@
-package com.gurella.engine.asset2.registry;
+package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset2.AssetId;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.bundle.BundleAware;
 

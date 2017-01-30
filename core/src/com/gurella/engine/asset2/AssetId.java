@@ -9,13 +9,15 @@ public final class AssetId implements Poolable {
 	public String fileName;
 	public FileType fileType;
 	public Class<?> assetType;
-	
-	public FileHandle file;
+
+	// TODO remove
+	public FileHandle cachedFile;
 
 	public AssetId set(AssetId other) {
 		this.fileName = other.fileName;
 		this.fileType = other.fileType;
 		this.assetType = other.assetType;
+		this.cachedFile = other.cachedFile;
 		return this;
 	}
 
@@ -58,8 +60,29 @@ public final class AssetId implements Poolable {
 		this.fileName = file.path();
 		this.fileType = file.type();
 		this.assetType = Assets.getAssetClass(fileName);
-		this.file = file;
+		this.cachedFile = file;
 		return this;
+	}
+
+	public boolean isEmpty() {
+		return fileName != null && fileType != null && assetType != null;
+	}
+
+	public AssetId empty() {
+		reset();
+		return this;
+	}
+
+	public boolean equalsFile(FileHandle file) {
+		return fileName.equals(file.path()) && fileType == file.type();
+	}
+
+	public boolean equalsFile(AssetId other) {
+		return fileName.equals(other.fileName) && fileType == other.fileType;
+	}
+
+	public boolean equalsFile(String fileName, FileType fileType) {
+		return this.fileName.equals(fileName) && this.fileType == fileType;
 	}
 
 	@Override
@@ -67,6 +90,7 @@ public final class AssetId implements Poolable {
 		fileName = null;
 		fileType = null;
 		assetType = null;
+		cachedFile = null;
 	}
 
 	@Override

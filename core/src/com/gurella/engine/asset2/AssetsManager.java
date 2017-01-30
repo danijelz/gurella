@@ -7,9 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.loader.AssetsLoader;
 import com.gurella.engine.asset2.persister.AssetsPersister;
-import com.gurella.engine.asset2.registry.AssetRegistry;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 
@@ -19,7 +17,8 @@ public class AssetsManager {
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
 	private final AssetsLoader loader = new AssetsLoader();
-	private final AssetsPersister persister = new AssetsPersister(registry);
+	private final AssetsPersister persister = new AssetsPersister(this);
+	private final AssetId tempId = new AssetId();
 
 	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
@@ -27,7 +26,7 @@ public class AssetsManager {
 		synchronized (mutex) {
 			asset = registry.getIfLoaded(fileName, fileType, assetType, null);
 			if (asset == null) {
-				FileHandle file = null;//TODO resolve by config
+				FileHandle file = resolveFile(fileName, fileType);
 				loader.load(callback, file, assetType, priority);
 			}
 		}
@@ -38,6 +37,11 @@ public class AssetsManager {
 		}
 	}
 
+	private FileHandle resolveFile(String fileName, FileType fileType) {
+		// TODO resolve by AssetConfig
+		return files.getFileHandle(fileName, fileType);
+	}
+
 	public <T> T load(String fileName, FileType fileType, Class<T> assetType) {
 		synchronized (mutex) {
 			T asset = registry.getIfLoaded(fileName, fileType, assetType, null);
@@ -46,7 +50,7 @@ public class AssetsManager {
 			}
 
 			SimpleAsyncCallback<T> callback = SimpleAsyncCallback.obtain();
-			FileHandle file = null;//TODO resolve by config
+			FileHandle file = resolveFile(fileName, fileType);
 			loader.load(callback, file, assetType, Integer.MAX_VALUE);
 
 			while (!callback.isDone()) {
@@ -67,66 +71,137 @@ public class AssetsManager {
 	}
 
 	public boolean isLoaded(String fileName) {
-		return registry.isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
+		synchronized (mutex) {
+			return registry.isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
+		}
+	}
+
+	public boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
+		synchronized (mutex) {
+			return registry.isLoaded(fileName, fileType, assetType);
+		}
 	}
 
 	public <T> boolean unload(T asset) {
-		return registry.remove(asset);
+		synchronized (mutex) {
+			return registry.remove(asset);
+		}
 	}
 
+	// TODO not needed
 	public <T> T get(String fileName, FileType fileType, Class<T> assetType, String bundleId) {
-		return registry.get(fileName, fileType, assetType, bundleId);
+		synchronized (mutex) {
+			return registry.get(fileName, fileType, assetType, bundleId);
+		}
 	}
 
 	public <T> Array<T> getAll(Class<T> type, Array<T> out) {
-		return registry.getAll(type, out);
+		synchronized (mutex) {
+			return registry.getAll(type, out);
+		}
 	}
 
 	public <T> String getFileName(T asset) {
-		return registry.getFileName(asset);
+		synchronized (mutex) {
+			return registry.getFileName(asset);
+		}
 	}
 
 	public <T> FileType getFileType(T asset) {
-		return registry.getFileType(asset);
+		synchronized (mutex) {
+			return registry.getFileType(asset);
+		}
 	}
 
 	public <T> AssetId getId(T asset, AssetId out) {
-		return registry.getAssetId(asset, out);
+		synchronized (mutex) {
+			return registry.getAssetId(asset, out);
+		}
 	}
 
 	public boolean isManaged(Object asset) {
 		return registry.isManaged(asset);
 	}
 
-	public <T> void save(T asset, FileHandle handle, boolean sticky) {
-		persister.persist(asset, handle);
+	public <T> void save(T asset, String fileName, FileType fileType, boolean sticky) {
+		synchronized (mutex) {
+			FileHandle file = resolveFile(fileName, fileType);
+			persister.persist(file, asset);
+			if (!registry.isManaged(asset)) {
+				Class<Object> assetType = Assets.getAssetRootClass(asset);
+				registry.add(fileName, fileType, assetType, asset, sticky);
+			}
+		}
 	}
 
-	public void delete(String fileName) {
-		getInstance().assetRegistry.delete(fileName);
+	public boolean delete(String fileName, FileType fileType) {
+		synchronized (mutex) {
+			registry.removeAll(fileName, fileType);
+			FileHandle file = files.getFileHandle(fileName, fileType);
+			if (file.exists()) {
+				file.delete();
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
+	public boolean delete(Object asset) {
+		synchronized (mutex) {
+			registry.getAssetId(asset, tempId);
+			if (tempId.isEmpty()) {
+				return false;
+			}
+
+			String fileName = tempId.fileName;
+			FileType fileType = tempId.fileType;
+			registry.removeAll(fileName, fileType);
+
+			FileHandle file = files.getFileHandle(fileName, fileType);
+			if (file.exists()) {
+				file.delete();
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	// TODO deps and bundle contents should be handled diferently
 	public void addDependency(Object asset, Object dependency) {
-		registry.addDependency(asset, dependency);
+		synchronized (mutex) {
+			registry.addDependency(asset, dependency);
+		}
 	}
 
 	public void removeDependency(Object asset, Object dependency) {
-		registry.removeDependency(asset, dependency);
+		synchronized (mutex) {
+			registry.removeDependency(asset, dependency);
+		}
 	}
 
 	public void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
-		registry.replaceDependency(asset, oldDependency, newDependency);
+		synchronized (mutex) {
+			registry.replaceDependency(asset, oldDependency, newDependency);
+		}
 	}
 
 	public void addToBundle(Bundle bundle, Object asset, String internalId) {
-		registry.addToBundle(bundle, asset, internalId);
+		synchronized (mutex) {
+			registry.addToBundle(bundle, asset, internalId);
+		}
 	}
 
 	public void removeFromBundle(Bundle bundle, Object asset) {
-		registry.removeFromBundle(bundle, asset);
+		synchronized (mutex) {
+			registry.removeFromBundle(bundle, asset);
+		}
 	}
 
 	public String getBundledId(Object asset) {
-		return registry.getBundleId(asset);
+		synchronized (mutex) {
+			return registry.getBundleId(asset);
+		}
 	}
 }

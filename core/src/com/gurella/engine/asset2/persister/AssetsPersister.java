@@ -5,18 +5,10 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset2.Assets;
-//import com.gurella.engine.application.ApplicationConfig;
-//import com.gurella.engine.asset.persister.object.JsonObjectPersister;
-//import com.gurella.engine.asset.properties.AssetProperties;
-//import com.gurella.engine.graphics.material.MaterialDescriptor;
-//import com.gurella.engine.managedobject.ManagedObject;
-//import com.gurella.engine.scene.Scene;
-//import com.gurella.engine.scene.SceneNode;
-//import com.gurella.engine.utils.Values;
-import com.gurella.engine.asset2.registry.AssetRegistry;
+import com.gurella.engine.asset2.AssetsManager;
 
 public class AssetsPersister {
-	private final AssetRegistry registry;
+	private final AssetsManager manager;
 	private final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
 	static {
@@ -31,8 +23,8 @@ public class AssetsPersister {
 		// register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
-	public AssetsPersister(AssetRegistry registry) {
-		this.registry = registry;
+	public AssetsPersister(AssetsManager manager) {
+		this.manager = manager;
 	}
 
 	public <T> void register(Class<T> type, boolean derivable, AssetPersister<T> persister) {
@@ -67,15 +59,12 @@ public class AssetsPersister {
 		return null;
 	}
 
-	public <T> void persist(FileHandle handle, T asset, boolean sticky) {
+	public <T> void persist(FileHandle handle, T asset) {
 		AssetPersister<T> persister = get(asset);
 		if (persister == null) {
 			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
 		} else {
-			persister.persist(registry, handle, asset);
-			Class<Object> assetType = Assets.getAssetRootClass(asset);
-			//TODO service should handle addition
-			registry.add(handle.path(), handle.type(), assetType, asset, sticky);
+			persister.persist(manager, handle, asset);
 		}
 	}
 

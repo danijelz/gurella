@@ -1,23 +1,27 @@
-package com.gurella.engine.asset2.registry;
+package com.gurella.engine.asset2;
+
+import static com.gurella.engine.asset2.AssetSlot.SlotActivity.active;
+import static com.gurella.engine.asset2.AssetSlot.SlotActivity.inactive;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset2.AssetId;
-import com.gurella.engine.asset2.AssetIdPool;
+import com.gurella.engine.asset2.AssetSlot.SlotActivity;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.bundle.BundleAware;
-import com.gurella.engine.asset2.registry.AssetSlot.SlotActivity;
+import com.gurella.engine.asset2.event.AssetLoadedEvent;
+import com.gurella.engine.asset2.event.AssetUnloadedEvent;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 
-public class AssetRegistry {
+class AssetRegistry {
 	private final ObjectMap<AssetId, AssetSlot> slotsById = new ObjectMap<AssetId, AssetSlot>();
 	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
@@ -31,7 +35,7 @@ public class AssetRegistry {
 	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
 	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 
-	public <T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+	<T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 
@@ -53,7 +57,7 @@ public class AssetRegistry {
 		}
 	}
 
-	public <T> Array<T> getAll(Class<T> type, Array<T> out) {
+	<T> Array<T> getAll(Class<T> type, Array<T> out) {
 		boolean all = type == null || type == Object.class;
 		for (Object asset : idsByAsset.keys()) {
 			if (all || ClassReflection.isInstance(type, asset)) {
@@ -66,33 +70,36 @@ public class AssetRegistry {
 		return out;
 	}
 
-	public <T> boolean isManaged(T asset) {
+	<T> boolean isManaged(T asset) {
 		return idsByAsset.containsKey(asset);
 	}
 
-	public <T> AssetId getAssetId(T asset, AssetId out) {
-		out.reset();
+	<T> AssetId getAssetId(T asset, AssetId out) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
-		return id == null ? out : out.set(id);
+		if (id == null) {
+			return out.empty();
+		} else {
+			return out.set(id);
+		}
 	}
 
-	public <T> String getFileName(T asset) {
+	<T> String getFileName(T asset) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 		return id == null ? null : id.fileName;
 	}
 
-	public <T> FileType getFileType(T asset) {
+	<T> FileType getFileType(T asset) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 		return id == null ? null : id.fileType;
 	}
 
-	public boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
+	boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 		return slot != null && slot.asset != null;
 	}
 
-	public <T> T getIfLoaded(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+	<T> T getIfLoaded(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetSlot slot = slotsById.get(tempAssetId);
 
@@ -111,22 +118,7 @@ public class AssetRegistry {
 		}
 	}
 
-	public void init(AssetId assetId) {
-		if (slotsById.containsKey(assetId)) {
-			return;
-		}
-
-		AssetSlot slot = assetSlotPool.obtain();
-		slotsById.put(assetIdPool.obtain().set(assetId), slot);
-	}
-
-	public <T> void update(AssetId assetId, T asset, boolean sticky) {
-		AssetSlot slot = slotsById.get(assetId);
-		populateSlot(assetId, slot, asset, sticky);
-		idsByAsset.put(asset, assetId);
-	}
-
-	public <T> void add(String fileName, FileType fileType, Class<T> assetType, T asset, boolean sticky) {
+	<T> void add(String fileName, FileType fileType, Class<T> assetType, T asset, boolean sticky) {
 		if (idsByAsset.containsKey(asset)) {
 			throw new IllegalStateException("Asset is already loaded: " + fileName);
 		}
@@ -139,7 +131,7 @@ public class AssetRegistry {
 		populateSlot(assetId, slot, asset, sticky);
 	}
 
-	private <T> void populateSlot(AssetId assetId, AssetSlot slot, T asset, boolean sticky) {
+	<T> void populateSlot(AssetId assetId, AssetSlot slot, T asset, boolean sticky) {
 		slot.asset = asset;
 		slot.sticky = sticky;
 
@@ -154,10 +146,25 @@ public class AssetRegistry {
 			}
 		}
 
-		assetLoadedEvent.post(assetId.fileName, asset);
+		assetLoadedEvent.post(assetId, asset);
+	}
+	
+	boolean removeAll(String fileName, FileType fileType) {
+		boolean removed = false;
+		for(Entries<AssetId,AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId,AssetSlot> entry = iter.next();
+			AssetId assetId = entry.key;
+			if(assetId.equalsFile(fileName, fileType)) {
+				AssetSlot slot = entry.value;
+				iter.remove();
+				remove(assetId, slot);
+				removed = true;
+			}
+		}
+		return removed;
 	}
 
-	public boolean remove(Object asset) {
+	boolean remove(Object asset) {
 		Object toRemove = getAssetOrRootBundle(asset);
 		AssetId id = idsByAsset.get(toRemove);
 		if (id == null) {
@@ -175,7 +182,7 @@ public class AssetRegistry {
 
 	private void remove(AssetId id, AssetSlot slot) {
 		Object asset = slot.asset;
-		assetUnloadedEvent.post(id.fileName, asset);
+		assetUnloadedEvent.post(id, asset);
 		unloadBundledAssets(slot);
 		dereferenceDependencies(id, slot);
 
@@ -212,7 +219,7 @@ public class AssetRegistry {
 		}
 	}
 
-	public <T> T getDependencyAndIncCount(AssetId dependant, AssetId dependencyId) {
+	<T> T getDependencyAndIncCount(AssetId dependant, AssetId dependencyId) {
 		AssetSlot slot = slotsById.get(dependant);
 		AssetSlot dependencySlot = slotsById.get(dependencyId);
 		@SuppressWarnings("unchecked")
@@ -221,7 +228,7 @@ public class AssetRegistry {
 		return dependency;
 	}
 
-	public void addDependency(Object asset, Object dependency) {
+	void addDependency(Object asset, Object dependency) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 		AssetSlot slot = slotsById.get(id);
 		incDependencyCount(id, slot, dependency);
@@ -238,7 +245,7 @@ public class AssetRegistry {
 	public void removeDependency(Object asset, Object dependency) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 		AssetSlot slot = slotsById.get(id);
-		if (removeDependency(id, slot, dependency) == SlotActivity.inactive) {
+		if (removeDependency(id, slot, dependency) == inactive) {
 			remove(id, slot);
 		}
 	}
@@ -247,16 +254,16 @@ public class AssetRegistry {
 		AssetId dependencyId = idsByAsset.get(dependency);
 		if (slot.decDependencyCount(dependencyId) < 1) {
 			AssetSlot dependencySlot = slotsById.get(dependencyId);
-			if (dependencySlot.removeDependent(id) == SlotActivity.inactive) {
+			if (dependencySlot.removeDependent(id) == inactive) {
 				remove(dependencyId, dependencySlot);
 			}
 			return slot.getActivity();
 		} else {
-			return SlotActivity.active;
+			return active;
 		}
 	}
 
-	public void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+	void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
 		if (oldDependency == newDependency) {
 			return;
 		}
@@ -272,11 +279,11 @@ public class AssetRegistry {
 		incDependencyCount(id, slot, newDependency);
 	}
 
-	public void addToBundle(Bundle bundle, BundleAware asset) {
+	void addToBundle(Bundle bundle, BundleAware asset) {
 		addToBundle(bundle, asset, asset.getBundleId());
 	}
 
-	public void addToBundle(Bundle bundle, Object asset, String bundleId) {
+	void addToBundle(Bundle bundle, Object asset, String bundleId) {
 		Bundle rootBundle = getRootBundle(bundle);
 		AssetId rootBundleId = idsByAsset.get(rootBundle);
 		AssetSlot rootBundleSlot = slotsById.get(rootBundleId);
@@ -330,7 +337,7 @@ public class AssetRegistry {
 		}
 	}
 
-	public void removeFromBundle(Bundle bundle, Object asset) {
+	void removeFromBundle(Bundle bundle, Object asset) {
 		if (bundle == asset) {
 			throw new IllegalArgumentException("Use unload.");
 		}
@@ -360,7 +367,7 @@ public class AssetRegistry {
 		}
 	}
 
-	public String getBundleId(Object asset) {
+	String getBundleId(Object asset) {
 		if (asset instanceof BundleAware) {
 			return ((BundleAware) asset).getBundleId();
 		}
