@@ -5,13 +5,14 @@ import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.persister.AssetsPersister;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 
-public class AssetsManager {
+public class AssetsManager implements Disposable {
 	private final Object mutex = new Object();
 
 	private final Files files = Gdx.files;
@@ -168,7 +169,7 @@ public class AssetsManager {
 		}
 	}
 
-	// TODO deps and bundle contents should be handled diferently
+	// TODO dependencies and bundle contents should be handled diferently
 	public void addDependency(Object asset, Object dependency) {
 		synchronized (mutex) {
 			registry.addDependency(asset, dependency);
@@ -202,6 +203,14 @@ public class AssetsManager {
 	public String getBundledId(Object asset) {
 		synchronized (mutex) {
 			return registry.getBundleId(asset);
+		}
+	}
+	
+	@Override
+	public void dispose() {
+		synchronized (mutex) {
+			loader.dispose();
+			registry.dispose();
 		}
 	}
 }

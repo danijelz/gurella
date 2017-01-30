@@ -5,6 +5,7 @@ import static com.gurella.engine.asset2.AssetSlot.SlotActivity.inactive;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -21,7 +22,7 @@ import com.gurella.engine.asset2.event.AssetUnloadedEvent;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 
-class AssetRegistry {
+class AssetRegistry implements Disposable {
 	private final ObjectMap<AssetId, AssetSlot> slotsById = new ObjectMap<AssetId, AssetSlot>();
 	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
@@ -148,13 +149,13 @@ class AssetRegistry {
 
 		assetLoadedEvent.post(assetId, asset);
 	}
-	
+
 	boolean removeAll(String fileName, FileType fileType) {
 		boolean removed = false;
-		for(Entries<AssetId,AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
-			Entry<AssetId,AssetSlot> entry = iter.next();
+		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot> entry = iter.next();
 			AssetId assetId = entry.key;
-			if(assetId.equalsFile(fileName, fileType)) {
+			if (assetId.equalsFile(fileName, fileType)) {
 				AssetSlot slot = entry.value;
 				iter.remove();
 				remove(assetId, slot);
@@ -398,6 +399,28 @@ class AssetRegistry {
 	private Object getAssetOrRootBundle(Object asset) {
 		Bundle bundle = assetBundle.get(asset);
 		return bundle == null ? asset : getRootBundle(bundle);
+	}
+
+	@Override
+	public void dispose() {
+		removeAll();
+		slotsById.clear();
+		idsByAsset.clear();
+		assetBundle.clear();
+		assetIdPool.clear();
+		assetSlotPool.clear();
+		tempBundledAssets.clear();
+		tempAssetId.empty();
+	}
+
+	private void removeAll() {
+		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot> entry = iter.next();
+			AssetId assetId = entry.key;
+			AssetSlot slot = entry.value;
+			iter.remove();
+			remove(assetId, slot);
+		}
 	}
 
 	private static class AssetSlotPool extends Pool<AssetSlot> {

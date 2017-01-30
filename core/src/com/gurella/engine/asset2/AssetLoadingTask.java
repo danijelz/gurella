@@ -18,7 +18,7 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	int priority;
 	int requestId;
-	final AssetId assetId = new AssetId();
+	final AssetId assetId = new AssetId();// TODO init
 	final AssetDependencies dependencies = new AssetDependencies();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
@@ -145,13 +145,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		this.progress = progress;
 		if (parent != null) {
 			parent.updateProgress();
-		} else {
-			callback.onProgress(progress);
 		}
 
-		for (int i = 0; i < concurentTasks.size; i++) {
-			concurentTasks.get(i).notifyProgress(progress);
-		}
+		callback.onProgress(progress);
 	}
 
 	public void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
@@ -172,9 +168,12 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 	}
 
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
+	void notifyFinished() {
+		if (exception == null) {
+			callback.onSuccess(asset);
+		} else {
+			callback.onException(exception);
+		}
 	}
 
 	@Override
@@ -183,13 +182,20 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		return result == 0 ? Values.compare(requestId, other.requestId) : result;
 	}
 
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+	}
+
 	private static class DelegatingCallback<T> implements AsyncCallback<T> {
 		private AsyncCallback<T> delegate;
 		private Array<AsyncCallback<T>> concurrentCallbacks = new Array<AsyncCallback<T>>();
 
 		@Override
 		public void onSuccess(T value) {
-			delegate.onSuccess(value);
+			if (delegate != null) {
+				delegate.onSuccess(value);
+			}
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onSuccess(value);
 			}
@@ -197,7 +203,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 		@Override
 		public void onException(Throwable exception) {
-			delegate.onException(exception);
+			if (delegate != null) {
+				delegate.onException(exception);
+			}
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onException(exception);
 			}
@@ -205,7 +213,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 		@Override
 		public void onCancled(String message) {
-			delegate.onCancled(message);
+			if (delegate != null) {
+				delegate.onCancled(message);
+			}
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onCancled(message);
 			}
@@ -213,7 +223,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 		@Override
 		public void onProgress(float progress) {
-			delegate.onProgress(progress);
+			if (delegate != null) {
+				delegate.onProgress(progress);
+			}
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onProgress(progress);
 			}

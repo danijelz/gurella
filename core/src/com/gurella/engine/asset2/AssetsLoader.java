@@ -14,8 +14,13 @@ import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
+import com.gurella.engine.subscriptions.asset.AssetActivityListener;
+import com.gurella.engine.utils.priority.Priority;
 
-public class AssetsLoader implements Disposable, AsyncTask<Void> {
+@Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
+class AssetsLoader implements ApplicationCleanupListener, Disposable, AsyncTask<Void> {
 	private final Object mutex = new Object();
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 	private final TaskPool taskPool = new TaskPool();
@@ -29,25 +34,37 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 
 	private final AssetId tempAssetId = new AssetId();
 
-	public <T, A> void load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
+	<T> void load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
 		synchronized (mutex) {
 			tempAssetId.set(file, assetType);
 			@SuppressWarnings("unchecked")
 			AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 			if (queuedTask == null) {
-				//TODO 
-				AssetLoader<A, T, AssetProperties<T>> loader = null;
-				@SuppressWarnings("unchecked")
-				AssetLoadingTask<A, T> task = (AssetLoadingTask<A, T>) taskPool.obtain();
-				task.init(loader, file, callback, priority);
-				loadAsync(task);
+				loadAsync(callback, file, assetType, priority);
 			} else {
 				queuedTask.merge(callback, priority);
 			}
 		}
 	}
 
-	public boolean update() {
+
+	private <T, A> void loadAsync(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
+		// TODO find loader
+		AssetLoader<A, T, AssetProperties<T>> loader = null;
+		@SuppressWarnings("unchecked")
+		AssetLoadingTask<A, T> task = (AssetLoadingTask<A, T>) taskPool.obtain();
+		task.init(loader, file, callback, priority);
+		
+		allTasks.put(task.assetId, task);
+		asyncQueue.add(task);
+		sort.sort(asyncQueue);
+		if (!executing) {
+			executing = true;
+			executor.submit(this);
+		}
+	}
+
+	boolean update() {
 		synchronized (mutex) {
 			for (int i = 0, n = finishedQueue.size; i < n; i++) {
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
@@ -55,39 +72,38 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 				finishTask(task);
 			}
 			finishedQueue.clear();
-
-			return asyncQueue.size == 0 && waitingQueue.size == 0;
+			return allTasks.size == 0;
 		}
 	}
 
 	private <T> void finishTask(AssetLoadingTask<?, T> task) {
-		if (task.exception == null) {
-			//TODO add to registry
-			notifyTaskFinished(task);
-		} else {
+		allTasks.remove(task.assetId);
+		
+		if (task.exception != null) {
 			unloadLoadedDependencies(task);
-			Throwable ex = task.exception;
-			propagateException(task, ex);
 		}
 
+		task.notifyFinished();
 		taskPool.free(task);
 	}
+	
+	private <T> void notifyTaskFinished(AssetLoadingTask<?, T> task) {
+		String fileName = task.fileName;
+		Class<T> type = task.type;
 
-	private void loadAsync(AssetLoadingTask<?, ?> task) {
-		synchronized (mutex) {
-			asyncQueue.add(task);
-			sort.sort(asyncQueue);
-			if (!executing) {
-				executing = true;
-				executor.submit(this);
-			}
+		notifyLoadFinished(fileName, type, task.params, task.callback, asset);
+		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
+		for (int i = 0; i < concurentTasks.size; i++) {
+			AssetLoadingTask<T> competingTask = concurentTasks.get(i);
+			notifyLoadFinished(fileName, type, competingTask.params, competingTask.callback, asset);
 		}
 	}
 
 	@Override
 	public Void call() throws Exception {
+		AssetLoadingTask<?, ?> nextTask;
+
 		while (true) {
-			AssetLoadingTask<?, ?> nextTask;
 			synchronized (mutex) {
 				if (asyncQueue.size > 0) {
 					nextTask = asyncQueue.pop();
@@ -115,7 +131,7 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 					finishedQueue.add(nextTask);
 					break;
 				default:
-					//TODO error
+					// TODO error
 					break;
 				}
 			}
@@ -152,6 +168,11 @@ public class AssetsLoader implements Disposable, AsyncTask<Void> {
 		while (!update()) {
 			ThreadUtils.yield();
 		}
+	}
+	
+	@Override
+	public void cleanup() {
+		update();
 	}
 
 	@Override
