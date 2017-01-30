@@ -9,8 +9,7 @@ import com.gurella.engine.asset2.loader.DependencyProvider;
 class AssetDependencies implements DependencyCollector, DependencyProvider {
 	private final AssetId loadingAssetId = new AssetId();
 	private final AssetId tempAssetId = new AssetId();
-	private final ObjectSet<AssetId> dependencies = new ObjectSet<AssetId>();
-	private final ObjectMap<AssetId, Object> loadedDependencies = new ObjectMap<AssetId, Object>();
+	private final ObjectMap<AssetId, AssetSlot> dependencies = new ObjectMap<AssetId, AssetSlot>();
 	private final AssetIdPool pool = new AssetIdPool();
 
 	private AssetRegistry registry;
@@ -21,11 +20,8 @@ class AssetDependencies implements DependencyCollector, DependencyProvider {
 
 	@Override
 	public void addDependency(String fileName, FileType fileType, Class<?> assetType) {
-		AssetId dependencyId = pool.obtain().set(fileName, fileType, assetType);
-		if (dependencies.add(dependencyId)) {
-			loadedDependencies.put(dependencyId, null);
-		} else {
-			pool.free(dependencyId);
+		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
+			dependencies.put(pool.obtain().set(fileName, fileType, assetType), null);
 		}
 	}
 
@@ -55,10 +51,9 @@ class AssetDependencies implements DependencyCollector, DependencyProvider {
 	}
 
 	void reset() {
-		for (AssetId assetId : dependencies) {
+		for (AssetId assetId : dependencies.keys()) {
 			pool.free(assetId);
 		}
 		dependencies.clear();
-		loadedDependencies.clear();
 	}
 }

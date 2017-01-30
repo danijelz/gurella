@@ -150,22 +150,7 @@ class AssetRegistry implements Disposable {
 		assetLoadedEvent.post(assetId, asset);
 	}
 
-	boolean removeAll(String fileName, FileType fileType) {
-		boolean removed = false;
-		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
-			Entry<AssetId, AssetSlot> entry = iter.next();
-			AssetId assetId = entry.key;
-			if (assetId.equalsFile(fileName, fileType)) {
-				AssetSlot slot = entry.value;
-				iter.remove();
-				remove(assetId, slot);
-				removed = true;
-			}
-		}
-		return removed;
-	}
-
-	boolean remove(Object asset) {
+	boolean decRefCount(Object asset) {
 		Object toRemove = getAssetOrRootBundle(asset);
 		AssetId id = idsByAsset.get(toRemove);
 		if (id == null) {
@@ -179,6 +164,21 @@ class AssetRegistry implements Disposable {
 		} else {
 			return false;
 		}
+	}
+
+	boolean removeAll(String fileName, FileType fileType) {
+		boolean removed = false;
+		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot> entry = iter.next();
+			AssetId assetId = entry.key;
+			if (assetId.equalsFile(fileName, fileType)) {
+				AssetSlot slot = entry.value;
+				iter.remove();
+				remove(assetId, slot);
+				removed = true;
+			}
+		}
+		return removed;
 	}
 
 	private void remove(AssetId id, AssetSlot slot) {
