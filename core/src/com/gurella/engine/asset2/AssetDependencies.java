@@ -5,17 +5,31 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
+import com.gurella.engine.asset2.properties.AssetProperties;
 
 class AssetDependencies implements DependencyCollector, DependencyProvider {
-	private final AssetId loadingAssetId = new AssetId();
-	private final AssetId tempAssetId = new AssetId();
-	private final ObjectMap<AssetId, AssetSlot> dependencies = new ObjectMap<AssetId, AssetSlot>();
-	private final AssetIdPool pool = new AssetIdPool();
-
 	private AssetRegistry registry;
+
+	private final AssetId loadingAssetId = new AssetId();
+	private final ObjectMap<AssetId, AssetSlot> dependencies = new ObjectMap<AssetId, AssetSlot>();
+
+	private final AssetIdPool pool = new AssetIdPool();
+	private final AssetId tempAssetId = new AssetId();
 
 	void init(String fileName, FileType fileType, Class<?> assetType) {
 		loadingAssetId.set(fileName, fileType, assetType);
+	}
+
+	void addPropsDependency(String fileName, FileType fileType, Class<?> assetType) {
+		//TODO cache props dependency
+		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
+			dependencies.put(pool.obtain().set(fileName, fileType, assetType), null);
+		}
+	}
+
+	<T> AssetProperties<T> getProperties() {
+		//TODO
+		return null;
 	}
 
 	@Override

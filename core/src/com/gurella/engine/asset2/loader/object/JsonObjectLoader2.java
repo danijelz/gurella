@@ -16,7 +16,7 @@ public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T
 	}
 
 	@Override
-	public T deserializeAsync(DependencyProvider provider, FileHandle file, AssetProperties<T> properties) {
+	public T loadAsync(DependencyProvider provider, FileHandle file, AssetProperties<T> properties) {
 		return input.deserialize(expectedType);
 	}
 

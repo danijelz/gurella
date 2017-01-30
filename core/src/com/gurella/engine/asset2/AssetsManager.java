@@ -255,7 +255,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		synchronized (mutex) {
 			for (int i = 0, n = finishedQueue.size; i < n; i++) {
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
-				task.consumeAsyncData();
+				task.process();
 				finishTask(task);
 			}
 			finishedQueue.clear();

@@ -2,6 +2,7 @@ package com.gurella.engine.asset2;
 
 import static com.gurella.engine.asset2.AssetLoadingState.asyncLoading;
 import static com.gurella.engine.asset2.AssetLoadingState.finished;
+import static com.gurella.engine.asset2.AssetLoadingState.ready;
 import static com.gurella.engine.asset2.AssetLoadingState.syncLoading;
 import static com.gurella.engine.asset2.AssetLoadingState.waitingDependencies;
 
@@ -26,10 +27,10 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	FileHandle file;
 	AssetLoader<A, T, AssetProperties<T>> loader;
-	AssetProperties<T> props;
+	AssetProperties<T> properties;
 
 	volatile float progress = 0;
-	volatile AssetLoadingState state = AssetLoadingState.ready;
+	volatile AssetLoadingState state = ready;
 
 	A asyncData;
 	T asset;
@@ -53,19 +54,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		this.priority = priority;
 	}
 
-	public void process() throws Exception {
+	void process() {
 		try {
-			switch (state) {
-			case ready:
-				start();
-				break;
-			case asyncLoading:
-				loadAsync();
-				break;
-			default:
-				this.exception = new IllegalStateException("Invalid loading state.");
-				state = finished;
-			}
+			processSafely();
 		} catch (Exception exception) {
 			this.exception = exception;
 			state = finished;
@@ -74,19 +65,35 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 	}
 
-	private void start() {
-		loader.initDependencies(dependencies, file);
-		initProps();
-
-		if (dependencies.isEmpty()) {
-			loadAsync();
-		} else {
-			state = waitingDependencies;
+	private void processSafely() {
+		switch (state) {
+		case ready:
+			initDependencies();
+			if (dependencies.isEmpty()) {
+				state = asyncLoading;
+				processSafely();
+			} else {
+				state = waitingDependencies;
+			}
+			break;
+		case asyncLoading:
+			properties = dependencies.getProperties();
+			asyncData = loader.loadAsync(dependencies, file, properties);
+			state = syncLoading;
+			break;
+		case syncLoading:
+			asset = loader.consumeAsyncData(dependencies, file, properties, asyncData);
+			state = syncLoading;
+			break;
+		default:
+			this.exception = new IllegalStateException("Invalid loading state.");
+			state = finished;
 		}
 	}
 
-	private void initProps() {
-		if (props != null) {
+	private void initDependencies() {
+		loader.initDependencies(dependencies, file);
+		if (properties != null) {
 			return;
 		}
 
@@ -98,14 +105,9 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		dependencies.addDependency(propsHandle.path(), assetId.fileType, AssetProperties.class);
 	}
 
-	private void loadAsync() {
-		asyncData = loader.deserializeAsync(dependencies, file, props);
-		state = syncLoading;
-	}
-
 	void consumeAsyncData() {
 		try {
-			asset = loader.consumeAsyncData(dependencies, file, props, asyncData);
+			asset = loader.consumeAsyncData(dependencies, file, properties, asyncData);
 		} catch (Exception e) {
 			exception = e;
 		} finally {
