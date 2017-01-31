@@ -265,6 +265,10 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 				finish(task, ((AssetLoadingTask<?, ?>) dependency), revert);
 			}
 		}
+		
+		if(!revert) {
+			//TODO registry.add(assetId, asset, dependencies, sticky);
+		}
 
 		if (task.parent == null) {
 			taskPool.free(task);
