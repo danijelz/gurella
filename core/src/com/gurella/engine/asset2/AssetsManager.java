@@ -251,17 +251,14 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 			for (int i = 0, n = finishedQueue.size; i < n; i++) {
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
 				task.update();
-				finishTask(task);
+				allTasks.remove(task.assetId);
+				//TODO finish in update
+				task.finish();
+				taskPool.free(task);
 			}
 			finishedQueue.clear();
 			return allTasks.size == 0;
 		}
-	}
-
-	private <T> void finishTask(AssetLoadingTask<?, T> task) {
-		allTasks.remove(task.assetId);
-		task.finish();
-		taskPool.free(task);
 	}
 
 	<T> Dependency<T> reserveDependency(String fileName, FileType fileType, Class<?> assetType) {
