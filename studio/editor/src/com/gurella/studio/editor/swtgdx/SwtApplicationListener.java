@@ -50,6 +50,6 @@ final class SwtApplicationListener extends ApplicationAdapter {
 		EventService.post(editorId, EditorInputUpdateListener.class, l -> l.onInputUpdate());
 		EventService.post(editorId, EditorPreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 		EventService.post(editorId, EditorRenderUpdateListener.class, l -> l.onRenderUpdate());
-		EventService.post(ApplicationCleanupListener.class, l -> l.cleanup());
+		EventService.post(ApplicationCleanupListener.class, l -> l.onCleanup());
 	}
 }

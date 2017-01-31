@@ -39,7 +39,7 @@ public final class AssetService implements ApplicationCleanupListener {
 	}
 
 	@Override
-	public void cleanup() {
+	public void onCleanup() {
 		assetRegistry.update();
 	}
 

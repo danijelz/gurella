@@ -205,7 +205,7 @@ public class GdxContext {
 	}
 
 	public static void clean(int contextId) {
-		run(contextId, () -> EventService.post(ApplicationCleanupListener.class, l -> l.cleanup()));
+		run(contextId, () -> EventService.post(ApplicationCleanupListener.class, l -> l.onCleanup()));
 	}
 
 	// assets

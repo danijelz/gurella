@@ -1,5 +1,7 @@
 package com.gurella.engine.asset2;
 
+import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.fresh;
+import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.obsolete;
 import static com.gurella.engine.asset2.AssetSlot.SlotActivity.active;
 import static com.gurella.engine.asset2.AssetSlot.SlotActivity.inactive;
 
@@ -237,7 +239,7 @@ class AssetRegistry implements Disposable {
 
 	private void incDependencyCount(AssetId id, AssetSlot slot, Object dependency) {
 		AssetId dependencyId = idsByAsset.get(dependency);
-		if (slot.incDependencyCount(dependencyId) == 1) {
+		if (slot.incDependencyCount(dependencyId) == fresh) {
 			AssetSlot dependencySlot = slotsById.get(idsByAsset.get(dependency));
 			dependencySlot.addDependent(id);
 		}
@@ -253,7 +255,7 @@ class AssetRegistry implements Disposable {
 
 	private SlotActivity removeDependency(AssetId id, AssetSlot slot, Object dependency) {
 		AssetId dependencyId = idsByAsset.get(dependency);
-		if (slot.decDependencyCount(dependencyId) < 1) {
+		if (slot.decDependencyCount(dependencyId) == obsolete) {
 			AssetSlot dependencySlot = slotsById.get(dependencyId);
 			if (dependencySlot.removeDependent(id) == inactive) {
 				remove(dependencyId, dependencySlot);

@@ -170,7 +170,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationCleanupListener listener) {
-			listener.cleanup();
+			listener.onCleanup();
 		}
 	}
 
@@ -197,7 +197,7 @@ public final class GurellaApplication implements ApplicationListener {
 		}
 
 		@Override
-		public void onCancled(String message) {
+		public void onCanceled(String message) {
 		}
 
 		@Override

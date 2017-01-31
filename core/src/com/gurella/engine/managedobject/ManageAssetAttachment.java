@@ -72,10 +72,10 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 		}
 
 		@Override
-		public void onCancled(String message) {
+		public void onCanceled(String message) {
 			synchronized (mutex) {
 				if (!objectDestroyed) {
-					delegate.onCancled(message);
+					delegate.onCanceled(message);
 					PoolService.free(this);
 				}
 			}

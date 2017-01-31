@@ -6,10 +6,10 @@ import com.gurella.engine.utils.Values;
 
 public class SimpleAsyncCallback<T> implements AsyncCallback<T>, Poolable {
 	private float cachedProgress;
-	private T cachedValue;
-	private Throwable cachedException;
-	private String cancledMessage;
-	private boolean done;
+	private T value;
+	private Throwable exception;
+	private String message;
+	private CallbackState state = CallbackState.processing;
 
 	public static <T> SimpleAsyncCallback<T> obtain() {
 		return Values.cast(PoolService.obtain(SimpleAsyncCallback.class));
@@ -17,20 +17,20 @@ public class SimpleAsyncCallback<T> implements AsyncCallback<T>, Poolable {
 
 	@Override
 	public void onSuccess(T value) {
-		this.cachedValue = value;
-		done = true;
+		this.value = value;
+		state = CallbackState.successful;
 	}
 
 	@Override
 	public void onException(Throwable exception) {
-		this.cachedException = exception;
-		done = true;
+		this.exception = exception;
+		state = CallbackState.failed;
 	}
 
 	@Override
-	public void onCancled(String message) {
-		cancledMessage = message == null ? "" : message;
-		done = true;
+	public void onCanceled(String message) {
+		this.message = message == null ? "" : message;
+		state = CallbackState.cancelled;
 	}
 
 	@Override
@@ -43,39 +43,83 @@ public class SimpleAsyncCallback<T> implements AsyncCallback<T>, Poolable {
 	}
 
 	public boolean isDone() {
-		return done;
+		return state != CallbackState.processing;
 	}
 
-	public boolean isCancled() {
-		return cancledMessage != null;
+	public boolean isCancelled() {
+		return state == CallbackState.cancelled;
 	}
 
-	public boolean isDoneWithException() {
-		return done && cachedException != null;
+	public boolean isFailed() {
+		return state == CallbackState.failed;
 	}
 
-	public boolean isDoneWithoutException() {
-		return done && cachedException == null;
+	public boolean isSuccessful() {
+		return state == CallbackState.successful;
 	}
 
 	public T getValue() {
-		return cachedValue;
+		if (!isSuccessful()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		return value;
+	}
+
+	public T getValueAndFree() {
+		if (!isSuccessful()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		T temp = value;
+		free();
+		return temp;
 	}
 
 	public Throwable getException() {
-		return cachedException;
+		if (!isFailed()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		return exception;
+	}
+
+	public Throwable getExceptionAndFree() {
+		if (!isFailed()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		Throwable temp = exception;
+		free();
+		return temp;
+	}
+
+	public String getMessage() {
+		if (!isCancelled()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		return message;
+	}
+
+	public String getCancellationMessageAndFree() {
+		if (!isCancelled()) {
+			throw new RuntimeException("Invalid state.");
+		}
+		String temp = message;
+		free();
+		return temp;
 	}
 
 	@Override
 	public void reset() {
 		cachedProgress = 0;
-		cachedValue = null;
-		cachedException = null;
-		cancledMessage = null;
-		done = false;
+		value = null;
+		exception = null;
+		message = null;
+		state = CallbackState.processing;
 	}
 
 	public void free() {
 		PoolService.free(this);
+	}
+
+	private enum CallbackState {
+		processing, successful, cancelled, failed;
 	}
 }

@@ -617,7 +617,7 @@ public class AssetRegistry extends AssetManager {
 		unloadLoadedDependencies(task);
 		AsyncCallback<T> callback = task.callback;
 		if (callback != null) {
-			callback.onCancled(assetUnloadedMessage);
+			callback.onCanceled(assetUnloadedMessage);
 		}
 
 		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
@@ -625,7 +625,7 @@ public class AssetRegistry extends AssetManager {
 			AssetLoadingTask<T> concurentTask = concurentTasks.get(i);
 			callback = concurentTask.callback;
 			if (callback != null) {
-				callback.onCancled(assetUnloadedMessage);
+				callback.onCanceled(assetUnloadedMessage);
 			}
 		}
 
@@ -1191,7 +1191,7 @@ public class AssetRegistry extends AssetManager {
 			AssetLoadingTask<Object> task = Values.cast(queue.get(i));
 			AsyncCallback<Object> callback = task.callback;
 			if (callback != null) {
-				callback.onCancled(clearRequestedMessage);
+				callback.onCanceled(clearRequestedMessage);
 			}
 
 			Array<AssetLoadingTask<Object>> concurentTasks = task.concurentTasks;
@@ -1199,7 +1199,7 @@ public class AssetRegistry extends AssetManager {
 				AssetLoadingTask<Object> concurentTask = concurentTasks.get(j);
 				callback = concurentTask.callback;
 				if (callback != null) {
-					callback.onCancled(clearRequestedMessage);
+					callback.onCanceled(clearRequestedMessage);
 				}
 			}
 

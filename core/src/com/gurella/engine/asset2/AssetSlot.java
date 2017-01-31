@@ -1,5 +1,11 @@
 package com.gurella.engine.asset2;
 
+import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.fresh;
+import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.obsolete;
+import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.steady;
+import static com.gurella.engine.asset2.AssetSlot.SlotActivity.active;
+import static com.gurella.engine.asset2.AssetSlot.SlotActivity.inactive;
+
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -12,6 +18,7 @@ class AssetSlot implements Poolable {
 	Object asset;
 
 	boolean sticky;
+	boolean reserved;
 	int refCount = 0;
 	final ObjectIntMap<AssetId> dependencies = new ObjectIntMap<AssetId>(4);
 	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>(4);
@@ -22,7 +29,7 @@ class AssetSlot implements Poolable {
 	}
 
 	SlotActivity getActivity() {
-		return isActive() ? SlotActivity.active : SlotActivity.inactive;
+		return isActive() ? active : inactive;
 	}
 
 	void incRefCount() {
@@ -36,20 +43,21 @@ class AssetSlot implements Poolable {
 		return getActivity();
 	}
 
-	int incDependencyCount(AssetId id) {
-		return dependencies.getAndIncrement(id, 0, 1) + 1;
+	DependencyActivity incDependencyCount(AssetId id) {
+		int current = dependencies.getAndIncrement(id, 0, 1);
+		return current == 0 ? fresh : steady;
 	}
 
-	int decDependencyCount(AssetId id) {
+	DependencyActivity decDependencyCount(AssetId id) {
 		int ref = dependencies.get(id, -1);
 		if (ref < 0) {
-			return ref;
+			return obsolete;
 		} else if (ref > 1) {
 			dependencies.getAndIncrement(id, 0, -1);
-			return ref - 1;
+			return steady;
 		} else {
 			dependencies.remove(id, 0);
-			return 0;
+			return obsolete;
 		}
 	}
 
@@ -62,6 +70,7 @@ class AssetSlot implements Poolable {
 		return getActivity();
 	}
 
+	//TODO rename to getBundledAssets
 	ObjectMap<String, Object> initBundledAssets() {
 		if (asset instanceof Bundle) {
 			((Bundle) asset).getBundledAssets(bundledAssets);
@@ -119,6 +128,7 @@ class AssetSlot implements Poolable {
 	}
 
 	void merge(AssetSlot other) {
+		//TODO if(other.reserved) throw ...
 		sticky |= other.sticky;
 		refCount += other.refCount;
 		dependents.addAll(other.dependents);
@@ -138,6 +148,7 @@ class AssetSlot implements Poolable {
 	public void reset() {
 		asset = null;
 		sticky = false;
+		reserved = false;
 		refCount = 0;
 		dependencies.clear();
 		dependents.clear();
@@ -146,5 +157,9 @@ class AssetSlot implements Poolable {
 
 	public enum SlotActivity {
 		active, inactive;
+	}
+
+	public enum DependencyActivity {
+		fresh, steady, obsolete;
 	}
 }

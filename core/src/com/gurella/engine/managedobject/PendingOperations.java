@@ -25,7 +25,7 @@ class PendingOperations implements ApplicationCleanupListener {
 	}
 
 	@Override
-	public void cleanup() {
+	public void onCleanup() {
 		synchronized (mutex) {
 			Array<ObjectOperation> temp = operations;
 			operations = workingOperations;
@@ -40,7 +40,7 @@ class PendingOperations implements ApplicationCleanupListener {
 	}
 
 	void cleanAll() {
-		cleanup();
+		onCleanup();
 		synchronized (mutex) {
 			if (operations.size == 0) {
 				return;

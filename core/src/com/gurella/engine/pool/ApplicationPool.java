@@ -278,7 +278,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationCleanupListener {
 	}
 
 	@Override
-	public void cleanup() {
+	public void onCleanup() {
 		if (!cleaning && asyncPool.size > 0) {
 			cleaning = true;
 			prepareForCleaning();

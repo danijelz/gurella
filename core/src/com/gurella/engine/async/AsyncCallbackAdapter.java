@@ -11,7 +11,7 @@ public class AsyncCallbackAdapter<T> implements AsyncCallback<T> {
 	}
 
 	@Override
-	public void onCancled(String message) {
+	public void onCanceled(String message) {
 	}
 
 	@Override

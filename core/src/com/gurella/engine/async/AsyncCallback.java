@@ -5,7 +5,7 @@ public interface AsyncCallback<T> {
 
 	void onException(Throwable exception);
 
-	void onCancled(String message);
+	void onCanceled(String message);
 
 	void onProgress(float progress);
 }

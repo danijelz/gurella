@@ -1,12 +1,17 @@
 package com.gurella.engine.asset2;
 
-//TODO unused
-interface Dependency {
+interface Dependency<T> {
+	AssetId getAssetId();
+
 	void incRefCount();
 
-	void decRefCount();
+	void decRefCount(int num);
 
 	void incDependencyCount(AssetId id);
 
 	void decDependencyCount(AssetId id);
+
+	float getProgress();
+
+	T getAsset();
 }

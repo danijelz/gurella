@@ -19,97 +19,102 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	int priority;
 	int requestId;
-	final AssetId assetId = new AssetId();// TODO init
+
+	final AssetId assetId = new AssetId();
 	final AssetDependencies dependencies = new AssetDependencies();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
 	AssetLoadingTask<A, T> parent;
 
+	AssetsManager manager;
 	FileHandle file;
+	Class<T> assetType;
+
 	AssetLoader<A, T, AssetProperties<T>> loader;
 	AssetProperties<T> properties;
 
-	volatile float progress = 0;
 	volatile AssetLoadingState state = ready;
+	volatile float progress = 0;
 
 	A asyncData;
 	T asset;
 	Throwable exception;
 
-	void init(AssetLoader<A, T, AssetProperties<T>> loader, FileHandle file, AsyncCallback<T> callback, int priority) {
-		requestId = requestSequence++;
-		this.loader = loader;
+	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AsyncCallback<T> callback, int priority) {
+		this.manager = manager;
 		this.file = file;
+		this.assetType = assetType;
 		this.callback.delegate = callback;
 		this.priority = priority;
+
+		requestId = requestSequence++;
+		assetId.set(file, assetType);
+		loader = resolveLoader();
+		dependencies.init(assetId, manager);
 	}
 
-	void init(AssetLoadingTask<A, T> parent, AssetLoader<A, T, AssetProperties<T>> loader, FileHandle file,
-			AsyncCallback<T> callback, int priority) {
-		requestId = requestSequence++;
+	private AssetLoader<A, T, AssetProperties<T>> resolveLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	void init(AssetLoadingTask<A, T> parent, FileHandle file, Class<T> assetType, int priority) {
 		this.parent = parent;
-		this.loader = loader;
+		this.manager = parent.manager;
 		this.file = file;
-		this.callback.delegate = callback;
+		this.assetType = assetType;
 		this.priority = priority;
+
+		requestId = requestSequence++;
+		assetId.set(file, assetType);
+		loader = resolveLoader();
+		dependencies.init(assetId, manager);
 	}
 
-	void process() {
-		try {
-			processSafely();
-		} catch (Exception exception) {
-			this.exception = exception;
-			state = finished;
-		} finally {
-			updateProgress();
+	void update() {
+		boolean doneStepping = false;
+		while (!doneStepping) {
+			try {
+				doneStepping = step();
+			} catch (Exception exception) {
+				this.exception = exception;
+				state = finished;
+				doneStepping = true;
+			} finally {
+				// TODO handle exceptions
+				updateProgress();
+			}
 		}
 	}
 
-	private void processSafely() {
+	private boolean step() {
 		switch (state) {
 		case ready:
-			if (!initDependencies()) {
-				state = asyncLoading;
-				processSafely();
-			} else {
-				state = waitingDependencies;
-			}
-			break;
+			state = start();
+			return state == waitingDependencies;
 		case asyncLoading:
 			properties = dependencies.getProperties();
 			asyncData = loader.loadAsync(dependencies, file, properties);
 			state = syncLoading;
-			break;
+			return true;
 		case syncLoading:
 			asset = loader.consumeAsyncData(dependencies, file, properties, asyncData);
 			state = syncLoading;
-			break;
+			return true;
 		default:
 			this.exception = new IllegalStateException("Invalid loading state.");
 			state = finished;
-		}
-	}
-
-	private boolean initDependencies() {
-		loader.initDependencies(dependencies, file);
-		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
-		if (propsHandle == null) {
-			return !dependencies.isEmpty();
-		} else {
-			dependencies.addDependency(propsHandle.path(), assetId.fileType, AssetProperties.class);
 			return true;
 		}
 	}
 
-	void consumeAsyncData() {
-		try {
-			asset = loader.consumeAsyncData(dependencies, file, properties, asyncData);
-		} catch (Exception e) {
-			exception = e;
-		} finally {
-			state = finished;
-			updateProgress();
+	private AssetLoadingState start() {
+		loader.initDependencies(dependencies, file);
+		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
+		if (propsHandle != null) {
+			dependencies.addDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
+		return dependencies.allResolved() ? asyncLoading : waitingDependencies;
 	}
 
 	void updateProgress() {
@@ -140,6 +145,10 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 	}
 
 	private void notifyProgress(float progress) {
+		if (this.progress == progress) {
+			return;
+		}
+
 		this.progress = progress;
 		if (parent != null) {
 			parent.updateProgress();
@@ -148,30 +157,32 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		callback.onProgress(progress);
 	}
 
-	public void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
+	void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
 		callback.concurrentCallbacks.add(concurrentCallback);
 		if (priority < newPriority) {
-			reniceHierarchy(requestSequence++, newPriority);
+			renice(requestSequence++, newPriority);
 		}
 		concurrentCallback.onProgress(progress);
 	}
 
-	private void reniceHierarchy(int newRequestId, int newPriority) {
+	private void renice(int newRequestId, int newPriority) {
 		requestId = newRequestId;
 		priority = newPriority;
 
 		for (int i = 0; i < dependencies.size; i++) {
 			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
-			dependency.reniceHierarchy(newRequestId, newPriority);
+			dependency.renice(newRequestId, newPriority);
 		}
 	}
 
-	void notifyFinished() {
+	void finish() {
 		if (exception == null) {
 			callback.onSuccess(asset);
 		} else {
 			callback.onException(exception);
 		}
+
+		dependencies.unreserveDependencies(exception != null);
 	}
 
 	@Override
@@ -182,12 +193,27 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
+		parent = null;
+		manager = null;
+		file = null;
+		assetType = null;
+		loader = null;
+		properties = null;
+		asyncData = null;
+		asset = null;
+		exception = null;
+		priority = 0;
+		requestId = 0;
+		state = ready;
+		progress = 0;
+		assetId.reset();
+		dependencies.reset();
+		callback.reset();
 	}
 
 	private static class DelegatingCallback<T> implements AsyncCallback<T> {
 		private AsyncCallback<T> delegate;
-		private Array<AsyncCallback<T>> concurrentCallbacks = new Array<AsyncCallback<T>>();
+		private final Array<AsyncCallback<T>> concurrentCallbacks = new Array<AsyncCallback<T>>();
 
 		@Override
 		public void onSuccess(T value) {
@@ -210,12 +236,12 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 
 		@Override
-		public void onCancled(String message) {
+		public void onCanceled(String message) {
 			if (delegate != null) {
-				delegate.onCancled(message);
+				delegate.onCanceled(message);
 			}
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				concurrentCallbacks.get(i).onCancled(message);
+				concurrentCallbacks.get(i).onCanceled(message);
 			}
 		}
 
@@ -227,6 +253,11 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onProgress(progress);
 			}
+		}
+
+		void reset() {
+			delegate = null;
+			concurrentCallbacks.clear();
 		}
 	}
 }

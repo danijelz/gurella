@@ -2,72 +2,101 @@ package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
 import com.gurella.engine.asset2.properties.AssetProperties;
 
 class AssetDependencies implements DependencyCollector, DependencyProvider {
-	private AssetRegistry registry;
+	private AssetId loadingAssetId;
+	private AssetsManager manager;
 
-	private final AssetId loadingAssetId = new AssetId();
-	private final ObjectMap<AssetId, AssetSlot> dependencies = new ObjectMap<AssetId, AssetSlot>();
+	private AssetId propertiesAssetId;
+	private final ObjectMap<AssetId, Dependency<?>> dependencies = new ObjectMap<AssetId, Dependency<?>>();
 
-	private final AssetIdPool pool = new AssetIdPool();
 	private final AssetId tempAssetId = new AssetId();
 
-	void init(String fileName, FileType fileType, Class<?> assetType) {
-		loadingAssetId.set(fileName, fileType, assetType);
+	void init(AssetId loadingAssetId, AssetsManager manager) {
+		this.manager = manager;
+		this.loadingAssetId = loadingAssetId;
 	}
 
-	void addPropsDependency(String fileName, FileType fileType, Class<?> assetType) {
-		//TODO cache props dependency
+	void addPropertiesDependency(String fileName, FileType fileType, Class<?> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			dependencies.put(pool.obtain().set(fileName, fileType, assetType), null);
+			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			propertiesAssetId = dependency.getAssetId();
+			dependencies.put(propertiesAssetId, dependency);
 		}
 	}
 
 	<T> AssetProperties<T> getProperties() {
-		//TODO
-		return null;
+		return propertiesAssetId == null ? null : this.<AssetProperties<T>> getDependency(propertiesAssetId);
 	}
 
 	@Override
 	public void addDependency(String fileName, FileType fileType, Class<?> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			dependencies.put(pool.obtain().set(fileName, fileType, assetType), null);
+			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			dependencies.put(dependency.getAssetId(), dependency);
 		}
 	}
 
 	@Override
 	public <T> T getDependency(String depFileName, FileType depFileType, Class<T> depAssetType) {
-		tempAssetId.set(depFileName, depFileType, depAssetType);
-		return registry.getDependencyAndIncCount(loadingAssetId, tempAssetId);
+		return getDependency(tempAssetId.set(depFileName, depFileType, depAssetType));
 	}
 
-	public boolean isEmpty() {
+	private <T> T getDependency(AssetId assetId) {
+		@SuppressWarnings("unchecked")
+		Dependency<T> dependency = (Dependency<T>) dependencies.get(assetId);
+		dependency.incDependencyCount(loadingAssetId);
+		return dependency.getAsset();
+	}
+
+	boolean isEmpty() {
 		return dependencies.size == 0;
 	}
 
-	public float getProgress() {
+	boolean allResolved() {
+		int size = dependencies.size;
+		if (size == 0) {
+			return true;
+		}
+
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			if (dependency.getProgress() < 1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	float getProgress() {
 		int size = dependencies.size;
 		if (size == 0) {
 			return 1;
 		}
 
 		float progres = 0;
-		for (int i = 0; i < size; i++) {
-			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
-			progres += dependency.progress;
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			progres += dependency == null ? 0 : dependency.getProgress();
 		}
 
 		return Math.min(1, progres / size);
 	}
 
+	void unreserveDependencies(boolean releaseDependencies) {
+		// TODO Auto-generated method stub
+
+	}
+
 	void reset() {
-		for (AssetId assetId : dependencies.keys()) {
-			pool.free(assetId);
-		}
+		loadingAssetId = null;
+		propertiesAssetId = null;
+		propertiesAssetId = null;
 		dependencies.clear();
 	}
 }

@@ -16,9 +16,7 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.persister.AssetsPersister;
-import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
@@ -44,7 +42,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	private final Array<AssetLoadingTask<?, ?>> finishedQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Sort sort = new Sort();
 
-	//TODO remove when implemented in AssetSevice
+	// TODO remove when implemented in AssetSevice
 	public boolean isLoaded(String fileName) {
 		synchronized (mutex) {
 			return registry.isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
@@ -173,7 +171,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	//////////////////////////////
+	////////////////////////////// loading
 
 	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
@@ -205,14 +203,10 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 				ThreadUtils.yield();
 			}
 
-			if (callback.isDoneWithException()) {
-				Throwable exception = callback.getException();
-				callback.free();
-				throw new RuntimeException("Error loading asset " + fileName, exception);
+			if (callback.isFailed()) {
+				throw new RuntimeException("Error loading asset " + fileName, callback.getExceptionAndFree());
 			} else {
-				asset = callback.getValue();
-				callback.free();
-				return asset;
+				return callback.getValueAndFree();
 			}
 		}
 	}
@@ -222,25 +216,24 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		return files.getFileHandle(fileName, fileType);
 	}
 
-	<T> void load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
+	<T> AssetLoadingTask<?, T> load(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
 		synchronized (mutex) {
 			tempAssetId.set(file, assetType);
 			@SuppressWarnings("unchecked")
 			AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 			if (queuedTask == null) {
-				newTask(callback, file, assetType, priority);
+				return startTask(callback, file, assetType, priority);
 			} else {
 				queuedTask.merge(callback, priority);
+				return queuedTask;
 			}
 		}
 	}
 
-	private <T, A> void newTask(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
-		// TODO find loader
-		AssetLoader<A, T, AssetProperties<T>> loader = null;
+	private <T> AssetLoadingTask<?, T> startTask(AsyncCallback<T> callback, FileHandle file, Class<T> assetType, int priority) {
 		@SuppressWarnings("unchecked")
-		AssetLoadingTask<A, T> task = (AssetLoadingTask<A, T>) taskPool.obtain();
-		task.init(loader, file, callback, priority);
+		AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
+		task.init(this, file, assetType, callback, priority);
 
 		allTasks.put(task.assetId, task);
 		asyncQueue.add(task);
@@ -249,13 +242,15 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 			executing = true;
 			executor.submit(this);
 		}
+		
+		return task;
 	}
 
 	boolean update() {
 		synchronized (mutex) {
 			for (int i = 0, n = finishedQueue.size; i < n; i++) {
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
-				task.process();
+				task.update();
 				finishTask(task);
 			}
 			finishedQueue.clear();
@@ -265,17 +260,21 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 
 	private <T> void finishTask(AssetLoadingTask<?, T> task) {
 		allTasks.remove(task.assetId);
-
-		if (task.exception != null) {
-			unloadDependencies(task);
-		}
-
-		task.notifyFinished();
+		task.finish();
 		taskPool.free(task);
 	}
 
-	private <T> void unloadDependencies(AssetLoadingTask<?, T> task) {
-		// TODO Auto-generated method stub
+	<T> Dependency<T> reserveDependency(String fileName, FileType fileType, Class<?> assetType) {
+		synchronized (mutex) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
+	<T> void unreserveDependency(Dependency<T> dependency) {
+		synchronized (mutex) {
+			// TODO Auto-generated method stub
+		}
 	}
 
 	@Override
@@ -291,45 +290,34 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 				}
 			}
 
-			nextTask.process();
-
-			synchronized (mutex) {
-				switch (nextTask.state) {
-				case waitingDependencies:
-					loadDependencies(nextTask);
-					break;
-				case asyncLoading:
-					asyncQueue.add(nextTask);
-					break;
-				case syncLoading:
-					finishedQueue.add(nextTask);
-					break;
-				case finished:
-					finishedQueue.add(nextTask);
-					break;
-				default:
-					nextTask.state = finished;
-					nextTask.exception = new IllegalStateException("Invalid loading state.");
-					break;
-				}
-			}
+			updateTask(nextTask);
 		}
 	}
 
-	private void loadDependencies(AssetLoadingTask<?, ?> task) {
-		AssetDependencies dependencies = task.dependencies;
-		for (int i = 0; i < dependencies.size; i++) {
-			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
-			AssetInfo info = assetsByFileName.get(dependency.fileName);
-			if (info == null) {
-				addToQueue(dependency);
-			} else {
-				handleAssetLoaded(dependency, info);
+	private void updateTask(AssetLoadingTask<?, ?> task) {
+		task.update();
+
+		synchronized (mutex) {
+			switch (task.state) {
+			case waitingDependencies:
+				waitingQueue.add(task);
+				return;
+			case asyncLoading:
+				asyncQueue.add(task);
+				return;
+			case syncLoading:
+				finishedQueue.add(task);
+				return;
+			case finished:
+				finishedQueue.add(task);
+				return;
+			default:
+				task.state = finished;
+				task.exception = new IllegalStateException("Invalid loading state.");
+				finishedQueue.add(task);
+				return;
 			}
 		}
-		
-		//TODO if all dependencies loaded
-		waitingQueue.add(task);
 	}
 
 	public boolean update(int millis) {
@@ -349,17 +337,29 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
+	public void finishLoading(String fileName, FileType fileType, Class<?> assetType) {
+		while (!isLoaded(fileName, fileType, assetType)) {
+			update();
+			ThreadUtils.yield();
+		}
+	}
+
 	@Override
-	public void cleanup() {
+	public void onCleanup() {
 		update();
 	}
 
 	@Override
 	public void dispose() {
-		synchronized (mutex) {
+		while (true) {
 			finishLoading();
-			DisposablesService.dispose(executor);
-			registry.dispose();
+			synchronized (mutex) {
+				if (allTasks.size == 0) {
+					DisposablesService.dispose(executor);
+					registry.dispose();
+					return;
+				}
+			}
 		}
 	}
 

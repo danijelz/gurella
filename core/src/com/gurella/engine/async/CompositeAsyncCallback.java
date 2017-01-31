@@ -52,9 +52,9 @@ public class CompositeAsyncCallback<T> implements AsyncCallback<T> {
 	}
 
 	@Override
-	public void onCancled(String message) {
+	public void onCanceled(String message) {
 		for (int i = 0, n = callbacks.size; i < n; i++) {
-			callbacks.get(i).onCancled(message);
+			callbacks.get(i).onCanceled(message);
 		}
 		callbacks.clear();
 		PoolService.free(this);
