@@ -10,6 +10,7 @@ import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset2.loader.AssetLoader;
@@ -19,8 +20,9 @@ import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
 
-class AssetLoadingTask<A, T>
-		implements DependencyCollector, DependencyProvider, Comparable<AssetLoadingTask<?, ?>>, Poolable {
+//TODO notify parent on exception
+class AssetLoadingTask<A, T> implements AsyncCallback<Object>, DependencyCollector, DependencyProvider,
+		Comparable<AssetLoadingTask<?, ?>>, Poolable {
 	private static int requestSequence = Integer.MIN_VALUE;
 
 	int priority;
@@ -71,6 +73,7 @@ class AssetLoadingTask<A, T>
 		this.manager = parent.manager;
 		this.file = file;
 		this.assetType = assetType;
+		this.callback.delegate = parent;
 		this.priority = parent.priority;
 
 		requestId = requestSequence++;
@@ -124,7 +127,7 @@ class AssetLoadingTask<A, T>
 		if (propsHandle != null) {
 			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
-		return dependenciesResolved() ? asyncLoading : waitingDependencies;
+		return areDependenciesResolved() ? asyncLoading : waitingDependencies;
 	}
 
 	private void finish() {
@@ -133,8 +136,6 @@ class AssetLoadingTask<A, T>
 		} else {
 			callback.onException(exception);
 		}
-
-		unreserveDependencies(exception != null);
 	}
 
 	void updateProgress() {
@@ -180,16 +181,10 @@ class AssetLoadingTask<A, T>
 	}
 
 	private void notifyProgress(float progress) {
-		if (this.progress == progress) {
-			return;
+		if (this.progress != progress) {
+			this.progress = progress;
+			callback.onProgress(progress);
 		}
-
-		this.progress = progress;
-		if (parent != null) {
-			parent.updateProgress();
-		}
-
-		callback.onProgress(progress);
 	}
 
 	void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
@@ -204,28 +199,31 @@ class AssetLoadingTask<A, T>
 		requestId = newRequestId;
 		priority = newPriority;
 
-		for (int i = 0; i < dependencies.size; i++) {
-			AssetLoadingTask<?, ?> dependency = dependencies.get(i);
-			dependency.renice(newRequestId, newPriority);
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			//TODO ???? dependency.renice(newRequestId, newPriority); ????
+			if (dependency instanceof AssetLoadingTask) {
+				((AssetLoadingTask<?, ?>) dependency).renice(newRequestId, newPriority);
+			}
 		}
 	}
 
-	void addPropertiesDependency(String fileName, FileType fileType, Class<?> assetType) {
+	<D> void addPropertiesDependency(String fileName, FileType fileType, Class<D> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<Object> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
+			Dependency<D> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
 			propertiesId = dependency.getAssetId();
 			dependencies.put(propertiesId, dependency);
 		}
 	}
 
-	<T> AssetProperties<T> getProperties() {
-		return propertiesId == null ? null : this.<AssetProperties<T>> getDependency(propertiesId);
+	<D> AssetProperties<D> getProperties() {
+		return propertiesId == null ? null : this.<AssetProperties<D>> getDependency(propertiesId);
 	}
 
 	@Override
-	public void addDependency(String fileName, FileType fileType, Class<?> assetType) {
+	public <D> void addDependency(String fileName, FileType fileType, Class<D> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<Object> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
+			Dependency<D> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
 			dependencies.put(dependency.getAssetId(), dependency);
 		}
 	}
@@ -242,11 +240,15 @@ class AssetLoadingTask<A, T>
 		return dependency.getAsset();
 	}
 
+	public Entries<AssetId, Dependency<?>> getDependencies() {
+		return dependencies.entries();
+	}
+
 	boolean isEmpty() {
 		return dependencies.size == 0;
 	}
 
-	private boolean dependenciesResolved() {
+	private boolean areDependenciesResolved() {
 		int size = dependencies.size;
 		if (size == 0) {
 			return true;
@@ -260,6 +262,28 @@ class AssetLoadingTask<A, T>
 		}
 
 		return true;
+	}
+
+	@Override
+	public void onSuccess(Object value) {
+		updateProgress();
+	}
+
+	@Override
+	public void onException(Throwable exception) {
+		this.exception = exception;
+		state = finished;
+		// TODO notify state changes
+	}
+
+	@Override
+	public void onCanceled(String message) {
+		//TODO unsupported
+	}
+
+	@Override
+	public void onProgress(float progress) {
+		updateProgress();
 	}
 
 	@Override
@@ -291,14 +315,12 @@ class AssetLoadingTask<A, T>
 	}
 
 	private static class DelegatingCallback<T> implements AsyncCallback<T> {
-		private AsyncCallback<T> delegate;
-		private final Array<AsyncCallback<T>> concurrentCallbacks = new Array<AsyncCallback<T>>();
+		private AsyncCallback<? super T> delegate;
+		private final Array<AsyncCallback<? super T>> concurrentCallbacks = new Array<AsyncCallback<? super T>>();
 
 		@Override
 		public void onSuccess(T value) {
-			if (delegate != null) {
-				delegate.onSuccess(value);
-			}
+			delegate.onSuccess(value);
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onSuccess(value);
 			}
@@ -306,9 +328,7 @@ class AssetLoadingTask<A, T>
 
 		@Override
 		public void onException(Throwable exception) {
-			if (delegate != null) {
-				delegate.onException(exception);
-			}
+			delegate.onException(exception);
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onException(exception);
 			}
@@ -316,9 +336,7 @@ class AssetLoadingTask<A, T>
 
 		@Override
 		public void onCanceled(String message) {
-			if (delegate != null) {
-				delegate.onCanceled(message);
-			}
+			delegate.onCanceled(message);
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onCanceled(message);
 			}
@@ -326,9 +344,7 @@ class AssetLoadingTask<A, T>
 
 		@Override
 		public void onProgress(float progress) {
-			if (delegate != null) {
-				delegate.onProgress(progress);
-			}
+			delegate.onProgress(progress);
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onProgress(progress);
 			}

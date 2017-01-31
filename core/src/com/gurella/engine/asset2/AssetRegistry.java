@@ -40,9 +40,17 @@ class AssetRegistry implements Disposable {
 	AssetSlot reserve(AssetId tempAssetId) {
 		AssetSlot slot = slotsById.get(tempAssetId);
 		if (slot != null) {
-			slot.decReservations();
+			slot.incReservations();
 		}
 		return slot;
+	}
+
+	void unreserve(AssetSlot slot) {
+		slot.decReservations();
+		if (!slot.isActive()) {
+			AssetId assetId = idsByAsset.get(slot.asset);
+			remove(assetId, slot);
+		}
 	}
 
 	<T> T get(AssetId tempAssetId, String bundleId) {
@@ -114,7 +122,7 @@ class AssetRegistry implements Disposable {
 			return null;
 		}
 
-		slot.incRefCount();
+		slot.incReferences();
 
 		if (bundleId == null) {
 			@SuppressWarnings("unchecked")
@@ -164,7 +172,7 @@ class AssetRegistry implements Disposable {
 		}
 
 		AssetSlot slot = slotsById.get(id);
-		if (slot.decRefCount() == SlotActivity.inactive) {
+		if (slot.decReferences() == SlotActivity.inactive) {
 			remove(id, slot);
 			return true;
 		} else {

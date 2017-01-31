@@ -9,6 +9,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entries;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -216,10 +218,8 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 
 		if (queuedTask == null) {
-			FileHandle file = resolveFile(fileName, fileType);
-			@SuppressWarnings("unchecked")
-			AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
-			task.init(this, file, assetType, callback, priority);
+			AssetLoadingTask<?, T> task = taskPool.obtainTask();
+			task.init(this, resolveFile(fileName, fileType), assetType, callback, priority);
 			startTask(task);
 		} else {
 			queuedTask.merge(callback, priority);
@@ -247,45 +247,63 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
 				allTasks.remove(task.assetId);
 				task.update();
-				taskPool.free(task);
+				finish(task);
 			}
 			finishedQueue.clear();
 			return allTasks.size == 0;
 		}
 	}
 
-	Dependency<?> reserveDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
-			Class<?> assetType) {
-		synchronized (mutex) {
-			AssetSlot slot = registry.reserve(tempAssetId.set(fileName, fileType, assetType));
-			if (slot == null) {
-				AssetLoadingTask<?, ?> task = subTask(parent, fileName, fileType, assetType);
+	private void finish(AssetLoadingTask<?, ?> task) {
+		boolean revert = task.exception != null;
+		Entries<AssetId, Dependency<?>> entries = task.getDependencies();
+		for (Entry<AssetId, Dependency<?>> entry : entries) {
+			Dependency<?> dependency = entry.value;
+			if (dependency instanceof AssetSlot) {
+				finish(task, ((AssetSlot) dependency), revert);
+			} else {
+				finish(task, ((AssetLoadingTask<?, ?>) dependency), revert);
 			}
+		}
+
+		if (task.parent == null) {
+			taskPool.free(task);
+		}
+	}
+
+	private void finish(AssetLoadingTask<?, ?> task, AssetSlot dependency, boolean revert) {
+		registry.unreserve(dependency);
+		// TODO unloadDependencies()
+	}
+
+	private void finish(AssetLoadingTask<?, ?> task, AssetLoadingTask<?, ?> dependency, boolean revert) {
+		// TODO unloadDependencies()
+	}
+
+	<T> Dependency<T> reserveDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
+			Class<T> assetType) {
+		synchronized (mutex) {
+			tempAssetId.set(fileName, fileType, assetType);
+			AssetSlot slot = registry.reserve(tempAssetId);
+			if (slot == null) {
+				AssetLoadingTask<?, T> task = subTask(parent, assetType);
+			} 
+
 			// TODO Auto-generated method stub
 			return null;
 		}
 	}
 
-	private <T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
-			Class<T> assetType) {
-		tempAssetId.set(fileName, fileType, assetType);
+	private <T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, Class<T> assetType) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 		if (queuedTask == null) {
-			FileHandle file = resolveFile(fileName, fileType);
-			@SuppressWarnings("unchecked")
-			AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
-			task.init(parent, file, assetType);
+			AssetLoadingTask<?, T> task = taskPool.obtainTask();
+			task.init(parent, resolveFile(tempAssetId.fileName, tempAssetId.fileType), assetType);
 			startTask(task);
 			return task;
 		} else {
 			return queuedTask;
-		}
-	}
-
-	<T> void unreserveDependency(Dependency<T> dependency) {
-		synchronized (mutex) {
-			// TODO Auto-generated method stub
 		}
 	}
 
@@ -379,6 +397,11 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		@Override
 		protected AssetLoadingTask<Object, Object> newObject() {
 			return new AssetLoadingTask<Object, Object>();
+		}
+
+		@SuppressWarnings("unchecked")
+		<T> AssetLoadingTask<?, T> obtainTask() {
+			return (AssetLoadingTask<?, T>) super.obtain();
 		}
 	}
 }

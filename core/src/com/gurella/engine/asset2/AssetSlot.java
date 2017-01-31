@@ -32,11 +32,11 @@ class AssetSlot implements Poolable {
 		return isActive() ? active : inactive;
 	}
 
-	void incRefCount() {
+	void incReferences() {
 		references++;
 	}
 
-	SlotActivity decRefCount() {
+	SlotActivity decReferences() {
 		if (references > 0) {
 			references--;
 		}
