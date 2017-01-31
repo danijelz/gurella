@@ -29,7 +29,7 @@ class AssetLoadingTask<A, T>
 	final AssetId assetId = new AssetId();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
-	AssetLoadingTask<A, T> parent;
+	AssetLoadingTask<?, ?> parent;
 
 	AssetsManager manager;
 	FileHandle file;
@@ -66,12 +66,12 @@ class AssetLoadingTask<A, T>
 		return null;
 	}
 
-	void init(AssetLoadingTask<A, T> parent, FileHandle file, Class<T> assetType, int priority) {
+	void init(AssetLoadingTask<?, ?> parent, FileHandle file, Class<T> assetType) {
 		this.parent = parent;
 		this.manager = parent.manager;
 		this.file = file;
 		this.assetType = assetType;
-		this.priority = priority;
+		this.priority = parent.priority;
 
 		requestId = requestSequence++;
 		assetId.set(file, assetType);
@@ -212,7 +212,7 @@ class AssetLoadingTask<A, T>
 
 	void addPropertiesDependency(String fileName, FileType fileType, Class<?> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			Dependency<Object> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
 			propertiesId = dependency.getAssetId();
 			dependencies.put(propertiesId, dependency);
 		}
@@ -225,7 +225,7 @@ class AssetLoadingTask<A, T>
 	@Override
 	public void addDependency(String fileName, FileType fileType, Class<?> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			Dependency<Object> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
 			dependencies.put(dependency.getAssetId(), dependency);
 		}
 	}

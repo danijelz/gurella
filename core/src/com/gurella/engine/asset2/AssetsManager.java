@@ -209,18 +209,20 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	private <T> AssetLoadingTask<?, T> task(AsyncCallback<T> callback, String fileName, FileType fileType,
-			Class<T> assetType, int priority) {
+	private <T> void task(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+			int priority) {
 		tempAssetId.set(fileName, fileType, assetType);
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
-		
+
 		if (queuedTask == null) {
 			FileHandle file = resolveFile(fileName, fileType);
-			return startTask(callback, file, assetType, priority);
+			@SuppressWarnings("unchecked")
+			AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
+			task.init(this, file, assetType, callback, priority);
+			startTask(task);
 		} else {
 			queuedTask.merge(callback, priority);
-			return queuedTask;
 		}
 	}
 
@@ -229,12 +231,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		return files.getFileHandle(fileName, fileType);
 	}
 
-	private <T> AssetLoadingTask<?, T> startTask(AsyncCallback<T> callback, FileHandle file, Class<T> assetType,
-			int priority) {
-		@SuppressWarnings("unchecked")
-		AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
-		task.init(this, file, assetType, callback, priority);
-
+	private <T> void startTask(AssetLoadingTask<?, T> task) {
 		allTasks.put(task.assetId, task);
 		asyncQueue.add(task);
 		sort.sort(asyncQueue);
@@ -242,8 +239,6 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 			executing = true;
 			executor.submit(this);
 		}
-
-		return task;
 	}
 
 	boolean update() {
@@ -259,14 +254,32 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	<T> Dependency<T> reserveDependency(String fileName, FileType fileType, Class<?> assetType) {
+	Dependency<?> reserveDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
+			Class<?> assetType) {
 		synchronized (mutex) {
 			AssetSlot slot = registry.reserve(tempAssetId.set(fileName, fileType, assetType));
-			if(slot == null) {
-				AssetLoadingTask<?, T> task = task(callback, fileName, fileType, assetType, priority);
+			if (slot == null) {
+				AssetLoadingTask<?, ?> task = subTask(parent, fileName, fileType, assetType);
 			}
 			// TODO Auto-generated method stub
 			return null;
+		}
+	}
+
+	private <T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
+			Class<T> assetType) {
+		tempAssetId.set(fileName, fileType, assetType);
+		@SuppressWarnings("unchecked")
+		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
+		if (queuedTask == null) {
+			FileHandle file = resolveFile(fileName, fileType);
+			@SuppressWarnings("unchecked")
+			AssetLoadingTask<?, T> task = (AssetLoadingTask<?, T>) taskPool.obtain();
+			task.init(parent, file, assetType);
+			startTask(task);
+			return task;
+		} else {
+			return queuedTask;
 		}
 	}
 
