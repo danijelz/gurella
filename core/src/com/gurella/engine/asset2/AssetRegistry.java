@@ -442,4 +442,11 @@ class AssetRegistry implements Disposable {
 			return new AssetSlot();
 		}
 	}
+	
+	private static class AssetIdPool extends Pool<AssetId> {
+		@Override
+		protected AssetId newObject() {
+			return new AssetId();
+		}
+	}
 }

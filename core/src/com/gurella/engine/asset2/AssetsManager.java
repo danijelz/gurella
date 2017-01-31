@@ -277,17 +277,23 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	}
 
 	private void finish(AssetLoadingTask<?, ?> task, AssetLoadingTask<?, ?> dependency, boolean revert) {
-		// TODO unloadDependencies()
+		if (revert) {
+			if (dependency.state == finished) {
+
+			}
+		} else {
+			// TODO unloadDependencies()
+		}
 	}
 
-	<T> Dependency<T> reserveDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
+	<T> Dependency<T> getDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
 			Class<T> assetType) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
 			AssetSlot slot = registry.reserve(tempAssetId);
 			if (slot == null) {
 				AssetLoadingTask<?, T> task = subTask(parent, assetType);
-			} 
+			}
 
 			// TODO Auto-generated method stub
 			return null;

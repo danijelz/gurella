@@ -210,7 +210,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, DependencyCollect
 
 	<D> void addPropertiesDependency(String fileName, FileType fileType, Class<D> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<D> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
+			Dependency<D> dependency = manager.getDependency(this, fileName, fileType, assetType);
 			propertiesId = dependency.getAssetId();
 			dependencies.put(propertiesId, dependency);
 		}
@@ -223,7 +223,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, DependencyCollect
 	@Override
 	public <D> void addDependency(String fileName, FileType fileType, Class<D> assetType) {
 		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
-			Dependency<D> dependency = manager.reserveDependency(this, fileName, fileType, assetType);
+			Dependency<D> dependency = manager.getDependency(this, fileName, fileType, assetType);
 			dependencies.put(dependency.getAssetId(), dependency);
 		}
 	}

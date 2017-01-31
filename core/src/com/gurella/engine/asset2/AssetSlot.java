@@ -166,11 +166,11 @@ class AssetSlot implements Poolable {
 		bundledAssets.clear();
 	}
 
-	public enum SlotActivity {
+	enum SlotActivity {
 		active, inactive;
 	}
 
-	public enum DependencyActivity {
+	enum DependencyActivity {
 		fresh, steady, obsolete;
 	}
 }
