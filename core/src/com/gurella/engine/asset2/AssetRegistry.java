@@ -32,18 +32,24 @@ class AssetRegistry implements Disposable {
 	private final AssetIdPool assetIdPool = new AssetIdPool();
 	private final AssetSlotPool assetSlotPool = new AssetSlotPool();
 
-	private final AssetId tempAssetId = new AssetId();
 	private final ObjectMap<String, Object> tempBundledAssets = new ObjectMap<String, Object>();
 
 	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
 	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 
-	<T> T get(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
-		tempAssetId.set(fileName, fileType, assetType);
+	AssetSlot reserve(AssetId tempAssetId) {
+		AssetSlot slot = slotsById.get(tempAssetId);
+		if (slot != null) {
+			slot.decReservations();
+		}
+		return slot;
+	}
+
+	<T> T get(AssetId tempAssetId, String bundleId) {
 		AssetSlot slot = slotsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
-			throw new GdxRuntimeException("Asset not loaded: " + fileName);
+			throw new GdxRuntimeException("Asset not loaded: " + tempAssetId);
 		}
 
 		if (bundleId == null) {
@@ -55,7 +61,7 @@ class AssetRegistry implements Disposable {
 			if (asset instanceof Bundle) {
 				return slot.getBundledAsset(bundleId);
 			} else {
-				throw new IllegalArgumentException("Asset is not a Bundle: " + fileName);
+				throw new IllegalArgumentException("Asset is not a Bundle: " + tempAssetId);
 			}
 		}
 	}
@@ -96,14 +102,12 @@ class AssetRegistry implements Disposable {
 		return id == null ? null : id.fileType;
 	}
 
-	boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
-		tempAssetId.set(fileName, fileType, assetType);
+	boolean isLoaded(AssetId tempAssetId) {
 		AssetSlot slot = slotsById.get(tempAssetId);
 		return slot != null && slot.asset != null;
 	}
 
-	<T> T getIfLoaded(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
-		tempAssetId.set(fileName, fileType, assetType);
+	<T> T getIfLoaded(AssetId tempAssetId, String bundleId) {
 		AssetSlot slot = slotsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
@@ -412,7 +416,6 @@ class AssetRegistry implements Disposable {
 		assetIdPool.clear();
 		assetSlotPool.clear();
 		tempBundledAssets.clear();
-		tempAssetId.empty();
 	}
 
 	private void removeAll() {

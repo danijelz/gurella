@@ -18,14 +18,14 @@ class AssetSlot implements Poolable {
 	Object asset;
 
 	boolean sticky;
-	boolean reserved;
-	int refCount = 0;
+	int references = 0;
+	int reservations = 0;
 	final ObjectIntMap<AssetId> dependencies = new ObjectIntMap<AssetId>(4);
 	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>(4);
 	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 
 	boolean isActive() {
-		return sticky || refCount > 0 || dependents.size > 0;
+		return sticky || references > 0 || dependents.size > 0 || reservations > 0;
 	}
 
 	SlotActivity getActivity() {
@@ -33,12 +33,23 @@ class AssetSlot implements Poolable {
 	}
 
 	void incRefCount() {
-		refCount++;
+		references++;
 	}
 
 	SlotActivity decRefCount() {
-		if (refCount > 0) {
-			refCount--;
+		if (references > 0) {
+			references--;
+		}
+		return getActivity();
+	}
+
+	void incReservations() {
+		reservations++;
+	}
+
+	SlotActivity decReservations() {
+		if (reservations > 0) {
+			reservations--;
 		}
 		return getActivity();
 	}
@@ -130,7 +141,7 @@ class AssetSlot implements Poolable {
 	void merge(AssetSlot other) {
 		//TODO if(other.reserved) throw ...
 		sticky |= other.sticky;
-		refCount += other.refCount;
+		references += other.references;
 		dependents.addAll(other.dependents);
 
 		for (ObjectIntMap.Entry<AssetId> entry : other.dependencies.entries()) {
@@ -148,8 +159,8 @@ class AssetSlot implements Poolable {
 	public void reset() {
 		asset = null;
 		sticky = false;
-		reserved = false;
-		refCount = 0;
+		references = 0;
+		reservations = 0;
 		dependencies.clear();
 		dependents.clear();
 		bundledAssets.clear();

@@ -6,22 +6,27 @@ import static com.gurella.engine.asset2.AssetLoadingState.ready;
 import static com.gurella.engine.asset2.AssetLoadingState.syncLoading;
 import static com.gurella.engine.asset2.AssetLoadingState.waitingDependencies;
 
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset2.loader.AssetLoader;
+import com.gurella.engine.asset2.loader.DependencyCollector;
+import com.gurella.engine.asset2.loader.DependencyProvider;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
 
-class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Poolable {
+class AssetLoadingTask<A, T>
+		implements DependencyCollector, DependencyProvider, Comparable<AssetLoadingTask<?, ?>>, Poolable {
 	private static int requestSequence = Integer.MIN_VALUE;
 
 	int priority;
 	int requestId;
 
 	final AssetId assetId = new AssetId();
-	final AssetDependencies dependencies = new AssetDependencies();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
 	AssetLoadingTask<A, T> parent;
@@ -40,6 +45,10 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 	T asset;
 	Throwable exception;
 
+	private AssetId propertiesId;
+	private final ObjectMap<AssetId, Dependency<?>> dependencies = new ObjectMap<AssetId, Dependency<?>>();
+	private final AssetId tempAssetId = new AssetId();
+
 	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AsyncCallback<T> callback, int priority) {
 		this.manager = manager;
 		this.file = file;
@@ -50,7 +59,6 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		requestId = requestSequence++;
 		assetId.set(file, assetType);
 		loader = resolveLoader();
-		dependencies.init(assetId, manager);
 	}
 
 	private AssetLoader<A, T, AssetProperties<T>> resolveLoader() {
@@ -68,7 +76,6 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		requestId = requestSequence++;
 		assetId.set(file, assetType);
 		loader = resolveLoader();
-		dependencies.init(assetId, manager);
 	}
 
 	void update() {
@@ -93,13 +100,16 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 			state = start();
 			return state == waitingDependencies;
 		case asyncLoading:
-			properties = dependencies.getProperties();
-			asyncData = loader.loadAsync(dependencies, file, properties);
+			properties = getProperties();
+			asyncData = loader.loadAsync(this, file, properties);
 			state = syncLoading;
 			return true;
 		case syncLoading:
-			asset = loader.consumeAsyncData(dependencies, file, properties, asyncData);
-			state = syncLoading;
+			asset = loader.consumeAsyncData(this, file, properties, asyncData);
+			state = finished;
+			return true;
+		case finished:
+			finish();
 			return true;
 		default:
 			this.exception = new IllegalStateException("Invalid loading state.");
@@ -109,12 +119,22 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 	}
 
 	private AssetLoadingState start() {
-		loader.initDependencies(dependencies, file);
+		loader.initDependencies(this, file);
 		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
-			dependencies.addDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
+			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
-		return dependencies.allResolved() ? asyncLoading : waitingDependencies;
+		return dependenciesResolved() ? asyncLoading : waitingDependencies;
+	}
+
+	private void finish() {
+		if (exception == null) {
+			callback.onSuccess(asset);
+		} else {
+			callback.onException(exception);
+		}
+
+		unreserveDependencies(exception != null);
 	}
 
 	void updateProgress() {
@@ -123,7 +143,7 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 			notifyProgress(0);
 			break;
 		case waitingDependencies:
-			float depProgress = dependencies.getProgress();
+			float depProgress = getDepProgress();
 			notifyProgress(0.8f * depProgress);
 			if (depProgress == 1) {
 				state = asyncLoading;
@@ -142,6 +162,21 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		default:
 			throw new IllegalStateException();
 		}
+	}
+
+	private float getDepProgress() {
+		int size = dependencies.size;
+		if (size == 0) {
+			return 1;
+		}
+
+		float progres = 0;
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			progres += dependency == null ? 0 : dependency.getProgress();
+		}
+
+		return Math.min(1, progres / size);
 	}
 
 	private void notifyProgress(float progress) {
@@ -175,14 +210,56 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		}
 	}
 
-	void finish() {
-		if (exception == null) {
-			callback.onSuccess(asset);
-		} else {
-			callback.onException(exception);
+	void addPropertiesDependency(String fileName, FileType fileType, Class<?> assetType) {
+		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
+			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			propertiesId = dependency.getAssetId();
+			dependencies.put(propertiesId, dependency);
+		}
+	}
+
+	<T> AssetProperties<T> getProperties() {
+		return propertiesId == null ? null : this.<AssetProperties<T>> getDependency(propertiesId);
+	}
+
+	@Override
+	public void addDependency(String fileName, FileType fileType, Class<?> assetType) {
+		if (!dependencies.containsKey(tempAssetId.set(fileName, fileType, assetType))) {
+			Dependency<Object> dependency = manager.reserveDependency(fileName, fileType, assetType);
+			dependencies.put(dependency.getAssetId(), dependency);
+		}
+	}
+
+	@Override
+	public <D> D getDependency(String depFileName, FileType depFileType, Class<D> depAssetType) {
+		return getDependency(tempAssetId.set(depFileName, depFileType, depAssetType));
+	}
+
+	private <D> D getDependency(AssetId dependencyId) {
+		@SuppressWarnings("unchecked")
+		Dependency<D> dependency = (Dependency<D>) dependencies.get(dependencyId);
+		dependency.incDependencyCount(assetId);
+		return dependency.getAsset();
+	}
+
+	boolean isEmpty() {
+		return dependencies.size == 0;
+	}
+
+	private boolean dependenciesResolved() {
+		int size = dependencies.size;
+		if (size == 0) {
+			return true;
 		}
 
-		dependencies.unreserveDependencies(exception != null);
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			if (dependency.getProgress() < 1) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override
@@ -207,8 +284,10 @@ class AssetLoadingTask<A, T> implements Comparable<AssetLoadingTask<?, ?>>, Pool
 		state = ready;
 		progress = 0;
 		assetId.reset();
-		dependencies.reset();
 		callback.reset();
+		propertiesId = null;
+		dependencies.clear();
+		tempAssetId.reset();
 	}
 
 	private static class DelegatingCallback<T> implements AsyncCallback<T> {

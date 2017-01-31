@@ -125,4 +125,9 @@ public final class AssetId implements Poolable {
 		return this.fileType == fileType && this.assetType == assetType
 				&& Values.isEqual(this.fileName, fileName, false);
 	}
+
+	@Override
+	public String toString() {
+		return "AssetId [fileName=" + fileName + ", fileType=" + fileType + ", assetType=" + assetType + "]";
+	}
 }
