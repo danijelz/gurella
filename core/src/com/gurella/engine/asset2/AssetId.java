@@ -6,12 +6,24 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.utils.Values;
 
 public final class AssetId implements Poolable {
-	public String fileName;
-	public FileType fileType;
-	public Class<?> assetType;
+	String fileName;
+	FileType fileType;
+	Class<?> assetType;
 
 	// TODO remove
-	public FileHandle cachedFile;
+	FileHandle cachedFile;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public FileType getFileType() {
+		return fileType;
+	}
+
+	public Class<?> getAssetType() {
+		return assetType;
+	}
 
 	public AssetId set(AssetId other) {
 		this.fileName = other.fileName;

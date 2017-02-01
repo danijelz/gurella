@@ -13,4 +13,5 @@ public class AssetDescriptor<TYPE, PROPS extends AssetProperties<TYPE>> implemen
 	public final Class<PROPS> propertiesType = null;
 	public final AssetLoader<?, TYPE, PROPS> loader = null;
 	public final AssetPersister<TYPE> persister = null;
+	//TODO AssetReloader
 }

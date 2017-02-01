@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.persister.AssetsPersister;
+import com.gurella.engine.asset2.persister.AssetLocator;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
@@ -27,7 +27,7 @@ import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void>, Disposable {
+class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTask<Void>, Disposable {
 	private final Object mutex = new Object();
 
 	private final Files files = Gdx.files;
@@ -45,57 +45,52 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	private final Array<AssetLoadingTask<?, ?>> finishedQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Sort sort = new Sort();
 
-	// TODO remove when implemented in AssetSevice
-	public boolean isLoaded(String fileName) {
-		synchronized (mutex) {
-			return registry.isLoaded(tempAssetId.set(fileName, FileType.Internal, Assets.getAssetClass(fileName)));
-		}
-	}
-
-	public boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
+	boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
 		synchronized (mutex) {
 			return registry.isLoaded(tempAssetId.set(fileName, fileType, assetType));
 		}
 	}
 
-	public <T> boolean unload(T asset) {
+	<T> boolean unload(T asset) {
 		synchronized (mutex) {
 			return registry.unload(asset);
 		}
 	}
 
-	public <T> Array<T> getAll(Class<T> type, Array<T> out) {
+	<T> Array<T> getAll(Class<T> type, Array<T> out) {
 		synchronized (mutex) {
 			return registry.getAll(type, out);
 		}
 	}
 
-	public <T> String getFileName(T asset) {
+	<T> String getFileName(T asset) {
 		synchronized (mutex) {
 			return registry.getFileName(asset);
 		}
 	}
 
-	public <T> FileType getFileType(T asset) {
+	<T> FileType getFileType(T asset) {
 		synchronized (mutex) {
 			return registry.getFileType(asset);
 		}
 	}
 
-	public <T> AssetId getId(T asset, AssetId out) {
+	@Override
+	public AssetId getAssetId(Object asset, AssetId out) {
 		synchronized (mutex) {
 			return registry.getAssetId(asset, out);
 		}
 	}
 
-	public boolean isManaged(Object asset) {
+	boolean isManaged(Object asset) {
 		return registry.isManaged(asset);
 	}
 
-	public <T> void save(T asset, String fileName, FileType fileType) {
+	<T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {
 			FileHandle file = resolveFile(fileName, fileType);
 			persister.persist(file, asset);
+			// TODO if registry.getAssetId() is different then remove from registry
 			if (!registry.isManaged(asset)) {
 				Class<Object> assetType = Assets.getAssetRootClass(asset);
 				tempAssetId.set(fileName, fileType, assetType);
@@ -104,20 +99,15 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	public boolean delete(String fileName, FileType fileType) {
+	boolean delete(String fileName, FileType fileType) {
 		synchronized (mutex) {
 			registry.removeAll(fileName, fileType);
-			FileHandle file = files.getFileHandle(fileName, fileType);
-			if (file.exists()) {
-				file.delete();
-				return true;
-			} else {
-				return false;
-			}
+			FileHandle file = resolveFile(fileName, fileType);
+			return file.delete();
 		}
 	}
 
-	public boolean delete(Object asset) {
+	boolean delete(Object asset) {
 		synchronized (mutex) {
 			registry.getAssetId(asset, tempAssetId);
 			if (tempAssetId.isEmpty()) {
@@ -139,37 +129,37 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	}
 
 	// TODO dependencies and bundle contents should be handled diferently
-	public void addDependency(Object asset, Object dependency) {
+	void addDependency(Object asset, Object dependency) {
 		synchronized (mutex) {
 			registry.addDependency(asset, dependency);
 		}
 	}
 
-	public void removeDependency(Object asset, Object dependency) {
+	void removeDependency(Object asset, Object dependency) {
 		synchronized (mutex) {
 			registry.removeDependency(asset, dependency);
 		}
 	}
 
-	public void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+	void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
 		synchronized (mutex) {
 			registry.replaceDependency(asset, oldDependency, newDependency);
 		}
 	}
 
-	public void addToBundle(Bundle bundle, Object asset, String internalId) {
+	void addToBundle(Bundle bundle, Object asset, String internalId) {
 		synchronized (mutex) {
 			registry.addToBundle(bundle, asset, internalId);
 		}
 	}
 
-	public void removeFromBundle(Bundle bundle, Object asset) {
+	void removeFromBundle(Bundle bundle, Object asset) {
 		synchronized (mutex) {
 			registry.removeFromBundle(bundle, asset);
 		}
 	}
 
-	public String getBundledId(Object asset) {
+	String getBundledId(Object asset) {
 		synchronized (mutex) {
 			return registry.getBundleId(asset);
 		}
@@ -177,7 +167,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 
 	////////////////////////////// loading
 
-	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		synchronized (mutex) {
 			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
@@ -190,7 +180,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	public <T> T load(String fileName, FileType fileType, Class<T> assetType) {
+	<T> T load(String fileName, FileType fileType, Class<T> assetType) {
 		synchronized (mutex) {
 			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
 			if (asset != null) {
@@ -352,7 +342,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	public boolean update(int millis) {
+	boolean update(int millis) {
 		long endTime = TimeUtils.millis() + millis;
 		while (true) {
 			boolean done = update();
@@ -363,13 +353,13 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		}
 	}
 
-	public void finishLoading() {
+	void finishLoading() {
 		while (!update()) {
 			ThreadUtils.yield();
 		}
 	}
 
-	public void finishLoading(String fileName, FileType fileType, Class<?> assetType) {
+	void finishLoading(String fileName, FileType fileType, Class<?> assetType) {
 		while (!isLoaded(fileName, fileType, assetType)) {
 			update();
 			ThreadUtils.yield();

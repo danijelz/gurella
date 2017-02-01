@@ -1,12 +1,11 @@
-package com.gurella.engine.asset2.config;
+package com.gurella.engine.asset2.resolver;
 
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.utils.Array;
 
 //TODO unused
-public class AssetConfig<T> {
+public class ConfigurableResolver<T> {
 	boolean sticky;
-	Class<T> type;
 
 	String fileNameUuid;
 	AssetLoaderParameters<T> parameters;
@@ -37,10 +36,6 @@ public class AssetConfig<T> {
 			resolve();
 		}
 		return fileNameUuid;
-	}
-
-	public Class<T> getType() {
-		return type;
 	}
 
 	public AssetLoaderParameters<T> getParameters() {

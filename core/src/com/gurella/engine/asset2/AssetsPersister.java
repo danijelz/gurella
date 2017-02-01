@@ -1,14 +1,14 @@
-package com.gurella.engine.asset2.persister;
+package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset2.Assets;
-import com.gurella.engine.asset2.AssetsManager;
+import com.gurella.engine.asset2.persister.AssetLocator;
+import com.gurella.engine.asset2.persister.AssetPersister;
 
-public class AssetsPersister {
-	private final AssetsManager manager;
+class AssetsPersister {
+	private final AssetLocator assetLocator;
 	private final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
 	static {
@@ -23,8 +23,8 @@ public class AssetsPersister {
 		// register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
-	public AssetsPersister(AssetsManager manager) {
-		this.manager = manager;
+	AssetsPersister(AssetLocator assetLocator) {
+		this.assetLocator = assetLocator;
 	}
 
 	public <T> void register(Class<T> type, boolean derivable, AssetPersister<T> persister) {
@@ -64,7 +64,7 @@ public class AssetsPersister {
 		if (persister == null) {
 			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
 		} else {
-			persister.persist(manager, handle, asset);
+			persister.persist(assetLocator, handle, asset);
 		}
 	}
 

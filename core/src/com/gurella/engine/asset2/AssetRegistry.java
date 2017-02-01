@@ -76,7 +76,7 @@ class AssetRegistry implements Disposable {
 		return idsByAsset.containsKey(asset);
 	}
 
-	<T> AssetId getAssetId(T asset, AssetId out) {
+	AssetId getAssetId(Object asset, AssetId out) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
 		if (id == null) {
 			return out.empty();

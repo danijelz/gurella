@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.config.AssetConfig;
+import com.gurella.engine.asset2.resolver.ConfigurableResolver;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
@@ -74,13 +74,13 @@ public final class AssetService implements ApplicationCleanupListener {
 	}
 
 	// TODO unused -> should be managed internaly by loader task
-	public static <T> AssetConfig<T> getAssetConfig(String fileName) {
+	public static <T> ConfigurableResolver<T> getConfigurableResolver(String fileName) {
 		return null;
 	}
 
 	// TODO unused
 	private static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		AssetConfig<T> descriptor = null;
+		ConfigurableResolver<T> descriptor = null;
 		return descriptor == null ? null : descriptor.getParameters();
 	}
 
