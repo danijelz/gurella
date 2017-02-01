@@ -245,6 +245,25 @@ public class Assets {
 		}
 	}
 
+	public static FileType getFileType(String path) {
+		boolean hasFileTypeInfo = hasFileTypeInfo(path);
+		char fileTypeInfo = hasFileTypeInfo ? path.charAt(0) : getDefaultFileTypeInfo(path);
+		switch (fileTypeInfo) {
+		case internalFileType:
+			return FileType.Internal;
+		case classpathFileType:
+			return FileType.Classpath;
+		case externalFileType:
+			return FileType.External;
+		case absoluteFileType:
+			return FileType.Absolute;
+		case localFileType:
+			return FileType.Local;
+		default:
+			return FileType.Internal;
+		}
+	}
+
 	private static char getDefaultFileTypeInfo(String path) {
 		return isAbsolutePath(path) ? absoluteFileType : internalFileType;
 	}

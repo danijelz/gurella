@@ -397,7 +397,7 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	private Bundle getAssetRootBundle(Object asset) {
+	Bundle getAssetRootBundle(Object asset) {
 		Bundle bundle = assetBundle.get(asset);
 		return bundle == null ? null : getRootBundle(bundle);
 	}

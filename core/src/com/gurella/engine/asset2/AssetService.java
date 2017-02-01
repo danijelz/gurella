@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
@@ -59,7 +60,7 @@ public class AssetService {
 	}
 
 	public static boolean isLoaded(String fileName) {
-		return getManager().isLoaded(fileName, FileType.Internal, Assets.getAssetClass(fileName));
+		return getManager().isLoaded(fileName, Assets.getFileType(fileName), Assets.getAssetClass(fileName));
 	}
 
 	public static boolean isLoaded(String fileName, FileType fileType) {
@@ -67,7 +68,7 @@ public class AssetService {
 	}
 
 	public static boolean isLoaded(String fileName, Class<?> assetType) {
-		return getManager().isLoaded(fileName, FileType.Internal, assetType);
+		return getManager().isLoaded(fileName, Assets.getFileType(fileName), assetType);
 	}
 
 	public static boolean isLoaded(AssetId assetId) {
@@ -101,6 +102,10 @@ public class AssetService {
 
 	public static boolean isManaged(Object asset) {
 		return getManager().isManaged(asset);
+	}
+
+	public static <T> void save(T asset, String fileName) {
+		getManager().save(asset, fileName, Assets.getFileType(fileName));
 	}
 
 	public static <T> void save(T asset, String fileName, FileType fileType) {
@@ -137,7 +142,7 @@ public class AssetService {
 	}
 
 	public static <T> T load(String fileName) {
-		return getManager().load(fileName, FileType.Internal, Assets.<T> getAssetClass(fileName));
+		return getManager().load(fileName, Assets.getFileType(fileName), Assets.<T> getAssetClass(fileName));
 	}
 
 	public static <T> T load(String fileName, FileType fileType) {
@@ -145,7 +150,7 @@ public class AssetService {
 	}
 
 	public static <T> T load(String fileName, Class<T> assetType) {
-		return getManager().load(fileName, FileType.Internal, assetType);
+		return getManager().load(fileName, Assets.getFileType(fileName), assetType);
 	}
 
 	public static <T> T load(AssetId assetId) {
@@ -157,7 +162,8 @@ public class AssetService {
 	}
 
 	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, int priority) {
-		getManager().loadAsync(callback, fileName, FileType.Internal, Assets.<T> getAssetClass(fileName), priority);
+		Class<T> assetType = Assets.<T> getAssetClass(fileName);
+		getManager().loadAsync(callback, fileName, Assets.getFileType(fileName), assetType, priority);
 	}
 
 	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, int priority) {
@@ -165,7 +171,7 @@ public class AssetService {
 	}
 
 	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, Class<T> assetType, int priority) {
-		getManager().loadAsync(callback, fileName, FileType.Internal, assetType, priority);
+		getManager().loadAsync(callback, fileName, Assets.getFileType(fileName), assetType, priority);
 	}
 
 	public static <T> void loadAsync(AsyncCallback<T> callback, AssetId assetId, int priority) {
@@ -176,6 +182,14 @@ public class AssetService {
 	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		getManager().loadAsync(callback, fileName, fileType, assetType, priority);
+	}
+
+	public static String getBundledId(Object asset) {
+		return getManager().getBundleId(asset);
+	}
+
+	public static Bundle getBundle(Object asset) {
+		return getManager().getBundle(asset);
 	}
 
 	private static class Cleaner implements ApplicationShutdownListener {

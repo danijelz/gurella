@@ -265,7 +265,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		return dependencies.entries();
 	}
 
-	boolean isAssetSticky() {
+	boolean isSticky() {
 		// TODO Auto-generated method stub
 		return properties == null ? false : false;
 	}

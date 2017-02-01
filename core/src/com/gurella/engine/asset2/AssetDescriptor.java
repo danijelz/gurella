@@ -6,12 +6,16 @@ import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.plugin.Plugin;
 
 //TODO unused, should replace AssetType
-public class AssetDescriptor<TYPE, PROPS extends AssetProperties<TYPE>> implements Plugin {
+public class AssetDescriptor<TYPE> implements Plugin {
 	public final Class<TYPE> assetType = null;
+	public final boolean strictAssetType = true;
+
 	public final String[] fileExtensions = null;
 	public final boolean composite = false;
-	public final Class<PROPS> propertiesType = null;
-	public final AssetLoader<?, TYPE, PROPS> loader = null;
+
+	public final Class<? extends AssetProperties<TYPE>> propertiesType = null;
+	public final AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader = null;
+
 	public final AssetPersister<TYPE> persister = null;
 	//TODO AssetReloader, MissingValueProvider
 }

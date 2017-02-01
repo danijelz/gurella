@@ -159,9 +159,15 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		}
 	}
 
-	String getBundledId(Object asset) {
+	String getBundleId(Object asset) {
 		synchronized (mutex) {
 			return registry.getBundleId(asset);
+		}
+	}
+
+	Bundle getBundle(Object asset) {
+		synchronized (mutex) {
+			return registry.getAssetRootBundle(asset);
 		}
 	}
 
@@ -220,7 +226,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 	}
 
 	private FileHandle resolveFile(String fileName, FileType fileType) {
-		// TODO resolve by AssetConfig
+		// TODO resolve by FileHandleResolver
 		return files.getFileHandle(fileName, fileType);
 	}
 
@@ -251,7 +257,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		boolean revert = task.exception != null;
 		if (!revert) {
 			AssetId assetId = task.assetId;
-			boolean sticky = task.isAssetSticky();
+			boolean sticky = task.isSticky();
 			int references = task.getReferences();
 			int reservations = task.getReservations();
 			ObjectIntMap<AssetId> dependencyCount = task.getDependencyCount();
