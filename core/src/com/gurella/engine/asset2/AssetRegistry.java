@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -25,7 +26,7 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 
 class AssetRegistry implements Disposable {
-	private final ObjectMap<AssetId, AssetSlot> slotsById = new ObjectMap<AssetId, AssetSlot>();
+	private final ObjectMap<AssetId, AssetSlot<?>> slotsById = new ObjectMap<AssetId, AssetSlot<?>>();
 	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
 
@@ -37,24 +38,8 @@ class AssetRegistry implements Disposable {
 	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
 	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 
-	AssetSlot reserve(AssetId tempAssetId) {
-		AssetSlot slot = slotsById.get(tempAssetId);
-		if (slot != null) {
-			slot.incReservations();
-		}
-		return slot;
-	}
-
-	void unreserve(AssetSlot slot) {
-		slot.decReservations();
-		if (!slot.isActive()) {
-			AssetId assetId = idsByAsset.get(slot.asset);
-			remove(assetId, slot);
-		}
-	}
-
 	<T> T get(AssetId tempAssetId, String bundleId) {
-		AssetSlot slot = slotsById.get(tempAssetId);
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
 			throw new GdxRuntimeException("Asset not loaded: " + tempAssetId);
@@ -111,12 +96,12 @@ class AssetRegistry implements Disposable {
 	}
 
 	boolean isLoaded(AssetId tempAssetId) {
-		AssetSlot slot = slotsById.get(tempAssetId);
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
 		return slot != null && slot.asset != null;
 	}
 
-	<T> T getIfLoaded(AssetId tempAssetId, String bundleId) {
-		AssetSlot slot = slotsById.get(tempAssetId);
+	<T> T getLoaded(AssetId tempAssetId, String bundleId) {
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
 
 		if (slot == null || slot.asset == null) {
 			return null;
@@ -133,25 +118,41 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	<T> void add(String fileName, FileType fileType, Class<T> assetType, T asset, boolean sticky) {
-		if (idsByAsset.containsKey(asset)) {
-			throw new IllegalStateException("Asset is already loaded: " + fileName);
+	boolean unload(Object asset) {
+		Object toRemove = getAssetOrRootBundle(asset);
+		AssetId id = idsByAsset.get(toRemove);
+		if (id == null) {
+			return false;
 		}
 
-		AssetId assetId = assetIdPool.obtain().set(fileName, fileType, assetType);
-		idsByAsset.put(asset, assetId);
-
-		AssetSlot slot = assetSlotPool.obtain();
-		slotsById.put(assetId, slot);
-		populateSlot(assetId, slot, asset, sticky);
+		AssetSlot<?> slot = slotsById.get(id);
+		if (slot.decReferences() == SlotActivity.inactive) {
+			remove(id, slot);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-	<T> void populateSlot(AssetId assetId, AssetSlot slot, T asset, boolean sticky) {
-		slot.asset = asset;
-		slot.sticky = sticky;
+	<T> void add(AssetId tempId, T asset) {
+		add(tempId, asset, false, 1, 0, null);
+	}
+
+	<T> void add(AssetId tempId, T asset, boolean sticky, int references, int reservations,
+			ObjectIntMap<AssetId> dependencies) {
+		if (idsByAsset.containsKey(asset) || slotsById.containsKey(tempId)) {
+			throw new IllegalStateException("Asset is already loaded: " + tempId);
+		}
+
+		AssetId assetId = assetIdPool.obtain().set(tempId);
+		AssetSlot<T> slot = assetSlotPool.obtainSlot();
+		slot.init(assetId, asset, sticky, references, reservations, dependencies);
+
+		idsByAsset.put(asset, assetId);
+		slotsById.put(assetId, slot);
 
 		if (asset instanceof Bundle) {
-			ObjectMap<String, Object> bundledAssets = slot.initBundledAssets();
+			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
 			if (bundledAssets.size > 0) {
 				Bundle bundle = (Bundle) asset;
 				for (Object bundledAsset : bundledAssets.values()) {
@@ -164,29 +165,29 @@ class AssetRegistry implements Disposable {
 		assetLoadedEvent.post(assetId, asset);
 	}
 
-	boolean decRefCount(Object asset) {
-		Object toRemove = getAssetOrRootBundle(asset);
-		AssetId id = idsByAsset.get(toRemove);
-		if (id == null) {
-			return false;
+	<T> AssetSlot<T> reserve(AssetId assetId) {
+		@SuppressWarnings("unchecked")
+		AssetSlot<T> slot = (AssetSlot<T>) slotsById.get(assetId);
+		if (slot != null) {
+			slot.incReservations();
 		}
+		return slot;
+	}
 
-		AssetSlot slot = slotsById.get(id);
-		if (slot.decReferences() == SlotActivity.inactive) {
-			remove(id, slot);
-			return true;
-		} else {
-			return false;
+	void unreserve(AssetId assetId) {
+		AssetSlot<?> slot = slotsById.get(assetId);
+		if (slot.decReservations() == inactive) {
+			remove(assetId, slot);
 		}
 	}
 
 	boolean removeAll(String fileName, FileType fileType) {
 		boolean removed = false;
-		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
-			Entry<AssetId, AssetSlot> entry = iter.next();
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			if (assetId.equalsFile(fileName, fileType)) {
-				AssetSlot slot = entry.value;
+				AssetSlot<?> slot = entry.value;
 				iter.remove();
 				remove(assetId, slot);
 				removed = true;
@@ -195,7 +196,7 @@ class AssetRegistry implements Disposable {
 		return removed;
 	}
 
-	private void remove(AssetId id, AssetSlot slot) {
+	private void remove(AssetId id, AssetSlot<?> slot) {
 		Object asset = slot.asset;
 		assetUnloadedEvent.post(id, asset);
 		unloadBundledAssets(slot);
@@ -213,7 +214,7 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	private void unloadBundledAssets(AssetSlot slot) {
+	private void unloadBundledAssets(AssetSlot<?> slot) {
 		ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
 		if (bundledAssets.size == 0) {
 			return;
@@ -225,50 +226,41 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	private void dereferenceDependencies(AssetId id, AssetSlot slot) {
+	private void dereferenceDependencies(AssetId id, AssetSlot<?> slot) {
 		for (AssetId dependencyId : slot.dependencies.keys()) {
-			AssetSlot dependencySlot = slotsById.get(dependencyId);
+			AssetSlot<?> dependencySlot = slotsById.get(dependencyId);
 			if (dependencySlot.removeDependent(id) == SlotActivity.inactive) {
 				remove(dependencyId, dependencySlot);
 			}
 		}
 	}
 
-	<T> T getDependencyAndIncCount(AssetId dependant, AssetId dependencyId) {
-		AssetSlot slot = slotsById.get(dependant);
-		AssetSlot dependencySlot = slotsById.get(dependencyId);
-		@SuppressWarnings("unchecked")
-		T dependency = (T) dependencySlot.asset;
-		incDependencyCount(dependant, slot, dependency);
-		return dependency;
-	}
-
 	void addDependency(Object asset, Object dependency) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
-		AssetSlot slot = slotsById.get(id);
+		AssetSlot<?> slot = slotsById.get(id);
 		incDependencyCount(id, slot, dependency);
 	}
 
-	private void incDependencyCount(AssetId id, AssetSlot slot, Object dependency) {
+	private void incDependencyCount(AssetId id, AssetSlot<?> slot, Object dependency) {
 		AssetId dependencyId = idsByAsset.get(dependency);
 		if (slot.incDependencyCount(dependencyId) == fresh) {
-			AssetSlot dependencySlot = slotsById.get(idsByAsset.get(dependency));
+			AssetSlot<?> dependencySlot = slotsById.get(idsByAsset.get(dependency));
 			dependencySlot.addDependent(id);
 		}
 	}
 
 	public void removeDependency(Object asset, Object dependency) {
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
-		AssetSlot slot = slotsById.get(id);
+		AssetSlot<?> slot = slotsById.get(id);
 		if (removeDependency(id, slot, dependency) == inactive) {
 			remove(id, slot);
 		}
 	}
 
-	private SlotActivity removeDependency(AssetId id, AssetSlot slot, Object dependency) {
+	private SlotActivity removeDependency(AssetId id, AssetSlot<?> slot, Object dependency) {
 		AssetId dependencyId = idsByAsset.get(dependency);
 		if (slot.decDependencyCount(dependencyId) == obsolete) {
-			AssetSlot dependencySlot = slotsById.get(dependencyId);
+			AssetSlot<?> dependencySlot = slotsById.get(dependencyId);
 			if (dependencySlot.removeDependent(id) == inactive) {
 				remove(dependencyId, dependencySlot);
 			}
@@ -288,7 +280,7 @@ class AssetRegistry implements Disposable {
 		}
 
 		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
-		AssetSlot slot = slotsById.get(id);
+		AssetSlot<?> slot = slotsById.get(id);
 
 		removeDependency(id, slot, oldDependency);
 		incDependencyCount(id, slot, newDependency);
@@ -301,7 +293,7 @@ class AssetRegistry implements Disposable {
 	void addToBundle(Bundle bundle, Object asset, String bundleId) {
 		Bundle rootBundle = getRootBundle(bundle);
 		AssetId rootBundleId = idsByAsset.get(rootBundle);
-		AssetSlot rootBundleSlot = slotsById.get(rootBundleId);
+		AssetSlot<?> rootBundleSlot = slotsById.get(rootBundleId);
 		Bundle assetRootBundle = getAssetRootBundle(asset);
 
 		if (assetRootBundle == rootBundle) {
@@ -311,7 +303,7 @@ class AssetRegistry implements Disposable {
 		assetBundle.put(asset, rootBundle);
 
 		AssetId id = idsByAsset.get(asset);
-		AssetSlot slot = id == null ? null : slotsById.remove(id);
+		AssetSlot<?> slot = id == null ? null : slotsById.remove(id);
 		if (slot != null) {
 			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
 			if (bundledAssets != null && bundledAssets.size > 0) {
@@ -359,11 +351,11 @@ class AssetRegistry implements Disposable {
 
 		Bundle rootBundle = getRootBundle(bundle);
 		AssetId rootBundleId = idsByAsset.get(rootBundle);
-		AssetSlot rootBundleSlot = slotsById.get(rootBundleId);
+		AssetSlot<?> rootBundleSlot = slotsById.get(rootBundleId);
 		removeFromBundle(rootBundleSlot, asset);
 	}
 
-	private void removeFromBundle(AssetSlot bundleSlot, Object asset) {
+	private void removeFromBundle(AssetSlot<?> bundleSlot, Object asset) {
 		idsByAsset.remove(asset);
 		assetBundle.remove(asset);
 		bundleSlot.removeBundledAsset(asset);
@@ -389,7 +381,7 @@ class AssetRegistry implements Disposable {
 
 		Bundle bundle = assetBundle.get(asset);
 		AssetId id = idsByAsset.get(getRootBundle(bundle));
-		AssetSlot slot = slotsById.get(id);
+		AssetSlot<?> slot = slotsById.get(id);
 		return slot.getBundleId(asset);
 	}
 
@@ -427,22 +419,27 @@ class AssetRegistry implements Disposable {
 	}
 
 	private void removeAll() {
-		for (Entries<AssetId, AssetSlot> iter = slotsById.iterator(); iter.hasNext;) {
-			Entry<AssetId, AssetSlot> entry = iter.next();
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
-			AssetSlot slot = entry.value;
+			AssetSlot<?> slot = entry.value;
 			iter.remove();
 			remove(assetId, slot);
 		}
 	}
 
-	private static class AssetSlotPool extends Pool<AssetSlot> {
+	private static class AssetSlotPool extends Pool<AssetSlot<?>> {
 		@Override
-		protected AssetSlot newObject() {
-			return new AssetSlot();
+		protected AssetSlot<?> newObject() {
+			return new AssetSlot<Object>();
+		}
+
+		@SuppressWarnings("unchecked")
+		<T> AssetSlot<T> obtainSlot() {
+			return (AssetSlot<T>) obtain();
 		}
 	}
-	
+
 	private static class AssetIdPool extends Pool<AssetId> {
 		@Override
 		protected AssetId newObject() {

@@ -13,7 +13,8 @@ public class AssetUnloadedEvent implements Event<AssetActivityListener2> {
 		this.assetId = assetId;
 		this.asset = asset;
 		EventService.post(AssetActivityListener2.class, this);
-		reset();
+		this.assetId = null;
+		this.asset = null;
 	}
 
 	@Override
@@ -24,10 +25,5 @@ public class AssetUnloadedEvent implements Event<AssetActivityListener2> {
 	@Override
 	public Class<AssetActivityListener2> getSubscriptionType() {
 		return AssetActivityListener2.class;
-	}
-
-	void reset() {
-		assetId = null;
-		asset = null;
 	}
 }

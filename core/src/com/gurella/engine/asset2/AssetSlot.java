@@ -14,15 +14,33 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.bundle.BundleAware;
 
-class AssetSlot implements Poolable {
-	Object asset;
-
+class AssetSlot<T> implements Dependency<T>, Poolable {
+	AssetId assetId;
+	T asset;
 	boolean sticky;
-	int references = 0;
-	int reservations = 0;
-	final ObjectIntMap<AssetId> dependencies = new ObjectIntMap<AssetId>(4);
-	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>(4);
+
+	volatile int references = 0;
+	volatile int reservations = 0;
+	final ObjectIntMap<AssetId> dependencies = new ObjectIntMap<AssetId>();
+	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>();
 	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
+
+	void init(AssetId assetId, T asset, boolean sticky, int references, int reservations,
+			ObjectIntMap<AssetId> dependencies) {
+		this.assetId = assetId;
+		this.asset = asset;
+		this.sticky = sticky;
+		this.references = references;
+		this.reservations += reservations;
+
+		if (dependencies != null && dependencies.size > 0) {
+			this.dependencies.putAll(dependencies);
+		}
+
+		if (asset instanceof Bundle) {
+			((Bundle) asset).getBundledAssets(bundledAssets);
+		}
+	}
 
 	boolean isActive() {
 		return sticky || references > 0 || dependents.size > 0 || reservations > 0;
@@ -59,6 +77,11 @@ class AssetSlot implements Poolable {
 		return current == 0 ? fresh : steady;
 	}
 
+	DependencyActivity incDependencyCount(AssetId id, int increment) {
+		int current = dependencies.getAndIncrement(id, 0, increment);
+		return current == 0 ? fresh : steady;
+	}
+
 	DependencyActivity decDependencyCount(AssetId id) {
 		int ref = dependencies.get(id, -1);
 		if (ref < 0) {
@@ -81,22 +104,13 @@ class AssetSlot implements Poolable {
 		return getActivity();
 	}
 
-	//TODO rename to getBundledAssets
-	ObjectMap<String, Object> initBundledAssets() {
-		if (asset instanceof Bundle) {
-			((Bundle) asset).getBundledAssets(bundledAssets);
-		}
-
-		return bundledAssets;
-	}
-
-	<T> T getBundledAsset(String bundleId) {
+	<B> B getBundledAsset(String bundleId) {
 		if (!(asset instanceof Bundle)) {
 			throw new UnsupportedOperationException();
 		}
 
 		@SuppressWarnings("unchecked")
-		T casted = (T) bundledAssets.get(bundleId);
+		B casted = (B) bundledAssets.get(bundleId);
 		return casted;
 	}
 
@@ -138,8 +152,8 @@ class AssetSlot implements Poolable {
 		throw new IllegalStateException();
 	}
 
-	void merge(AssetSlot other) {
-		//TODO if(other.reserved) throw ...
+	void merge(AssetSlot<?> other) {
+		// TODO if(other.reserved) throw ...
 		sticky |= other.sticky;
 		references += other.references;
 		dependents.addAll(other.dependents);
@@ -156,7 +170,18 @@ class AssetSlot implements Poolable {
 	}
 
 	@Override
+	public AssetId getAssetId() {
+		return assetId;
+	}
+
+	@Override
+	public T getAsset() {
+		return asset;
+	}
+
+	@Override
 	public void reset() {
+		assetId = null;
 		asset = null;
 		sticky = false;
 		references = 0;

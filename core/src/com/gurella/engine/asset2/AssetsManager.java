@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -59,7 +60,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 
 	public <T> boolean unload(T asset) {
 		synchronized (mutex) {
-			return registry.decRefCount(asset);
+			return registry.unload(asset);
 		}
 	}
 
@@ -91,13 +92,14 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 		return registry.isManaged(asset);
 	}
 
-	public <T> void save(T asset, String fileName, FileType fileType, boolean sticky) {
+	public <T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {
 			FileHandle file = resolveFile(fileName, fileType);
 			persister.persist(file, asset);
 			if (!registry.isManaged(asset)) {
 				Class<Object> assetType = Assets.getAssetRootClass(asset);
-				registry.add(fileName, fileType, assetType, asset, sticky);
+				tempAssetId.set(fileName, fileType, assetType);
+				registry.add(tempAssetId, asset);
 			}
 		}
 	}
@@ -178,7 +180,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	public <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		synchronized (mutex) {
-			T asset = registry.getIfLoaded(tempAssetId.set(fileName, fileType, assetType), null);
+			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
 			if (asset == null) {
 				task(callback, fileName, fileType, assetType, priority);
 			} else {
@@ -190,7 +192,7 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 
 	public <T> T load(String fileName, FileType fileType, Class<T> assetType) {
 		synchronized (mutex) {
-			T asset = registry.getIfLoaded(tempAssetId.set(fileName, fileType, assetType), null);
+			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
 			if (asset != null) {
 				return asset;
 			}
@@ -204,7 +206,8 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 			}
 
 			if (callback.isFailed()) {
-				throw new RuntimeException("Error loading asset " + fileName, callback.getExceptionAndFree());
+				tempAssetId.set(fileName, fileType, assetType);
+				throw new RuntimeException("Error loading asset " + tempAssetId, callback.getExceptionAndFree());
 			} else {
 				return callback.getValueAndFree();
 			}
@@ -256,51 +259,41 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 
 	private void finish(AssetLoadingTask<?, ?> task) {
 		boolean revert = task.exception != null;
+		if (!revert) {
+			AssetId assetId = task.assetId;
+			boolean sticky = task.isAssetSticky();
+			int references = task.getReferences();
+			int reservations = task.getReservations();
+			ObjectIntMap<AssetId> dependencyCount = task.getDependencyCount();
+			registry.add(assetId, task.asset, sticky, references, reservations, dependencyCount);
+		}
+
 		Entries<AssetId, Dependency<?>> entries = task.getDependencies();
 		for (Entry<AssetId, Dependency<?>> entry : entries) {
+			registry.unreserve(entry.value.getAssetId());
+		}
+
+		if (task.isRoot()) {
+			freeTask(task);
+		}
+	}
+
+	private void freeTask(AssetLoadingTask<?, ?> task) {
+		for (Entry<AssetId, Dependency<?>> entry : task.getDependencies()) {
 			Dependency<?> dependency = entry.value;
-			if (dependency instanceof AssetSlot) {
-				finish(task, ((AssetSlot) dependency), revert);
-			} else {
-				finish(task, ((AssetLoadingTask<?, ?>) dependency), revert);
+			if (dependency instanceof AssetLoadingTask) {
+				freeTask((AssetLoadingTask<?, ?>) dependency);
 			}
 		}
-		
-		if(!revert) {
-			//TODO registry.add(assetId, asset, dependencies, sticky);
-		}
-
-		if (task.parent == null) {
-			taskPool.free(task);
-		}
-	}
-
-	private void finish(AssetLoadingTask<?, ?> task, AssetSlot dependency, boolean revert) {
-		registry.unreserve(dependency);
-		// TODO unloadDependencies()
-	}
-
-	private void finish(AssetLoadingTask<?, ?> task, AssetLoadingTask<?, ?> dependency, boolean revert) {
-		if (revert) {
-			if (dependency.state == finished) {
-
-			}
-		} else {
-			// TODO unloadDependencies()
-		}
+		taskPool.free(task);
 	}
 
 	<T> Dependency<T> getDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
 			Class<T> assetType) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
-			AssetSlot slot = registry.reserve(tempAssetId);
-			if (slot == null) {
-				AssetLoadingTask<?, T> task = subTask(parent, assetType);
-			}
-
-			// TODO Auto-generated method stub
-			return null;
+			AssetSlot<T> slot = registry.reserve(tempAssetId);
+			return slot == null ? subTask(parent, assetType) : slot;
 		}
 	}
 
@@ -320,23 +313,22 @@ public class AssetsManager implements ApplicationCleanupListener, AsyncTask<Void
 	@Override
 	public Void call() throws Exception {
 		while (true) {
-			AssetLoadingTask<?, ?> nextTask;
+			AssetLoadingTask<?, ?> task;
 			synchronized (mutex) {
 				if (asyncQueue.size > 0) {
-					nextTask = asyncQueue.pop();
+					task = asyncQueue.pop();
 				} else {
 					executing = false;
 					return null;
 				}
 			}
 
-			updateTask(nextTask);
+			task.update();
+			taskStateChanged(task);
 		}
 	}
 
-	private void updateTask(AssetLoadingTask<?, ?> task) {
-		task.update();
-
+	void taskStateChanged(AssetLoadingTask<?, ?> task) {
 		synchronized (mutex) {
 			switch (task.state) {
 			case waitingDependencies:
