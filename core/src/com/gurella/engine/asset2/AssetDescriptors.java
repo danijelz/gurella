@@ -10,6 +10,7 @@ import com.gurella.engine.utils.Values;
 
 public class AssetDescriptors {
 	private final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
+	private final ObjectMap<Class<?>, AssetDescriptor<?>> resolvedDescriptor = new ObjectMap<Class<?>, AssetDescriptor<?>>();
 	private final ObjectMap<String, Array<AssetDescriptor<?>>> descriptorsByExtension = new ObjectMap<String, Array<AssetDescriptor<?>>>();
 	private final ObjectSet<String> allExtensions = new ObjectSet<String>();
 
@@ -46,11 +47,14 @@ public class AssetDescriptors {
 	}
 
 	private <T> AssetDescriptor<T> getDescriptor(final Class<T> assetType) {
+		if (resolvedDescriptor.containsKey(assetType)) {
+			return Values.cast(resolvedDescriptor.get(assetType));
+		}
+
 		AssetDescriptor<?> descriptor = descriptorByType.get(assetType);
 		if (descriptor != null) {
-			@SuppressWarnings("unchecked")
-			AssetDescriptor<T> casted = (AssetDescriptor<T>) descriptor;
-			return casted;
+			resolvedDescriptor.put(assetType, descriptor);
+			return Values.cast(descriptor);
 		}
 
 		@SuppressWarnings("unchecked")
