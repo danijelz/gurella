@@ -2,7 +2,9 @@ package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.asset2.properties.AssetProperties;
@@ -10,16 +12,18 @@ import com.gurella.engine.utils.Values;
 
 public class AssetDescriptors {
 	private final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
-	private final ObjectMap<Class<?>, AssetDescriptor<?>> resolvedDescriptor = new ObjectMap<Class<?>, AssetDescriptor<?>>();
+	private final ObjectMap<Class<?>, AssetDescriptor<?>> resolvedDescriptors = new ObjectMap<Class<?>, AssetDescriptor<?>>();
 	private final ObjectMap<String, Array<AssetDescriptor<?>>> descriptorsByExtension = new ObjectMap<String, Array<AssetDescriptor<?>>>();
 	private final ObjectSet<String> allExtensions = new ObjectSet<String>();
 
-	public <T> void registerAssetType(Class<T> assetType, boolean containsReferences, String... extensions) {
+	public <T> void registerAssetType(Class<T> assetType, boolean allowedForSubtypes, boolean containsReferences,
+			String... extensions) {
 		if (descriptorByType.containsKey(assetType)) {
 			throw new IllegalArgumentException("assetType " + assetType.getName() + " allready registered.");
 		}
 
-		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, containsReferences, extensions);
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, allowedForSubtypes, containsReferences,
+				extensions);
 		descriptorByType.put(assetType, descriptor);
 
 		for (int i = 0; i < extensions.length; i++) {
@@ -37,29 +41,13 @@ public class AssetDescriptors {
 	}
 
 	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties<T>> loader,
-			boolean extensible, String... extensions) {
-		AssetDescriptor<T> descriptor = getDescriptor(assetType);
+			boolean allowedForSubtypes, String... extensions) {
+		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		if (descriptor == null) {
 			throw new IllegalArgumentException("assetType " + assetType.getName() + " not registered.");
 		} else {
-			descriptor.registerLoader(assetType, loader, extensible, extensions);
+			descriptor.registerLoader(loader, allowedForSubtypes, extensions);
 		}
-	}
-
-	private <T> AssetDescriptor<T> getDescriptor(final Class<T> assetType) {
-		if (resolvedDescriptor.containsKey(assetType)) {
-			return Values.cast(resolvedDescriptor.get(assetType));
-		}
-
-		AssetDescriptor<?> descriptor = descriptorByType.get(assetType);
-		if (descriptor != null) {
-			resolvedDescriptor.put(assetType, descriptor);
-			return Values.cast(descriptor);
-		}
-
-		@SuppressWarnings("unchecked")
-		AssetDescriptor<T> casted = (AssetDescriptor<T>) descriptor;
-		return casted;
 	}
 
 	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(final Class<T> assetType) {
@@ -68,7 +56,7 @@ public class AssetDescriptors {
 
 	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(final Class<T> assetType,
 			final String fileName) {
-		AssetDescriptor<T> descriptor = getDescriptor(assetType);
+		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.getLoader(assetType, fileName);
 	}
 
@@ -77,7 +65,7 @@ public class AssetDescriptors {
 	}
 
 	public <T> AssetPersister<T> getPersister(final Class<T> assetType, final String fileName) {
-		AssetDescriptor<T> descriptor = getDescriptor(assetType);
+		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.getPersister(assetType, fileName);
 	}
 
@@ -90,19 +78,34 @@ public class AssetDescriptors {
 		if (Values.isBlank(extension)) {
 			return false;
 		}
-		AssetDescriptor<?> descriptor = getDescriptor(assetType);
+		AssetDescriptor<?> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.extensions.contains(extension);
 	}
 
 	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<T> assetType) {
+		AssetDescriptor<?> descriptor = descriptorByType.get(assetType);
+		if (descriptor != null) {
+			return Values.cast(descriptor);
+		}
+
+		if (resolvedDescriptors.containsKey(assetType)) {
+			return Values.cast(resolvedDescriptors.get(assetType));
+		}
+
+		for (Entry<Class<?>, AssetDescriptor<?>> entry : descriptorByType.entries()) {
+			AssetDescriptor<?> temp = entry.value;
+			if (temp.allowedForSubtypes && ClassReflection.isAssignableFrom(temp.assetType, assetType)) {
+				resolvedDescriptors.put(assetType, temp);
+				@SuppressWarnings("unchecked")
+				AssetDescriptor<T> casted = (AssetDescriptor<T>) temp;
+				return casted;
+			}
+		}
+
 		return null;
 	}
 
 	public <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
-		return null;
-	}
-
-	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<T> assetType, final String fileName) {
 		return null;
 	}
 
@@ -112,6 +115,9 @@ public class AssetDescriptors {
 	}
 
 	public <T> Class<T> getAssetType(final Object asset) {
-		return null;
+		@SuppressWarnings("unchecked")
+		Class<T> assetType = (Class<T>) asset.getClass();
+		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
+		return descriptor == null ? null : descriptor.assetType;
 	}
 }

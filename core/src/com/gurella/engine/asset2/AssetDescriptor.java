@@ -10,15 +10,17 @@ import com.gurella.engine.utils.Values;
 public class AssetDescriptor<TYPE> {
 	public final Class<TYPE> assetType;
 	public final boolean containsReferences; // TODO ex composite
+	public final boolean allowedForSubtypes;
 	final ObjectSet<String> extensions = new ObjectSet<String>();
 	final ArrayExt<AssetLoaderConfig<TYPE>> loaders = new ArrayExt<AssetLoaderConfig<TYPE>>();
 	final ArrayExt<AssetPersisterConfig<TYPE>> persisters = new ArrayExt<AssetPersisterConfig<TYPE>>();
 	// TODO AssetReloader, MissingValueProvider
 
-	public AssetDescriptor(Class<TYPE> assetType, /*boolean allowForSubtypes,*/ boolean containsReferences,
+	public AssetDescriptor(Class<TYPE> assetType, boolean allowedForSubtypes, boolean containsReferences,
 			String... extensions) {
 		this.assetType = assetType;
 		this.containsReferences = containsReferences;
+		this.allowedForSubtypes = allowedForSubtypes;
 		for (int i = 0; i < extensions.length; i++) {
 			String extension = extensions[i];
 			if (Values.isNotBlank(extension)) {
@@ -27,9 +29,9 @@ public class AssetDescriptor<TYPE> {
 		}
 	}
 
-	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties<T>> loader,
-			boolean extensible, String... extensions) {
-
+	public void registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, boolean allowedForSubtypes,
+			String... extensions) {
+		loaders.add(new AssetLoaderConfig<TYPE>(loader, allowedForSubtypes, extensions));
 	}
 
 	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(Class<T> assetType, String fileName) {
@@ -43,14 +45,14 @@ public class AssetDescriptor<TYPE> {
 	}
 
 	public static class AssetLoaderConfig<TYPE> {
-		final boolean extensible;
+		final boolean allowedForSubtypes;
 		final boolean defaultLoader;
 		final ObjectSet<String> extensions = new ObjectSet<String>();
 		final AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader;
 
-		public AssetLoaderConfig(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, boolean extensible,
-				String... extensions) {
-			this.extensible = extensible;
+		public AssetLoaderConfig(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
+				boolean allowedForSubtypes, String... extensions) {
+			this.allowedForSubtypes = allowedForSubtypes;
 			this.loader = loader;
 
 			boolean hasDefault = false;
