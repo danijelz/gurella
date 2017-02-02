@@ -103,7 +103,8 @@ public class AssetDescriptors {
 	}
 
 	public <T> Class<T> getAssetType(final String fileName) {
-		return null;
+		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
+		return descriptor == null ? null : descriptor.assetType;
 	}
 
 	public <T> Class<T> getAssetType(final Object asset) {

@@ -15,7 +15,8 @@ public class AssetDescriptor<TYPE> {
 	final ArrayExt<AssetPersisterConfig<TYPE>> persisters = new ArrayExt<AssetPersisterConfig<TYPE>>();
 	// TODO AssetReloader, MissingValueProvider
 
-	public AssetDescriptor(Class<TYPE> assetType, boolean containsReferences, String... extensions) {
+	public AssetDescriptor(Class<TYPE> assetType, /*boolean allowForSubtypes,*/ boolean containsReferences,
+			String... extensions) {
 		this.assetType = assetType;
 		this.containsReferences = containsReferences;
 		for (int i = 0; i < extensions.length; i++) {
@@ -31,12 +32,12 @@ public class AssetDescriptor<TYPE> {
 
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(Class<T> assetType2, String fileName) {
+	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(Class<T> assetType, String fileName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public <T> AssetPersister<T> getPersister(Class<T> assetType2, String fileName) {
+	public <T> AssetPersister<T> getPersister(Class<T> assetType, String fileName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

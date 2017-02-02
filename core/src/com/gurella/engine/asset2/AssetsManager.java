@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.persister.AssetLocator;
+import com.gurella.engine.asset2.persister.AssetIdProvider;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
@@ -28,7 +28,7 @@ import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTask<Void>, Disposable {
+class AssetsManager implements ApplicationCleanupListener, AssetIdProvider, AsyncTask<Void>, Disposable {
 	private final Object mutex = new Object();
 
 	private final Files files = Gdx.files;
