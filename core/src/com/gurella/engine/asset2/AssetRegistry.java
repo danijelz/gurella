@@ -118,19 +118,19 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	boolean unload(Object asset) {
+	UnloadResult unload(Object asset) {
 		Object toRemove = getAssetOrRootBundle(asset);
 		AssetId id = idsByAsset.get(toRemove);
 		if (id == null) {
-			return false;
+			return UnloadResult.unexisting;
 		}
 
 		AssetSlot<?> slot = slotsById.get(id);
 		if (slot.decReferences() == SlotActivity.inactive) {
 			remove(id, slot);
-			return true;
+			return UnloadResult.unloaded;
 		} else {
-			return false;
+			return UnloadResult.active;
 		}
 	}
 
@@ -165,7 +165,7 @@ class AssetRegistry implements Disposable {
 		assetLoadedEvent.post(assetId, asset);
 	}
 
-	<T> AssetSlot<T> reserve(AssetId assetId) {
+	<T> Dependency<T> reserve(AssetId assetId) {
 		@SuppressWarnings("unchecked")
 		AssetSlot<T> slot = (AssetSlot<T>) slotsById.get(assetId);
 		if (slot != null) {

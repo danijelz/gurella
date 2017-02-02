@@ -274,7 +274,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		return 1 + callback.concurrentCallbacks.size;
 	}
 
-	public ObjectIntMap<AssetId> getDependencyCount() {
+	ObjectIntMap<AssetId> getDependencyCount() {
 		return dependencyCount;
 	}
 

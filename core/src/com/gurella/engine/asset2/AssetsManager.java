@@ -51,7 +51,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		}
 	}
 
-	<T> boolean unload(T asset) {
+	<T> UnloadResult unload(T asset) {
 		synchronized (mutex) {
 			return registry.unload(asset);
 		}
@@ -99,31 +99,38 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		}
 	}
 
-	boolean delete(String fileName, FileType fileType) {
+	DeleteResult delete(String fileName, FileType fileType) {
 		synchronized (mutex) {
 			registry.removeAll(fileName, fileType);
 			FileHandle file = resolveFile(fileName, fileType);
-			return file.delete();
+			if (!file.exists()) {
+				return DeleteResult.unexisting;
+			} else if (file.delete()) {
+				return DeleteResult.deleted;
+			} else {
+				return DeleteResult.unsuccessful;
+			}
 		}
 	}
 
-	boolean delete(Object asset) {
+	DeleteResult delete(Object asset) {
 		synchronized (mutex) {
 			registry.getAssetId(asset, tempAssetId);
 			if (tempAssetId.isEmpty()) {
-				return false;
+				return DeleteResult.unexisting;
 			}
 
 			String fileName = tempAssetId.fileName;
 			FileType fileType = tempAssetId.fileType;
 			registry.removeAll(fileName, fileType);
 
-			FileHandle file = files.getFileHandle(fileName, fileType);
-			if (file.exists()) {
-				file.delete();
-				return true;
+			FileHandle file = resolveFile(fileName, fileType);
+			if (!file.exists()) {
+				return DeleteResult.unexisting;
+			} else if (file.delete()) {
+				return DeleteResult.deleted;
 			} else {
-				return false;
+				return DeleteResult.unsuccessful;
 			}
 		}
 	}
@@ -178,7 +185,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		synchronized (mutex) {
 			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
 			if (asset == null) {
-				task(callback, fileName, fileType, assetType, priority);
+				load(callback, fileName, fileType, assetType, priority);
 			} else {
 				callback.onProgress(1f);
 				callback.onSuccess(asset);
@@ -194,7 +201,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 			}
 
 			SimpleAsyncCallback<T> callback = SimpleAsyncCallback.obtain();
-			task(callback, fileName, fileType, assetType, Integer.MAX_VALUE);
+			load(callback, fileName, fileType, assetType, Integer.MAX_VALUE);
 
 			while (!callback.isDone()) {
 				update();
@@ -210,7 +217,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 		}
 	}
 
-	private <T> void task(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	private <T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		tempAssetId.set(fileName, fileType, assetType);
 		@SuppressWarnings("unchecked")
@@ -288,8 +295,8 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 			Class<T> assetType) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
-			AssetSlot<T> slot = registry.reserve(tempAssetId);
-			return slot == null ? subTask(parent, assetType) : slot;
+			Dependency<T> dependency = registry.reserve(tempAssetId);
+			return dependency == null ? subTask(parent, assetType) : dependency;
 		}
 	}
 

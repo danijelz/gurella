@@ -32,4 +32,9 @@ public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T
 		// input.init(file);
 		// input.getExternalDependencies()
 	}
+
+	@Override
+	public Class<AssetProperties<T>> getAssetPropertiesType() {
+		return null;
+	}
 }

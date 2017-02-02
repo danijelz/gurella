@@ -79,8 +79,7 @@ public class AssetService {
 		return getManager().isLoaded(fileName, fileType, assetType);
 	}
 
-	// TODO return enum UnloadingResult( notFound, active, unloaded )
-	public static <T> boolean unload(T asset) {
+	public static <T> UnloadResult unload(T asset) {
 		return getManager().unload(asset);
 	}
 
@@ -116,12 +115,11 @@ public class AssetService {
 		getManager().save(asset, file.path(), file.type());
 	}
 
-	// TODO return enum DeletionResult( notExists, unsuccessful, deleted )
-	public static boolean delete(String fileName, FileType fileType) {
+	public static DeleteResult delete(String fileName, FileType fileType) {
 		return getManager().delete(fileName, fileType);
 	}
 
-	public static boolean delete(Object asset) {
+	public static DeleteResult delete(Object asset) {
 		return getManager().delete(asset);
 	}
 
