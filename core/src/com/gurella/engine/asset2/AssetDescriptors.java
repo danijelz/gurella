@@ -15,7 +15,7 @@ public class AssetDescriptors {
 
 	public <T> void registerAssetType(Class<T> assetType, boolean containsReferences, String... extensions) {
 		if (descriptorByType.containsKey(assetType)) {
-			throw new IllegalArgumentException("assetType " + assetType.getSimpleName() + " allready registered.");
+			throw new IllegalArgumentException("assetType " + assetType.getName() + " allready registered.");
 		}
 
 		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, containsReferences, extensions);
@@ -37,11 +37,9 @@ public class AssetDescriptors {
 
 	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties<T>> loader,
 			boolean extensible, String... extensions) {
-		@SuppressWarnings("unchecked")
-		AssetDescriptor<T> descriptor = (AssetDescriptor<T>) descriptorByType.get(assetType);
-
+		AssetDescriptor<T> descriptor = getDescriptor(assetType);
 		if (descriptor == null) {
-			throw new IllegalArgumentException("assetType " + assetType.getSimpleName() + " not registered.");
+			throw new IllegalArgumentException("assetType " + assetType.getName() + " not registered.");
 		} else {
 			descriptor.registerLoader(assetType, loader, extensible, extensions);
 		}
@@ -80,11 +78,16 @@ public class AssetDescriptors {
 	}
 
 	public boolean hasValidExtension(Class<?> assetType, String fileName) {
-		return false;
+		String extension = Assets.getFileExtension(fileName);
+		return isValidExtension(assetType, extension);
 	}
 
 	public boolean isValidExtension(Class<?> assetType, String extension) {
-		return false;
+		if (Values.isBlank(extension)) {
+			return false;
+		}
+		AssetDescriptor<?> descriptor = getDescriptor(assetType);
+		return descriptor == null ? null : descriptor.extensions.contains(extension);
 	}
 
 	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<T> assetType) {

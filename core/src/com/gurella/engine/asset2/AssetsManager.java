@@ -93,11 +93,14 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 			Class<T> assetType = descriptors.getAssetType(asset);
 			AssetPersister<T> persister = descriptors.getPersister(assetType, fileName);
 			persister.persist(this, file, asset);
-			// TODO if registry.getAssetId() is different then remove from registry
-			if (!registry.isManaged(asset)) {
-				tempAssetId.set(fileName, fileType, assetType);
-				registry.add(tempAssetId, asset);
+
+			if (registry.isManaged(asset)
+					&& registry.getAssetId(asset, tempAssetId).equals(fileName, fileType, assetType)) {
+				// TODO if registry.getAssetId() is different then remove from registry
 			}
+
+			tempAssetId.set(fileName, fileType, assetType);
+			registry.add(tempAssetId, asset);
 		}
 	}
 
