@@ -64,7 +64,6 @@ import com.gurella.engine.asset.persister.AssetPersisters;
 import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.properties.AssetProperties;
-import com.gurella.engine.asset2.resolver.ConfigurableResolver;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.disposable.DisposablesService;
@@ -663,9 +662,7 @@ public class AssetRegistry extends AssetManager {
 
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
-				ConfigurableResolver<T> descriptor = AssetService.getConfigurableResolver(fileName);
-				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
-				asyncQueue.add(obtain(this, callback, fileName, type, info, parameters, priority));
+				asyncQueue.add(obtain(this, callback, fileName, type, info, null, priority));
 				asyncQueue.sort();
 			}
 		}
@@ -691,9 +688,7 @@ public class AssetRegistry extends AssetManager {
 
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
-					ConfigurableResolver<Object> descriptor = AssetService.getConfigurableResolver(fileName);
-					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
-					asyncQueue.add(obtain(this, null, fileName, type, info, params, Integer.MAX_VALUE));
+					asyncQueue.add(obtain(this, null, fileName, type, info, null, Integer.MAX_VALUE));
 				}
 			}
 

@@ -3,7 +3,6 @@ package com.gurella.engine.asset;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.resolver.ConfigurableResolver;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
@@ -73,17 +71,6 @@ public final class AssetService implements ApplicationCleanupListener {
 		return service;
 	}
 
-	// TODO unused -> should be managed internaly by loader task
-	public static <T> ConfigurableResolver<T> getConfigurableResolver(String fileName) {
-		return null;
-	}
-
-	// TODO unused
-	private static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		ConfigurableResolver<T> descriptor = null;
-		return descriptor == null ? null : descriptor.getParameters();
-	}
-
 	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
 		Class<T> type = getAssetType(fileName);
 		loadAsync(fileName, type, callback, priority, false);
@@ -103,8 +90,7 @@ public final class AssetService implements ApplicationCleanupListener {
 
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
 			boolean sticky) {
-		AssetLoaderParameters<T> parameters = getAssetLoaderParameters(fileName);
-		getInstance().assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
+		getInstance().assetRegistry.load(fileName, type, null, callback, priority, sticky);
 	}
 
 	public static <T> T load(String fileName) {
@@ -121,9 +107,8 @@ public final class AssetService implements ApplicationCleanupListener {
 	}
 
 	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
-		AssetLoaderParameters<T> parameters = getAssetLoaderParameters(fileName);
 		AssetRegistry assetRegistry = getInstance().assetRegistry;
-		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
+		assetRegistry.load(fileName, type, null, null, priority, sticky);
 		return assetRegistry.finishLoading(fileName);
 	}
 

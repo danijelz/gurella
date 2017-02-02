@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.persister.AssetLocator;
+import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
@@ -32,7 +33,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
-	private final AssetsPersister persister = new AssetsPersister(this);
+	private final AssetDescriptors descriptors = new AssetDescriptors();
 	private final AssetId tempAssetId = new AssetId();
 
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
@@ -88,11 +89,12 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 
 	<T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {
-			FileHandle file = resolveFile(fileName, fileType);
-			persister.persist(file, asset);
+			FileHandle file = files.getFileHandle(fileName, fileType);
+			Class<T> assetType = descriptors.getAssetType(asset);
+			AssetPersister<T> persister = descriptors.getPersister(assetType, fileName);
+			persister.persist(this, file, asset);
 			// TODO if registry.getAssetId() is different then remove from registry
 			if (!registry.isManaged(asset)) {
-				Class<Object> assetType = Assets.getAssetRootClass(asset);
 				tempAssetId.set(fileName, fileType, assetType);
 				registry.add(tempAssetId, asset);
 			}
@@ -102,7 +104,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, AsyncTa
 	DeleteResult delete(String fileName, FileType fileType) {
 		synchronized (mutex) {
 			registry.removeAll(fileName, fileType);
-			FileHandle file = resolveFile(fileName, fileType);
+			FileHandle file = files.getFileHandle(fileName, fileType);
 			if (!file.exists()) {
 				return DeleteResult.unexisting;
 			} else if (file.delete()) {
