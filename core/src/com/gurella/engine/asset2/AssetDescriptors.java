@@ -5,19 +5,46 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.properties.AssetProperties;
+import com.gurella.engine.utils.Values;
 
 public class AssetDescriptors {
-	private final ObjectMap<Class<?>, AssetInfo<?>> infoByType = new ObjectMap<Class<?>, AssetInfo<?>>();
-	private final ObjectMap<String, Array<AssetInfo<?>>> infosByExtension = new ObjectMap<String, Array<AssetInfo<?>>>();
+	private final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
+	private final ObjectMap<String, Array<AssetDescriptor<?>>> descriptorsByExtension = new ObjectMap<String, Array<AssetDescriptor<?>>>();
 	private final ObjectSet<String> allExtensions = new ObjectSet<String>();
+
+	public <T> void register(Class<T> assetType, boolean containsObjectReferences, String... extensions) {
+		if (descriptorByType.containsKey(assetType)) {
+			throw new IllegalArgumentException("assetType " + assetType.getSimpleName() + " allready registered.");
+		}
+
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, containsObjectReferences, extensions);
+		descriptorByType.put(assetType, descriptor);
+
+		for (int i = 0; i < extensions.length; i++) {
+			String extension = extensions[i];
+			if (Values.isNotBlank(extension)) {
+				Array<AssetDescriptor<?>> descriptors = descriptorsByExtension.get(extension);
+				if (descriptors == null) {
+					descriptors = new Array<AssetDescriptor<?>>(4);
+					descriptorsByExtension.put(extension, descriptors);
+				}
+				descriptors.add(descriptor);
+				allExtensions.add(extension);
+			}
+		}
+	}
 
 	public <T> AssetLoader<?, T, AssetProperties<T>> getLoader(final Class<T> type) {
 		return getLoader(type, null);
 	}
 
 	public <T> AssetLoader<?, T, AssetProperties<T>> getLoader(final Class<T> type, final String fileName) {
-		//TODO
+		// TODO
 		return null;
+	}
+
+	public static boolean hasValidExtension(Class<?> assetType, String fileName) {
+		return false;
 	}
 
 	public static boolean isValidExtension(Class<?> assetType, String extension) {

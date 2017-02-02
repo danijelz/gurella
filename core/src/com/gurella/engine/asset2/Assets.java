@@ -96,6 +96,11 @@ public class Assets {
 		}
 	}
 
+	public static boolean hasValidExtension(Class<?> assetType, String fileName) {
+		String fileExtension = getFileExtension(fileName);
+		return Values.isNotBlank(fileExtension) && isValidExtension(assetType, fileExtension);
+	}
+
 	public static boolean isValidExtension(Class<?> assetType, String extension) {
 		AssetType type = enumsByType.get(assetType);
 		return type != null && Arrays.binarySearch(type.fileExtensions, extension) >= 0;

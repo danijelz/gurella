@@ -11,5 +11,4 @@ public interface AssetLoader<ASYNC, TYPE, PROPS extends AssetProperties<TYPE>> {
 	ASYNC loadAsync(DependencyProvider provider, FileHandle file, PROPS properties);
 
 	TYPE consumeAsyncData(DependencyProvider provider, FileHandle file, PROPS properties, ASYNC asyncData);
-
 }
