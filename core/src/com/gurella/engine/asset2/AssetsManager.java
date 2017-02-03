@@ -93,12 +93,12 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 			Class<T> assetType = descriptors.getAssetType(asset);
 			AssetPersister<T> persister = descriptors.getPersister(assetType, fileName);
 			persister.persist(this, file, asset);
-			
+
 			registry.getAssetId(asset, tempAssetId);
-			if (!tempAssetId.isEmpty() && !tempAssetId.equals(fileName, fileType, assetType)) {
+			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(fileName, fileType)) {
 				throw new IllegalStateException("Asset allready persisted on another location.");
 			}
-			
+
 			tempAssetId.set(file, assetType);
 			registry.add(tempAssetId, asset);
 		}
