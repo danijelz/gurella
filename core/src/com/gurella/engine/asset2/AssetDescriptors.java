@@ -127,7 +127,15 @@ public class AssetDescriptors {
 		return descriptor == null ? false : descriptor._extensions.contains(extension);
 	}
 
-	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<T> assetType) {
+	public boolean hasAssetType(Object obj) {
+		return obj != null && getAssetDescriptor(obj.getClass()) != null;
+	}
+
+	public boolean isAssetType(Class<?> assetType) {
+		return assetType != null && getAssetDescriptor(assetType) != null;
+	}
+
+	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
 		AssetDescriptor<?> descriptor = descriptorByType.get(assetType);
 		if (descriptor != null) {
 			return Values.cast(descriptor);
@@ -150,7 +158,7 @@ public class AssetDescriptors {
 		return null;
 	}
 
-	private <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
+	public <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
 		String extension = Assets.getFileExtension(fileName);
 		if (Values.isBlank(extension)) {
 			return null;

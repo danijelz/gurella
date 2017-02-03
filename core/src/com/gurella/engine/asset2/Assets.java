@@ -209,16 +209,6 @@ public class Assets {
 		return propsHandle.exists() ? propsHandle : null;
 	}
 
-	public static <T extends AssetProperties<?>> T getAssetProperties(Object asset) {
-		String assetFileName = AssetService.getFileName(asset);
-		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());
-		if (propsHandle == null) {
-			return null;
-		} else {
-			return AssetService.get(propsHandle.name());
-		}
-	}
-
 	public static <T extends AssetProperties<?>> T loadAssetProperties(Object asset) {
 		String assetFileName = AssetService.getFileName(asset);
 		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());

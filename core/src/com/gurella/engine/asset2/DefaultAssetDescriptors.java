@@ -2,7 +2,7 @@ package com.gurella.engine.asset2;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.ApplicationConfig;
-import com.gurella.engine.asset2.loader.object.SelializedJsonLoader;
+import com.gurella.engine.asset2.loader.json.SelializedJsonLoader;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.scene.Scene;

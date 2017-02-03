@@ -258,14 +258,14 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdProvider, Asyn
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
 				allTasks.remove(task.assetId);
 				task.update();
-				finish(task);
+				finishTask(task);
 			}
 			finishedQueue.clear();
 			return allTasks.size == 0;
 		}
 	}
 
-	private void finish(AssetLoadingTask<?, ?> task) {
+	private void finishTask(AssetLoadingTask<?, ?> task) {
 		boolean revert = task.exception != null;
 		if (!revert) {
 			AssetId assetId = task.assetId;
@@ -382,6 +382,18 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdProvider, Asyn
 			update();
 			ThreadUtils.yield();
 		}
+	}
+
+	boolean fileExists(String fileName, FileType fileType) {
+		return files.getFileHandle(fileName, fileType).exists();
+	}
+
+	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
+		return descriptors.getAssetDescriptor(assetType);
+	}
+
+	public <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
+		return descriptors.getAssetDescriptor(fileName);
 	}
 
 	@Override

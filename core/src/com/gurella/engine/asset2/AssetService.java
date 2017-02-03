@@ -190,6 +190,10 @@ public class AssetService {
 		return getManager().getBundle(asset);
 	}
 
+	public static boolean fileExists(String fileName, FileType fileType) {
+		return getManager().fileExists(fileName, fileType);
+	}
+
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {

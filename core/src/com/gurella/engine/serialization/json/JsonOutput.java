@@ -289,6 +289,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		if (object instanceof Reference) {
 			return null;
 		} else {
+			//TODO use AssetIdProvider
 			String fileName = AssetService.getFileName(object);
 			return fileName == null || fileName.equals(filePath) ? null : fileName;
 		}

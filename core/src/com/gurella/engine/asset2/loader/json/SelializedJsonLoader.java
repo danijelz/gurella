@@ -1,4 +1,4 @@
-package com.gurella.engine.asset2.loader.object;
+package com.gurella.engine.asset2.loader.json;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset2.loader.AssetLoader;
@@ -28,8 +28,7 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, AssetPropertie
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		input.init(assetFile);
-		// TODO input.getExternalDependencies()
+		input.init(assetFile, collector);
 	}
 
 	@Override

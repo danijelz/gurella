@@ -12,6 +12,7 @@ import static com.gurella.engine.serialization.json.JsonSerialization.resolveObj
 import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
@@ -33,9 +35,9 @@ import com.gurella.engine.utils.Reflection;
 public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
+	private JsonValue rootValue;
 	private AssetProvider assetProvider;
 
-	private JsonValue rootValue;
 	private JsonValue value;
 	private final Array<JsonValue> valueStack = new Array<JsonValue>();
 	private final ArrayExt<Object> objectStack = new ArrayExt<Object>();
@@ -45,12 +47,38 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 	private boolean descriptorsInitialized;
 	private final Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
+	private final Array<String> dependencyPaths = new Array<String>();
+	private final Array<Class<?>> dependencyTypes = new Array<Class<?>>();
 
 	private CopyContext copyContext = new CopyContext();
 
 	// TODO move to loader
 	public void init(FileHandle file) {
 		this.rootValue = reader.parse(file);
+	}
+
+	public void init(FileHandle file, DependencyCollector dependencyCollector) {
+		this.rootValue = reader.parse(file);
+		int size = rootValue == null ? 0 : rootValue.size;
+		if (size < 1) {
+			return;
+		}
+
+		JsonValue lastValue = rootValue.get(size - 1);
+		if (!dependenciesTag.equals(lastValue.name)) {
+			return;
+		}
+
+		for (JsonValue value = lastValue.child; value != null; value = value.next) {
+			String strValue = value.asString();
+			int index = strValue.indexOf(' ');
+			String typeName = strValue.substring(0, index);
+			Class<Object> dependencyType = Reflection.forName(deserializeType(typeName));
+			dependencyTypes.add(dependencyType);
+			String dependencyPath = strValue.substring(index + 1, strValue.length());
+			dependencyPaths.add(dependencyPath);
+			dependencyCollector.addDependency(dependencyPath, FileType.Internal, dependencyType);
+		}
 	}
 
 	public void init(JsonValue rootValue) {
