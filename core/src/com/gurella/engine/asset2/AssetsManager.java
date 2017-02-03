@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.persister.AssetIdProvider;
+import com.gurella.engine.asset2.persister.AssetIdResolver;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
@@ -28,7 +28,7 @@ import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, AssetIdProvider, AsyncTask<Void>, Disposable {
+class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, AsyncTask<Void>, Disposable {
 	private final Object mutex = new Object();
 
 	private final Files files = Gdx.files;
@@ -93,13 +93,13 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdProvider, Asyn
 			Class<T> assetType = descriptors.getAssetType(asset);
 			AssetPersister<T> persister = descriptors.getPersister(assetType, fileName);
 			persister.persist(this, file, asset);
-
+			
 			registry.getAssetId(asset, tempAssetId);
 			if (!tempAssetId.isEmpty() && !tempAssetId.equals(fileName, fileType, assetType)) {
-				// TODO remove from registry
+				throw new IllegalStateException("Asset allready persisted on another location.");
 			}
-
-			tempAssetId.set(fileName, fileType, assetType);
+			
+			tempAssetId.set(file, assetType);
 			registry.add(tempAssetId, asset);
 		}
 	}

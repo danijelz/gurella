@@ -109,10 +109,9 @@ public final class AssetId implements Poolable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + fileName.hashCode();
-		result = prime * result + fileType.hashCode();
-		result = prime * result + assetType.hashCode();
-		return result;
+		result = prime * result + (fileName == null ? 0 : fileName.hashCode());
+		result = prime * result + (fileType == null ? 0 : fileType.hashCode());
+		return prime * result + (assetType == null ? 0 : assetType.hashCode());
 	}
 
 	@Override
@@ -136,6 +135,11 @@ public final class AssetId implements Poolable {
 	public boolean equals(String fileName, FileType fileType, Class<?> assetType) {
 		return this.fileType == fileType && this.assetType == assetType
 				&& Values.isEqual(this.fileName, fileName, false);
+	}
+
+	public boolean equals(FileHandle file, Class<?> assetType) {
+		return this.fileType == file.type() && this.assetType == assetType
+				&& Values.isEqual(this.fileName, file.path(), false);
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.persister.object.JsonObjectPersister;
-import com.gurella.engine.asset2.persister.AssetIdProvider;
+import com.gurella.engine.asset2.persister.AssetIdResolver;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.serialization.json.JsonOutput;
 
@@ -21,8 +21,8 @@ public class SerializedJsonPersister<T> implements AssetPersister<T>{
 	}
 
 	@Override
-	public void persist(AssetIdProvider assetIdProvider, FileHandle file, T asset) {
-		//TODO use assetIdProvider
+	public void persist(AssetIdResolver assetIdResolver, FileHandle file, T asset) {
+		//TODO use AssetIdResolver
 		String string = output.serialize(file, expectedType, asset);
 		OutputStream outputStream = file.write(false);
 
