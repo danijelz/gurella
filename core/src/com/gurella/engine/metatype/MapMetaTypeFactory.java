@@ -222,7 +222,7 @@ public class MapMetaTypeFactory implements MetaTypeFactory {
 				}
 			}
 
-			output.writeObjectProperty(name, Object[][].class, templateEntries, entries);
+			output.writeObjectProperty(name, Object[][].class, entries, templateEntries);
 		}
 
 		@Override
@@ -291,7 +291,7 @@ public class MapMetaTypeFactory implements MetaTypeFactory {
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = templateMap == null ? null : templateMap.comparator();
 				if (templateMap == null ? comparator != null : !Values.isEqual(templateComparator, comparator)) {
-					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
+					output.writeObjectProperty("comparator", Comparator.class, comparator, templateComparator);
 				}
 				getProperties().get(0).serialize(value, template, output);
 			}

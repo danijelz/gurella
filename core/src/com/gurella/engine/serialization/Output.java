@@ -37,9 +37,9 @@ public interface Output {
 
 	void writeString(String value);
 
-	void writeObject(Class<?> expectedType, Object template, Object value);
+	void writeObject(Class<?> expectedType, Object value, Object template);
 
-	void writeObject(Class<?> expectedType, Object template, Object value, boolean flat);
+	void writeObject(Class<?> expectedType, boolean flat, Object value, Object template);
 
 	void writeNullProperty(String name);
 
@@ -77,7 +77,7 @@ public interface Output {
 
 	void writeStringProperty(String name, String value);
 
-	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value);
+	void writeObjectProperty(String name, Class<?> expectedType, Object value, Object template);
 
-	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat);
+	void writeObjectProperty(String name, Class<?> expectedType, boolean flat, Object value, Object template);
 }

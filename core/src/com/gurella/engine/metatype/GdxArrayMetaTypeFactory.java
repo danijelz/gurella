@@ -85,7 +85,7 @@ public class GdxArrayMetaTypeFactory implements MetaTypeFactory {
 
 				Object[] templateItems = templateArray == null ? null : templateArray.items;
 				output.writeIntProperty(sizePropertyName, value.size);
-				output.writeObjectProperty(itemsPropertyName, value.items.getClass(), templateItems, value.items);
+				output.writeObjectProperty(itemsPropertyName, value.items.getClass(), value.items, templateItems);
 			}
 		}
 

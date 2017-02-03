@@ -124,10 +124,10 @@ public class AssetRegistry extends AssetManager {
 		// @formatter:off
 		setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
 		setLoader(Music.class, new MusicLoader(resolver));
-		setLoader(Pixmap.class, new PixmapLoader(resolver));
 		setLoader(Sound.class, new SoundLoader(resolver));
-		setLoader(TextureAtlas.class, new TextureAtlasLoader(resolver));
 		setLoader(Texture.class, new TextureLoader(resolver));
+		setLoader(TextureAtlas.class, new TextureAtlasLoader(resolver));
+		setLoader(Pixmap.class, new PixmapLoader(resolver));
 		setLoader(Skin.class, new SkinLoader(resolver));
 		setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
 		setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));

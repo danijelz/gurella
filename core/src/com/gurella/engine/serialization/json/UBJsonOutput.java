@@ -212,12 +212,12 @@ public class UBJsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObject(Class<?> expectedType, Object template, Object value) {
-		writeObject(expectedType, template, value, false);
+	public void writeObject(Class<?> expectedType, Object value, Object template) {
+		writeObject(expectedType, false, value, template);
 	}
 
 	@Override
-	public void writeObject(Class<?> expectedType, Object template, Object value, boolean flat) {
+	public void writeObject(Class<?> expectedType, boolean flat, Object value, Object template) {
 		if (value == null) {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
@@ -364,15 +364,15 @@ public class UBJsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value) {
+	public void writeObjectProperty(String name, Class<?> expectedType, Object value, Object template) {
 		name(name);
-		writeObject(expectedType, template, value, false);
+		writeObject(expectedType, false, value, template);
 	}
 
 	@Override
-	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat) {
+	public void writeObjectProperty(String name, Class<?> expectedType, boolean flat, Object value, Object template) {
 		name(name);
-		writeObject(expectedType, template, value, flat);
+		writeObject(expectedType, flat, value, template);
 	}
 
 	private void value(Object value) {

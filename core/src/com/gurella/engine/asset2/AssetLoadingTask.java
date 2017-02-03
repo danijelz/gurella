@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
@@ -35,7 +36,6 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	AssetsManager manager;
 	FileHandle file;
-	Class<T> assetType;
 
 	AssetLoader<A, T, AssetProperties<T>> loader;
 	AssetProperties<T> properties;
@@ -55,7 +55,6 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AsyncCallback<T> callback, int priority) {
 		this.manager = manager;
 		this.file = file;
-		this.assetType = assetType;
 		this.callback.delegate = callback;
 		this.priority = priority;
 
@@ -73,7 +72,6 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		this.parent = parent;
 		this.manager = parent.manager;
 		this.file = file;
-		this.assetType = assetType;
 		this.callback.delegate = parent;
 		this.priority = parent.priority;
 
@@ -215,6 +213,28 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		}
 	}
 
+	@Override
+	public <D> void addDependency(String fileName, FileType fileType, Class<D> assetType) {
+		tempAssetId.set(fileName, fileType, assetType);
+		@SuppressWarnings("unchecked")
+		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);
+
+		if (dependency == null) {
+			dependency = manager.getDependency(this, fileName, fileType, assetType);
+			AssetId dependencyId = dependency.getAssetId();
+			dependencies.put(dependencyId, dependency);
+		}
+	}
+
+	@Override
+	public <D> D getDependency(String depFileName, FileType depFileType, Class<D> depAssetType) {
+		tempAssetId.set(depFileName, depFileType, depAssetType);
+		@SuppressWarnings("unchecked")
+		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);
+		dependencyCount.getAndIncrement(tempAssetId, 0, 1);
+		return dependency.getAsset();
+	}
+
 	private <D> void addPropertiesDependency(String fileName, FileType fileType, Class<D> assetType) {
 		tempAssetId.set(fileName, fileType, assetType);
 		@SuppressWarnings("unchecked")
@@ -226,39 +246,22 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 		propertiesId = dependency.getAssetId();
 		dependencies.put(propertiesId, dependency);
-		dependencyCount.put(propertiesId, 1);
 	}
 
 	private <D> AssetProperties<D> getProperties() {
-		return propertiesId == null ? null : this.<AssetProperties<D>> getDependency(propertiesId);
-	}
-
-	@Override
-	public <D> void addDependency(String fileName, FileType fileType, Class<D> assetType) {
-		tempAssetId.set(fileName, fileType, assetType);
-		@SuppressWarnings("unchecked")
-		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);
-
-		if (dependency == null) {
-			dependency = manager.getDependency(this, fileName, fileType, assetType);
-			AssetId dependencyId = dependency.getAssetId();
-			dependencies.put(dependencyId, dependency);
-			dependencyCount.put(dependencyId, 1);
-		} else {
-			dependencyCount.getAndIncrement(dependency.getAssetId(), 0, 1);
+		if (propertiesId == null) {
+			return null;
 		}
 
-	}
-
-	@Override
-	public <D> D getDependency(String depFileName, FileType depFileType, Class<D> depAssetType) {
-		return getDependency(tempAssetId.set(depFileName, depFileType, depAssetType));
-	}
-
-	private <D> D getDependency(AssetId dependencyId) {
 		@SuppressWarnings("unchecked")
-		Dependency<D> dependency = (Dependency<D>) dependencies.get(dependencyId);
-		return dependency.getAsset();
+		Dependency<AssetProperties<D>> dependency = (Dependency<AssetProperties<D>>) dependencies.get(propertiesId);
+		AssetProperties<D> properties = dependency.getAsset();
+		if (ClassReflection.isInstance(loader.getAssetPropertiesType(), properties)) {
+			dependencyCount.getAndIncrement(propertiesId, 0, 1);
+			return properties;
+		} else {
+			return null;
+		}
 	}
 
 	Entries<AssetId, Dependency<?>> getDependencies() {
@@ -298,11 +301,12 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	@Override
 	public void onSuccess(Object value) {
-		updateProgress();
 		if (state == waitingDependencies && allDependenciesResolved()) {
 			state = asyncLoading;
 			updateProgress();
 			manager.taskStateChanged(this);
+		} else {
+			updateProgress();
 		}
 	}
 
@@ -337,7 +341,6 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		parent = null;
 		manager = null;
 		file = null;
-		assetType = null;
 		loader = null;
 		properties = null;
 		asyncData = null;

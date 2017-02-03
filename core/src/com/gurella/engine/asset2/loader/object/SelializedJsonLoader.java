@@ -7,11 +7,11 @@ import com.gurella.engine.asset2.loader.DependencyProvider;
 import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.serialization.json.JsonInput;
 
-public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T>> {
+public class SelializedJsonLoader<T> implements AssetLoader<T, T, AssetProperties<T>> {
 	private final Class<T> expectedType;
 	private final JsonInput input = new JsonInput();
 
-	public JsonObjectLoader2(Class<T> expectedType) {
+	public SelializedJsonLoader(Class<T> expectedType) {
 		this.expectedType = expectedType;
 	}
 
@@ -28,9 +28,8 @@ public class JsonObjectLoader2<T> implements AssetLoader<T, T, AssetProperties<T
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		// TODO Auto-generated method stub
-		// input.init(file);
-		// input.getExternalDependencies()
+		input.init(assetFile);
+		// TODO input.getExternalDependencies()
 	}
 
 	@Override

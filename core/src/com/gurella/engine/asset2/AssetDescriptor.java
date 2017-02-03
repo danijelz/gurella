@@ -1,77 +1,100 @@
 package com.gurella.engine.asset2;
 
-import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.asset2.properties.AssetProperties;
-import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class AssetDescriptor<TYPE> {
 	public final Class<TYPE> assetType;
-	public final boolean containsReferences; // TODO ex composite
-	public final boolean allowedForSubtypes;
-	final ObjectSet<String> extensions = new ObjectSet<String>();
-	final ArrayExt<AssetLoaderConfig<TYPE>> loaders = new ArrayExt<AssetLoaderConfig<TYPE>>();
-	final ArrayExt<AssetPersisterConfig<TYPE>> persisters = new ArrayExt<AssetPersisterConfig<TYPE>>();
+	public final boolean hasReferences; // AssetType.composite
+	public final boolean validForSubtypes;
+	final OrderedSet<String> _extensions = new OrderedSet<String>();
+	public final ImmutableArray<String> extensions = new ImmutableArray<String>(_extensions.orderedItems());
+
+	private AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> defaultLoader;
+	private final ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>>> loadersByExtension = new ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>>>();
+
+	private AssetPersister<TYPE> defaultPersister;
+	private final ObjectMap<String, AssetPersister<TYPE>> persistersByExtension = new ObjectMap<String, AssetPersister<TYPE>>();
 	// TODO AssetReloader, MissingValueProvider
 
-	public AssetDescriptor(Class<TYPE> assetType, boolean allowedForSubtypes, boolean containsReferences,
+	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences, String extension) {
+		this.assetType = assetType;
+		this.hasReferences = hasReferences;
+		this.validForSubtypes = validForSubtypes;
+		if (Values.isNotBlank(extension)) {
+			this._extensions.add(extension.toLowerCase());
+		}
+	}
+
+	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences,
+			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, String extension) {
+		this(assetType, validForSubtypes, hasReferences, extension);
+		registerLoader(loader, extension);
+	}
+
+	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences,
 			String... extensions) {
 		this.assetType = assetType;
-		this.containsReferences = containsReferences;
-		this.allowedForSubtypes = allowedForSubtypes;
+		this.hasReferences = hasReferences;
+		this.validForSubtypes = validForSubtypes;
 		for (int i = 0; i < extensions.length; i++) {
 			String extension = extensions[i];
 			if (Values.isNotBlank(extension)) {
-				this.extensions.add(extension);
+				this._extensions.add(extension.toLowerCase());
 			}
 		}
 	}
 
-	public void registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, boolean allowedForSubtypes,
+	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences,
+			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, String... extensions) {
+		this(assetType, validForSubtypes, hasReferences, extensions);
+		registerLoader(loader, extensions);
+	}
+
+	public AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
 			String... extensions) {
-		loaders.add(new AssetLoaderConfig<TYPE>(loader, allowedForSubtypes, extensions));
-	}
-
-	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(Class<T> assetType, String fileName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public <T> AssetPersister<T> getPersister(Class<T> assetType, String fileName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static class AssetLoaderConfig<TYPE> {
-		final boolean allowedForSubtypes;
-		final boolean defaultLoader;
-		final ObjectSet<String> extensions = new ObjectSet<String>();
-		final AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader;
-
-		public AssetLoaderConfig(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
-				boolean allowedForSubtypes, String... extensions) {
-			this.allowedForSubtypes = allowedForSubtypes;
-			this.loader = loader;
-
-			boolean hasDefault = false;
-			for (int i = 0; i < extensions.length; i++) {
-				String extension = extensions[i];
-				if (Values.isNotBlank(extension)) {
-					this.extensions.add(extension);
-				} else {
-					hasDefault = true;
-				}
-			}
-			defaultLoader = hasDefault;
+		for (int i = 0; i < extensions.length; i++) {
+			String extension = extensions[i];
+			registerLoader(loader, extension);
 		}
+		return this;
 	}
 
-	public static class AssetPersisterConfig<TYPE> {
-		final boolean extensible = true;
-		final boolean defaultLoader = true;
-		final ObjectSet<String> extensions = new ObjectSet<String>();
-		final AssetPersister<TYPE> persister = null;
+	private AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
+			String extension) {
+		if (Values.isNotBlank(extension) && !"*".equals(extension)) {
+			loadersByExtension.put(extension.toLowerCase(), loader);
+			this._extensions.add(extension);
+		} else {
+			defaultLoader = loader;
+		}
+		return this;
+	}
+
+	public AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> getLoader(String fileName) {
+		if (Assets.hasFileExtension(fileName)) {
+			String extension = Assets.getFileExtension(fileName);
+			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader = loadersByExtension.get(extension);
+			if (loader != null) {
+				return loader;
+			}
+		}
+		return defaultLoader;
+	}
+
+	public AssetPersister<TYPE> getPersister(String fileName) {
+		if (Assets.hasFileExtension(fileName)) {
+			String extension = Assets.getFileExtension(fileName);
+			AssetPersister<TYPE> persister = persistersByExtension.get(extension);
+			if (persister != null) {
+				return persister;
+			}
+		}
+		return defaultPersister;
 	}
 }

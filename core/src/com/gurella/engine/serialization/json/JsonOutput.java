@@ -12,6 +12,7 @@ import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -24,29 +25,33 @@ import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.serialization.Reference;
+import com.gurella.engine.serialization.Serializer;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
-public class JsonOutput implements Output, Poolable {
+public class JsonOutput implements Output, Serializer, Poolable {
 	private String filePath;
 	private JsonWriter writer;
 
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private OrderedSet<String> externalDependencies = new OrderedSet<String>(); // TODO OrderedSet
+	private OrderedSet<String> externalDependencies = new OrderedSet<String>();
 
-	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
-		return serialize(file, expectedType, null, rootObject);
-	}
-
-	public <T> String serialize(FileHandle file, Class<T> expectedType, Object template, T rootObject) {
-		return serialize(file.path(), expectedType, template, rootObject);
-	}
-
-	public <T> String serialize(String filePath, Class<T> expectedType, Object template, T rootObject) {
+	public void init(String filePath) {
 		this.filePath = filePath;
+	}
 
-		StringWriter buffer = new StringWriter();
+	@Override
+	public <T> void serialize(Class<T> expectedType, T rootObject) {
+		serialize(expectedType, rootObject, null);
+	}
+
+	@Override
+	public <T> void serialize(Class<T> expectedType, T rootObject, Object template) {
+		serialize(expectedType, rootObject, template, new StringWriter());
+	}
+
+	private <T> void serialize(Class<T> expectedType, T rootObject, Object template, Writer buffer) {
 		writer = new JsonWriter(buffer);
 
 		object();
@@ -55,7 +60,7 @@ public class JsonOutput implements Output, Poolable {
 		while (objectsToSerialize.size > 0) {
 			ObjectInfo objectInfo = objectsToSerialize.removeIndex(0);
 			name(Integer.toString(objectInfo.ordinal));
-			serializeObject(objectInfo.expectedType, objectInfo.template, objectInfo.object);
+			serializeObject(objectInfo.expectedType, objectInfo.object, objectInfo.template);
 			objectInfo.free();
 		}
 
@@ -70,13 +75,25 @@ public class JsonOutput implements Output, Poolable {
 		}
 
 		pop();
-
-		String string = buffer.toString();
 		reset();
-		return string;
 	}
 
-	private void writeReference(Class<?> expectedType, Object template, Object object) {
+	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
+		return serialize(file, expectedType, rootObject, null);
+	}
+
+	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject, Object template) {
+		return serialize(file.path(), expectedType, rootObject, template);
+	}
+
+	public <T> String serialize(String filePath, Class<T> expectedType, T rootObject, Object template) {
+		this.filePath = filePath;
+		StringWriter buffer = new StringWriter();
+		serialize(expectedType, rootObject, template, buffer);
+		return buffer.toString();
+	}
+
+	private void writeReference(Class<?> expectedType, Object object, Object template) {
 		int ordinal = references.get(object, -1);
 		if (ordinal < 0) {
 			writeInt(addReference(expectedType, template, object));
@@ -91,7 +108,7 @@ public class JsonOutput implements Output, Poolable {
 		return currentId++;
 	}
 
-	private void serializeObject(Class<?> expectedType, Object template, Object object) {
+	private void serializeObject(Class<?> expectedType, Object object, Object template) {
 		if (object == null) {
 			writeNull();
 		} else if (object.getClass().isArray()) {
@@ -210,12 +227,12 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObject(Class<?> expectedType, Object template, Object value) {
-		writeObject(expectedType, template, value, false);
+	public void writeObject(Class<?> expectedType, Object value, Object template) {
+		writeObject(expectedType, false, value, template);
 	}
 
 	@Override
-	public void writeObject(Class<?> expectedType, Object template, Object value, boolean flat) {
+	public void writeObject(Class<?> expectedType, boolean flat, Object value, Object template) {
 		if (value == null) {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
@@ -237,12 +254,12 @@ public class JsonOutput implements Output, Poolable {
 			}
 		} else if (flat) {
 			addReferenceDependency(value);
-			serializeObject(expectedType, template, value);
+			serializeObject(expectedType, value, template);
 		} else {
 			String assetLocation = getAssetLocation(value);
 			if (assetLocation == null) {
 				addReferenceDependency(value);
-				writeReference(expectedType, template, value);
+				writeReference(expectedType, value, template);
 			} else {
 				writeAsset(value, assetLocation);
 			}
@@ -403,15 +420,15 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value) {
+	public void writeObjectProperty(String name, Class<?> expectedType, Object value, Object template) {
 		name(name);
-		writeObject(expectedType, template, value, false);
+		writeObject(expectedType, false, value, template);
 	}
 
 	@Override
-	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat) {
+	public void writeObjectProperty(String name, Class<?> expectedType, boolean flat, Object value, Object template) {
 		name(name);
-		writeObject(expectedType, template, value, flat);
+		writeObject(expectedType, flat, value, template);
 	}
 
 	private void value(Object value) {

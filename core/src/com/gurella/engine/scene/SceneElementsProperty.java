@@ -99,7 +99,7 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 		if (template == null) {
 			if (value.size() != 0) {
 				value.appendTo(sceneElements.elements);
-				output.writeObjectProperty(name, SceneElements.class, null, sceneElements, true);
+				output.writeObjectProperty(name, SceneElements.class, true, sceneElements, null);
 			}
 			return;
 		}
@@ -126,7 +126,7 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 			}
 		}
 
-		output.writeObjectProperty(name, SceneElements.class, null, sceneElements, true);
+		output.writeObjectProperty(name, SceneElements.class, true, sceneElements, null);
 		PoolService.free(sceneElements);
 	}
 
@@ -198,12 +198,12 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 		public void serialize(SceneElements<T> instance, Object template, Output output) {
 			// TODO garbage
 			if (removedElements.size > 0) {
-				output.writeObjectProperty("removedElements", String[].class, null,
-						removedElements.toArray(String.class), true);
+				output.writeObjectProperty("removedElements", String[].class, true,
+						removedElements.toArray(String.class), null);
 			}
 			if (elements.size > 0) {
-				output.writeObjectProperty("elements", SceneElement[].class, null,
-						elements.toArray(SceneElement.class), true);
+				output.writeObjectProperty("elements", SceneElement[].class, true,
+						elements.toArray(SceneElement.class), null);
 			}
 		}
 

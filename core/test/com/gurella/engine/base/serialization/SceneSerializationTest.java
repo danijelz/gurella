@@ -37,7 +37,7 @@ public class SceneSerializationTest {
 		Scene duplicate = CopyContext.copyObject(scene);
 		System.out.println("duplicate: " + MetaTypes.isEqual(scene, duplicate));
 
-		String string1 = output.serialize(file, Scene.class, scene, duplicate);
+		String string1 = output.serialize(file, Scene.class, duplicate, scene);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 
 		Scene deserialized1 = input.deserialize(Scene.class, string1, scene);

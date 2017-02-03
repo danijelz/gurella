@@ -271,7 +271,7 @@ public class CollectionMetaTypeFactory implements MetaTypeFactory {
 				}
 			}
 
-			output.writeObjectProperty(name, Object[].class, templateArray, array);
+			output.writeObjectProperty(name, Object[].class, array, templateArray);
 		}
 
 		@Override
@@ -339,7 +339,7 @@ public class CollectionMetaTypeFactory implements MetaTypeFactory {
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
 				if (resolvedTemplate == null ? comparator != null : !Values.isEqual(templateComparator, comparator)) {
-					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
+					output.writeObjectProperty("comparator", Comparator.class, comparator, templateComparator);
 				}
 
 				getProperties().get(0).serialize(value, template, output);

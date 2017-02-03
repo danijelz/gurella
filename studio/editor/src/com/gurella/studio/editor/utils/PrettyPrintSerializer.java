@@ -14,7 +14,7 @@ public class PrettyPrintSerializer {
 
 	public static <T> String serialize(String filePath, Class<T> expectedType, Object template, T rootObject) {
 		JsonOutput output = new JsonOutput();
-		String serialized = output.serialize(filePath, expectedType, template, rootObject);
+		String serialized = output.serialize(filePath, expectedType, rootObject, template);
 		return new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
 	}
 }

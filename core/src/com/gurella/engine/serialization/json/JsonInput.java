@@ -24,12 +24,13 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.serialization.Deserializer;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
-public class JsonInput implements Input, Poolable {
+public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
 	private AssetProvider assetProvider;
@@ -47,19 +48,13 @@ public class JsonInput implements Input, Poolable {
 
 	private CopyContext copyContext = new CopyContext();
 
+	// TODO move to loader
 	public void init(FileHandle file) {
 		this.rootValue = reader.parse(file);
 	}
 
-	public <T> T deserialize(Class<T> expectedType) {
-		if (rootValue == null || rootValue.child == null) {
-			return null;
-		}
-		JsonValue referenceValue = rootValue.get(0);
-		referenceValues.put(referenceValue, 0);
-		T result = deserialize(referenceValue, expectedType, null);
-		reset();
-		return result;
+	public void init(JsonValue rootValue) {
+		this.rootValue = rootValue;
 	}
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
@@ -68,6 +63,19 @@ public class JsonInput implements Input, Poolable {
 
 	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
 		rootValue = reader.parse(json);
+		return deserialize(expectedType, template);
+	}
+
+	@Override
+	public <T> T deserialize(Class<T> expectedType) {
+		return deserialize(expectedType, (Object) null);
+	}
+
+	@Override
+	public <T> T deserialize(Class<T> expectedType, Object template) {
+		if (rootValue == null || rootValue.child == null) {
+			return null;
+		}
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
 		T result = deserialize(referenceValue, expectedType, template);

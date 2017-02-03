@@ -85,7 +85,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
-				output.writeObjectProperty(name, PrefabReference.class, templateValue, value);
+				output.writeObjectProperty(name, PrefabReference.class, value, templateValue);
 			}
 		}
 	}

@@ -70,7 +70,7 @@ public class ObjectArrayMetaTypeFactory implements MetaTypeFactory {
 				output.writeInt(length);
 				for (int i = 0; i < length; i++) {
 					Object templateItem = templateMax > i ? templateArray[i] : null;
-					output.writeObject(componentType, templateItem, array[i]);
+					output.writeObject(componentType, array[i], templateItem);
 				}
 			}
 		}
