@@ -21,7 +21,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		FileHandle imgDir = assetFile.parent();
 
-		if (parameter != null)
+		/*if (parameter != null)
 			data = new TextureAtlasData(atlasFile, imgDir, parameter.flip);
 		else {
 			data = new TextureAtlasData(atlasFile, imgDir, false);
@@ -30,7 +30,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 		Array<AssetDescriptor> dependencies = new Array();
 		for (Page page : data.getPages()) {
 			dependencies.add(new AssetDescriptor(page.textureFile, Texture.class, params));
-		}
+		}*/
 		// TODO Auto-generated method stub
 	}
 
