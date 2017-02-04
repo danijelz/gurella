@@ -18,7 +18,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.gurella.engine.asset2.properties.BitmapFontProperties;
+import com.gurella.engine.asset.properties.BitmapFontProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;

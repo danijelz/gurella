@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.gurella.engine.asset2.properties.TextureProperties;
+import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;

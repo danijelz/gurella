@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset2.properties.AssetProperties;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.utils.Values;
 
 public class Assets {

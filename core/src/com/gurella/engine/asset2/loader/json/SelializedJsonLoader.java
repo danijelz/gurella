@@ -4,10 +4,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
-import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.serialization.json.JsonInput;
 
-public class SelializedJsonLoader<T> implements AssetLoader<T, T, AssetProperties<T>> {
+public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJsonProperties> {
 	private final Class<T> expectedType;
 	private final JsonInput input = new JsonInput();
 
@@ -16,12 +15,12 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, AssetPropertie
 	}
 
 	@Override
-	public T loadAsync(DependencyProvider provider, FileHandle file, AssetProperties<T> properties) {
+	public T loadAsyncData(DependencyProvider provider, FileHandle file, SelializedJsonProperties properties) {
 		return input.deserialize(expectedType);
 	}
 
 	@Override
-	public T consumeAsyncData(DependencyProvider provider, FileHandle file, AssetProperties<T> properties,
+	public T consumeAsyncData(DependencyProvider provider, FileHandle file, SelializedJsonProperties properties,
 			T asyncData) {
 		return asyncData;
 	}
@@ -32,7 +31,7 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, AssetPropertie
 	}
 
 	@Override
-	public Class<AssetProperties<T>> getAssetPropertiesType() {
-		return null;
+	public Class<SelializedJsonProperties> getAssetPropertiesType() {
+		return SelializedJsonProperties.class;
 	}
 }

@@ -1,11 +1,11 @@
-package com.gurella.engine.asset2.properties;
+package com.gurella.engine.asset.properties;
 
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.gurella.engine.asset2.loader.AssetProperties;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.metatype.PropertyDescriptor;
 
-public abstract class ModelProperties extends AssetProperties {
+public abstract class ModelProperties implements AssetProperties<Model> {
 	@PropertyDescriptor(nullable = false)
 	public TextureFilter minFilter = TextureFilter.Nearest;
 	@PropertyDescriptor(nullable = false)

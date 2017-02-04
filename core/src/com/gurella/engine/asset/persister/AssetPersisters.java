@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.asset.persister.object.JsonObjectPersister;
-import com.gurella.engine.asset2.properties.AssetProperties;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.scene.Scene;

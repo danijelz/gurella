@@ -16,9 +16,9 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset2.loader.AssetLoader;
+import com.gurella.engine.asset2.loader.AssetProperties;
 import com.gurella.engine.asset2.loader.DependencyCollector;
 import com.gurella.engine.asset2.loader.DependencyProvider;
-import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
 
@@ -37,8 +37,8 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	AssetsManager manager;
 	FileHandle file;
 
-	AssetLoader<A, T, AssetProperties<T>> loader;
-	AssetProperties<T> properties;
+	AssetLoader<A, T, AssetProperties> loader;
+	AssetProperties properties;
 
 	volatile AssetLoadingState state = ready;
 	volatile float progress = 0;
@@ -63,7 +63,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		loader = resolveLoader();
 	}
 
-	private AssetLoader<A, T, AssetProperties<T>> resolveLoader() {
+	private AssetLoader<A, T, AssetProperties> resolveLoader() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -103,7 +103,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 			return state != waitingDependencies;
 		case asyncLoading:
 			properties = getProperties();
-			asyncData = loader.loadAsync(this, file, properties);
+			asyncData = loader.loadAsyncData(this, file, properties);
 			state = syncLoading;
 			return false;
 		case syncLoading:
@@ -248,14 +248,14 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		dependencies.put(propertiesId, dependency);
 	}
 
-	private <D> AssetProperties<D> getProperties() {
+	private AssetProperties getProperties() {
 		if (propertiesId == null) {
 			return null;
 		}
 
 		@SuppressWarnings("unchecked")
-		Dependency<AssetProperties<D>> dependency = (Dependency<AssetProperties<D>>) dependencies.get(propertiesId);
-		AssetProperties<D> properties = dependency.getAsset();
+		Dependency<AssetProperties> dependency = (Dependency<AssetProperties>) dependencies.get(propertiesId);
+		AssetProperties properties = dependency.getAsset();
 		if (ClassReflection.isInstance(loader.getAssetPropertiesType(), properties)) {
 			dependencyCount.getAndIncrement(propertiesId, 0, 1);
 			return properties;

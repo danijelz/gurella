@@ -19,6 +19,8 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset2.descriptor.AssetDescriptor;
+import com.gurella.engine.asset2.descriptor.AssetDescriptors;
 import com.gurella.engine.asset2.persister.AssetIdResolver;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.async.AsyncCallback;

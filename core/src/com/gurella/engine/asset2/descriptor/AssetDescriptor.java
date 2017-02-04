@@ -1,10 +1,11 @@
-package com.gurella.engine.asset2;
+package com.gurella.engine.asset2.descriptor;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedSet;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.loader.AssetLoader;
+import com.gurella.engine.asset2.loader.AssetProperties;
 import com.gurella.engine.asset2.persister.AssetPersister;
-import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
@@ -15,8 +16,8 @@ public class AssetDescriptor<TYPE> {
 	final OrderedSet<String> _extensions = new OrderedSet<String>();
 	public final ImmutableArray<String> extensions = new ImmutableArray<String>(_extensions.orderedItems());
 
-	private AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> defaultLoader;
-	private final ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>>> loadersByExtension = new ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>>>();
+	private AssetLoader<?, TYPE, ? extends AssetProperties> defaultLoader;
+	private final ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties>> loadersByExtension = new ObjectMap<String, AssetLoader<?, TYPE, ? extends AssetProperties>>();
 
 	private AssetPersister<TYPE> defaultPersister;
 	private final ObjectMap<String, AssetPersister<TYPE>> persistersByExtension = new ObjectMap<String, AssetPersister<TYPE>>();
@@ -32,7 +33,7 @@ public class AssetDescriptor<TYPE> {
 	}
 
 	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences,
-			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, String extension) {
+			AssetLoader<?, TYPE, ? extends AssetProperties> loader, String extension) {
 		this(assetType, validForSubtypes, hasReferences, extension);
 		registerLoader(loader, extension);
 	}
@@ -51,12 +52,12 @@ public class AssetDescriptor<TYPE> {
 	}
 
 	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences,
-			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader, String... extensions) {
+			AssetLoader<?, TYPE, ? extends AssetProperties> loader, String... extensions) {
 		this(assetType, validForSubtypes, hasReferences, extensions);
 		registerLoader(loader, extensions);
 	}
 
-	public AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
+	public AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties> loader,
 			String... extensions) {
 		for (int i = 0; i < extensions.length; i++) {
 			String extension = extensions[i];
@@ -65,7 +66,7 @@ public class AssetDescriptor<TYPE> {
 		return this;
 	}
 
-	private AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader,
+	private AssetDescriptor<TYPE> registerLoader(AssetLoader<?, TYPE, ? extends AssetProperties> loader,
 			String extension) {
 		if (Values.isNotBlank(extension) && !"*".equals(extension)) {
 			loadersByExtension.put(extension.toLowerCase(), loader);
@@ -76,10 +77,10 @@ public class AssetDescriptor<TYPE> {
 		return this;
 	}
 
-	public AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> getLoader(String fileName) {
+	public AssetLoader<?, TYPE, ? extends AssetProperties> getLoader(String fileName) {
 		if (Assets.hasFileExtension(fileName)) {
 			String extension = Assets.getFileExtension(fileName);
-			AssetLoader<?, TYPE, ? extends AssetProperties<TYPE>> loader = loadersByExtension.get(extension);
+			AssetLoader<?, TYPE, ? extends AssetProperties> loader = loadersByExtension.get(extension);
 			if (loader != null) {
 				return loader;
 			}

@@ -63,7 +63,7 @@ import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.AssetPersisters;
 import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.properties.AssetProperties;
+import com.gurella.engine.asset.properties.AssetProperties;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.disposable.DisposablesService;

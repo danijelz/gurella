@@ -2,7 +2,7 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.properties.AssetProperties;
+import com.gurella.engine.asset.properties.AssetProperties;
 
 //TODO unused
 public class AssetPropertiesBundle<T> implements Bundle {

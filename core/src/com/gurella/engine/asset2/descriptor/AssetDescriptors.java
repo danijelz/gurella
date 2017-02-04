@@ -1,12 +1,13 @@
-package com.gurella.engine.asset2;
+package com.gurella.engine.asset2.descriptor;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.asset2.Assets;
 import com.gurella.engine.asset2.loader.AssetLoader;
+import com.gurella.engine.asset2.loader.AssetProperties;
 import com.gurella.engine.asset2.persister.AssetPersister;
-import com.gurella.engine.asset2.properties.AssetProperties;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
@@ -68,7 +69,7 @@ public class AssetDescriptors {
 		}
 	}
 
-	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties<T>> loader,
+	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties> loader,
 			String... extensions) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		if (descriptor == null) {
@@ -90,17 +91,16 @@ public class AssetDescriptors {
 		}
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(final Class<T> assetType) {
+	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final Class<T> assetType) {
 		return getLoader(assetType, null);
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(final Class<T> assetType,
-			final String fileName) {
+	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final Class<T> assetType, final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.getLoader(fileName);
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties<T>> getLoader(final String fileName) {
+	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
 		return descriptor == null ? null : descriptor.getLoader(fileName);
 	}
