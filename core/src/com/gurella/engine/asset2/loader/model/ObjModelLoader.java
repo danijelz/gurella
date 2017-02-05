@@ -4,6 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
 
+//TODO handle ObjModelProperties.flipV
 public class ObjModelLoader extends ModelLoader<ObjModelProperties> {
 	private ObjLoader objLoader = new ObjLoader();
 	
