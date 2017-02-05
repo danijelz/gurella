@@ -17,11 +17,13 @@ public class CubemapLoader implements AssetLoader<CubemapData, Cubemap, CubemapP
 	}
 
 	@Override
-	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+	public CubemapData init(DependencyCollector collector, FileHandle assetFile) {
+		return null;
 	}
 
 	@Override
-	public CubemapData loadAsyncData(DependencyProvider provider, FileHandle file, CubemapProperties properties) {
+	public CubemapData processAsync(DependencyProvider provider, FileHandle file, CubemapData asyncData,
+			CubemapProperties properties) {
 		CubemapProperties resolved = properties == null ? defaultProperties : properties;
 		CubemapData data = new KTXTextureData(file, resolved.genMipMaps);
 		if (!data.isPrepared()) {
@@ -31,8 +33,8 @@ public class CubemapLoader implements AssetLoader<CubemapData, Cubemap, CubemapP
 	}
 
 	@Override
-	public Cubemap consumeAsyncData(DependencyProvider provider, FileHandle file, CubemapProperties properties,
-			CubemapData asyncData) {
+	public Cubemap finish(DependencyProvider provider, FileHandle file, CubemapData asyncData,
+			CubemapProperties properties) {
 		Cubemap cubemap = new Cubemap(asyncData);
 		if (properties != null) {
 			cubemap.setFilter(properties.minFilter, properties.magFilter);

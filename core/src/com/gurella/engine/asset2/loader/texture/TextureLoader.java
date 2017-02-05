@@ -16,13 +16,15 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	}
 
 	@Override
-	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+	public TextureData init(DependencyCollector collector, FileHandle assetFile) {
+		return null;
 	}
 
 	@Override
-	public TextureData loadAsyncData(DependencyProvider provider, FileHandle file, TextureProperties properties) {
+	public TextureData processAsync(DependencyProvider provider, FileHandle file, TextureData asyncData,
+			TextureProperties properties) {
 		TextureProperties resolved = properties == null ? defaultProperties : properties;
-		TextureData textureData = TextureData.Factory.loadFromFile(file, resolved.format, resolved.genMipMaps);
+		TextureData textureData = TextureData.Factory.loadFromFile(file, resolved.format, resolved.generateMipMaps);
 		if (!textureData.isPrepared()) {
 			textureData.prepare();
 		}
@@ -30,8 +32,8 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	}
 
 	@Override
-	public Texture consumeAsyncData(DependencyProvider provider, FileHandle file, TextureProperties properties,
-			TextureData asyncData) {
+	public Texture finish(DependencyProvider provider, FileHandle file, TextureData asyncData,
+			TextureProperties properties) {
 		Texture texture = new Texture(asyncData);
 		if (properties != null) {
 			texture.setFilter(properties.minFilter, properties.magFilter);

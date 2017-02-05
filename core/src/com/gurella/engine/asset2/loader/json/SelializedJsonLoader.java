@@ -15,23 +15,25 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJson
 	}
 
 	@Override
-	public T loadAsyncData(DependencyProvider provider, FileHandle file, SelializedJsonProperties properties) {
+	public Class<SelializedJsonProperties> getAssetPropertiesType() {
+		return SelializedJsonProperties.class;
+	}
+
+	@Override
+	public T init(DependencyCollector collector, FileHandle assetFile) {
+		input.init(assetFile, collector);
+		return null;
+	}
+
+	@Override
+	public T processAsync(DependencyProvider provider, FileHandle file, T asyncData,
+			SelializedJsonProperties properties) {
 		return input.deserialize(expectedType);
 	}
 
 	@Override
-	public T consumeAsyncData(DependencyProvider provider, FileHandle file, SelializedJsonProperties properties,
-			T asyncData) {
+	public T finish(DependencyProvider provider, FileHandle file, T asyncData,
+			SelializedJsonProperties properties) {
 		return asyncData;
-	}
-
-	@Override
-	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		input.init(assetFile, collector);
-	}
-
-	@Override
-	public Class<SelializedJsonProperties> getAssetPropertiesType() {
-		return SelializedJsonProperties.class;
 	}
 }

@@ -103,11 +103,11 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 			return state != waitingDependencies;
 		case asyncLoading:
 			properties = getProperties();
-			asyncData = loader.loadAsyncData(this, file, properties);
+			asyncData = loader.processAsync(this, file, asyncData, properties);
 			state = syncLoading;
 			return false;
 		case syncLoading:
-			asset = loader.consumeAsyncData(this, file, properties, asyncData);
+			asset = loader.finish(this, file, asyncData, properties);
 			state = finished;
 			return false;
 		case finished:
@@ -121,7 +121,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	private AssetLoadingState start() {
-		loader.initDependencies(this, file);
+		asyncData = loader.init(this, file);
 		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
 			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);

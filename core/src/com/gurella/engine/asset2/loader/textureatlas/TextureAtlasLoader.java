@@ -1,11 +1,12 @@
 package com.gurella.engine.asset2.loader.textureatlas;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Page;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset2.loader.AssetLoader;
 import com.gurella.engine.asset2.loader.DependencyCollector;
@@ -18,37 +19,44 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 	}
 
 	@Override
-	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+	public TextureAtlasData init(DependencyCollector collector, FileHandle assetFile) {
 		FileHandle imgDir = assetFile.parent();
+		TextureAtlasData data = new TextureAtlasData(assetFile, imgDir, false);
 
-		/*if (parameter != null)
-			data = new TextureAtlasData(atlasFile, imgDir, parameter.flip);
-		else {
-			data = new TextureAtlasData(atlasFile, imgDir, false);
+		FileType fileType = assetFile.type();
+		Array<Page> pages = data.getPages();
+		for (int i = 0, n = pages.size; i < n; i++) {
+			Page page = pages.get(i);
+			collector.addDependency(page.textureFile.path(), fileType, Texture.class);
 		}
 
-		Array<AssetDescriptor> dependencies = new Array();
-		for (Page page : data.getPages()) {
-			dependencies.add(new AssetDescriptor(page.textureFile, Texture.class, params));
-		}*/
-		// TODO Auto-generated method stub
+		return data;
 	}
 
 	@Override
-	public TextureAtlasData loadAsyncData(DependencyProvider provider, FileHandle file,
+	public TextureAtlasData processAsync(DependencyProvider provider, FileHandle file, TextureAtlasData asyncData,
 			TextureAtlasProperties properties) {
-		// TODO Auto-generated method stub
-		return null;
+		FileType fileType = file.type();
+		Array<Page> pages = asyncData.getPages();
+		for (int i = 0, n = pages.size; i < n; i++) {
+			Page page = pages.get(i);
+			page.texture = provider.getDependency(page.textureFile.path(), fileType, Texture.class);
+		}
+
+		if (properties != null && properties.flip) {
+			Array<Region> regions = asyncData.getRegions();
+			for (int i = 0, n = regions.size; i < n; i++) {
+				Region region = regions.get(i);
+				region.flip = true;
+			}
+		}
+
+		return asyncData;
 	}
 
 	@Override
-	public TextureAtlas consumeAsyncData(DependencyProvider provider, FileHandle file,
-			TextureAtlasProperties properties, TextureAtlasData asyncData) {
-		for (Page page : asyncData.getPages()) {
-			String texturePath = page.textureFile.path().replaceAll("\\\\", "/");
-			page.texture = provider.getDependency(texturePath, file.type(), Texture.class);
-		}
-
+	public TextureAtlas finish(DependencyProvider provider, FileHandle file, TextureAtlasData asyncData,
+			TextureAtlasProperties properties) {
 		return new TextureAtlas(asyncData);
 	}
 }

@@ -8,13 +8,15 @@ import com.gurella.engine.metatype.PropertyDescriptor;
 
 public class TextureProperties extends AssetProperties {
 	@PropertyDescriptor(nullable = false)
-	public TextureFilter minFilter = TextureFilter.Nearest;
+	public final TextureFilter minFilter = TextureFilter.Nearest;
 	@PropertyDescriptor(nullable = false)
-	public TextureFilter magFilter = TextureFilter.Nearest;
+	public final TextureFilter magFilter = TextureFilter.Nearest;
 	@PropertyDescriptor(nullable = false)
-	public TextureWrap wrapU = TextureWrap.ClampToEdge;
+	public final TextureWrap wrapU = TextureWrap.ClampToEdge;
 	@PropertyDescriptor(nullable = false)
-	public TextureWrap wrapV = TextureWrap.ClampToEdge;
-	public Format format = null;
-	public boolean genMipMaps = false;
+	public final TextureWrap wrapV = TextureWrap.ClampToEdge;
+	@PropertyDescriptor()
+	public final Format format = null;
+	@PropertyDescriptor()
+	public final boolean generateMipMaps = false;
 }
