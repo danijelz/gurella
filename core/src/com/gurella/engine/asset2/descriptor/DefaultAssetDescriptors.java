@@ -52,6 +52,8 @@ public class DefaultAssetDescriptors {
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new JsonG3dModelLoader(), "g3dj"));
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new UbJsonG3dModelLoader(), "g3db"));
 		array.add(new AssetDescriptor<Pixmap>(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg"));
+		//PolygonRegionLoader
+		//ShaderTemplateLoader
 		// TODO add loaders
 
 		return array;

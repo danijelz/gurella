@@ -5,15 +5,19 @@ import static com.gurella.engine.asset2.AssetSlot.DependencyActivity.obsolete;
 import static com.gurella.engine.asset2.AssetSlot.SlotActivity.active;
 import static com.gurella.engine.asset2.AssetSlot.SlotActivity.inactive;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -438,6 +442,51 @@ class AssetRegistry implements Disposable {
 		<T> AssetSlot<T> obtainSlot() {
 			return (AssetSlot<T>) obtain();
 		}
+	}
+
+	//TODO unused
+	String getDiagnostics() {
+		StringBuilder builder = new StringBuilder();
+		for (Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {
+			String fileName = entry.key.fileName;
+			AssetSlot<?> info = entry.value;
+
+			builder.append(fileName);
+			builder.append(", ");
+			builder.append(info.asset.getClass().getSimpleName());
+			builder.append(", refCount: ");
+			builder.append(info.references);
+
+			if (info.dependencies.size > 0) {
+				builder.append(", dependencies: [");
+				Keys<AssetId> dependencies = info.dependencies.keys();
+				for (Iterator<AssetId> iter = dependencies.iterator(); iter.hasNext();) {
+					builder.append(iter.next().fileName);
+					if (iter.hasNext()) {
+						builder.append(",");
+					}
+				}
+
+				builder.append("]");
+			}
+
+			ObjectSet<AssetId> dependents = info.dependents;
+			if (dependents.size > 0) {
+				builder.append(", dependents: [");
+				for (Iterator<AssetId> iter = dependents.iterator(); iter.hasNext();) {
+					builder.append(iter.next().fileName);
+					if (iter.hasNext()) {
+						builder.append(",");
+					}
+				}
+
+				builder.append("]");
+			}
+
+			builder.append("\n");
+		}
+
+		return builder.toString();
 	}
 
 	private static class AssetIdPool extends Pool<AssetId> {
