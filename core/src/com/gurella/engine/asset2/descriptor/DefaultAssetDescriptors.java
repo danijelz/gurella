@@ -3,9 +3,11 @@ package com.gurella.engine.asset2.descriptor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cubemap;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.gurella.engine.application.ApplicationConfig;
@@ -14,7 +16,11 @@ import com.gurella.engine.asset2.loader.bitmapfont.BitmapFontLoader;
 import com.gurella.engine.asset2.loader.cubemap.CubemapLoader;
 import com.gurella.engine.asset2.loader.i18nbundle.I18NBundleLoader;
 import com.gurella.engine.asset2.loader.json.SelializedJsonLoader;
+import com.gurella.engine.asset2.loader.model.JsonG3dModelLoader;
+import com.gurella.engine.asset2.loader.model.ObjModelLoader;
+import com.gurella.engine.asset2.loader.model.UbJsonG3dModelLoader;
 import com.gurella.engine.asset2.loader.music.MusicLoader;
+import com.gurella.engine.asset2.loader.pixmap.PixmapLoader;
 import com.gurella.engine.asset2.loader.sound.SoundLoader;
 import com.gurella.engine.asset2.loader.texture.TextureLoader;
 import com.gurella.engine.asset2.loader.textureatlas.TextureAtlasLoader;
@@ -38,6 +44,10 @@ public class DefaultAssetDescriptors {
 		array.add(new AssetDescriptor<I18NBundle>(I18NBundle.class, false, false, new I18NBundleLoader(), "i18n"));
 		array.add(new AssetDescriptor<Sound>(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3"));
 		array.add(new AssetDescriptor<Music>(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3"));
+		array.add(new AssetDescriptor<Model>(Model.class, false, false, new ObjModelLoader(), "obj"));
+		array.add(new AssetDescriptor<Model>(Model.class, false, false, new JsonG3dModelLoader(), "g3dj"));
+		array.add(new AssetDescriptor<Model>(Model.class, false, false, new UbJsonG3dModelLoader(), "g3db"));
+		array.add(new AssetDescriptor<Pixmap>(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg"));
 
 		// TODO add loaders
 		return array;

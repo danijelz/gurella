@@ -16,11 +16,10 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.ArrayExt;
 
 public class PoolableJsonReader implements BaseJsonReader, Poolable {
 	private JsonValuePool valuesPool = new JsonValuePool();
-	private ArrayExt<JsonValue> usedValues = new ArrayExt<JsonValue>();
+
 	private char[] tempChars = PoolService.obtainCharArray(1024, 0.5f);
 
 	public JsonValue parse(String json) {
@@ -32,7 +31,7 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 		char[] chars = json.chars;
 		return parse(chars, 0, chars.length);
 	}
-	
+
 	public JsonValue parse(char[] json) {
 		return parse(json, 0, json.length);
 	}
@@ -717,8 +716,9 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 	protected void startObject(String name) {
 		JsonValue value = valuesPool.obtain();
 		value.setType(ValueType.object);
-		if (current != null)
+		if (current != null) {
 			addChild(name, value);
+		}
 		elements.add(value);
 		current = value;
 	}
@@ -726,8 +726,9 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 	protected void startArray(String name) {
 		JsonValue value = valuesPool.obtain();
 		value.setType(ValueType.array);
-		if (current != null)
+		if (current != null) {
 			addChild(name, value);
+		}
 		elements.add(value);
 		current = value;
 	}
@@ -810,10 +811,19 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 
 	@Override
 	public void reset() {
-		valuesPool.freeAll(usedValues);
+		valuesPool.reset();
 	}
 
 	private static class JsonValuePool extends Pool<JsonValue> {
+		private Array<JsonValue> obtainedValues = new Array<JsonValue>(1024);
+
+		@Override
+		public JsonValue obtain() {
+			JsonValue value = super.obtain();
+			obtainedValues.add(value);
+			return value;
+		}
+
 		@Override
 		protected JsonValue newObject() {
 			return new JsonValue(true);
@@ -827,6 +837,10 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 			value.prev = null;
 			value.parent = null;
 			value.name = null;
+		}
+
+		void reset() {
+			freeAll(obtainedValues);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.gurella.engine.asset2.properties;
+package com.gurella.engine.asset2.loader.model;
 
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
