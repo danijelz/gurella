@@ -21,21 +21,25 @@ import com.gurella.engine.asset2.loader.model.ObjModelLoader;
 import com.gurella.engine.asset2.loader.model.UbJsonG3dModelLoader;
 import com.gurella.engine.asset2.loader.music.MusicLoader;
 import com.gurella.engine.asset2.loader.pixmap.PixmapLoader;
+import com.gurella.engine.asset2.loader.rendertarget.RenderTargetLoader;
 import com.gurella.engine.asset2.loader.sound.SoundLoader;
 import com.gurella.engine.asset2.loader.texture.TextureLoader;
 import com.gurella.engine.asset2.loader.textureatlas.TextureAtlasLoader;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 
 public class DefaultAssetDescriptors {
 	public static Array<AssetDescriptor<?>> create() {
 		Array<AssetDescriptor<?>> array = new Array<AssetDescriptor<?>>();
+
 		array.add(newJsonLoaderDescriptor(Scene.class, "gscn"));
 		array.add(newJsonLoaderDescriptor(SceneNode.class, "pref"));
 		array.add(newJsonLoaderDescriptor(MaterialDescriptor.class, "gmat"));
 		array.add(newJsonLoaderDescriptor(ApplicationConfig.class, "gcfg"));
 		array.add(newJsonLoaderDescriptor(AssetProperties.class, "gprop"));
+		array.add(new AssetDescriptor<RenderTarget>(RenderTarget.class, true, true, new RenderTargetLoader(), "grt"));
 
 		array.add(new AssetDescriptor<Texture>(Texture.class, false, false, new TextureLoader(), "png", "jpg", "jpeg"));
 		array.add(new AssetDescriptor<TextureAtlas>(TextureAtlas.class, false, false, new TextureAtlasLoader(), "atl"));
@@ -48,8 +52,8 @@ public class DefaultAssetDescriptors {
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new JsonG3dModelLoader(), "g3dj"));
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new UbJsonG3dModelLoader(), "g3db"));
 		array.add(new AssetDescriptor<Pixmap>(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg"));
-
 		// TODO add loaders
+
 		return array;
 	}
 

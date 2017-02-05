@@ -1,9 +1,9 @@
-package com.gurella.engine.asset.loader.audio;
+package com.gurella.engine.asset2.loader.audio;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.asset.loader.audio.mp3.Mp3File;
-import com.gurella.engine.asset.loader.audio.ogg.VorbisFile;
-import com.gurella.engine.asset.loader.audio.wav.WavFile;
+import com.gurella.engine.asset2.loader.audio.mp3.Mp3File;
+import com.gurella.engine.asset2.loader.audio.ogg.VorbisFile;
+import com.gurella.engine.asset2.loader.audio.wav.WavFile;
 
 public class SoundDuration {
 	public static float totalDuration(String fileName) {

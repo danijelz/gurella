@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.loader.audio;
+package com.gurella.engine.asset2.loader.audio;
 
 import java.io.IOException;
 import java.io.InputStream;

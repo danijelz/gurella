@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.loader.audio.ogg;
+package com.gurella.engine.asset2.loader.audio.ogg;
 
 import java.math.BigDecimal;
 
@@ -7,8 +7,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset2.loader.audio.PushBackArrayInputStream;
 import com.badlogic.gdx.utils.Pools;
-import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 
 // https://github.com/MWisBest/JOrbis/blob/master/src/com/jcraft/jorbis/VorbisFile.java
 //TODO ensure final data in vorbis classes (private final Page tempPage; instead of Page.obtain())
