@@ -1,5 +1,6 @@
 package com.gurella.engine.asset2.descriptor;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,6 +14,7 @@ import com.gurella.engine.asset2.loader.bitmapfont.BitmapFontLoader;
 import com.gurella.engine.asset2.loader.cubemap.CubemapLoader;
 import com.gurella.engine.asset2.loader.i18nbundle.I18NBundleLoader;
 import com.gurella.engine.asset2.loader.json.SelializedJsonLoader;
+import com.gurella.engine.asset2.loader.music.MusicLoader;
 import com.gurella.engine.asset2.loader.sound.SoundLoader;
 import com.gurella.engine.asset2.loader.texture.TextureLoader;
 import com.gurella.engine.asset2.loader.textureatlas.TextureAtlasLoader;
@@ -35,6 +37,7 @@ public class DefaultAssetDescriptors {
 		array.add(new AssetDescriptor<BitmapFont>(BitmapFont.class, false, false, new BitmapFontLoader(), "fnt"));
 		array.add(new AssetDescriptor<I18NBundle>(I18NBundle.class, false, false, new I18NBundleLoader(), "i18n"));
 		array.add(new AssetDescriptor<Sound>(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3"));
+		array.add(new AssetDescriptor<Music>(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3"));
 
 		// TODO add loaders
 		return array;

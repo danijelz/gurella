@@ -92,24 +92,24 @@ public class AssetDescriptors {
 	}
 
 	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final Class<T> assetType) {
-		return getLoader(assetType, null);
+		return getLoader(null, assetType);
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final Class<T> assetType, final String fileName) {
+	public <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName, final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
-		return descriptor == null ? null : descriptor.getLoader(fileName);
+		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final String fileName) {
+	public <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
-		return descriptor == null ? null : descriptor.getLoader(fileName);
+		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
 	}
 
 	public <T> AssetPersister<T> getPersister(final Class<T> assetType) {
-		return getPersister(assetType, null);
+		return getPersister(null, assetType);
 	}
 
-	public <T> AssetPersister<T> getPersister(final Class<T> assetType, final String fileName) {
+	public <T> AssetPersister<T> getPersister(final String fileName, final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.getPersister(fileName);
 	}

@@ -21,6 +21,8 @@ import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset2.bundle.Bundle;
 import com.gurella.engine.asset2.descriptor.AssetDescriptor;
 import com.gurella.engine.asset2.descriptor.AssetDescriptors;
+import com.gurella.engine.asset2.loader.AssetLoader;
+import com.gurella.engine.asset2.loader.AssetProperties;
 import com.gurella.engine.asset2.persister.AssetIdResolver;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.async.AsyncCallback;
@@ -93,7 +95,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 		synchronized (mutex) {
 			FileHandle file = files.getFileHandle(fileName, fileType);
 			Class<T> assetType = descriptors.getAssetType(asset);
-			AssetPersister<T> persister = descriptors.getPersister(assetType, fileName);
+			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
 			persister.persist(this, file, asset);
 
 			registry.getAssetId(asset, tempAssetId);
@@ -224,15 +226,17 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 		}
 	}
 
-	private <T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	private <A, T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		tempAssetId.set(fileName, fileType, assetType);
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 
 		if (queuedTask == null) {
-			AssetLoadingTask<?, T> task = taskPool.obtainTask();
-			task.init(this, resolveFile(fileName, fileType), assetType, callback, priority);
+			AssetLoadingTask<A, T> task = taskPool.obtainTask();
+			FileHandle file = resolveFile(fileName, fileType);
+			AssetLoader<A, T, AssetProperties> loader = descriptors.getLoader(fileName, assetType);
+			task.init(this, file, assetType, loader, callback, priority);
 			startTask(task);
 		} else {
 			queuedTask.merge(callback, priority);
@@ -307,12 +311,15 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 		}
 	}
 
-	private <T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, Class<T> assetType) {
+	private <A, T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, Class<T> assetType) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
 		if (queuedTask == null) {
-			AssetLoadingTask<?, T> task = taskPool.obtainTask();
-			task.init(parent, resolveFile(tempAssetId.fileName, tempAssetId.fileType), assetType);
+			AssetLoadingTask<A, T> task = taskPool.obtainTask();
+			String fileName = tempAssetId.fileName;
+			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
+			AssetLoader<A, T, AssetProperties> loader = descriptors.getLoader(fileName, assetType);
+			task.init(parent, file, assetType, loader);
 			startTask(task);
 			return task;
 		} else {
@@ -424,8 +431,8 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 		}
 
 		@SuppressWarnings("unchecked")
-		<T> AssetLoadingTask<?, T> obtainTask() {
-			return (AssetLoadingTask<?, T>) super.obtain();
+		<A, T> AssetLoadingTask<A, T> obtainTask() {
+			return (AssetLoadingTask<A, T>) super.obtain();
 		}
 	}
 }

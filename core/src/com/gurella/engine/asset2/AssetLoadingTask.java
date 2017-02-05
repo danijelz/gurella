@@ -52,32 +52,29 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	private final ObjectIntMap<AssetId> dependencyCount = new ObjectIntMap<AssetId>();
 	private final AssetId tempAssetId = new AssetId();
 
-	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AsyncCallback<T> callback, int priority) {
+	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AssetLoader<A, T, AssetProperties> loader,
+			AsyncCallback<T> callback, int priority) {
 		this.manager = manager;
 		this.file = file;
 		this.callback.delegate = callback;
 		this.priority = priority;
+		this.loader = loader;
 
 		requestId = requestSequence++;
 		assetId.set(file, assetType);
-		loader = resolveLoader();
 	}
 
-	private AssetLoader<A, T, AssetProperties> resolveLoader() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	void init(AssetLoadingTask<?, ?> parent, FileHandle file, Class<T> assetType) {
+	void init(AssetLoadingTask<?, ?> parent, FileHandle file, Class<T> assetType,
+			AssetLoader<A, T, AssetProperties> loader) {
 		this.parent = parent;
 		this.manager = parent.manager;
 		this.file = file;
 		this.callback.delegate = parent;
 		this.priority = parent.priority;
+		this.loader = loader;
 
 		requestId = requestSequence++;
 		assetId.set(file, assetType);
-		loader = resolveLoader();
 	}
 
 	void update() {
@@ -269,8 +266,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	boolean isSticky() {
-		// TODO Auto-generated method stub
-		return properties == null ? false : false;
+		return properties == null ? false : properties.sticky;
 	}
 
 	int getReferences() {

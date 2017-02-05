@@ -77,15 +77,19 @@ public class AssetDescriptor<TYPE> {
 		return this;
 	}
 
-	public AssetLoader<?, TYPE, ? extends AssetProperties> getLoader(String fileName) {
+	public <A> AssetLoader<A, TYPE, AssetProperties> getLoader(String fileName) {
 		if (Assets.hasFileExtension(fileName)) {
 			String extension = Assets.getFileExtension(fileName);
 			AssetLoader<?, TYPE, ? extends AssetProperties> loader = loadersByExtension.get(extension);
 			if (loader != null) {
-				return loader;
+				@SuppressWarnings("unchecked")
+				AssetLoader<A, TYPE, AssetProperties> casted = (AssetLoader<A, TYPE, AssetProperties>) loader;
+				return casted;
 			}
 		}
-		return defaultLoader;
+		@SuppressWarnings("unchecked")
+		AssetLoader<A, TYPE, AssetProperties> casted = (AssetLoader<A, TYPE, AssetProperties>) defaultLoader;
+		return casted;
 	}
 
 	public AssetPersister<TYPE> getPersister(String fileName) {
