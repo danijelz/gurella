@@ -7,7 +7,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.gurella.engine.asset.persister.object.JsonObjectPersister;
 import com.gurella.engine.asset2.persister.AssetIdResolver;
 import com.gurella.engine.asset2.persister.AssetPersister;
 import com.gurella.engine.serialization.json.JsonOutput;
@@ -32,7 +31,7 @@ public class SerializedJsonPersister<T> implements AssetPersister<T>{
 		} catch (Exception e) {
 			String message = "Error while saving asset '" + file.path() + "'.";
 			// TODO LogService
-			Gdx.app.log(JsonObjectPersister.class.getName(), message, e);
+			Gdx.app.log(SerializedJsonPersister.class.getName(), message, e);
 			throw new GdxRuntimeException(message, e);
 		}
 	}

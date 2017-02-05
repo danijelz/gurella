@@ -15,7 +15,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.asset.loader.audio.SoundDuration;
+import com.gurella.engine.asset2.loader.audio.SoundDuration;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;

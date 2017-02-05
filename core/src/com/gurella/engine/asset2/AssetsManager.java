@@ -90,6 +90,20 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 	boolean isManaged(Object asset) {
 		return registry.isManaged(asset);
 	}
+	
+	<T> void save(T asset) {
+		synchronized (mutex) {
+			registry.getAssetId(asset, tempAssetId);
+			if (tempAssetId.isEmpty()) {
+				throw new IllegalStateException("Asset is not yet persisted.");
+			}
+			
+			Class<T> assetType = (Class<T>) tempAssetId.assetType;
+			AssetPersister<T> persister = descriptors.getPersister(tempAssetId.fileName, assetType);
+			FileHandle file = files.getFileHandle(tempAssetId.fileName, tempAssetId.fileType);
+			persister.persist(this, file, asset);
+		}
+	}
 
 	<T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {

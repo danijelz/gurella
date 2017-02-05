@@ -103,6 +103,10 @@ public class AssetService {
 		return getManager().isManaged(asset);
 	}
 
+	public static <T> void save(T asset) {
+		getManager().save(asset);
+	}
+
 	public static <T> void save(T asset, String fileName) {
 		getManager().save(asset, fileName, Assets.getFileType(fileName));
 	}

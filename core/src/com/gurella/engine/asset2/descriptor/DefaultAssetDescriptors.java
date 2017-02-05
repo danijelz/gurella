@@ -51,10 +51,23 @@ public class DefaultAssetDescriptors {
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new ObjModelLoader(), "obj"));
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new JsonG3dModelLoader(), "g3dj"));
 		array.add(new AssetDescriptor<Model>(Model.class, false, false, new UbJsonG3dModelLoader(), "g3db"));
-		array.add(new AssetDescriptor<Pixmap>(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg"));
+		array.add(new AssetDescriptor<Pixmap>(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg",
+				"jpeg"));
 		//PolygonRegionLoader
 		//ShaderTemplateLoader
-		// TODO add loaders
+		//		soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
+		//		audioClip(AudioClip.class, false, AudioClipProperties.class, "wav", "ogg", "mp3", "scl"),
+		//		polygonRegion(PolygonRegion.class, "psh"),
+		//		inputActionMap(InputActionMap.class, true, null, "giam"),
+		//		shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
+		//		renderProgram(UnimplementedAsset.class),
+		//		spritterAnimation(UnimplementedAsset.class),
+		//		splineAnimation(UnimplementedAsset.class),
+		//		svg(UnimplementedAsset.class),
+		//		font(UnimplementedAsset.class),
+		//		texture3d(UnimplementedAsset.class),
+		//		particleSystem(UnimplementedAsset.class);
+		// TODO add loaders and persisters
 
 		return array;
 	}
