@@ -119,11 +119,21 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	private AssetLoadingState start() {
 		asyncData = loader.init(this, file);
-		FileHandle propsHandle = Assets.getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
+		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
 			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
 		return allDependenciesResolved() ? asyncLoading : waitingDependencies;
+	}
+
+	private FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
+		if (!Assets.hasProperties(assetFileName, assetType)) {
+			return null;
+		}
+
+		String propertiesFileName = Assets.toPropertiesFileName(assetFileName);
+		FileHandle propsHandle = manager.getFileHandle(propertiesFileName, fileType);
+		return propsHandle.exists() ? propsHandle : null;
 	}
 
 	private boolean allDependenciesResolved() {

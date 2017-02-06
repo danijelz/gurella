@@ -434,7 +434,11 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 	}
 
 	boolean fileExists(String fileName, FileType fileType) {
-		return files.getFileHandle(fileName, fileType).exists();
+		return getFileHandle(fileName, fileType).exists();
+	}
+
+	FileHandle getFileHandle(String path, FileType type) {
+		return files.getFileHandle(path, type);
 	}
 
 	@Override

@@ -9,7 +9,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
 import com.gurella.engine.asset.loader.AssetLoader;
-import com.gurella.engine.asset.loader.AssetProperties;
 
 public class Assets {
 	public static final String filePathDelimiters = "\\/";
@@ -57,22 +56,6 @@ public class Assets {
 
 	public static boolean fileExists(String fileName, FileType fileType) {
 		return Gdx.files.getFileHandle(fileName, fileType).exists();
-	}
-
-	public static FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
-		if (!hasProperties(assetFileName, assetType)) {
-			return null;
-		}
-
-		String propertiesFileName = toPropertiesFileName(assetFileName);
-		FileHandle propsHandle = Gdx.files.getFileHandle(propertiesFileName, fileType);
-		return propsHandle.exists() ? propsHandle : null;
-	}
-
-	public static <T extends AssetProperties> T loadAssetProperties(Object asset) {
-		String assetFileName = AssetService.getFileName(asset);
-		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());
-		return propsHandle == null ? null : AssetService.<T> load(propsHandle.name());
 	}
 
 	public static FileHandle getFileHandle(String path) {
