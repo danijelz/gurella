@@ -90,48 +90,51 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 	boolean isManaged(Object asset) {
 		return registry.isManaged(asset);
 	}
-	
+
 	<T> void save(T asset) {
 		synchronized (mutex) {
 			registry.getAssetId(asset, tempAssetId);
 			if (tempAssetId.isEmpty()) {
 				throw new IllegalStateException("Asset is not yet persisted.");
 			}
-			
+
+			String fileName = tempAssetId.fileName;
+			@SuppressWarnings("unchecked")
 			Class<T> assetType = (Class<T>) tempAssetId.assetType;
-			AssetPersister<T> persister = descriptors.getPersister(tempAssetId.fileName, assetType);
-			FileHandle file = files.getFileHandle(tempAssetId.fileName, tempAssetId.fileType);
+			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
+			if (persister == null) {
+				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
+			}
+
+			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
 			persister.persist(this, file, asset);
 		}
 	}
 
 	<T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {
-			FileHandle file = files.getFileHandle(fileName, fileType);
 			Class<T> assetType = descriptors.getAssetType(asset);
-			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
-			persister.persist(this, file, asset);
-
-			registry.getAssetId(asset, tempAssetId);
-			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(fileName, fileType)) {
-				throw new IllegalStateException("Asset allready persisted on another location.");
+			if (assetType == null) {
+				throw new IllegalStateException(
+						"No descrptor registered for asset type: " + asset.getClass().getName());
 			}
 
-			tempAssetId.set(file, assetType);
-			registry.add(tempAssetId, asset);
-		}
-	}
+			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
+			if (persister == null) {
+				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
+			}
 
-	DeleteResult delete(String fileName, FileType fileType) {
-		synchronized (mutex) {
-			registry.removeAll(fileName, fileType);
-			FileHandle file = files.getFileHandle(fileName, fileType);
-			if (!file.exists()) {
-				return DeleteResult.unexisting;
-			} else if (file.delete()) {
-				return DeleteResult.deleted;
+			registry.getAssetId(asset, tempAssetId);
+			if (tempAssetId.isEmpty()) {
+				FileHandle file = files.getFileHandle(fileName, fileType);
+				persister.persist(this, file, asset);
+				tempAssetId.set(file, assetType);
+				registry.add(tempAssetId, asset);
+			} else if (tempAssetId.equalsFile(fileName, fileType)) {
+				FileHandle file = files.getFileHandle(fileName, fileType);
+				persister.persist(this, file, asset);
 			} else {
-				return DeleteResult.unsuccessful;
+				throw new IllegalStateException("Asset allready persisted on another location.");
 			}
 		}
 	}
@@ -148,6 +151,20 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 			registry.removeAll(fileName, fileType);
 
 			FileHandle file = resolveFile(fileName, fileType);
+			if (!file.exists()) {
+				return DeleteResult.unexisting;
+			} else if (file.delete()) {
+				return DeleteResult.deleted;
+			} else {
+				return DeleteResult.unsuccessful;
+			}
+		}
+	}
+
+	DeleteResult delete(String fileName, FileType fileType) {
+		synchronized (mutex) {
+			registry.removeAll(fileName, fileType);
+			FileHandle file = files.getFileHandle(fileName, fileType);
 			if (!file.exists()) {
 				return DeleteResult.unexisting;
 			} else if (file.delete()) {
