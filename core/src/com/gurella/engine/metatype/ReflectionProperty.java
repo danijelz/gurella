@@ -11,8 +11,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
@@ -126,13 +125,10 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 
 		AssetProperty assetProperty = findAnnotation(AssetProperty.class);
-		if (assetProperty == null) {
-			asset = AssetService.getAssetDescriptor(type) != null;
-		} else {
-			asset = assetProperty.value() && AssetService.getAssetDescriptor(type) != null;
-		}
+		asset = (assetProperty == null || assetProperty.value()) && AssetDescriptors.isAssetType(type);
 
 		range = Range.valueOf(findAnnotation(ValueRange.class), type);
+
 		PropertyEditorDescriptor editorDescriptor = findAnnotation(PropertyEditorDescriptor.class);
 		if (editorDescriptor == null) {
 			editable = true;

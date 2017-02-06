@@ -169,7 +169,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		EventService.subscribe(id, this);
 
 		String path = getAssetsRelativePath(getEditorInput().getAdapter(IResource.class)).toString();
-		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
+		AssetService.loadAsync(new LoadSceneCallback(), path, Scene.class, 0);
 	}
 
 	private void presentException(Throwable exception) {

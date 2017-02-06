@@ -1,18 +1,15 @@
 package com.gurella.engine.asset;
 
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
+import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
+import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
-import com.gurella.engine.utils.Values;
 
 public class Assets {
 	public static final String filePathDelimiters = "\\/";
@@ -27,9 +24,6 @@ public class Assets {
 	public static final char classpathFileType = 'c';
 	public static final char internalFileType = 'i';
 	public static final char fileTypeInfoDelimiter = '|';
-
-	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
-	private static final ObjectSet<Class<?>> nonAssetTypes = new ObjectSet<Class<?>>();
 
 	private Assets() {
 	}
@@ -52,73 +46,25 @@ public class Assets {
 		}
 	}
 
-	public static boolean hasValidExtension(Class<?> assetType, String fileName) {
-		String fileExtension = getFileExtension(fileName);
-		return Values.isNotBlank(fileExtension) && isValidExtension(assetType, fileExtension);
+	public static String toPropertiesFileName(String assetFileName) {
+		return assetFileName + '.' + DefaultAssetDescriptors.assetProps.getSingleExtension();
 	}
 
-	public static String getPropertiesFileName(String assetFileName) {
-		AssetType assetType = getAssetType(assetFileName);
-		if (assetType != null && assetType.propsType != null) {
-			return assetFileName + '.' + AssetType.assetProperties.extension();
-		} else {
-			return null;
-		}
-	}
-
-	public static String getPropertiesFileName(Object asset) {
-		AssetType assetType = getAssetType(asset.getClass());
-		if (assetType != null && assetType.propsType != null) {
-			String assetFileName = AssetService.getFileName(asset);
-			return assetFileName + '.' + AssetType.assetProperties.extension();
-		} else {
-			return null;
-		}
-	}
-
-	public static String getPropertiesFileName(String assetFileName, Class<?> assetType) {
-		AssetType assetTypeEnum = Assets.getAssetType(assetType);
-		if (assetTypeEnum != null && assetTypeEnum.propsType != null) {
-			return assetFileName + '.' + AssetType.assetProperties.extension();
-		} else {
-			return null;
-		}
-	}
-
-	public static boolean hasPropertiesFile(String assetFileName, FileType fileType) {
-		String propertiesFileName = getPropertiesFileName(assetFileName);
-		return propertiesFileName == null ? false : fileExists(propertiesFileName, fileType);
+	public static boolean hasProperties(String assetFileName, Class<?> assetType) {
+		AssetLoader<?, ?, ?> loader = AssetDescriptors.getLoader(assetFileName, assetType);
+		return loader != null && loader.getAssetPropertiesType() != null;
 	}
 
 	public static boolean fileExists(String fileName, FileType fileType) {
 		return Gdx.files.getFileHandle(fileName, fileType).exists();
 	}
 
-	public static FileHandle getPropertiesFile(String assetFileName, FileType fileType) {
-		String propertiesFileName = getPropertiesFileName(assetFileName);
-		if (propertiesFileName == null) {
-			return null;
-		}
-
-		FileHandle propsHandle = Gdx.files.getFileHandle(propertiesFileName, fileType);
-		return propsHandle.exists() ? propsHandle : null;
-	}
-
-	public static boolean hasPropertiesFile(Class<?> assetType, String assetFileName, FileType fileType) {
-		String propertiesFileName = getPropertiesFileName(assetFileName, assetType);
-		if (propertiesFileName == null) {
-			return false;
-		}
-
-		return fileExists(propertiesFileName, fileType);
-	}
-
 	public static FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
-		String propertiesFileName = getPropertiesFileName(assetFileName, assetType);
-		if (propertiesFileName == null) {
+		if (!hasProperties(assetFileName, assetType)) {
 			return null;
 		}
 
+		String propertiesFileName = toPropertiesFileName(assetFileName);
 		FileHandle propsHandle = Gdx.files.getFileHandle(propertiesFileName, fileType);
 		return propsHandle.exists() ? propsHandle : null;
 	}
@@ -126,11 +72,7 @@ public class Assets {
 	public static <T extends AssetProperties> T loadAssetProperties(Object asset) {
 		String assetFileName = AssetService.getFileName(asset);
 		FileHandle propsHandle = getPropertiesFile(assetFileName, FileType.Internal, asset.getClass());
-		if (propsHandle == null) {
-			return null;
-		} else {
-			return AssetService.load(propsHandle.name());
-		}
+		return propsHandle == null ? null : AssetService.<T> load(propsHandle.name());
 	}
 
 	public static FileHandle getFileHandle(String path) {

@@ -18,7 +18,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.utils.Values;
 
 public class MoveAssetsParticipant extends MoveParticipant {
@@ -52,7 +52,7 @@ public class MoveAssetsParticipant extends MoveParticipant {
 			return null;
 		}
 
-		if (resource instanceof IFile && Assets.getAssetType(resource.getName()) == null) {
+		if (resource instanceof IFile && AssetDescriptors.getAssetDescriptor(resource.getName()) == null) {
 			return null;
 		}
 

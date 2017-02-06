@@ -51,7 +51,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.swt.IFocusService;
 
-import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -276,25 +276,25 @@ public class AssetsView extends DockableView
 	// TODO create plugin extension
 	private static Inspectable<?> getInspectable(IFile file) {
 		String extension = file.getFileExtension();
-		if (AssetType.texture.isValidExtension(extension)) {
+		if (DefaultAssetDescriptors.texture.isValidExtension(extension)) {
 			return new TextureInspectable(file);
-		} else if (AssetType.pixmap.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.pixmap.isValidExtension(extension)) {
 			return new PixmapInspectable(file);
-		} else if (AssetType.sound.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.sound.isValidExtension(extension)) {
 			return new AudioInspectable(file);
-		} else if (AssetType.textureAtlas.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.textureAtlas.isValidExtension(extension)) {
 			return new TextureAtlasInspectable(file);
-		} else if (AssetType.bitmapFont.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.bitmapFont.isValidExtension(extension)) {
 			return new BitmapFontInspectable(file);
-		} else if (AssetType.model.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.model.isValidExtension(extension)) {
 			return new ModelInspectable(file);
-		} else if (AssetType.polygonRegion.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.polygonRegion.isValidExtension(extension)) {
 			return new PolygonRegionInspectable(file);
-		} else if (AssetType.prefab.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.prefab.isValidExtension(extension)) {
 			return new PrefabInspectable(file);
-		} else if (AssetType.material.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.material.isValidExtension(extension)) {
 			return new MaterialInspectable(file);
-		} else if (AssetType.assetProperties.isValidExtension(extension)) {
+		} else if (DefaultAssetDescriptors.assetProps.isValidExtension(extension)) {
 			return new AssetPropertiesInspectable(file);
 		}
 		return null;

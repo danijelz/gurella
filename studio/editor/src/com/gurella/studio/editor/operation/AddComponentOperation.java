@@ -30,7 +30,7 @@ public class AddComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.addComponent(component);
-		GdxContext.addToBundle(editorId, node, component.ensureUuid(), component);
+		GdxContext.addToBundle(editorId, node, component, component.ensureUuid());
 		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentAdded(node, component));
 		post(editorId, editorId, SceneChangedEvent.instance);
@@ -40,7 +40,7 @@ public class AddComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.removeComponent(component, false);
-		GdxContext.removeFromBundle(editorId, node, component.ensureUuid(), component);
+		GdxContext.removeFromBundle(editorId, node, component);
 		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(node, component));
 		post(editorId, editorId, SceneChangedEvent.instance);

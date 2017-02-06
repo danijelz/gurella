@@ -89,12 +89,12 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 
 	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
-		String propertiesFileName = Assets.getPropertiesFileName(assetFileName, assetType);
-		if (propertiesFileName != null && Assets.fileExists(propertiesFileName, FileType.Internal)) {
-			return load(propertiesFileName);
-		} else {
+		if (!Assets.hasProperties(assetFileName, assetType)) {
 			return null;
 		}
+
+		String propertiesFileName = Assets.toPropertiesFileName(assetFileName);
+		return GdxContext.fileExists(editorId, propertiesFileName, FileType.Internal) ? load(propertiesFileName) : null;
 	}
 
 	private <T> T load(String fileName) {
@@ -134,13 +134,9 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		save(asset, getAssetFileName(asset));
 	}
 
-	public <T extends AssetProperties> void saveProperties(Object asset, T assetProperties) {
-		save(assetProperties, Assets.getPropertiesFileName(asset));
-	}
-
 	public <T extends AssetProperties> void saveProperties(IFile assetFile, T assetProperties) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
-		save(assetProperties, Assets.getPropertiesFileName(assetFileName));
+		save(assetProperties, Assets.toPropertiesFileName(assetFileName));
 	}
 
 	public void save(Object asset, String fileName) {

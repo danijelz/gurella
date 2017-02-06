@@ -37,7 +37,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.addChild(node);
 		}
 
-		GdxContext.addToBundle(editorId, scene, node.ensureUuid(), node);
+		GdxContext.addToBundle(editorId, scene, node, node.ensureUuid());
 		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 		post(editorId, editorId, SceneChangedEvent.instance);
@@ -52,7 +52,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node, false);
 		}
 
-		GdxContext.removeFromBundle(editorId, scene, node.ensureUuid(), node);
+		GdxContext.removeFromBundle(editorId, scene, node);
 		GdxContext.clean(editorId);
 		post(editorId, editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		post(editorId, editorId, SceneChangedEvent.instance);

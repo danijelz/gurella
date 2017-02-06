@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.assets;
 
-import static com.gurella.engine.asset.AssetType.prefab;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.prefab;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
 
@@ -108,7 +108,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 
 		IFolder folder = (IFolder) data;
 		SceneNode node = getTransferedNode();
-		Optional<String> prefabName = enterNewFileName(folder, node.getName(), true, prefab.extension());
+		Optional<String> prefabName = enterNewFileName(folder, node.getName(), true, prefab.getSingleExtension());
 		if (!prefabName.isPresent()) {
 			event.detail = DND.DROP_NONE;
 			return;

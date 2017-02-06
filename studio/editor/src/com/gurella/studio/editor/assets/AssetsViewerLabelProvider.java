@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import static com.gurella.engine.asset.AssetType.*;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.*;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.utils.Values;
@@ -25,10 +25,7 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 			String extension = file.getFileExtension();
 			if (Values.isBlank(extension)) {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
-			} 
-			
-			Class<?> assetType = AssetService.getAssetType(fileName);
-			if (texture.isValidExtension(extension) || pixmap.isValidExtension(extension)) {
+			} else if (texture.isValidExtension(extension) || pixmap.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/picture.png");
 			} else if (sound.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/music.png");
@@ -44,9 +41,9 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 				return GurellaStudioPlugin.getImage("icons/ice_cube.png");
 			} else if (material.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/material.png");
-			} else if (scene.isValidExtension(extension) || applicationConfig.isValidExtension(extension)) {
+			} else if (scene.isValidExtension(extension) || appConfig.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/logo16.png");
-			} else if (assetProperties.isValidExtension(extension)) {
+			} else if (assetProps.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/showproperties_obj.gif");
 			} else {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);

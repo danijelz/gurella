@@ -23,8 +23,8 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptor;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 
 public class CopyAssetsParticipant extends CopyParticipant {
 	private IFile file;
@@ -52,8 +52,8 @@ public class CopyAssetsParticipant extends CopyParticipant {
 			return null;
 		}
 
-		AssetType assetType = Assets.getAssetType(file.getName());
-		if (assetType == null || !assetType.composite) {
+		AssetDescriptor<?> descriptor = AssetDescriptors.getAssetDescriptor(file.getName());
+		if (descriptor == null || !descriptor.hasReferences) {
 			return null;
 		}
 

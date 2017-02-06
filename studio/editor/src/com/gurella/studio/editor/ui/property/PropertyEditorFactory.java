@@ -21,8 +21,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
-import com.gurella.engine.asset.Assets;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.utils.BitsExt;
@@ -96,7 +96,7 @@ public class PropertyEditorFactory {
 			return cast(ArrayPropertyEditor.class);
 		} else if (propertyType.isEnum()) {
 			return cast(EnumPropertyEditor.class);
-		} else if (Assets.isAssetType(propertyType)) {
+		} else if (AssetDescriptors.isAssetType(propertyType)) {
 			return cast(AssetPropertyEditor.class);
 		} else if (context.property.isFinal() && context.bean != null && isSimpleProperty(propertyType)) {
 			return cast(SimpleObjectPropertyEditor.class);
@@ -201,7 +201,7 @@ public class PropertyEditorFactory {
 			return cast(new ArrayPropertyEditor<>(parent, context));
 		} else if (propertyType.isEnum()) {
 			return cast(new EnumPropertyEditor<>(parent, cast(context)));
-		} else if (Assets.isAssetType(propertyType)) {
+		} else if (AssetDescriptors.isAssetType(propertyType)) {
 			return cast(new AssetPropertyEditor<>(parent, context, propertyType));
 		} else if (context.property.isFinal() && context.bean != null && isSimpleProperty(propertyType)) {
 			// TODO handle in ReflectionPropertyEditor

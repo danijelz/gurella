@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset.bundle.Bundle;
-import com.gurella.engine.asset.descriptor.AssetDescriptor;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
@@ -37,7 +36,6 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
-	private final AssetDescriptors descriptors = new AssetDescriptors();
 	private final AssetId tempAssetId = new AssetId();
 
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
@@ -51,7 +49,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 	private final Sort sort = new Sort();
 
 	boolean isLoaded(String fileName, FileType fileType) {
-		return registry.isLoaded(tempAssetId.set(fileName, fileType, getAssetType(fileName)));
+		return registry.isLoaded(tempAssetId.set(fileName, fileType, AssetDescriptors.getAssetType(fileName)));
 	}
 
 	boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
@@ -105,7 +103,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 			String fileName = tempAssetId.fileName;
 			@SuppressWarnings("unchecked")
 			Class<T> assetType = (Class<T>) tempAssetId.assetType;
-			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
+			AssetPersister<T> persister = AssetDescriptors.getPersister(fileName, assetType);
 			if (persister == null) {
 				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
 			}
@@ -117,13 +115,13 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 
 	<T> void save(T asset, String fileName, FileType fileType) {
 		synchronized (mutex) {
-			Class<T> assetType = descriptors.getAssetType(asset);
+			Class<T> assetType = AssetDescriptors.getAssetType(asset);
 			if (assetType == null) {
 				throw new IllegalStateException(
 						"No descrptor registered for asset type: " + asset.getClass().getName());
 			}
 
-			AssetPersister<T> persister = descriptors.getPersister(fileName, assetType);
+			AssetPersister<T> persister = AssetDescriptors.getPersister(fileName, assetType);
 			if (persister == null) {
 				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
 			}
@@ -224,7 +222,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 
 	////////////////////////////// loading
 	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, int priority) {
-		loadAsync(callback, fileName, fileType, getAssetType(fileName), priority);
+		loadAsync(callback, fileName, fileType, AssetDescriptors.<T> getAssetType(fileName), priority);
 	}
 
 	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
@@ -241,7 +239,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 	}
 
 	<T> T load(String fileName, FileType fileType) {
-		return load(fileName, fileType, getAssetType(fileName));
+		return load(fileName, fileType, AssetDescriptors.<T> getAssetType(fileName));
 	}
 
 	<T> T load(String fileName, FileType fileType, Class<T> assetType) {
@@ -277,7 +275,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 		if (queuedTask == null) {
 			AssetLoadingTask<A, T> task = taskPool.obtainTask();
 			FileHandle file = resolveFile(fileName, fileType);
-			AssetLoader<A, T, AssetProperties> loader = descriptors.getLoader(fileName, assetType);
+			AssetLoader<A, T, AssetProperties> loader = AssetDescriptors.getLoader(fileName, assetType);
 			task.init(this, file, assetType, loader, callback, priority);
 			startTask(task);
 		} else {
@@ -360,7 +358,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 			AssetLoadingTask<A, T> task = taskPool.obtainTask();
 			String fileName = tempAssetId.fileName;
 			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
-			AssetLoader<A, T, AssetProperties> loader = descriptors.getLoader(fileName, assetType);
+			AssetLoader<A, T, AssetProperties> loader = AssetDescriptors.getLoader(fileName, assetType);
 			task.init(parent, file, assetType, loader);
 			startTask(task);
 			return task;
@@ -437,40 +435,6 @@ class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, Asyn
 
 	boolean fileExists(String fileName, FileType fileType) {
 		return files.getFileHandle(fileName, fileType).exists();
-	}
-
-	<T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
-		synchronized (mutex) {
-			return descriptors.getAssetDescriptor(assetType);
-		}
-	}
-
-	<T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
-		synchronized (mutex) {
-			return descriptors.getAssetDescriptor(fileName);
-		}
-	}
-
-	<T> Class<T> getAssetType(final String fileName) {
-		synchronized (mutex) {
-			return descriptors.getAssetType(fileName);
-		}
-	}
-
-	<T> Class<T> getAssetType(final Class<? extends T> assetType) {
-		synchronized (mutex) {
-			return descriptors.getAssetType(assetType);
-		}
-	}
-
-	<T> Class<T> getAssetType(final Object asset) {
-		synchronized (mutex) {
-			return descriptors.getAssetType(asset);
-		}
-	}
-
-	public AssetDescriptors getDescriptors() {
-		return descriptors;
 	}
 
 	@Override

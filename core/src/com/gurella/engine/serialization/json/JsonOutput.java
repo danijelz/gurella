@@ -20,7 +20,6 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
@@ -270,7 +269,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		if (value instanceof Reference) {
 			Reference reference = (Reference) value;
 			//TODO bundleId
-			externalDependencies.add(reference.getValueType().getName() + " " + reference.getFileName());
+			externalDependencies.add(reference.getType().getName() + " " + reference.getFileName());
 		}
 	}
 

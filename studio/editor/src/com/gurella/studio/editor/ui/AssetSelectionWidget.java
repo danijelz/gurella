@@ -28,8 +28,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
-import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptor;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;
@@ -83,8 +83,8 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
-		AssetType value = Assets.getAssetType(assetType);
-		String extensions = Arrays.stream(value.fileExtensions).map(e -> "*." + e).collect(joining(";"));
+		AssetDescriptor<?> descriptor = AssetDescriptors.getAssetDescriptor(assetType);
+		String extensions = Arrays.stream(descriptor.extensions.toArray()).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
 		dialog.setFilterPath(assetsFolder.getLocation().toString());
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
@@ -158,7 +158,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		}
 
 		private boolean isValidResource(IResource item) {
-			return (item instanceof IFile) && Assets.isValidExtension(assetType, item.getFileExtension());
+			return (item instanceof IFile) && AssetDescriptors.isValidExtension(item.getFileExtension(), assetType);
 		}
 	}
 }

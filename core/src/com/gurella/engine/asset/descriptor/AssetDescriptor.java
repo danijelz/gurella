@@ -27,7 +27,7 @@ public class AssetDescriptor<TYPE> {
 		this.assetType = assetType;
 		this.hasReferences = hasReferences;
 		this.validForSubtypes = validForSubtypes;
-		if (Values.isNotBlank(extension)) {
+		if (Values.isNotBlank(extension) && !"*".equals(extension)) {
 			this._extensions.add(extension.toLowerCase());
 		}
 	}
@@ -109,5 +109,9 @@ public class AssetDescriptor<TYPE> {
 		}
 
 		return _extensions.contains(extension.toLowerCase());
+	}
+
+	public String getSingleExtension() {
+		return _extensions.size == 1 ? _extensions.orderedItems().get(0) : null;
 	}
 }

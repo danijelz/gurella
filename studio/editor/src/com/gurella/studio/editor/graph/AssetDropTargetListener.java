@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
+import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -70,17 +70,21 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		}
 
 		IFile file = (IFile) resource;
-		if (AssetType.prefab.isValidExtension(file.getFileExtension())) {
+		if (isPrefab(file.getFileExtension())) {
 			return file;
 		} else {
 			return getComponentType(file) == null ? null : file;
 		}
 	}
 
+	private static boolean isPrefab(String fileExtension) {
+		return DefaultAssetDescriptors.prefab.isValidExtension(fileExtension);
+	}
+
 	protected boolean isValidAssetExtension(String fileExtension) {
-		return Assets.isValidExtension(Model.class, fileExtension)
-				|| Assets.isValidExtension(Texture.class, fileExtension)
-				|| AssetType.prefab.isValidExtension(fileExtension);
+		return DefaultAssetDescriptors.model.isValidExtension(fileExtension)
+				|| DefaultAssetDescriptors.texture.isValidExtension(fileExtension)
+				|| DefaultAssetDescriptors.prefab.isValidExtension(fileExtension);
 	}
 
 	@Override
@@ -94,7 +98,7 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		}
 
 		TreeItem item = (TreeItem) event.item;
-		boolean isPrefab = AssetType.prefab.isValidExtension(file.getFileExtension());
+		boolean isPrefab = isPrefab(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
 				event.detail = DND.DROP_COPY;
@@ -128,9 +132,9 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 	private static Class<? extends SceneNodeComponent> getComponentType(IFile file) {
 		String fileExtension = file.getFileExtension();
 
-		if (Assets.isValidExtension(Model.class, fileExtension)) {
+		if (AssetDescriptors.isValidExtension(fileExtension, Model.class)) {
 			return ModelComponent.class;
-		} else if (Assets.isValidExtension(Texture.class, fileExtension)) {
+		} else if (AssetDescriptors.isValidExtension(fileExtension, Texture.class)) {
 			return TextureComponent.class;
 		} else {
 			return null;
@@ -151,7 +155,7 @@ class AssetDropTargetListener extends DropTargetAdapter implements SceneConsumer
 		}
 
 		TreeItem item = (TreeItem) event.item;
-		boolean isPrefab = AssetType.prefab.isValidExtension(file.getFileExtension());
+		boolean isPrefab = isPrefab(file.getFileExtension());
 		if (item == null) {
 			if (isPrefab) {
 				SceneNode prefab = loadAsset(file, SceneNode.class);

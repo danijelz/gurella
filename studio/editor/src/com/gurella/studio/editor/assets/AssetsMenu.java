@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.assets;
 
-import static com.gurella.engine.asset.AssetType.material;
-import static com.gurella.engine.asset.AssetType.prefab;
-import static com.gurella.engine.asset.AssetType.renderTarget;
-import static com.gurella.engine.asset.AssetType.scene;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.material;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.prefab;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.renderTarget;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.scene;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
@@ -190,7 +190,7 @@ class AssetsMenu {
 
 		private void addNewPrefab() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "node", true, prefab.extension())
+			enterNewFileName(parent, "node", true, prefab.getSingleExtension())
 					.ifPresent(n -> addAsset(parent, n, newPrefab(n)));
 		}
 
@@ -207,7 +207,7 @@ class AssetsMenu {
 
 		private void addNewMaterial() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "material", true, material.extension())
+			enterNewFileName(parent, "material", true, material.getSingleExtension())
 					.ifPresent(n -> addAsset(parent, n, new MaterialDescriptor()));
 		}
 
@@ -223,13 +223,13 @@ class AssetsMenu {
 
 		private void addNewRendeTarget() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "renderTarget", true, renderTarget.extension())
+			enterNewFileName(parent, "renderTarget", true, renderTarget.getSingleExtension())
 					.ifPresent(n -> addAsset(parent, n, new RenderTarget()));
 		}
 
 		private void addNewScene() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "scene", true, scene.extension()).ifPresent(n -> addAsset(parent, n, newScene()));
+			enterNewFileName(parent, "scene", true, scene.getSingleExtension()).ifPresent(n -> addAsset(parent, n, newScene()));
 		}
 
 		private static Scene newScene() {

@@ -185,8 +185,8 @@ class GraphMenu {
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode node = (SceneNode) selection;
 				IFolder folder = project.getFolder(assetsRootPath);
-				AssetDescriptors descriptors = AssetService.getAssetDescriptors();
-				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), descriptors.prefab);
+				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(),
+						DefaultAssetDescriptors.prefab);
 				if (!fileName.isPresent()) {
 					return;
 				}

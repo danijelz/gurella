@@ -33,97 +33,63 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class DefaultAssetDescriptors {
-	final Array<AssetDescriptor<?>> _descriptors = new Array<AssetDescriptor<?>>();
-	public final ImmutableArray<AssetDescriptor<?>> descriptors = new ImmutableArray<AssetDescriptor<?>>(_descriptors);
+	//@formatter:off
+	static final Array<AssetDescriptor<?>> _descriptors = new Array<AssetDescriptor<?>>();
+	public static final ImmutableArray<AssetDescriptor<?>> descriptors = new ImmutableArray<AssetDescriptor<?>>(_descriptors);
 
-	public final AssetDescriptor<Scene> scene;
-	public final AssetDescriptor<SceneNode> prefab;
-	public final AssetDescriptor<MaterialDescriptor> material;
-	public final AssetDescriptor<ApplicationConfig> appConfig;
-	public final AssetDescriptor<AssetProperties> assetProps;
-	public final AssetDescriptor<RenderTarget> renderTarget;
+	public static final AssetDescriptor<Scene> scene = createSerialized(Scene.class, "gscn");
+	public static final AssetDescriptor<SceneNode> prefab = createSerialized(SceneNode.class, "pref");
+	public static final AssetDescriptor<MaterialDescriptor> material = createSerialized(MaterialDescriptor.class, "gmat");
+	public static final AssetDescriptor<ApplicationConfig> appConfig = createSerialized(ApplicationConfig.class, "gcfg");
+	public static final AssetDescriptor<AssetProperties> assetProps = createSerialized(AssetProperties.class, "gprop");
+	public static final AssetDescriptor<RenderTarget> renderTarget = create(RenderTarget.class, true, true, new RenderTargetLoader(), "grt");
 
-	public final AssetDescriptor<Texture> texture;
-	public final AssetDescriptor<TextureAtlas> textureAtlas;
-	public final AssetDescriptor<Cubemap> cubemap;
-	public final AssetDescriptor<BitmapFont> bitmapFont;
-	public final AssetDescriptor<I18NBundle> i18NBundle;
-	public final AssetDescriptor<Sound> sound;
-	public final AssetDescriptor<Music> music;
-	public final AssetDescriptor<Pixmap> pixmap;
-	public final AssetDescriptor<Model> model;
+	public static final AssetDescriptor<Texture> texture = create(Texture.class, false, false, new TextureLoader(), "png", "jpg", "jpeg");
+	public static final AssetDescriptor<TextureAtlas> textureAtlas = create(TextureAtlas.class, false, false, new TextureAtlasLoader(), "atl");
+	public static final AssetDescriptor<Cubemap> cubemap = create(Cubemap.class, false, false, new CubemapLoader(), "ktx", "zktx");
+	public static final AssetDescriptor<BitmapFont> bitmapFont = create(BitmapFont.class, false, false, new BitmapFontLoader(), "fnt");
+	public static final AssetDescriptor<I18NBundle> i18NBundle = create(I18NBundle.class, false, false, new I18NBundleLoader(), "i18n");
+	public static final AssetDescriptor<Sound> sound = create(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3");
+	public static final AssetDescriptor<Music> music = create(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3");
+	public static final AssetDescriptor<Pixmap> pixmap = create(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg");
+	public static final AssetDescriptor<Model> model = createModelDescriptor();
+	//@formatter:on
 
-	DefaultAssetDescriptors() {
-		scene = create(Scene.class, "gscn");
-		_descriptors.add(scene);
+	// PolygonRegionLoader
+	// ShaderTemplateLoader
+	// soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
+	// polygonRegion(PolygonRegion.class, "psh"),
+	// inputActionMap(InputActionMap.class, true, null, "giam"),
+	// shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
+	// renderProgram(UnimplementedAsset.class),
+	// spritterAnimation(UnimplementedAsset.class),
+	// splineAnimation(UnimplementedAsset.class),
+	// svg(UnimplementedAsset.class),
+	// font(UnimplementedAsset.class),
+	// texture3d(UnimplementedAsset.class),
+	// particleSystem(UnimplementedAsset.class);
+	// TODO add loaders and persisters
 
-		prefab = create(SceneNode.class, "pref");
-		_descriptors.add(prefab);
-
-		material = create(MaterialDescriptor.class, "gmat");
-		_descriptors.add(material);
-
-		appConfig = create(ApplicationConfig.class, "gcfg");
-		_descriptors.add(appConfig);
-
-		assetProps = create(AssetProperties.class, "gprop");
-		_descriptors.add(assetProps);
-
-		renderTarget = create(RenderTarget.class, true, true, new RenderTargetLoader(), "grt");
-		_descriptors.add(renderTarget);
-
-		texture = create(Texture.class, false, false, new TextureLoader(), "png", "jpg", "jpeg");
-		_descriptors.add(texture);
-
-		textureAtlas = create(TextureAtlas.class, false, false, new TextureAtlasLoader(), "atl");
-		_descriptors.add(textureAtlas);
-
-		cubemap = create(Cubemap.class, false, false, new CubemapLoader(), "ktx", "zktx");
-		_descriptors.add(cubemap);
-
-		bitmapFont = create(BitmapFont.class, false, false, new BitmapFontLoader(), "fnt");
-		_descriptors.add(bitmapFont);
-
-		i18NBundle = create(I18NBundle.class, false, false, new I18NBundleLoader(), "i18n");
-		_descriptors.add(i18NBundle);
-
-		sound = create(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3");
-		_descriptors.add(sound);
-
-		music = create(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3");
-		_descriptors.add(music);
-
-		pixmap = create(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg");
-		_descriptors.add(pixmap);
-
-		model = create(Model.class, false, false, new ObjModelLoader(), "obj");
-		model.registerLoader(new JsonG3dModelLoader(), "g3dj");
-		model.registerLoader(new UbJsonG3dModelLoader(), "g3db");
-		_descriptors.add(model);
-
-		// PolygonRegionLoader
-		// ShaderTemplateLoader
-		// soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
-		// audioClip(AudioClip.class, false, AudioClipProperties.class, "wav", "ogg", "mp3", "scl"),
-		// polygonRegion(PolygonRegion.class, "psh"),
-		// inputActionMap(InputActionMap.class, true, null, "giam"),
-		// shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
-		// renderProgram(UnimplementedAsset.class),
-		// spritterAnimation(UnimplementedAsset.class),
-		// splineAnimation(UnimplementedAsset.class),
-		// svg(UnimplementedAsset.class),
-		// font(UnimplementedAsset.class),
-		// texture3d(UnimplementedAsset.class),
-		// particleSystem(UnimplementedAsset.class);
-		// TODO add loaders and persisters
+	private DefaultAssetDescriptors() {
 	}
 
-	private static <TYPE> AssetDescriptor<TYPE> create(Class<TYPE> type, String extension) {
-		return create(type, true, true, new SelializedJsonLoader<TYPE>(type), extension);
+	private static <T> AssetDescriptor<T> createSerialized(Class<T> type, String extension) {
+		return create(type, true, true, new SelializedJsonLoader<T>(type), extension);
 	}
 
-	private static <TYPE> AssetDescriptor<TYPE> create(Class<TYPE> assetType, boolean validForSubtypes,
-			boolean hasReferences, AssetLoader<?, TYPE, ? extends AssetProperties> loader, String... extensions) {
-		return new AssetDescriptor<TYPE>(assetType, validForSubtypes, hasReferences, loader, extensions);
+	private static <T> AssetDescriptor<T> create(Class<T> assetType, boolean subtypes, boolean references,
+			AssetLoader<?, T, ? extends AssetProperties> loader, String... extensions) {
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, subtypes, references, loader, extensions);
+		_descriptors.add(descriptor);
+		return descriptor;
+	}
+
+	private static AssetDescriptor<Model> createModelDescriptor() {
+		AssetDescriptor<Model> descriptor = new AssetDescriptor<Model>(Model.class, false, false);
+		descriptor.registerLoader(new ObjModelLoader(), "obj");
+		descriptor.registerLoader(new JsonG3dModelLoader(), "g3dj");
+		descriptor.registerLoader(new UbJsonG3dModelLoader(), "g3db");
+		_descriptors.add(descriptor);
+		return descriptor;
 	}
 }

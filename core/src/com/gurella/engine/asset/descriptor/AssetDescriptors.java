@@ -11,18 +11,22 @@ import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class AssetDescriptors extends DefaultAssetDescriptors {
-	private final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
-	private final ObjectMap<Class<?>, AssetDescriptor<?>> resolvedDescriptors = new ObjectMap<Class<?>, AssetDescriptor<?>>();
-	private final ObjectMap<String, Array<AssetDescriptor<?>>> descriptorsByExtension = new ObjectMap<String, Array<AssetDescriptor<?>>>();
+public class AssetDescriptors {
+	private static final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
+	private static final ObjectMap<Class<?>, AssetDescriptor<?>> resolvedDescriptors = new ObjectMap<Class<?>, AssetDescriptor<?>>();
+	private static final ObjectMap<String, Array<AssetDescriptor<?>>> descriptorsByExtension = new ObjectMap<String, Array<AssetDescriptor<?>>>();
 
-	public AssetDescriptors() {
-		for (int i = 0, n = _descriptors.size; i < n; i++) {
-			register(_descriptors.get(i));
+	static {
+		Array<AssetDescriptor<?>> descriptors = DefaultAssetDescriptors._descriptors;
+		for (int i = 0, n = descriptors.size; i < n; i++) {
+			register(descriptors.get(i));
 		}
 	}
 
-	public <T> void register(AssetDescriptor<T> descriptor) {
+	private AssetDescriptors() {
+	}
+
+	public static <T> void register(AssetDescriptor<T> descriptor) {
 		Class<T> assetType = descriptor.assetType;
 		if (descriptorByType.containsKey(assetType)) {
 			throw new IllegalArgumentException("assetType " + assetType.getName() + " allready registered.");
@@ -47,7 +51,7 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		resolvedDescriptors.clear();
 	}
 
-	public <T> void registerAssetType(Class<T> assetType, boolean validForSubtypes, boolean hasReferences,
+	public static <T> void registerAssetType(Class<T> assetType, boolean validForSubtypes, boolean hasReferences,
 			String... extensions) {
 		if (descriptorByType.containsKey(assetType)) {
 			throw new IllegalArgumentException("assetType " + assetType.getName() + " allready registered.");
@@ -72,7 +76,7 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		resolvedDescriptors.clear();
 	}
 
-	public <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties> loader,
+	public static <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties> loader,
 			String... extensions) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		if (descriptor == null) {
@@ -98,12 +102,12 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		return getLoader(null, assetType);
 	}
 
-	public <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName, final Class<T> assetType) {
+	public static <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName, final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
 	}
 
-	public <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName) {
+	public static <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
 		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
 	}
@@ -112,17 +116,17 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		return getPersister(null, assetType);
 	}
 
-	public <T> AssetPersister<T> getPersister(final String fileName, final Class<T> assetType) {
+	public static <T> AssetPersister<T> getPersister(final String fileName, final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.getPersister(fileName);
 	}
 
-	public boolean hasValidExtension(String fileName, Class<?> assetType) {
+	public static boolean hasValidExtension(String fileName, Class<?> assetType) {
 		String extension = Assets.getFileExtension(fileName);
 		return isValidExtension(extension, assetType);
 	}
 
-	public boolean isValidExtension(String extension, Class<?> assetType) {
+	public static boolean isValidExtension(String extension, Class<?> assetType) {
 		if (Values.isBlank(extension)) {
 			return false;
 		}
@@ -146,15 +150,15 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		return false;
 	}
 
-	public boolean hasAssetType(Object obj) {
+	public static boolean hasAssetType(Object obj) {
 		return obj != null && getAssetDescriptor(obj.getClass()) != null;
 	}
 
-	public boolean isAssetType(Class<?> assetType) {
+	public static boolean isAssetType(Class<?> assetType) {
 		return assetType != null && getAssetDescriptor(assetType) != null;
 	}
 
-	public <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
+	public static <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
 		AssetDescriptor<?> descriptor = descriptorByType.get(assetType);
 		if (descriptor != null) {
 			return Values.cast(descriptor);
@@ -177,12 +181,12 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		return null;
 	}
 
-	public <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
+	public static <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
 		String extension = Assets.getFileExtension(fileName);
 		return getExtensionAssetDescriptor(extension);
 	}
 
-	public <T> AssetDescriptor<T> getExtensionAssetDescriptor(String extension) {
+	public static <T> AssetDescriptor<T> getExtensionAssetDescriptor(String extension) {
 		if (Values.isBlank(extension)) {
 			return null;
 		}
@@ -197,22 +201,22 @@ public class AssetDescriptors extends DefaultAssetDescriptors {
 		}
 	}
 
-	public <T> Class<T> getAssetType(final String fileName) {
+	public static <T> Class<T> getAssetType(final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
 		return descriptor == null ? null : descriptor.assetType;
 	}
 
-	public <T> Class<T> getExtensionAssetType(final String extension) {
+	public static <T> Class<T> getExtensionAssetType(final String extension) {
 		AssetDescriptor<T> descriptor = getExtensionAssetDescriptor(extension);
 		return descriptor == null ? null : descriptor.assetType;
 	}
 
-	public <T> Class<T> getAssetType(final Class<? extends T> assetType) {
+	public static <T> Class<T> getAssetType(final Class<? extends T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		return descriptor == null ? null : descriptor.assetType;
 	}
 
-	public <T> Class<T> getAssetType(final Object asset) {
+	public static <T> Class<T> getAssetType(final Object asset) {
 		@SuppressWarnings("unchecked")
 		Class<T> assetType = (Class<T>) asset.getClass();
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);

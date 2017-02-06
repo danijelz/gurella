@@ -3,6 +3,7 @@ package com.gurella.engine.asset;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.utils.Values;
 
 public final class AssetId implements Poolable {
@@ -43,14 +44,14 @@ public final class AssetId implements Poolable {
 	public AssetId set(String fileName) {
 		this.fileName = fileName;
 		this.fileType = FileType.Internal;
-		this.assetType = Assets.getAssetClass(fileName);
+		this.assetType = AssetDescriptors.getAssetType(fileName);
 		return this;
 	}
 
 	public AssetId set(String fileName, FileType fileType) {
 		this.fileName = fileName;
 		this.fileType = fileType;
-		this.assetType = Assets.getAssetClass(fileName);
+		this.assetType = AssetDescriptors.getAssetType(fileName);
 		return this;
 	}
 
@@ -71,7 +72,7 @@ public final class AssetId implements Poolable {
 	public AssetId set(FileHandle file) {
 		this.fileName = file.path();
 		this.fileType = file.type();
-		this.assetType = Assets.getAssetClass(fileName);
+		this.assetType = AssetDescriptors.getAssetType(fileName);
 		this.cachedFile = file;
 		return this;
 	}

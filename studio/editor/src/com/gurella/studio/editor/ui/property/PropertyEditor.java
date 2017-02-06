@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.plugin.Workbench;
@@ -203,7 +203,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener, Histo
 		public SetPropertyValueOperation(PropertyEditorContext<?, P> context, P oldValue, P newValue) {
 			super("Property");
 			this.context = context;
-			this.oldValue = Assets.isAsset(oldValue) ? oldValue : CopyContext.copyObject(oldValue);
+			this.oldValue = AssetDescriptors.hasAssetType(oldValue) ? oldValue : CopyContext.copyObject(oldValue);
 			this.newValue = newValue;
 		}
 

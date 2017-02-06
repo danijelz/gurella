@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.bundle.Bundle;
-import com.gurella.engine.asset.descriptor.AssetDescriptor;
-import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
@@ -195,32 +193,28 @@ public class AssetService {
 		return getManager().getBundle(asset);
 	}
 
+	public static void addDependency(Object asset, Object dependency) {
+		getManager().addDependency(asset, dependency);
+	}
+
+	public static void removeDependency(Object asset, Object dependency) {
+		getManager().removeDependency(asset, dependency);
+	}
+
+	public static void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
+		getManager().replaceDependency(asset, oldDependency, newDependency);
+	}
+
+	public static void addToBundle(Bundle bundle, Object asset, String internalId) {
+		getManager().addToBundle(bundle, asset, internalId);
+	}
+
+	public static void removeFromBundle(Bundle bundle, Object asset) {
+		getManager().removeFromBundle(bundle, asset);
+	}
+
 	public static boolean fileExists(String fileName, FileType fileType) {
 		return getManager().fileExists(fileName, fileType);
-	}
-
-	public static AssetDescriptors getAssetDescriptors() {
-		return getManager().getDescriptors();
-	}
-
-	public static <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
-		return getManager().getAssetDescriptor(assetType);
-	}
-
-	public static <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
-		return getManager().getAssetDescriptor(fileName);
-	}
-
-	public static <T> Class<T> getAssetType(final String fileName) {
-		return getManager().getAssetType(fileName);
-	}
-
-	public static <T> Class<T> getAssetType(final Class<? extends T> assetType) {
-		return getManager().getAssetType(assetType);
-	}
-
-	public static <T> Class<T> getAssetType(final Object asset) {
-		return getManager().getAssetType(asset);
 	}
 
 	private static class Cleaner implements ApplicationShutdownListener {

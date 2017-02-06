@@ -52,7 +52,7 @@ public final class PrefabReference implements Reference, Poolable {
 	}
 
 	@Override
-	public Class<?> getValueType() {
+	public Class<?> getType() {
 		return ManagedObject.class;
 	}
 

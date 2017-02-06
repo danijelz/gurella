@@ -275,11 +275,15 @@ public class GdxContext {
 		run(contextId, () -> AssetService.replaceDependency(asset, oldDependency, newDependency));
 	}
 
-	public static void addToBundle(int contextId, Bundle bundle, String internalId, Object asset) {
-		run(contextId, () -> AssetService.addToBundle(bundle, internalId, asset));
+	public static void addToBundle(int contextId, Bundle bundle, Object asset, String bundleId) {
+		run(contextId, () -> AssetService.addToBundle(bundle, asset, bundleId));
 	}
 
-	public static void removeFromBundle(int contextId, Bundle bundle, String internalId, Object asset) {
-		run(contextId, () -> AssetService.removeFromBundle(bundle, internalId, asset));
+	public static void removeFromBundle(int contextId, Bundle bundle, Object asset) {
+		run(contextId, () -> AssetService.removeFromBundle(bundle, asset));
+	}
+
+	public static boolean fileExists(int contextId, String fileName, FileType fileType) {
+		return get(contextId, () -> Boolean.valueOf(AssetService.fileExists(fileName, fileType))).booleanValue();
 	}
 }
