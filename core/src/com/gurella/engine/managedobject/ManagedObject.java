@@ -7,8 +7,8 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.bundle.BundleAware;
+import com.gurella.engine.asset.bundle.Bundle;
+import com.gurella.engine.asset.bundle.BundleAware;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
@@ -34,7 +34,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
 	@PropertyEditorDescriptor(editable = false)
-	PrefabReference prefab;
+	PrefabReference prefab; //TODO change to ManagedObject
 
 	private transient ManagedObject parent;
 	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();

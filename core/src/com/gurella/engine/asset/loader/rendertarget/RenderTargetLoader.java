@@ -1,45 +1,21 @@
 package com.gurella.engine.asset.loader.rendertarget;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader;
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
+import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.json.SelializedJsonLoader;
+import com.gurella.engine.asset.loader.json.SelializedJsonProperties;
 import com.gurella.engine.graphics.render.RenderTarget;
-import com.gurella.engine.utils.Values;
 
-public class RenderTargetLoader extends AsynchronousAssetLoader<RenderTarget, AssetLoaderParameters<RenderTarget>> {
-	private static final Array<AssetDescriptor<?>> dependencies = new Array<AssetDescriptor<?>>();
-
-	private Json json = new Json();
-	private RenderTarget result;
-
-	public RenderTargetLoader(FileHandleResolver resolver) {
-		super(resolver);
+public class RenderTargetLoader extends SelializedJsonLoader<RenderTarget> {
+	public RenderTargetLoader() {
+		super(RenderTarget.class);
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
-			AssetLoaderParameters<RenderTarget> parameter) {
-		return Values.cast(dependencies);
-	}
-
-	@Override
-	public void loadAsync(AssetManager manager, String fileName, FileHandle file,
-			AssetLoaderParameters<RenderTarget> parameter) {
-		result = json.fromJson(RenderTarget.class, file);
-	}
-
-	@Override
-	public RenderTarget loadSync(AssetManager manager, String fileName, FileHandle file,
-			AssetLoaderParameters<RenderTarget> parameter) {
-		result.init();
-		RenderTarget object = result;
-		result = null;
-		return object;
+	public RenderTarget finish(DependencyProvider provider, FileHandle file, RenderTarget asyncData,
+			SelializedJsonProperties properties) {
+		RenderTarget renderTarget = super.finish(provider, file, asyncData, properties);
+		renderTarget.init();
+		return renderTarget;
 	}
 }

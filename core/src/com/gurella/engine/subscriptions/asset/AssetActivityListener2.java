@@ -1,6 +1,6 @@
 package com.gurella.engine.subscriptions.asset;
 
-import com.gurella.engine.asset2.AssetId;
+import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 
 //TODO unused

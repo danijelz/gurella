@@ -59,7 +59,7 @@ public final class GurellaApplication implements ApplicationListener {
 		GraphicsService.init();
 		config = config == null ? AssetService.<ApplicationConfig> load(configLocation) : config;
 		config.init();
-		AssetService.loadAsync(config.initialScenePath, Scene.class, new SceneLoadedCallback(), 0);
+		AssetService.loadAsync(new SceneLoadedCallback(), config.initialScenePath, Scene.class, 0);
 	}
 
 	@Override
@@ -84,8 +84,8 @@ public final class GurellaApplication implements ApplicationListener {
 	public final void resume() {
 		paused = false;
 		if (Gdx.app.getType() == ApplicationType.Android) {
-			// TODO move to AssetService
-			AssetService.reloadInvalidated();
+			// TODO implement in AssetManager 
+			//AssetService.reloadInvalidated();
 		}
 		EventService.post(resumeEvent);
 		EventService.post(cleanupEvent);

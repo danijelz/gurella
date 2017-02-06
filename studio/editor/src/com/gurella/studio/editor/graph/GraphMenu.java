@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.graph;
 
-import static com.gurella.engine.asset.AssetType.prefab;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
+import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
@@ -184,7 +185,8 @@ class GraphMenu {
 				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode node = (SceneNode) selection;
 				IFolder folder = project.getFolder(assetsRootPath);
-				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), prefab);
+				AssetDescriptors descriptors = AssetService.getAssetDescriptors();
+				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(), descriptors.prefab);
 				if (!fileName.isPresent()) {
 					return;
 				}

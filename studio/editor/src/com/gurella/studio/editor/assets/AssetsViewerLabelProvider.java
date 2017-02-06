@@ -10,6 +10,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import static com.gurella.engine.asset.AssetType.*;
+
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -23,7 +25,10 @@ class AssetsViewerLabelProvider extends BaseLabelProvider implements ILabelProvi
 			String extension = file.getFileExtension();
 			if (Values.isBlank(extension)) {
 				return getPlatformImage(ISharedImages.IMG_OBJ_FILE);
-			} else if (texture.isValidExtension(extension) || pixmap.isValidExtension(extension)) {
+			} 
+			
+			Class<?> assetType = AssetService.getAssetType(fileName);
+			if (texture.isValidExtension(extension) || pixmap.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/picture.png");
 			} else if (sound.isValidExtension(extension)) {
 				return GurellaStudioPlugin.getImage("icons/music.png");

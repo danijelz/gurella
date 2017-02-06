@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.asset.descriptor.AssetDescriptor;
 import com.gurella.engine.utils.Values;
 
 public class FileDialogUtils {
@@ -32,12 +32,15 @@ public class FileDialogUtils {
 		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
-	public static Optional<String> selectNewFileName(IFolder parent, String defaultName, AssetType type) {
-		return selectNewFileName(parent.getLocation(), defaultName, type.fileExtensions);
+	public static Optional<String> selectNewFileName(IFolder parent, String defaultName,
+			AssetDescriptor<?> descriptor) {
+		String[] extensions = descriptor.extensions.toArray();
+		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
-	public static Optional<String> selectNewFileName(IPath parent, String defaultName, AssetType type) {
-		return selectNewFileName(parent, defaultName, type.fileExtensions);
+	public static Optional<String> selectNewFileName(IPath parent, String defaultName, AssetDescriptor<?> descriptor) {
+		String[] extensions = descriptor.extensions.toArray();
+		return selectNewFileName(parent, defaultName, extensions);
 	}
 
 	public static Optional<String> selectNewFileName(IPath parent, String defaultName, String... extensions) {

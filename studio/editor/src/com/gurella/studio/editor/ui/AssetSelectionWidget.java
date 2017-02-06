@@ -29,7 +29,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset.Assets;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;

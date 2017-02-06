@@ -1,27 +1,28 @@
 package com.gurella.engine.managedobject;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaTypeDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.serialization.Reference;
 import com.gurella.engine.utils.Uuid;
 
+//TODO remove
 @MetaTypeDescriptor(metaType = PrefabReferenceMetaType.class)
 public final class PrefabReference implements Reference, Poolable {
-	String fileName;
 	String uuid;
-	transient ManagedObject prefab;
+	String fileName;
+	ManagedObject prefab;
 
-	public static PrefabReference obtain(String fileUuid, String uuid) {
+	public static PrefabReference obtain(String uuid, String fileName, ManagedObject prefab) {
 		if (!Uuid.isValid(uuid)) {
 			throw new IllegalArgumentException("Invalid uuid: " + uuid);
 		}
 
-		PrefabReference prefab = PoolService.obtain(PrefabReference.class);
-		prefab.fileName = fileUuid;
-		prefab.uuid = uuid;
-		return prefab;
+		PrefabReference prefabReference = PoolService.obtain(PrefabReference.class);
+		prefabReference.uuid = uuid;
+		prefabReference.fileName = fileName;
+		prefabReference.prefab = prefab;
+		return prefabReference;
 	}
 
 	static PrefabReference obtain() {
@@ -31,7 +32,7 @@ public final class PrefabReference implements Reference, Poolable {
 	PrefabReference() {
 	}
 
-	public PrefabReference(String fileName, String uuid) {
+	public PrefabReference(String uuid, String fileName) {
 		if (!Uuid.isValid(uuid)) {
 			throw new IllegalArgumentException("Invalid uuid: " + uuid);
 		}
@@ -39,7 +40,7 @@ public final class PrefabReference implements Reference, Poolable {
 		this.uuid = uuid;
 	}
 
-	PrefabReference(String fileName, String uuid, ManagedObject prefab) {
+	PrefabReference(String uuid, String fileName, ManagedObject prefab) {
 		this.fileName = fileName;
 		this.uuid = uuid;
 		this.prefab = prefab;
@@ -60,9 +61,6 @@ public final class PrefabReference implements Reference, Poolable {
 	}
 
 	public ManagedObject get() {
-		if (prefab == null) {
-			prefab = AssetService.get(fileName, uuid);
-		}
 		return prefab;
 	}
 

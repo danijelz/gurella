@@ -13,7 +13,7 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.Dispatcher;
 import com.gurella.engine.event.Event;
@@ -211,17 +211,12 @@ public class GdxContext {
 	// assets
 
 	public static <T> void loadAsync(int contextId, String fileName, AsyncCallback<T> callback, int priority) {
-		run(contextId, () -> AssetService.loadAsync(fileName, callback, priority));
+		run(contextId, () -> AssetService.loadAsync(callback, fileName, priority));
 	}
 
 	public static <T> void loadAsync(int contextId, String fileName, Class<T> type, AsyncCallback<T> callback,
 			int priority) {
-		run(contextId, () -> AssetService.loadAsync(fileName, type, callback, priority));
-	}
-
-	public static <T> void loadAsync(int contextId, String fileName, Class<T> type, AsyncCallback<T> callback,
-			int priority, boolean sticky) {
-		run(contextId, () -> AssetService.loadAsync(fileName, type, callback, priority, sticky));
+		run(contextId, () -> AssetService.loadAsync(callback, fileName, type, priority));
 	}
 
 	public static <T> T load(int contextId, String fileName) {
@@ -230,14 +225,6 @@ public class GdxContext {
 
 	public static <T> T load(int contextId, String fileName, Class<T> type) {
 		return get(contextId, () -> AssetService.load(fileName, type));
-	}
-
-	public static <T> T load(int contextId, String fileName, Class<T> type, int priority) {
-		return get(contextId, () -> AssetService.load(fileName, type, priority));
-	}
-
-	public static <T> T load(int contextId, String fileName, Class<T> type, int priority, boolean sticky) {
-		return get(contextId, () -> AssetService.load(fileName, type, priority, sticky));
 	}
 
 	public static <T> void unload(int contextId, T asset) {

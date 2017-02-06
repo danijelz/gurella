@@ -1,1040 +1,276 @@
 package com.gurella.engine.asset;
 
-import static com.gurella.engine.asset.AssetLoadingTask.obtain;
+import static com.gurella.engine.asset.AssetSlot.DependencyActivity.fresh;
+import static com.gurella.engine.asset.AssetSlot.DependencyActivity.obsolete;
+import static com.gurella.engine.asset.AssetSlot.SlotActivity.active;
+import static com.gurella.engine.asset.AssetSlot.SlotActivity.inactive;
 
 import java.util.Iterator;
 
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.assets.AssetErrorListener;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.AssetLoader;
-import com.badlogic.gdx.assets.loaders.BitmapFontLoader;
-import com.badlogic.gdx.assets.loaders.CubemapLoader;
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
-import com.badlogic.gdx.assets.loaders.I18NBundleLoader;
-import com.badlogic.gdx.assets.loaders.MusicLoader;
-import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
-import com.badlogic.gdx.assets.loaders.PixmapLoader;
-import com.badlogic.gdx.assets.loaders.SkinLoader;
-import com.badlogic.gdx.assets.loaders.SoundLoader;
-import com.badlogic.gdx.assets.loaders.TextureAtlasLoader;
-import com.badlogic.gdx.assets.loaders.TextureLoader;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Cubemap;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
-import com.badlogic.gdx.graphics.g2d.PolygonRegionLoader;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
-import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.IdentityMap;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.utils.UBJsonReader;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.application.ApplicationConfig;
-import com.gurella.engine.asset.loader.object.JsonObjectLoader;
-import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
-import com.gurella.engine.asset.persister.AssetPersister;
-import com.gurella.engine.asset.persister.AssetPersisters;
-import com.gurella.engine.asset2.Assets;
-import com.gurella.engine.asset2.bundle.Bundle;
-import com.gurella.engine.asset2.loader.audio.SoundClipLoader;
-import com.gurella.engine.asset.properties.AssetProperties;
-import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.audio.SoundClip;
+import com.gurella.engine.asset.AssetSlot.SlotActivity;
+import com.gurella.engine.asset.bundle.Bundle;
+import com.gurella.engine.asset.bundle.BundleAware;
+import com.gurella.engine.asset.event.AssetLoadedEvent;
+import com.gurella.engine.asset.event.AssetUnloadedEvent;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.event.EventService;
-import com.gurella.engine.graphics.material.MaterialDescriptor;
-import com.gurella.engine.graphics.render.RenderTarget;
-import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
-import com.gurella.engine.graphics.render.shader.template.ShaderTemplateLoader;
-import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.subscriptions.asset.AssetActivityListener;
-import com.gurella.engine.utils.Values;
 
-//TODO exceptions are not handled correctly
-//TODO allow loading same file by different type (Texture, Pixmap)
-public class AssetRegistry extends AssetManager {
-	private static final String clearRequestedMessage = "Clear requested on AssetRegistry.";
-	private static final String assetUnloadedMessage = "Asset unloaded.";
-	private static final String loadedAssetInconsistentMessage = "Asset with name '%s' already loaded, but has different type (expected: %s, found: %s).";
-	private static final String queuedAssetInconsistentMessage = "Asset with name '%s' already in preload queue, but has different type (expected: %s, found: %s)";
-
-	private final ObjectMap<String, AssetInfo> assetsByFileName = new ObjectMap<String, AssetInfo>();
-	private final IdentityMap<Object, String> fileNamesByAsset = new IdentityMap<Object, String>();
-
+class AssetRegistry implements Disposable {
+	private final ObjectMap<AssetId, AssetSlot<?>> slotsById = new ObjectMap<AssetId, AssetSlot<?>>();
+	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
 
-	private final ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> loaders = new ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>>();
+	private final AssetIdPool assetIdPool = new AssetIdPool();
+	private final AssetSlotPool assetSlotPool = new AssetSlotPool();
 
-	private final Array<AssetLoadingTask<?>> asyncQueue = new Array<AssetLoadingTask<?>>();
-	private final Array<AssetLoadingTask<?>> waitingQueue = new Array<AssetLoadingTask<?>>();
-	private final Array<AssetLoadingTask<?>> syncQueue = new Array<AssetLoadingTask<?>>();
-	private AssetLoadingTask<?> currentTask;
+	private final ObjectMap<String, Object> tempBundledAssets = new ObjectMap<String, Object>();
 
-	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
-
-	private final Object mutex = new Object();
-
-	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 	private final AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
-	private final AssetReloadedEvent assetReloadedEvent = new AssetReloadedEvent();
+	private final AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
 
-	public AssetRegistry() {
-		this(new InternalFileHandleResolver(), true);
-	}
+	<T> T get(AssetId tempAssetId, String bundleId) {
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
 
-	public AssetRegistry(FileHandleResolver resolver) {
-		this(resolver, true);
-	}
-
-	public AssetRegistry(FileHandleResolver resolver, boolean defaultLoaders) {
-		super(resolver, false);
-		if (!defaultLoaders) {
-			return;
+		if (slot == null || slot.asset == null) {
+			throw new GdxRuntimeException("Asset not loaded: " + tempAssetId);
 		}
 
-		// @formatter:off
-		setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
-		setLoader(Music.class, new MusicLoader(resolver));
-		setLoader(Sound.class, new SoundLoader(resolver));
-		setLoader(Texture.class, new TextureLoader(resolver));
-		setLoader(TextureAtlas.class, new TextureAtlasLoader(resolver));
-		setLoader(Pixmap.class, new PixmapLoader(resolver));
-		setLoader(Skin.class, new SkinLoader(resolver));
-		setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-		setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
-		setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
-		setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
-		setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
-		setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
-		setLoader(Model.class, "obj", new ObjLoader(resolver));
-		setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
-		setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
-		setLoader(SceneNode.class, "pref", new JsonObjectLoader<SceneNode>(resolver, SceneNode.class));
-		setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
-		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
-		setLoader(ApplicationConfig.class, "gcfg", new JsonObjectLoader<ApplicationConfig>(resolver, ApplicationConfig.class));
-		Class<AssetProperties<?>> propsClass = Values.<Class<AssetProperties<?>>>cast(AssetProperties.class);
-		setLoader(propsClass, "gprop", new JsonObjectLoader<AssetProperties<?>>(resolver, propsClass));
-		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
-		setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
-		setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
-		setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
-		// @formatter:on
-	}
-
-	// TODO make package private and only accessible for prefabs and bundles
-	<T> void put(T asset, String fileName) {
-		// TODO check if asset in other file -> renamed(oldFileName, newFileName);
-		AssetInfo info = AssetInfo.obtain();
-		info.asset = asset;
-		// TODO initial refCount, dependencies and dependents
-		info.refCount = 1;
-		fileNamesByAsset.put(asset, fileName);
-		assetsByFileName.put(fileName, info);
-		DisposablesService.tryAdd(asset);
-	}
-
-	<T> void save(T asset) {
-		save(asset, getAssetFileName(asset));
-	}
-
-	<T> void save(T asset, String fileName) {
-		save(asset, fileName, FileType.Internal);
-	}
-
-	<T> void save(T asset, String fileName, FileType fileType) {
-		save(asset, Gdx.files.getFileHandle(fileName, fileType));
-	}
-
-	<T> void save(T asset, FileHandle handle) {
-		String fileName = handle.name();
-		AssetInfo info = assetsByFileName.get(fileName);
-		if (info == null) {
-			persist(asset, handle);
-			createInfoForNewAsset(asset, handle);
-		} else {
-			Bundle bundle = getAssetRootBundle(asset);
-			if (bundle == null) {
-				persist(asset, handle);
-			} else {
-				persist(bundle, handle);
-			}
-		}
-	}
-
-	private <T> void persist(T asset, FileHandle handle) {
-		AssetPersister<T> persister = AssetPersisters.<T> get(asset);
-		if (persister == null) {
-			throw new IllegalArgumentException("Can't find persister for asset type: " + asset.getClass());
-		} else {
-			persister.persist(this, handle, asset);
-		}
-	}
-
-	private <T> void createInfoForNewAsset(T asset, FileHandle handle) {
-		AssetInfo info = AssetInfo.obtain();
-		info.asset = asset;
-		info.fileType = handle.type();
-		info.refCount = 1;
-
-		String fileName = handle.name();
-		fileNamesByAsset.put(asset, fileName);
-		assetsByFileName.put(fileName, info);
-
-		if (asset instanceof Bundle) {
-			Bundle bundle = (Bundle) asset;
-			assetBundle.put(bundle, bundle);
-
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.put(bundledAsset, bundle);
-				fileNamesByAsset.put(bundledAsset, fileName);
-			}
-		}
-	}
-
-	void delete(String fileName) {
-		AssetInfo info = assetsByFileName.remove(fileName);
-		FileHandle handle = Gdx.files.getFileHandle(fileName, info.fileType);
-		handle.delete();
-
-		Object asset = info.asset;
-		fileNamesByAsset.remove(asset);
-
-		if (asset instanceof Bundle) {
-			Bundle bundle = (Bundle) asset;
-			assetBundle.remove(bundle);
-
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.remove(bundledAsset);
-				fileNamesByAsset.remove(bundledAsset);
-			}
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> T get(String fileName) {
-		return Values.cast(get(fileName, Object.class));
-	}
-
-	public <T> T get(String fileName, String internalId) {
-		synchronized (mutex) {
-			AssetInfo info = assetsByFileName.get(fileName);
-			if (info == null) {
-				throw new GdxRuntimeException("Asset not loaded: " + fileName);
-			}
-
-			return info.getBundledAsset(internalId);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> T get(AssetDescriptor<T> assetDescriptor) {
-		return get(assetDescriptor.fileName, assetDescriptor.type);
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> T get(String fileName, Class<T> type) {
-		synchronized (mutex) {
-			AssetInfo info = assetsByFileName.get(fileName);
-			if (info == null) {
-				throw new GdxRuntimeException("Asset not loaded: " + fileName);
-			}
-
-			T asset = info.getAsset();
-			if (asset == null) {
-				throw new GdxRuntimeException("Asset not loaded: " + fileName);
-			}
-
+		if (bundleId == null) {
+			@SuppressWarnings("unchecked")
+			T asset = (T) slot.asset;
 			return asset;
+		} else {
+			Object asset = slot.asset;
+			if (asset instanceof Bundle) {
+				return slot.getBundledAsset(bundleId);
+			} else {
+				throw new IllegalArgumentException("Asset is not a Bundle: " + tempAssetId);
+			}
 		}
 	}
 
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> Array<T> getAll(Class<T> type, Array<T> out) {
-		synchronized (mutex) {
-			boolean all = type == null || type == Object.class;
-			for (Object asset : fileNamesByAsset.keys()) {
-				if (all || ClassReflection.isAssignableFrom(type, asset.getClass())) {
-					@SuppressWarnings("unchecked")
-					T casted = (T) asset;
-					out.add(casted);
+	<T> Array<T> getAll(Class<T> type, Array<T> out) {
+		boolean all = type == null || type == Object.class;
+		for (Object asset : idsByAsset.keys()) {
+			if (all || ClassReflection.isInstance(type, asset)) {
+				@SuppressWarnings("unchecked")
+				T casted = (T) asset;
+				out.add(casted);
+			}
+		}
+
+		return out;
+	}
+
+	<T> boolean isManaged(T asset) {
+		return idsByAsset.containsKey(asset);
+	}
+
+	AssetId getAssetId(Object asset, AssetId out) {
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		if (id == null) {
+			return out.empty();
+		} else {
+			return out.set(id);
+		}
+	}
+
+	<T> String getFileName(T asset) {
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		return id == null ? null : id.fileName;
+	}
+
+	<T> FileType getFileType(T asset) {
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		return id == null ? null : id.fileType;
+	}
+
+	boolean isLoaded(AssetId tempAssetId) {
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
+		return slot != null && slot.asset != null;
+	}
+
+	<T> T getLoaded(AssetId tempAssetId, String bundleId) {
+		AssetSlot<?> slot = slotsById.get(tempAssetId);
+
+		if (slot == null || slot.asset == null) {
+			return null;
+		}
+
+		slot.incReferences();
+
+		if (bundleId == null) {
+			@SuppressWarnings("unchecked")
+			T asset = (T) slot.asset;
+			return asset;
+		} else {
+			return slot.getBundledAsset(bundleId);
+		}
+	}
+
+	UnloadResult unload(Object asset) {
+		Object toRemove = getAssetOrRootBundle(asset);
+		AssetId id = idsByAsset.get(toRemove);
+		if (id == null) {
+			return UnloadResult.unexisting;
+		}
+
+		AssetSlot<?> slot = slotsById.get(id);
+		if (slot.decReferences() == SlotActivity.inactive) {
+			remove(id, slot);
+			return UnloadResult.unloaded;
+		} else {
+			return UnloadResult.active;
+		}
+	}
+
+	<T> void add(AssetId tempId, T asset) {
+		add(tempId, asset, false, 1, 0, null);
+	}
+
+	<T> void add(AssetId tempId, T asset, boolean sticky, int references, int reservations,
+			ObjectIntMap<AssetId> dependencies) {
+		if (idsByAsset.containsKey(asset) || slotsById.containsKey(tempId)) {
+			throw new IllegalStateException("Asset is already loaded: " + tempId);
+		}
+
+		AssetId assetId = assetIdPool.obtain().set(tempId);
+		AssetSlot<T> slot = assetSlotPool.obtainSlot();
+		slot.init(assetId, asset, sticky, references, reservations, dependencies);
+
+		idsByAsset.put(asset, assetId);
+		slotsById.put(assetId, slot);
+
+		if (asset instanceof Bundle) {
+			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
+			if (bundledAssets.size > 0) {
+				Bundle bundle = (Bundle) asset;
+				for (Object bundledAsset : bundledAssets.values()) {
+					idsByAsset.put(bundledAsset, assetId);
+					assetBundle.put(bundledAsset, bundle);
 				}
 			}
+		}
 
-			return out;
+		assetLoadedEvent.post(assetId, asset);
+	}
+
+	<T> Dependency<T> reserve(AssetId assetId) {
+		@SuppressWarnings("unchecked")
+		AssetSlot<T> slot = (AssetSlot<T>) slotsById.get(assetId);
+		if (slot != null) {
+			slot.incReservations();
+		}
+		return slot;
+	}
+
+	void unreserve(AssetId assetId) {
+		AssetSlot<?> slot = slotsById.get(assetId);
+		if (slot.decReservations() == inactive) {
+			remove(assetId, slot);
 		}
 	}
 
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> boolean containsAsset(T asset) {
-		synchronized (mutex) {
-			return fileNamesByAsset.containsKey(asset);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> String getAssetFileName(T asset) {
-		synchronized (mutex) {
-			return fileNamesByAsset.get(asset);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public boolean isLoaded(String fileName) {
-		synchronized (mutex) {
-			return assetsByFileName.containsKey(fileName);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public boolean isLoaded(String fileName, @SuppressWarnings("rawtypes") Class type) {
-		synchronized (mutex) {
-			return assetsByFileName.containsKey(fileName);
-		}
-	}
-
-	@Override
-	public <T> AssetLoader<T, ?> getLoader(final Class<T> type) {
-		return getLoader(type, null);
-	}
-
-	@Override
-	public <T> AssetLoader<T, AssetLoaderParameters<T>> getLoader(final Class<T> type, final String fileName) {
-		synchronized (mutex) {
-			ObjectMap<String, AssetLoader<?, ?>> loadersByType = getLoaders(type);
-			if (loadersByType == null || loadersByType.size < 1) {
-				return null;
-			} else if (fileName == null) {
-				return Values.cast(loadersByType.get(""));
-			}
-
-			String fileExtension = Assets.getFileExtension(fileName);
-			if (fileExtension == null) {
-				return Values.cast(loadersByType.get(""));
-			}
-
-			AssetLoader<T, AssetLoaderParameters<T>> loader = Values.cast(loadersByType.get(fileExtension));
-			if (loader == null && loadersByType.size == 1) {
-				return Values.cast(loadersByType.get(""));
-			} else {
-				return loader;
+	boolean removeAll(String fileName, FileType fileType) {
+		boolean removed = false;
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot<?>> entry = iter.next();
+			AssetId assetId = entry.key;
+			if (assetId.equalsFile(fileName, fileType)) {
+				AssetSlot<?> slot = entry.value;
+				iter.remove();
+				remove(assetId, slot);
+				removed = true;
 			}
 		}
+		return removed;
 	}
 
-	private <T> ObjectMap<String, AssetLoader<?, ?>> getLoaders(final Class<T> type) {
-		ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
-		if (loadersByType == null) {
-			for (Entry<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> entry : loaders.entries()) {
-				if (ClassReflection.isAssignableFrom(entry.key, type)) {
-					loadersByType = entry.value;
-					loaders.put(type, loadersByType);
-				}
-			}
-		}
-		return loadersByType;
-	}
+	private void remove(AssetId id, AssetSlot<?> slot) {
+		Object asset = slot.asset;
+		assetUnloadedEvent.post(id, asset);
+		unloadBundledAssets(slot);
+		dereferenceDependencies(id, slot);
 
-	<T> AssetLoader<T, AssetLoaderParameters<T>> findLoader(Class<T> type, String fileName) {
-		AssetLoader<T, AssetLoaderParameters<T>> loader = getLoader(type, fileName);
-		if (loader == null) {
-			throw new GdxRuntimeException("No loader for type: " + type.getSimpleName());
-		}
-		return loader;
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, AssetLoader<T, P> loader) {
-		setLoader(type, null, loader);
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, String extension,
-			AssetLoader<T, P> loader) {
-		if (type == null) {
-			throw new IllegalArgumentException("type cannot be null.");
-		}
-
-		if (loader == null) {
-			throw new IllegalArgumentException("loader cannot be null.");
-		}
-
-		synchronized (mutex) {
-			ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
-			if (loadersByType == null) {
-				loadersByType = new ObjectMap<String, AssetLoader<?, ?>>();
-				loaders.put(type, loadersByType);
-			}
-
-			loadersByType.put(extension == null ? "" : extension, loader);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> void load(String fileName, Class<T> type) {
-		load(fileName, type, null, null, 0, false);
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameter) {
-		load(fileName, type, parameter, null, 0, false);
-	}
-
-	@Override
-	@SuppressWarnings({ "sync-override", "unchecked" })
-	public void load(@SuppressWarnings("rawtypes") AssetDescriptor descriptor) {
-		load(descriptor.fileName, descriptor.type, descriptor.params, null, 0, false);
-	}
-
-	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
-			int priority, boolean sticky) {
-		synchronized (mutex) {
-			AssetInfo info = assetsByFileName.get(fileName);
-			if (info == null) {
-				addToQueue(fileName, type, parameters, callback, priority, sticky);
-			} else {
-				handleAssetLoaded(fileName, type, parameters, callback, info);
-			}
-		}
-	}
-
-	private <T> void addToQueue(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
-			AsyncCallback<T> callback, int priority, boolean sticky) {
-		AssetLoadingTask<T> queuedTask = Values.cast(findTaskInQueues(fileName));
-		if (queuedTask == null) {
-			asyncQueue.add(obtain(this, callback, fileName, type, parameters, priority, sticky));
-			asyncQueue.sort();
-		} else if (queuedTask.type != type && !ClassReflection.isAssignableFrom(type, queuedTask.type)) {
-			String typeName = type.getSimpleName();
-			String otherTypeName = queuedTask.type.getSimpleName();
-			String message = Values.format(queuedAssetInconsistentMessage, fileName, typeName, otherTypeName);
-			notifyLoadException(callback, message);
-		} else {
-			queuedTask.merge(obtain(this, callback, fileName, type, parameters, priority, sticky));
-			asyncQueue.sort();
-		}
-	}
-
-	private AssetLoadingTask<?> findTaskInQueues(String fileName) {
-		AssetLoadingTask<?> task = findTaskInQueue(asyncQueue, fileName);
-		if (task != null) {
-			return task;
-		}
-		task = findTaskInQueue(waitingQueue, fileName);
-		if (task != null) {
-			return task;
-		}
-		return findTaskInQueue(syncQueue, fileName);
-	}
-
-	private static AssetLoadingTask<?> findTaskInQueue(Array<AssetLoadingTask<?>> queue, String fileName) {
-		for (int i = 0; i < queue.size; i++) {
-			AssetLoadingTask<?> task = queue.get(i);
-			if (task.fileName.equals(fileName)) {
-				return task;
-			}
-		}
-
-		return null;
-	}
-
-	private static <T> void notifyLoadException(AsyncCallback<T> callback, String message) {
-		if (callback == null) {
-			throw new GdxRuntimeException(message);
-		} else {
-			callback.onException(new GdxRuntimeException(message));
-		}
-	}
-
-	private <T> void handleAssetLoaded(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
-			AsyncCallback<T> callback, AssetInfo info) {
-		Object asset = info.asset;
-		Class<?> otherType = asset.getClass();
-
-		if (otherType != type && !ClassReflection.isAssignableFrom(type, otherType)) {
-			String typeName = type.getSimpleName();
-			String otherTypeName = otherType.getSimpleName();
-			String message = Values.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
-			notifyLoadException(callback, message);
-		} else {
-			info.incRefCount();
-			notifyLoadFinished(fileName, type, parameters, callback, Values.<T> cast(asset));
-		}
-	}
-
-	private <T> void notifyLoadFinished(String fileName, Class<T> type, AssetLoaderParameters<T> params,
-			AsyncCallback<T> callback, T asset) {
-		if (params != null && params.loadedCallback != null) {
-			params.loadedCallback.finishedLoading(this, fileName, type);
-		}
-
-		if (callback != null) {
-			callback.onProgress(1);
-			callback.onSuccess(asset);
-		}
-	}
-
-	public <T> boolean unload(T asset) {
-		String fileName = fileNamesByAsset.get(asset);
-		if (fileName == null) {
-			return false;
-		}
-
-		Bundle bundle = assetBundle.get(asset);
-		if (bundle != null && bundle != asset) {
-			return false;
-		}
-
-		return unloadAsset(fileName);
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public void unload(String fileName) {
-		synchronized (mutex) {
-			AssetLoadingTask<?> task = findTaskInQueues(fileName);
-			if (task == null) {
-				unloadAsset(fileName);
-			} else {
-				cancleTask(task);
-			}
-		}
-	}
-
-	private boolean unloadAsset(String fileName) {
-		AssetInfo info = assetsByFileName.get(fileName);
-		if (info == null) {
-			return false;
-		}
-
-		if (!info.decRefCount()) {
-			unloadAsset(fileName, info);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void unloadAsset(String fileName, AssetInfo info) {
-		Object asset = info.asset;
-		assetUnloadedEvent.set(fileName, asset);
-		EventService.post(AssetActivityListener.class, assetUnloadedEvent);
-		assetUnloadedEvent.reset();
-
-		unloadBundledAssets(asset, info);
-		fileNamesByAsset.remove(asset);
-		assetsByFileName.remove(fileName);
-		dereferenceDependencies(fileName, info);
+		idsByAsset.remove(asset);
+		slotsById.remove(id);
+		assetIdPool.free(id);
+		assetSlotPool.free(slot);
 
 		if (asset instanceof Poolable) {
 			PoolService.free(asset);
 		} else {
 			DisposablesService.tryDispose(asset);
 		}
-
-		info.free();
 	}
 
-	private void unloadBundledAssets(Object asset, AssetInfo info) {
-		if (asset instanceof Bundle) {
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Object bundledAsset : bundledAssets.values()) {
-				assetBundle.remove(bundledAsset);
-				fileNamesByAsset.remove(bundledAsset);
-
-				if (asset instanceof Poolable) {
-					PoolService.free(asset);
-				} else {
-					DisposablesService.tryDispose(asset);
-				}
-			}
-		}
-	}
-
-	private void dereferenceDependencies(String fileName, AssetInfo info) {
-		for (String dependencyFileName : info.dependencies.keys()) {
-			AssetInfo dependencyInfo = assetsByFileName.get(dependencyFileName);
-			dependencyInfo.removeDependent(fileName);
-			if (!dependencyInfo.isActive()) {
-				unloadAsset(dependencyFileName, dependencyInfo);
-			}
-		}
-	}
-
-	private <T> void cancleTask(AssetLoadingTask<T> task) {
-		AssetInfo info = task.info;
-		if (info.decRefCount()) {
+	private void unloadBundledAssets(AssetSlot<?> slot) {
+		ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
+		if (bundledAssets.size == 0) {
 			return;
 		}
 
-		removeTaskFromQueues(task);
-		unloadLoadedDependencies(task);
-		AsyncCallback<T> callback = task.callback;
-		if (callback != null) {
-			callback.onCanceled(assetUnloadedMessage);
+		for (Object asset : bundledAssets.values()) {
+			idsByAsset.remove(asset);
+			assetBundle.remove(asset);
 		}
+	}
 
-		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
-		for (int i = 0; i < concurentTasks.size; i++) {
-			AssetLoadingTask<T> concurentTask = concurentTasks.get(i);
-			callback = concurentTask.callback;
-			if (callback != null) {
-				callback.onCanceled(assetUnloadedMessage);
+	private void dereferenceDependencies(AssetId id, AssetSlot<?> slot) {
+		for (AssetId dependencyId : slot.dependencies.keys()) {
+			AssetSlot<?> dependencySlot = slotsById.get(dependencyId);
+			if (dependencySlot.removeDependent(id) == SlotActivity.inactive) {
+				remove(dependencyId, dependencySlot);
 			}
 		}
-
-		task.free();
-	}
-
-	private <T> void removeTaskFromQueues(AssetLoadingTask<T> task) {
-		asyncQueue.removeValue(task, true);
-		waitingQueue.removeValue(task, true);
-		syncQueue.removeValue(task, true);
-	}
-
-	public <T> void reload(String fileName, AsyncCallback<T> callback, int priority) {
-		AssetLoadingTask<T> queuedTask;
-		synchronized (mutex) {
-			queuedTask = Values.cast(findTaskInQueues(fileName));
-		}
-
-		if (queuedTask != null) {
-			finishLoadingAsset(fileName);
-		}
-
-		synchronized (mutex) {
-			AssetInfo info = assetsByFileName.remove(fileName);
-			if (info == null) {
-				return;
-			} else {
-				Object asset = info.asset;
-				assetReloadedEvent.set(fileName, asset);
-				EventService.post(AssetActivityListener.class, assetReloadedEvent);
-				assetReloadedEvent.reset();
-
-				fileNamesByAsset.remove(asset);
-				unloadBundledAssets(asset, info);
-
-				Class<T> type = Values.cast(asset.getClass());
-				DisposablesService.tryDispose(asset);
-				asyncQueue.add(obtain(this, callback, fileName, type, info, null, priority));
-				asyncQueue.sort();
-			}
-		}
-	}
-
-	public void reloadInvalidated() {
-		finishLoading();
-		synchronized (mutex) {
-			Entries<String, AssetInfo> entries = assetsByFileName.entries();
-			while (entries.hasNext()) {
-				Entry<String, AssetInfo> entry = entries.next();
-				AssetInfo info = entry.value;
-				Object asset = info.asset;
-				if (asset instanceof Texture || asset instanceof Cubemap) {
-					String fileName = entry.key;
-					assetReloadedEvent.set(fileName, asset);
-					EventService.post(AssetActivityListener.class, assetReloadedEvent);
-					assetReloadedEvent.reset();
-
-					entries.remove();
-					fileNamesByAsset.remove(asset);
-					unloadBundledAssets(asset, info);
-
-					Class<Object> type = Values.cast(asset.getClass());
-					DisposablesService.tryDispose(asset);
-					asyncQueue.add(obtain(this, null, fileName, type, info, null, Integer.MAX_VALUE));
-				}
-			}
-
-			asyncQueue.sort();
-		}
-	}
-
-	@Override
-	public boolean update(int millis) {
-		long endTime = TimeUtils.millis() + millis;
-		while (true) {
-			boolean done = update();
-			if (done || TimeUtils.millis() > endTime) {
-				return done;
-			}
-			ThreadUtils.yield();
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public boolean update() {
-		synchronized (mutex) {
-			processCurrentTaskException();
-			processSyncQueue();
-			processNextAsyncTask();
-			return asyncQueue.size == 0 && syncQueue.size == 0 && waitingQueue.size == 0;
-		}
-	}
-
-	private void processCurrentTaskException() {
-		if (currentTask != null && currentTask.exception != null) {
-			exception(currentTask);
-		}
-	}
-
-	private void processSyncQueue() {
-		while (syncQueue.size > 0) {
-			AssetLoadingTask<?> task = syncQueue.removeIndex(0);
-			try {
-				task.loadSync();
-			} catch (Exception e) {
-				task.exception = e;
-				handleTaskException(task);
-				continue;
-			}
-			finishTask(task);
-		}
-	}
-
-	private void processNextAsyncTask() {
-		if (currentTask == null && asyncQueue.size > 0) {
-			AssetLoadingTask<?> nextTask = asyncQueue.removeIndex(0);
-			if (isLoaded(nextTask.fileName)) {
-				throw new IllegalStateException();
-			} else {
-				waitingQueue.add(nextTask);
-				currentTask = nextTask;
-				executor.submit(nextTask);
-			}
-		}
-	}
-
-	void waitingForDependencies(AssetLoadingTask<?> task) {
-		synchronized (mutex) {
-			currentTask = null;
-			task.setLoadingState(AssetLoadingState.waitingForDependencies);
-			Array<AssetLoadingTask<?>> dependencies = task.dependencies;
-			for (int i = 0; i < dependencies.size; i++) {
-				AssetLoadingTask<?> dependency = dependencies.get(i);
-				AssetInfo info = assetsByFileName.get(dependency.fileName);
-				if (info == null) {
-					addToQueue(dependency);
-				} else {
-					handleAssetLoaded(dependency, info);
-				}
-			}
-		}
-	}
-
-	private <T> void addToQueue(AssetLoadingTask<T> dependency) {
-		AssetLoadingTask<T> queuedTask = Values.cast(findTaskInQueues(dependency.fileName));
-		if (queuedTask == null) {
-			asyncQueue.add(dependency);
-			asyncQueue.sort();
-		} else if (queuedTask.type != dependency.type
-				&& !ClassReflection.isAssignableFrom(dependency.type, queuedTask.type)) {
-			String type = dependency.type.getSimpleName();
-			String otherType = queuedTask.type.getSimpleName();
-			String message = Values.format(queuedAssetInconsistentMessage, dependency.fileName, type, otherType);
-			dependency.exception = new GdxRuntimeException(message);
-			exception(dependency);
-		} else {
-			queuedTask.merge(dependency);
-			asyncQueue.sort();
-		}
-	}
-
-	private <T> void handleAssetLoaded(AssetLoadingTask<T> dependency, AssetInfo info) {
-		Object asset = info.asset;
-		String fileName = dependency.fileName;
-		Class<T> type = dependency.type;
-		Class<?> otherType = asset.getClass();
-
-		if (type != otherType && !ClassReflection.isAssignableFrom(type, otherType)) {
-			String typeName = type.getSimpleName();
-			String otherTypeName = otherType.getSimpleName();
-			String message = Values.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
-			dependency.exception = new GdxRuntimeException(message);
-			exception(dependency);
-		} else {
-			info.addDependent(dependency.parent.fileName);
-			dependency.setLoadingState(AssetLoadingState.finished);
-			dependency.updateProgress();
-			notifyLoadFinished(fileName, type, dependency.params, dependency.callback, Values.<T> cast(asset));
-		}
-	}
-
-	<T> void readyForAsyncLoading(AssetLoadingTask<T> task) {
-		synchronized (mutex) {
-			if (!waitingQueue.removeValue(task, true)) {
-				throw new IllegalStateException();
-			}
-
-			currentTask = null;
-			task.setLoadingState(AssetLoadingState.readyForAsyncLoading);
-			task.updateProgress();
-			asyncQueue.insert(0, task);
-			asyncQueue.sort();
-		}
-	}
-
-	<T> void readyForSyncLoading(AssetLoadingTask<T> task) {
-		synchronized (mutex) {
-			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
-				throw new IllegalStateException();
-			}
-
-			currentTask = null;
-			task.setLoadingState(AssetLoadingState.readyForSyncLoading);
-			task.updateProgress();
-			syncQueue.add(task);
-			syncQueue.sort();
-		}
-	}
-
-	<T> void finished(AssetLoadingTask<T> task) {
-		synchronized (mutex) {
-			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
-				throw new IllegalStateException();
-			}
-
-			currentTask = null;
-			finishTask(task);
-		}
-	}
-
-	private <T> void finishTask(AssetLoadingTask<T> task) {
-		task.setLoadingState(AssetLoadingState.finished);
-		task.updateProgress();
-		String fileName = task.fileName;
-		AssetInfo info = task.info;
-		T asset = info.getAsset();
-		fileNamesByAsset.put(asset, fileName);
-		assetsByFileName.put(fileName, info);
-		DisposablesService.tryAdd(asset);
-
-		if (asset instanceof Bundle) {
-			Bundle bundle = (Bundle) asset;
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Object bundledAsset : bundledAssets.values()) {
-				assetBundle.put(bundledAsset, bundle);
-				fileNamesByAsset.put(bundledAsset, fileName);
-				DisposablesService.tryAdd(bundledAsset);
-			}
-		}
-
-		notifyTaskFinished(task, asset);
-		task.info = null;
-		task.free();
-	}
-
-	private <T> void notifyTaskFinished(AssetLoadingTask<T> task, T asset) {
-		String fileName = task.fileName;
-		Class<T> type = task.type;
-
-		notifyLoadFinished(fileName, type, task.params, task.callback, asset);
-		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
-		for (int i = 0; i < concurentTasks.size; i++) {
-			AssetLoadingTask<T> competingTask = concurentTasks.get(i);
-			notifyLoadFinished(fileName, type, competingTask.params, competingTask.callback, asset);
-		}
-
-		assetLoadedEvent.set(fileName, asset);
-		EventService.post(AssetActivityListener.class, assetLoadedEvent);
-		assetLoadedEvent.reset();
-	}
-
-	void exception(AssetLoadingTask<?> task) {
-		synchronized (mutex) {
-			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
-				throw new IllegalStateException();
-			}
-
-			currentTask = null;
-			handleTaskException(task);
-		}
-	}
-
-	private void handleTaskException(AssetLoadingTask<?> task) {
-		task.setLoadingState(AssetLoadingState.error);
-		unloadLoadedDependencies(task);
-		Throwable ex = task.exception;
-		boolean propagated = propagateException(task, ex);
-		task.free();
-
-		if (!propagated) {
-			// TODO throw exception on main thread
-			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);
-		}
-	}
-
-	private void unloadLoadedDependencies(AssetLoadingTask<?> task) {
-		String fileName = task.fileName;
-		Array<AssetLoadingTask<?>> dependencies = task.dependencies;
-
-		for (int i = 0; i < dependencies.size; i++) {
-			AssetLoadingTask<?> dependency = dependencies.get(i);
-			if (dependency.assetLoadingState == AssetLoadingState.finished) {
-				String dependencyFileName = dependency.fileName;
-				dereferenceDependencies(fileName, assetsByFileName.get(dependencyFileName));
-			} else {
-				unloadLoadedDependencies(dependency);
-			}
-		}
-	}
-
-	private <T> boolean propagateException(AssetLoadingTask<T> task, Throwable exception) {
-		boolean propagated = false;
-
-		AsyncCallback<?> callback = task.callback;
-		if (callback != null) {
-			callback.onProgress(1);
-			callback.onException(exception);
-			propagated = true;
-		}
-
-		AssetLoadingTask<?> parent = task.parent;
-		if (parent != null) {
-			propagated |= propagateException(parent, exception);
-		}
-
-		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
-		for (int i = 0; i < concurentTasks.size; i++) {
-			propagated |= propagateException(concurentTasks.get(i), exception);
-		}
-
-		return propagated;
-	}
-
-	@Override
-	protected <T> void addAsset(final String fileName, Class<T> type, T asset) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void finishLoading() {
-		while (!update()) {
-			ThreadUtils.yield();
-		}
-	}
-
-	@Override
-	public void finishLoadingAsset(String fileName) {
-		while (!isLoaded(fileName)) {
-			update();
-			ThreadUtils.yield();
-		}
-	}
-
-	public <T> T finishLoading(String fileName) {
-		while (!isLoaded(fileName)) {
-			update();
-			ThreadUtils.yield();
-		}
-		return get(fileName);
-	}
-
-	@Override
-	protected void taskFailed(@SuppressWarnings("rawtypes") AssetDescriptor assetDesc, RuntimeException ex) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public int getLoadedAssets() {
-		synchronized (mutex) {
-			return assetsByFileName.size;
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public int getQueuedAssets() {
-		synchronized (mutex) {
-			return asyncQueue.size + waitingQueue.size + syncQueue.size;
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public float getProgress() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public void setErrorListener(AssetErrorListener listener) {
-		throw new UnsupportedOperationException();
 	}
 
 	void addDependency(Object asset, Object dependency) {
-		if (asset == dependency) {
-			throw new IllegalArgumentException("Asset can't depend on itself");
-		}
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetSlot<?> slot = slotsById.get(id);
+		incDependencyCount(id, slot, dependency);
+	}
 
-		String assetFileName = fileNamesByAsset.get(asset);
-		String dependencyFileName = fileNamesByAsset.get(dependency);
-		AssetInfo info = assetsByFileName.get(assetFileName);
-
-		if (info.addDependency(dependencyFileName) == 1) {
-			info = assetsByFileName.get(dependencyFileName);
-			info.addDependent(assetFileName);
+	private void incDependencyCount(AssetId id, AssetSlot<?> slot, Object dependency) {
+		AssetId dependencyId = idsByAsset.get(dependency);
+		if (slot.incDependencyCount(dependencyId) == fresh) {
+			AssetSlot<?> dependencySlot = slotsById.get(idsByAsset.get(dependency));
+			dependencySlot.addDependent(id);
 		}
 	}
 
-	void removeDependency(Object asset, Object dependency) {
-		String assetFileName = fileNamesByAsset.get(asset);
-		String dependencyFileName = fileNamesByAsset.get(dependency);
-		AssetInfo info = assetsByFileName.get(assetFileName);
+	public void removeDependency(Object asset, Object dependency) {
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetSlot<?> slot = slotsById.get(id);
+		if (removeDependency(id, slot, dependency) == inactive) {
+			remove(id, slot);
+		}
+	}
 
-		if (info.removeDependency(dependencyFileName) == 0) {
-			info = assetsByFileName.get(dependencyFileName);
-			if (!info.removeDependent(assetFileName)) {
-				unloadAsset(dependencyFileName, info);
+	private SlotActivity removeDependency(AssetId id, AssetSlot<?> slot, Object dependency) {
+		AssetId dependencyId = idsByAsset.get(dependency);
+		if (slot.decDependencyCount(dependencyId) == obsolete) {
+			AssetSlot<?> dependencySlot = slotsById.get(dependencyId);
+			if (dependencySlot.removeDependent(id) == inactive) {
+				remove(dependencyId, dependencySlot);
 			}
+			return slot.getActivity();
+		} else {
+			return active;
 		}
 	}
 
@@ -1047,91 +283,110 @@ public class AssetRegistry extends AssetManager {
 			throw new IllegalArgumentException("Asset can't depend on itself.");
 		}
 
-		String assetFileName = fileNamesByAsset.get(asset);
-		String oldDependencyFileName = fileNamesByAsset.get(oldDependency);
-		String newDependencyFileName = fileNamesByAsset.get(newDependency);
+		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetSlot<?> slot = slotsById.get(id);
 
-		AssetInfo info = assetsByFileName.get(assetFileName);
-		int oldDependencyRefCount = info.removeDependency(oldDependencyFileName);
-		int newDependencyRefCount = info.addDependency(newDependencyFileName);
-
-		if (newDependencyRefCount == 1) {
-			info = assetsByFileName.get(newDependencyFileName);
-			info.addDependent(assetFileName);
-		}
-
-		if (oldDependencyRefCount == 0) {
-			info = assetsByFileName.get(oldDependencyFileName);
-			if (!info.removeDependent(assetFileName)) {
-				unloadAsset(oldDependencyFileName, info);
-			}
-		}
+		removeDependency(id, slot, oldDependency);
+		incDependencyCount(id, slot, newDependency);
 	}
 
-	void increaseDependencyRefCount(String assetFileName, String dependencyFileName) {
-		if (assetFileName == dependencyFileName) {
-			throw new IllegalArgumentException("Asset can't depend on itself");
-		}
-
-		AssetInfo info = assetsByFileName.get(assetFileName);
-		info.addDependency(dependencyFileName);
+	void addToBundle(Bundle bundle, BundleAware asset) {
+		addToBundle(bundle, asset, asset.getBundleId());
 	}
 
-	void addToBundle(Bundle bundle, String internalId, Object asset) {
+	void addToBundle(Bundle bundle, Object asset, String bundleId) {
 		Bundle rootBundle = getRootBundle(bundle);
+		AssetId rootBundleId = idsByAsset.get(rootBundle);
+		AssetSlot<?> rootBundleSlot = slotsById.get(rootBundleId);
 		Bundle assetRootBundle = getAssetRootBundle(asset);
 
 		if (assetRootBundle == rootBundle) {
 			return;
-		} else if (assetRootBundle != null) {
-			removeFromBundle(assetRootBundle, internalId, asset);
 		}
-
-		String fileName = fileNamesByAsset.get(rootBundle);
-		AssetInfo info = assetsByFileName.get(fileName);
 
 		assetBundle.put(asset, rootBundle);
-		fileNamesByAsset.put(asset, fileName);
-		info.addBundledAsset(internalId, asset);
-		DisposablesService.tryAdd(asset);
+
+		AssetId id = idsByAsset.get(asset);
+		AssetSlot<?> slot = id == null ? null : slotsById.remove(id);
+		if (slot != null) {
+			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
+			if (bundledAssets != null && bundledAssets.size > 0) {
+				for (Object bundledAsset : slot.bundledAssets.values()) {
+					assetBundle.put(bundledAsset, rootBundle);
+				}
+			}
+			rootBundleSlot.merge(slot);
+			assetSlotPool.free(slot);
+			return;
+		}
+
+		if (assetRootBundle != null) {
+			removeFromBundle(rootBundleSlot, asset);
+		}
+
+		if (id == null) {
+			id = assetIdPool.obtain().set(rootBundleId);
+			id.assetType = asset.getClass();
+			idsByAsset.put(asset, id);
+		}
+
+		rootBundleSlot.addBundledAsset(bundleId, asset);
 
 		if (asset instanceof Bundle) {
-			Bundle bundleAsset = (Bundle) asset;
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.put(bundledAsset, rootBundle);
-				fileNamesByAsset.put(bundledAsset, fileName);
-				info.addBundledAsset(bundledAssetsEntry.key, bundledAsset);
-				DisposablesService.tryAdd(bundleAsset);
+			((Bundle) asset).getBundledAssets(tempBundledAssets);
+			for (Entry<String, Object> entry : tempBundledAssets.entries()) {
+				Object bundledAsset = entry.value;
+				if (bundledAsset != asset) {
+					id = assetIdPool.obtain().set(rootBundleId);
+					id.assetType = bundledAsset.getClass();
+					idsByAsset.put(bundledAsset, id);
+					assetBundle.put(bundledAsset, rootBundle);
+					rootBundleSlot.addBundledAsset(entry.key, asset);
+				}
 			}
+			tempBundledAssets.clear();
 		}
 	}
 
-	void removeFromBundle(Bundle bundle, String internalId, Object asset) {
-		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
-		AssetInfo info = assetsByFileName.get(fileName);
+	void removeFromBundle(Bundle bundle, Object asset) {
+		if (bundle == asset) {
+			throw new IllegalArgumentException("Use unload.");
+		}
 
+		Bundle rootBundle = getRootBundle(bundle);
+		AssetId rootBundleId = idsByAsset.get(rootBundle);
+		AssetSlot<?> rootBundleSlot = slotsById.get(rootBundleId);
+		removeFromBundle(rootBundleSlot, asset);
+	}
+
+	private void removeFromBundle(AssetSlot<?> bundleSlot, Object asset) {
+		idsByAsset.remove(asset);
 		assetBundle.remove(asset);
-		fileNamesByAsset.remove(asset);
-		info.removeBundledAsset(internalId);
+		bundleSlot.removeBundledAsset(asset);
 
 		if (asset instanceof Bundle) {
-			ObjectMap<String, Object> bundledAssets = info.getBundledAssets();
-			for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
-				Object bundledAsset = bundledAssetsEntry.value;
-				assetBundle.remove(bundledAsset);
-				fileNamesByAsset.remove(bundledAsset);
-				info.removeBundledAsset(bundledAssetsEntry.key);
+			((Bundle) asset).getBundledAssets(tempBundledAssets);
+			for (Entry<String, Object> entry : tempBundledAssets.entries()) {
+				Object bundledAsset = entry.value;
+				if (bundledAsset != asset) {
+					idsByAsset.remove(bundledAsset);
+					assetBundle.remove(bundledAsset);
+					bundleSlot.removeBundledAsset(entry.key);
+				}
 			}
+			tempBundledAssets.clear();
 		}
 	}
 
-	public String getBundledAssetInternalId(Object asset) {
+	String getBundleId(Object asset) {
+		if (asset instanceof BundleAware) {
+			return ((BundleAware) asset).getBundleId();
+		}
+
 		Bundle bundle = assetBundle.get(asset);
-		String fileName = fileNamesByAsset.get(getRootBundle(bundle));
-		AssetInfo info = assetsByFileName.get(fileName);
-		return info.getBundledAssetInternalId(asset);
+		AssetId id = idsByAsset.get(getRootBundle(bundle));
+		AssetSlot<?> slot = slotsById.get(id);
+		return slot.getBundleId(asset);
 	}
 
 	private Bundle getRootBundle(Bundle bundle) {
@@ -1146,161 +401,98 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	private Bundle getAssetRootBundle(Object asset) {
+	Bundle getAssetRootBundle(Object asset) {
 		Bundle bundle = assetBundle.get(asset);
 		return bundle == null ? null : getRootBundle(bundle);
 	}
 
+	private Object getAssetOrRootBundle(Object asset) {
+		Bundle bundle = assetBundle.get(asset);
+		return bundle == null ? asset : getRootBundle(bundle);
+	}
+
 	@Override
-	@SuppressWarnings("sync-override")
 	public void dispose() {
-		synchronized (mutex) {
-			clear();
-			DisposablesService.dispose(executor);
+		removeAll();
+		slotsById.clear();
+		idsByAsset.clear();
+		assetBundle.clear();
+		assetIdPool.clear();
+		assetSlotPool.clear();
+		tempBundledAssets.clear();
+	}
+
+	private void removeAll() {
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+			Entry<AssetId, AssetSlot<?>> entry = iter.next();
+			AssetId assetId = entry.key;
+			AssetSlot<?> slot = entry.value;
+			iter.remove();
+			remove(assetId, slot);
 		}
 	}
 
-	@Override
-	@SuppressWarnings("sync-override")
-	public void clear() {
-		synchronized (mutex) {
-			clearQueue(asyncQueue);
-			clearQueue(waitingQueue);
-			clearQueue(syncQueue);
-			currentTask = null;
+	private static class AssetSlotPool extends Pool<AssetSlot<?>> {
+		@Override
+		protected AssetSlot<?> newObject() {
+			return new AssetSlot<Object>();
+		}
 
-			for (AssetInfo info : assetsByFileName.values()) {
-				Object asset = info.asset;
-				unloadBundledAssets(asset, info);
-				DisposablesService.tryDispose(asset);
-				info.free();
-			}
-
-			assetsByFileName.clear();
-			fileNamesByAsset.clear();
+		@SuppressWarnings("unchecked")
+		<T> AssetSlot<T> obtainSlot() {
+			return (AssetSlot<T>) obtain();
 		}
 	}
 
-	private static void clearQueue(Array<AssetLoadingTask<?>> queue) {
-		for (int i = 0; i < queue.size; i++) {
-			AssetLoadingTask<Object> task = Values.cast(queue.get(i));
-			AsyncCallback<Object> callback = task.callback;
-			if (callback != null) {
-				callback.onCanceled(clearRequestedMessage);
-			}
+	//TODO unused
+	String getDiagnostics() {
+		StringBuilder builder = new StringBuilder();
+		for (Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {
+			String fileName = entry.key.fileName;
+			AssetSlot<?> info = entry.value;
 
-			Array<AssetLoadingTask<Object>> concurentTasks = task.concurentTasks;
-			for (int j = 0; j < concurentTasks.size; j++) {
-				AssetLoadingTask<Object> concurentTask = concurentTasks.get(j);
-				callback = concurentTask.callback;
-				if (callback != null) {
-					callback.onCanceled(clearRequestedMessage);
-				}
-			}
+			builder.append(fileName);
+			builder.append(", ");
+			builder.append(info.asset.getClass().getSimpleName());
+			builder.append(", refCount: ");
+			builder.append(info.references);
 
-			if (task.parent == null) {
-				task.free();
-			}
-		}
-
-		queue.clear();
-	}
-
-	@Override
-	public Logger getLogger() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setLogger(Logger logger) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public int getReferenceCount(String fileName) {
-		synchronized (mutex) {
-			return assetsByFileName.get(fileName).refCount;
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public void setReferenceCount(String fileName, int refCount) {
-		synchronized (mutex) {
-			assetsByFileName.get(fileName).refCount = refCount;
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public String getDiagnostics() {
-		synchronized (mutex) {
-			StringBuilder builder = new StringBuilder();
-			for (String fileName : assetsByFileName.keys()) {
-				AssetInfo info = assetsByFileName.get(fileName);
-
-				builder.append(fileName);
-				builder.append(", ");
-				builder.append(info.asset.getClass().getSimpleName());
-				builder.append(", refCount: ");
-				builder.append(info.refCount);
-
-				if (info.dependencies.size > 0) {
-					builder.append(", deps: [");
-					Keys<String> dependencies = info.dependencies.keys();
-					for (Iterator<String> iter = dependencies.iterator(); iter.hasNext();) {
-						builder.append(iter.next());
-						if (iter.hasNext()) {
-							builder.append(",");
-						}
+			if (info.dependencies.size > 0) {
+				builder.append(", dependencies: [");
+				Keys<AssetId> dependencies = info.dependencies.keys();
+				for (Iterator<AssetId> iter = dependencies.iterator(); iter.hasNext();) {
+					builder.append(iter.next().fileName);
+					if (iter.hasNext()) {
+						builder.append(",");
 					}
-
-					builder.append("]");
 				}
 
-				ObjectSet<String> dependents = info.dependents;
-				if (dependents.size > 0) {
-					builder.append(", rels: [");
-					for (Iterator<String> iter = dependents.iterator(); iter.hasNext();) {
-						builder.append(iter.next());
-						if (iter.hasNext()) {
-							builder.append(",");
-						}
-					}
-
-					builder.append("]");
-				}
-
-				builder.append("\n");
+				builder.append("]");
 			}
 
-			return builder.toString();
+			ObjectSet<AssetId> dependents = info.dependents;
+			if (dependents.size > 0) {
+				builder.append(", dependents: [");
+				for (Iterator<AssetId> iter = dependents.iterator(); iter.hasNext();) {
+					builder.append(iter.next().fileName);
+					if (iter.hasNext()) {
+						builder.append(",");
+					}
+				}
+
+				builder.append("]");
+			}
+
+			builder.append("\n");
 		}
+
+		return builder.toString();
 	}
 
-	@Override
-	@SuppressWarnings("sync-override")
-	public Array<String> getAssetNames() {
-		synchronized (mutex) {
-			return assetsByFileName.keys().toArray();
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public Array<String> getDependencies(String fileName) {
-		synchronized (mutex) {
-			AssetInfo info = assetsByFileName.get(fileName);
-			return info == null ? null : info.dependencies.keys().toArray();
-		}
-	}
-
-	@Override
-	@SuppressWarnings("sync-override")
-	public Class<?> getAssetType(String fileName) {
-		synchronized (mutex) {
-			return assetsByFileName.get(fileName).getClass();
+	private static class AssetIdPool extends Pool<AssetId> {
+		@Override
+		protected AssetId newObject() {
+			return new AssetId();
 		}
 	}
 }

@@ -7,26 +7,21 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.asset2.Assets;
-import com.gurella.engine.asset2.bundle.Bundle;
+import com.gurella.engine.asset.bundle.Bundle;
+import com.gurella.engine.asset.descriptor.AssetDescriptor;
+import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
-import com.gurella.engine.utils.priority.Priority;
+import com.gurella.engine.utils.Values;
 
-//TODO add internal files cache???
-@Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-public final class AssetService implements ApplicationCleanupListener {
+public class AssetService {
 	private static final MockAssetManager mockManager = new MockAssetManager();
 
-	private static final ObjectMap<Application, AssetService> instances = new ObjectMap<Application, AssetService>();
-	private static AssetService lastSelected;
+	private static final ObjectMap<Application, AssetsManager> instances = new ObjectMap<Application, AssetsManager>();
+	private static AssetsManager lastSelected;
 	private static Application lastApp;
-
-	private final AssetRegistry assetRegistry = new AssetRegistry();
 
 	static {
 		Texture.setAssetManager(mockManager);
@@ -36,13 +31,8 @@ public final class AssetService implements ApplicationCleanupListener {
 	private AssetService() {
 	}
 
-	@Override
-	public void onCleanup() {
-		assetRegistry.update();
-	}
-
-	private static AssetService getInstance() {
-		AssetService service;
+	private static AssetsManager getManager() {
+		AssetsManager manager;
 		boolean subscribe = false;
 
 		synchronized (instances) {
@@ -51,189 +41,193 @@ public final class AssetService implements ApplicationCleanupListener {
 				return lastSelected;
 			}
 
-			service = instances.get(app);
-			if (service == null) {
-				service = new AssetService();
-				instances.put(app, service);
+			manager = instances.get(app);
+			if (manager == null) {
+				manager = new AssetsManager();
+				instances.put(app, manager);
 				subscribe = true;
 			}
 
 			lastApp = app;
-			lastSelected = service;
+			lastSelected = manager;
 
 		}
 
 		if (subscribe) {
 			EventService.subscribe(new Cleaner());
-			EventService.subscribe(service);
+			EventService.subscribe(manager);
 		}
 
-		return service;
-	}
-
-	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		Class<T> type = getAssetType(fileName);
-		loadAsync(fileName, type, callback, priority, false);
-	}
-
-	private static <T> Class<T> getAssetType(String fileName) {
-		Class<T> type = Assets.getAssetClass(fileName);
-		if (type == null) {
-			throw new GdxRuntimeException("Can't extract asset class from file name: " + fileName);
-		}
-		return type;
-	}
-
-	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority) {
-		loadAsync(fileName, type, callback, priority, false);
-	}
-
-	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
-			boolean sticky) {
-		getInstance().assetRegistry.load(fileName, type, null, callback, priority, sticky);
-	}
-
-	public static <T> T load(String fileName) {
-		Class<T> type = getAssetType(fileName);
-		return load(fileName, type, 0, false);
-	}
-
-	public static <T> T load(String fileName, Class<T> type) {
-		return load(fileName, type, 0, false);
-	}
-
-	public static <T> T load(String fileName, Class<T> type, int priority) {
-		return load(fileName, type, priority, false);
-	}
-
-	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
-		AssetRegistry assetRegistry = getInstance().assetRegistry;
-		assetRegistry.load(fileName, type, null, null, priority, sticky);
-		return assetRegistry.finishLoading(fileName);
+		return manager;
 	}
 
 	public static boolean isLoaded(String fileName) {
-		return getInstance().assetRegistry.isLoaded(fileName);
+		return getManager().isLoaded(fileName, Assets.getFileType(fileName));
 	}
 
-	public static <T> boolean unload(T asset) {
-		return getInstance().assetRegistry.unload(asset);
+	public static boolean isLoaded(String fileName, FileType fileType) {
+		return getManager().isLoaded(fileName, fileType);
 	}
 
-	public static <T> T get(String fileName) {
-		return getInstance().assetRegistry.get(fileName);
+	public static boolean isLoaded(String fileName, Class<?> assetType) {
+		return getManager().isLoaded(fileName, Assets.getFileType(fileName), assetType);
 	}
 
-	public static <T> T get(String fileName, String internalId) {
-		return getInstance().assetRegistry.get(fileName, internalId);
+	public static boolean isLoaded(AssetId assetId) {
+		return getManager().isLoaded(assetId.fileName, assetId.fileType, assetId.assetType);
+	}
+
+	public static boolean isLoaded(String fileName, FileType fileType, Class<?> assetType) {
+		return getManager().isLoaded(fileName, fileType, assetType);
+	}
+
+	public static <T> UnloadResult unload(T asset) {
+		return getManager().unload(asset);
 	}
 
 	public static <T> Array<T> getAll(Class<T> type, Array<T> out) {
-		return getInstance().assetRegistry.getAll(type, out);
+		return getManager().getAll(type, out);
 	}
 
 	public static <T> String getFileName(T asset) {
-		return getInstance().assetRegistry.getAssetFileName(asset);
+		return getManager().getFileName(asset);
+	}
+
+	public static <T> FileType getFileType(T asset) {
+		return getManager().getFileType(asset);
+	}
+
+	public static <T> AssetId getAssetId(T asset, AssetId out) {
+		return getManager().getAssetId(asset, out);
 	}
 
 	public static boolean isManaged(Object asset) {
-		return getInstance().assetRegistry.containsAsset(asset);
-	}
-
-	public static boolean isManaged(String fileName) {
-		return getInstance().assetRegistry.isLoaded(fileName);
-	}
-
-	public static <T> T reload(String fileName, int priority) {
-		AssetRegistry assetRegistry = getInstance().assetRegistry;
-		assetRegistry.reload(fileName, null, priority);
-		return assetRegistry.finishLoading(fileName);
-	}
-
-	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		getInstance().assetRegistry.reload(fileName, callback, priority);
-	}
-
-	public static void reloadInvalidated() {
-		getInstance().assetRegistry.reloadInvalidated();
-	}
-
-	// TODO replace with save(T asset, String fileName) {
-	// AssetPersister persister ...
-	// public static <T extends ManagedObject> void save(T object, Class<? super T> expectedType, String fileName) {
-	// FileHandle handle = Gdx.files.local(fileName);
-	// if (handle.exists()) {
-	// // TODO exception
-	// }
-	//
-	// JsonOutput output = new JsonOutput();
-	// String string = output.serialize(handle, expectedType, object);
-	// OutputStream outputStream = handle.write(false);
-	//
-	// try {
-	// outputStream.write(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120).getBytes());
-	// outputStream.close();
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//
-	// AssetService.put(object, fileName);
-	// }
-	// }
-	public static <T> void put(T asset, String fileName) {
-		getInstance().assetRegistry.put(asset, fileName);
+		return getManager().isManaged(asset);
 	}
 
 	public static <T> void save(T asset) {
-		getInstance().assetRegistry.save(asset);
+		getManager().save(asset);
 	}
 
 	public static <T> void save(T asset, String fileName) {
-		getInstance().assetRegistry.save(asset, fileName);
+		getManager().save(asset, fileName, Assets.getFileType(fileName));
 	}
 
 	public static <T> void save(T asset, String fileName, FileType fileType) {
-		getInstance().assetRegistry.save(asset, fileName, fileType);
+		getManager().save(asset, fileName, fileType);
 	}
 
-	public static <T> void save(T asset, FileHandle handle) {
-		getInstance().assetRegistry.save(asset, handle);
+	public static <T> void save(T asset, FileHandle file) {
+		getManager().save(asset, file.path(), file.type());
 	}
 
-	public static void delete(String fileName) {
-		getInstance().assetRegistry.delete(fileName);
+	public static DeleteResult delete(String fileName, FileType fileType) {
+		return getManager().delete(fileName, fileType);
 	}
 
-	public static void addDependency(Object asset, Object dependency) {
-		getInstance().assetRegistry.addDependency(asset, dependency);
+	public static DeleteResult delete(Object asset) {
+		return getManager().delete(asset);
 	}
 
-	public static void removeDependency(Object asset, Object dependency) {
-		getInstance().assetRegistry.removeDependency(asset, dependency);
+	public static boolean update() {
+		return getManager().update();
 	}
 
-	public static void replaceDependency(Object asset, Object oldDependency, Object newDependency) {
-		getInstance().assetRegistry.replaceDependency(asset, oldDependency, newDependency);
+	public static boolean update(int millis) {
+		return getManager().update(millis);
 	}
 
-	public static void addToBundle(Bundle bundle, String internalId, Object asset) {
-		getInstance().assetRegistry.addToBundle(bundle, internalId, asset);
+	public static void finishLoading() {
+		getManager().finishLoading();
 	}
 
-	public static void removeFromBundle(Bundle bundle, String internalId, Object asset) {
-		getInstance().assetRegistry.removeFromBundle(bundle, internalId, asset);
+	public static void finishLoading(String fileName, FileType fileType, Class<?> assetType) {
+		getManager().finishLoading(fileName, fileType, assetType);
 	}
 
-	public static String getBundledAssetInternalId(Object asset) {
-		return getInstance().assetRegistry.getBundledAssetInternalId(asset);
+	public static <T> T load(String fileName) {
+		return getManager().load(fileName, Assets.getFileType(fileName));
+	}
+
+	public static <T> T load(String fileName, FileType fileType) {
+		return getManager().load(fileName, fileType);
+	}
+
+	public static <T> T load(String fileName, Class<T> assetType) {
+		return getManager().load(fileName, Assets.getFileType(fileName), assetType);
+	}
+
+	public static <T> T load(AssetId assetId) {
+		return getManager().load(assetId.fileName, assetId.fileType, Values.<Class<T>> cast(assetId.assetType));
+	}
+
+	public static <T> T load(String fileName, FileType fileType, Class<T> assetType) {
+		return getManager().load(fileName, fileType, assetType);
+	}
+
+	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, int priority) {
+		getManager().loadAsync(callback, fileName, Assets.getFileType(fileName), priority);
+	}
+
+	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, int priority) {
+		getManager().loadAsync(callback, fileName, fileType, priority);
+	}
+
+	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, Class<T> assetType, int priority) {
+		getManager().loadAsync(callback, fileName, Assets.getFileType(fileName), assetType, priority);
+	}
+
+	public static <T> void loadAsync(AsyncCallback<T> callback, AssetId assetId, int priority) {
+		Class<T> assetType = Values.<Class<T>> cast(assetId.assetType);
+		getManager().loadAsync(callback, assetId.fileName, assetId.fileType, assetType, priority);
+	}
+
+	public static <T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+			int priority) {
+		getManager().loadAsync(callback, fileName, fileType, assetType, priority);
+	}
+
+	public static String getBundledId(Object asset) {
+		return getManager().getBundleId(asset);
+	}
+
+	public static Bundle getBundle(Object asset) {
+		return getManager().getBundle(asset);
+	}
+
+	public static boolean fileExists(String fileName, FileType fileType) {
+		return getManager().fileExists(fileName, fileType);
+	}
+
+	public static AssetDescriptors getAssetDescriptors() {
+		return getManager().getDescriptors();
+	}
+
+	public static <T> AssetDescriptor<T> getAssetDescriptor(final Class<? extends T> assetType) {
+		return getManager().getAssetDescriptor(assetType);
+	}
+
+	public static <T> AssetDescriptor<T> getAssetDescriptor(final String fileName) {
+		return getManager().getAssetDescriptor(fileName);
+	}
+
+	public static <T> Class<T> getAssetType(final String fileName) {
+		return getManager().getAssetType(fileName);
+	}
+
+	public static <T> Class<T> getAssetType(final Class<? extends T> assetType) {
+		return getManager().getAssetType(assetType);
+	}
+
+	public static <T> Class<T> getAssetType(final Object asset) {
+		return getManager().getAssetType(asset);
 	}
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {
 			EventService.unsubscribe(this);
-			AssetService removed;
+			AssetsManager removed;
 
 			synchronized (instances) {
 				removed = instances.remove(Gdx.app);
@@ -245,7 +239,7 @@ public final class AssetService implements ApplicationCleanupListener {
 			}
 
 			EventService.unsubscribe(removed);
-			removed.assetRegistry.dispose();
+			removed.dispose();
 		}
 	}
 }

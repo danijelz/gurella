@@ -18,7 +18,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.utils.Values;
 
 public class MoveAssetsParticipant extends MoveParticipant {

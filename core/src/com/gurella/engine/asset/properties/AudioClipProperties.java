@@ -1,12 +1,6 @@
 package com.gurella.engine.asset.properties;
 
-import com.badlogic.gdx.assets.AssetLoaderParameters;
-import com.gurella.engine.audio.AudioClip;
+import com.gurella.engine.asset.loader.AssetProperties;
 
-public class AudioClipProperties implements AssetProperties<AudioClip> {
-	@Override
-	public AssetLoaderParameters<AudioClip> createLoaderParameters() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+public class AudioClipProperties extends AssetProperties {
 }

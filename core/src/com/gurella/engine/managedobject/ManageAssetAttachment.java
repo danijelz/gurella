@@ -16,7 +16,7 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 	}
 
 	static <T> void loadAsync(ManagedObject object, String fileName, Class<T> assetType, AsyncCallback<T> callback) {
-		AssetService.loadAsync(fileName, assetType, Callback.obtain(object, callback), 0);
+		AssetService.loadAsync(Callback.obtain(object, callback), fileName, assetType, 0);
 	}
 
 	@Override

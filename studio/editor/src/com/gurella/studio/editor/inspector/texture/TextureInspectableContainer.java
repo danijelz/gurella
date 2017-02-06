@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.gurella.engine.asset.properties.TextureProperties;
+import com.gurella.engine.asset.loader.texture.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
@@ -22,7 +22,7 @@ import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.utils.Try;
 
 public class TextureInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<TextureProperties> textureProperties;
+	private DefaultBeanEditor<TextureProperties> propertiesEditor;
 	private Composite imageComposite;
 	private Image image;
 
@@ -40,11 +40,11 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		addDisposeListener(e -> editorContext.unload(properties));
 		properties = editorContext.loadAssetProperties(target, Texture.class);
 		properties = properties == null ? new TextureProperties() : properties;
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, properties);
-		textureProperties.getContext().propertiesSignal
+		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, properties);
+		propertiesEditor.getContext().propertiesSignal
 				.addListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		textureProperties.setLayoutData(layoutData);
+		propertiesEditor.setLayoutData(layoutData);
 
 		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

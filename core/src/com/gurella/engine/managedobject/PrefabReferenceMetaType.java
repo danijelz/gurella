@@ -13,20 +13,22 @@ class PrefabReferenceMetaType extends SimpleObjectMetaType<PrefabReference> {
 
 	@Override
 	protected void writeValue(PrefabReference value, Output output) {
-		String fileUuid = value.fileName;
+		String fileName = value.fileName;
 		String uuid = value.uuid;
-		output.writeString(Values.isBlank(fileUuid) ? uuid : (fileUuid + " " + uuid));
+		output.writeString(Values.isBlank(fileName) ? uuid : (uuid + " " + fileName));
 	}
 
 	@Override
 	protected PrefabReference readValue(Input input) {
 		String simpleValue = input.readString();
 		String[] components = simpleValue.split(" ");
-		return PrefabReference.obtain(components[0], components[1]);
+		String uuid = components[0];
+		String fileName = components.length == 1 ? null : components[1];
+		return PrefabReference.obtain(uuid, fileName);
 	}
 
 	@Override
 	public PrefabReference copy(PrefabReference original, CopyContext context) {
-		return PrefabReference.obtain(original.fileName, original.uuid);
+		return PrefabReference.obtain(original.fileName, original.uuid, original.prefab);
 	}
 }

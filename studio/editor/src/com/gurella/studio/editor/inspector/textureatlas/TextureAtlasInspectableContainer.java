@@ -28,14 +28,14 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Page;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
-import com.gurella.engine.asset.properties.TextureAtlasProperties;
+import com.gurella.engine.asset.loader.textureatlas.TextureAtlasProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 
 public class TextureAtlasInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<TextureAtlasProperties> textureProperties;
+	private DefaultBeanEditor<TextureAtlasProperties> propertiesEditor;
 	private CTabFolder pages;
 
 	public TextureAtlasInspectableContainer(InspectorView parent, IFile target) {
@@ -47,9 +47,9 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
+		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		textureProperties.setLayoutData(layoutData);
+		propertiesEditor.setLayoutData(layoutData);
 
 		pages = new CTabFolder(getBody(), SWT.TOP | SWT.FLAT | SWT.MULTI);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

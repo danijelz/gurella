@@ -24,7 +24,7 @@ import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset.Assets;
 
 public class CopyAssetsParticipant extends CopyParticipant {
 	private IFile file;

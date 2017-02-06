@@ -18,14 +18,14 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.gurella.engine.asset.properties.TextureProperties;
+import com.gurella.engine.asset.loader.texture.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 
 public class PolygonRegionInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<TextureProperties> textureProperties;
+	private DefaultBeanEditor<TextureProperties> propertiesEditor;
 	private Composite imageComposite;
 	private Image image;
 	private Transform transform;
@@ -40,9 +40,9 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
+		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		textureProperties.setLayoutData(layoutData);
+		propertiesEditor.setLayoutData(layoutData);
 
 		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

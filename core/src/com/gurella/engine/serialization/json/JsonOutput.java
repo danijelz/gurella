@@ -269,6 +269,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	private void addReferenceDependency(Object value) {
 		if (value instanceof Reference) {
 			Reference reference = (Reference) value;
+			//TODO bundleId
 			externalDependencies.add(reference.getValueType().getName() + " " + reference.getFileName());
 		}
 	}

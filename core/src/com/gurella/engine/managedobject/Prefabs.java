@@ -18,7 +18,7 @@ public final class Prefabs {
 	}
 
 	private static <T extends ManagedObject> void setPrefab(T object, T prefab, String fileName) {
-		object.prefab = new PrefabReference(fileName, prefab.ensureUuid(), prefab);
+		object.prefab = new PrefabReference(prefab.ensureUuid(), fileName, prefab);
 		ImmutableArray<ManagedObject> children = object.children;
 		ImmutableArray<ManagedObject> prefabChildren = prefab.children;
 		for (int i = 0, n = children.size(); i < n; i++) {

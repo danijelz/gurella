@@ -18,14 +18,14 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.gurella.engine.asset.properties.BitmapFontProperties;
+import com.gurella.engine.asset.loader.bitmapfont.BitmapFontProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 
 public class BitmapFontInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<BitmapFontProperties> textureProperties;
+	private DefaultBeanEditor<BitmapFontProperties> fontProperties;
 	private CTabFolder pages;
 
 	public BitmapFontInspectableContainer(InspectorView parent, IFile target) {
@@ -37,9 +37,9 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
+		fontProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		textureProperties.setLayoutData(layoutData);
+		fontProperties.setLayoutData(layoutData);
 
 		pages = new CTabFolder(getBody(), SWT.TOP | SWT.FLAT | SWT.MULTI);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

@@ -7,7 +7,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.asset.properties.AssetProperties;
+import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.event.Signal1;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
@@ -17,8 +17,8 @@ import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedE
 import com.gurella.studio.editor.ui.bean.BeanEditorFactory;
 
 public class AssetPropertiesInspectableContainer extends InspectableContainer<IFile> {
-	private AssetProperties<?> properties;
-	private BeanEditor<AssetProperties<?>> editor;
+	private AssetProperties properties;
+	private BeanEditor<AssetProperties> editor;
 
 	public AssetPropertiesInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);

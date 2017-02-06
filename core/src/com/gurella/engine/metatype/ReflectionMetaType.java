@@ -27,7 +27,7 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.pool.PoolService;
@@ -402,7 +402,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			return false;
 		}
 
-		if (Assets.isAssetType(fieldType)) {
+		if (AssetService.getAssetDescriptor(fieldType) != null) {
 			AssetProperty assetProperty = Reflection.getDeclaredAnnotation(field, AssetProperty.class);
 			return assetProperty != null && assetProperty.value();
 		}

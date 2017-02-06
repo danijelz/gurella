@@ -20,8 +20,8 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.badlogic.gdx.Files.FileType;
-import com.gurella.engine.asset.properties.AssetProperties;
-import com.gurella.engine.asset2.Assets;
+import com.gurella.engine.asset.Assets;
+import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
@@ -134,11 +134,11 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		save(asset, getAssetFileName(asset));
 	}
 
-	public <T extends AssetProperties<?>> void saveProperties(Object asset, T assetProperties) {
+	public <T extends AssetProperties> void saveProperties(Object asset, T assetProperties) {
 		save(assetProperties, Assets.getPropertiesFileName(asset));
 	}
 
-	public <T extends AssetProperties<?>> void saveProperties(IFile assetFile, T assetProperties) {
+	public <T extends AssetProperties> void saveProperties(IFile assetFile, T assetProperties) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
 		save(assetProperties, Assets.getPropertiesFileName(assetFileName));
 	}
