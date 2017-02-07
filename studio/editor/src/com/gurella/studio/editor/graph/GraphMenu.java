@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
-import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.scene.Scene;
@@ -200,10 +199,10 @@ class GraphMenu {
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);
 				IPath gdxAssetPath = new Path(fileName.get()).makeRelativeTo(assetsRootPath);
+
 				if (file.exists()) {
-					PrefabReference oldPrefabReference = prefab.getPrefab();
-					if (oldPrefabReference != null
-							&& oldPrefabReference.getFileName().equals(gdxAssetPath.toString())) {
+					ManagedObject oldPrefab = prefab.getPrefab();
+					if (oldPrefab != null && oldPrefab.getFileName().equals(gdxAssetPath.toString())) {
 						// TODO overriding existing prefab
 					}
 					file.setContents(is, true, true, context.getProgressMonitor());
