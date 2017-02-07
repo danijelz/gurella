@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.serialization.json.JsonOutput;
@@ -126,9 +125,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		IPath projectAssetPath = folder.getFile(prefabName).getLocation().makeRelativeTo(projectPath);
 
 		SceneNode prefab = CopyContext.copyObject(node);
-		JsonOutput output = new JsonOutput();
-		SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get()).orElse(null);
-		String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
+		String source = new JsonOutput().serialize(projectAssetPath.toString(), SceneNode.class, prefab, null);
 		String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 		IFile file = project.getFile(projectAssetPath);

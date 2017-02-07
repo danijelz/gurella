@@ -3,7 +3,7 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.managedobject.PrefabReference;
+import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
@@ -43,7 +43,7 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 	public Range<?> getRange() {
 		return null;
 	}
-	
+
 	@Override
 	public boolean isAsset() {
 		return false;
@@ -131,11 +131,8 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 	}
 
 	private int getPrefabId(T element) {
-		PrefabReference prefab = element.getPrefab();
-		if (prefab == null) {
-			return Sequence.invalidId;
-		}
-		return prefab.get().getInstanceId();
+		ManagedObject prefab = element.getPrefab();
+		return prefab == null ? Sequence.invalidId : prefab.getInstanceId();
 	}
 
 	@Override
@@ -202,8 +199,8 @@ abstract class SceneElementsProperty<T extends SceneElement> implements Property
 						removedElements.toArray(String.class), null);
 			}
 			if (elements.size > 0) {
-				output.writeObjectProperty("elements", SceneElement[].class, true,
-						elements.toArray(SceneElement.class), null);
+				output.writeObjectProperty("elements", SceneElement[].class, true, elements.toArray(SceneElement.class),
+						null);
 			}
 		}
 

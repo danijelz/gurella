@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.BooleanArrayMetaType;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.ByteArrayMetaType;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.CharArrayMetaType;
@@ -236,6 +235,7 @@ public class MetaTypes {
 		return builder.append("\n]").toString();
 	}
 
+	// TODO handle circular references obj.child = obj;
 	public static boolean isEqual(Object first, Object second) {
 		if (first == second) {
 			return true;
@@ -285,7 +285,7 @@ public class MetaTypes {
 			if (properties.size() > 0) {
 				for (int i = 0; i < properties.size(); i++) {
 					Property<?> property = properties.get(i);
-					if (property.isCopyable() && !isEqualPropertyValue(property, first, second)) {
+					if (property.isCopyable() && !isEqualValue(property, first, second)) {
 						return false;
 					}
 				}
@@ -297,20 +297,8 @@ public class MetaTypes {
 		return true;
 	}
 
-	private static boolean isEqualPropertyValue(Property<?> property, Object first, Object second) {
-		if (property.getType() == PrefabReference.class) {
-			// TODO handle with EqualsFunction implementation in PropertyDescriptor
-			PrefabReference firstPrefabReference = (PrefabReference) property.getValue(first);
-			if (firstPrefabReference != null && firstPrefabReference.get() == second) {
-				return true;
-			}
-			PrefabReference secondPrefabReference = (PrefabReference) property.getValue(second);
-			if (secondPrefabReference != null && secondPrefabReference.get() == first) {
-				return true;
-			}
-			return firstPrefabReference == null && secondPrefabReference == null;
-		} else {
-			return isEqual(property.getValue(first), property.getValue(second));
-		}
+	private static boolean isEqualValue(Property<?> property, Object first, Object second) {
+		// TODO handle with property.equalValues(first, second) and EqualsFunction implementation in PropertyDescriptor
+		return isEqual(property.getValue(first), property.getValue(second));
 	}
 }

@@ -152,6 +152,10 @@ public class Values {
 		return index == length;
 	}
 
+	public static boolean nullSafeEquals(Object first, Object second) {
+		return first == null ? second == null : first.equals(second);
+	}
+
 	public static boolean isEqual(Object first, Object second) {
 		return isEqual(first, second, true);
 	}
@@ -160,6 +164,7 @@ public class Values {
 		return !isEqual(first, second, true);
 	}
 
+	//TODO rename to deepEquals ??
 	public static boolean isEqual(Object first, Object second, boolean mustEqualClass) {
 		if (first == second) {
 			return true;

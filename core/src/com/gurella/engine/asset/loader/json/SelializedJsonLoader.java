@@ -28,7 +28,7 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJson
 	@Override
 	public T processAsync(DependencyProvider provider, FileHandle file, T asyncData,
 			SelializedJsonProperties properties) {
-		return input.deserialize(expectedType);
+		return input.deserialize(expectedType, null);
 	}
 
 	@Override

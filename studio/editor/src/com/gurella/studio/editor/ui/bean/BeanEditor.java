@@ -9,7 +9,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
+import com.gurella.engine.event.Listener1;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.ui.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.ui.property.PropertyEditor;
 
 public abstract class BeanEditor<T> extends Composite {
@@ -68,5 +70,13 @@ public abstract class BeanEditor<T> extends Composite {
 
 	public BeanEditorContext<T> getContext() {
 		return context;
+	}
+
+	public boolean addPropertiesListener(Listener1<PropertyValueChangedEvent> listener) {
+		return context.propertiesSignal.addListener(listener);
+	}
+
+	public boolean removePropertyListener(Listener1<PropertyValueChangedEvent> listener) {
+		return context.propertiesSignal.removeListener(listener);
 	}
 }

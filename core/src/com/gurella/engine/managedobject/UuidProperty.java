@@ -7,7 +7,7 @@ import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.Range;
 
-class ManagedObjectUuidProperty implements Property<String> {
+class UuidProperty implements Property<String> {
 	public static final String name = "uuid";
 
 	@Override

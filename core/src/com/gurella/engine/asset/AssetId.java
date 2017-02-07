@@ -10,9 +10,10 @@ public final class AssetId implements Poolable {
 	String fileName;
 	FileType fileType;
 	Class<?> assetType;
+	String bundleId;
 
-	// TODO remove
-	FileHandle cachedFile;
+	// TODO try to use or remove
+	FileHandle file;
 
 	public String getFileName() {
 		return fileName;
@@ -30,7 +31,17 @@ public final class AssetId implements Poolable {
 		this.fileName = other.fileName;
 		this.fileType = other.fileType;
 		this.assetType = other.assetType;
-		this.cachedFile = other.cachedFile;
+		this.file = other.file;
+		this.bundleId = other.bundleId;
+		return this;
+	}
+
+	public AssetId set(AssetId other, String bundleId) {
+		this.fileName = other.fileName;
+		this.fileType = other.fileType;
+		this.assetType = other.assetType;
+		this.file = other.file;
+		this.bundleId = bundleId;
 		return this;
 	}
 
@@ -38,6 +49,17 @@ public final class AssetId implements Poolable {
 		this.fileName = fileName;
 		this.fileType = fileType;
 		this.assetType = assetType;
+		this.bundleId = null;
+		this.file = null;
+		return this;
+	}
+
+	public AssetId set(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+		this.fileName = fileName;
+		this.fileType = fileType;
+		this.assetType = assetType;
+		this.bundleId = bundleId;
+		this.file = null;
 		return this;
 	}
 
@@ -45,6 +67,8 @@ public final class AssetId implements Poolable {
 		this.fileName = fileName;
 		this.fileType = FileType.Internal;
 		this.assetType = AssetDescriptors.getAssetType(fileName);
+		this.bundleId = null;
+		this.file = null;
 		return this;
 	}
 
@@ -52,6 +76,8 @@ public final class AssetId implements Poolable {
 		this.fileName = fileName;
 		this.fileType = fileType;
 		this.assetType = AssetDescriptors.getAssetType(fileName);
+		this.bundleId = null;
+		this.file = null;
 		return this;
 	}
 
@@ -59,6 +85,8 @@ public final class AssetId implements Poolable {
 		this.fileName = fileName;
 		this.fileType = FileType.Internal;
 		this.assetType = assetType;
+		this.bundleId = null;
+		this.file = null;
 		return this;
 	}
 
@@ -66,6 +94,8 @@ public final class AssetId implements Poolable {
 		this.fileName = file.path();
 		this.fileType = file.type();
 		this.assetType = assetType;
+		this.bundleId = null;
+		this.file = file;
 		return this;
 	}
 
@@ -73,7 +103,8 @@ public final class AssetId implements Poolable {
 		this.fileName = file.path();
 		this.fileType = file.type();
 		this.assetType = AssetDescriptors.getAssetType(fileName);
-		this.cachedFile = file;
+		this.bundleId = null;
+		this.file = file;
 		return this;
 	}
 
@@ -103,7 +134,8 @@ public final class AssetId implements Poolable {
 		fileName = null;
 		fileType = null;
 		assetType = null;
-		cachedFile = null;
+		bundleId = null;
+		file = null;
 	}
 
 	@Override
@@ -112,7 +144,8 @@ public final class AssetId implements Poolable {
 		int result = 1;
 		result = prime * result + (fileName == null ? 0 : fileName.hashCode());
 		result = prime * result + (fileType == null ? 0 : fileType.hashCode());
-		return prime * result + (assetType == null ? 0 : assetType.hashCode());
+		result = prime * result + (assetType == null ? 0 : assetType.hashCode());
+		return prime * result + (bundleId == null ? 0 : bundleId.hashCode());
 	}
 
 	@Override
@@ -130,7 +163,12 @@ public final class AssetId implements Poolable {
 		}
 
 		AssetId other = (AssetId) obj;
-		return equals(other.fileName, other.fileType, other.assetType);
+		return equals(other.fileName, other.fileType, other.assetType, other.bundleId);
+	}
+
+	public boolean equals(String fileName, FileType fileType, Class<?> assetType, String bundleId) {
+		return this.fileType == fileType && this.assetType == assetType
+				&& Values.nullSafeEquals(this.fileName, fileName) && Values.nullSafeEquals(this.bundleId, bundleId);
 	}
 
 	public boolean equals(String fileName, FileType fileType, Class<?> assetType) {
@@ -145,6 +183,7 @@ public final class AssetId implements Poolable {
 
 	@Override
 	public String toString() {
-		return "AssetId [fileName=" + fileName + ", fileType=" + fileType + ", assetType=" + assetType + "]";
+		return "AssetId [fileName=" + fileName + ", fileType=" + fileType + ", assetType=" + assetType + ", bundleId="
+				+ bundleId + "]";
 	}
 }

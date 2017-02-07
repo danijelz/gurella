@@ -2,8 +2,8 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceIndexTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.serialization.json.JsonSerialization.serializeType;
@@ -23,7 +23,6 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
-import com.gurella.engine.serialization.Reference;
 import com.gurella.engine.serialization.Serializer;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
@@ -38,11 +37,6 @@ public class JsonOutput implements Output, Serializer, Poolable {
 
 	public void init(String filePath) {
 		this.filePath = filePath;
-	}
-
-	@Override
-	public <T> void serialize(Class<T> expectedType, T rootObject) {
-		serialize(expectedType, rootObject, null);
 	}
 
 	@Override
@@ -239,7 +233,6 @@ public class JsonOutput implements Output, Serializer, Poolable {
 			MetaType<Object> metaType = (MetaType<Object>) MetaTypes.getMetaType(expectedType);
 			metaType.serialize(value, null, this);
 		} else if (isSimpleType(value)) {
-			addReferenceDependency(value);
 			MetaType<Object> metaType = MetaTypes.getMetaType(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
@@ -251,25 +244,15 @@ public class JsonOutput implements Output, Serializer, Poolable {
 				metaType.serialize(value, null, this);
 				pop();
 			}
-		} else if (flat) {
-			addReferenceDependency(value);
-			serializeObject(expectedType, value, template);
 		} else {
 			String assetLocation = getAssetLocation(value);
-			if (assetLocation == null) {
-				addReferenceDependency(value);
-				writeReference(expectedType, value, template);
-			} else {
+			if (assetLocation != null) {
 				writeAsset(value, assetLocation);
+			} else if (flat) {
+				serializeObject(expectedType, value, template);
+			} else {
+				writeReference(expectedType, value, template);
 			}
-		}
-	}
-
-	private void addReferenceDependency(Object value) {
-		if (value instanceof Reference) {
-			Reference reference = (Reference) value;
-			//TODO bundleId
-			externalDependencies.add(reference.getType().getName() + " " + reference.getFileName());
 		}
 	}
 
@@ -286,19 +269,14 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	}
 
 	private String getAssetLocation(Object object) {
-		if (object instanceof Reference) {
-			return null;
-		} else {
-			//TODO use AssetIdResolver
-			String fileName = AssetService.getFileName(object);
-			return fileName == null || fileName.equals(filePath) ? null : fileName;
-		}
+		String fileName = AssetService.getFileName(object);
+		return fileName == null || fileName.equals(filePath) ? null : fileName;
 	}
 
 	private void writeAsset(Object asset, String assetLocation) {
 		object();
-		writeStringProperty(typeTag, assetReferenceType);
-		writeIntProperty(assetReferenceIndexTag, getAssetId(asset, assetLocation));
+		writeStringProperty(typeTag, dependencyType);
+		writeIntProperty(dependencyIndexTag, getAssetId(asset, assetLocation));
 		pop();
 	}
 

@@ -2,7 +2,6 @@ package com.gurella.engine.asset.persister;
 
 import com.gurella.engine.asset.AssetId;
 
-//TODO rename (AssetIdRepository)
-public interface AssetIdResolver {
+public interface DependencyLocator {
 	AssetId getAssetId(Object asset, AssetId out);
 }

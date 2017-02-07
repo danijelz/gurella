@@ -40,8 +40,8 @@ public class JsonSerialization {
 	static final String dependenciesTag = "d";
 	static final String arrayType = "[";
 	static final String arrayTypeTag = "t";
-	static final String assetReferenceType = "@";
-	static final String assetReferenceIndexTag = "p";
+	static final String dependencyType = "@";
+	static final String dependencyIndexTag = "p";
 
 	private static final ObjectMap<String, String> typeAbbreviations = new ObjectMap<String, String>();
 	private static final ObjectMap<Class<?>, String> abbreviatedTypes = new ObjectMap<Class<?>, String>();

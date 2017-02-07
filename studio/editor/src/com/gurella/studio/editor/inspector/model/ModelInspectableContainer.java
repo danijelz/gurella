@@ -44,7 +44,7 @@ import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 import com.gurella.studio.gdx.GdxContext;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<ModelProperties> propertiesContainer;
+	private DefaultBeanEditor<ModelProperties> propertiesEditor;
 	private GLCanvas glCanvas;
 
 	private SwtLwjglInput input;
@@ -68,11 +68,10 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		int editorId = editorContext.editorId;
 		properties = getProperties(target);
-		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorId, properties);
-		propertiesContainer.getContext().propertiesSignal
-				.addListener(e -> editorContext.saveProperties(target, properties));
+		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorId, properties);
+		propertiesEditor.addPropertiesListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		propertiesContainer.setLayoutData(layoutData);
+		propertiesEditor.setLayoutData(layoutData);
 
 		GLData glData = new GLData();
 		glData.redSize = 8;

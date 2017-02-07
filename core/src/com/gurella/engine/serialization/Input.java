@@ -58,7 +58,4 @@ public interface Input {
 	ImmutableArray<Object> getObjectStack();
 
 	<T> T copyObject(T original);
-
-	//TODO remove
-	Array<AssetDescriptor<?>> getExternalDependencies();
 }

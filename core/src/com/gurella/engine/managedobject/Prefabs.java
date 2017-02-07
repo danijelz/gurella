@@ -18,7 +18,7 @@ public final class Prefabs {
 	}
 
 	private static <T extends ManagedObject> void setPrefab(T object, T prefab, String fileName) {
-		object.prefab = new PrefabReference(prefab.ensureUuid(), fileName, prefab);
+		object.prefab = prefab;
 		ImmutableArray<ManagedObject> children = object.children;
 		ImmutableArray<ManagedObject> prefabChildren = prefab.children;
 		for (int i = 0, n = children.size(); i < n; i++) {
@@ -29,17 +29,12 @@ public final class Prefabs {
 	}
 
 	public static <T extends ManagedObject> void dettachFromPrefab(T object) {
-		ManagedObject prefab = getPrefab(object);
+		ManagedObject prefab = object.getPrefab();
 		if (prefab == null) {
 			return;
 		}
 
 		dettachFromPrefab(object, prefab);
-	}
-
-	private static ManagedObject getPrefab(ManagedObject object) {
-		PrefabReference prefabReference = object.getPrefab();
-		return prefabReference == null ? null : prefabReference.get();
 	}
 
 	private static <T extends ManagedObject> void dettachFromPrefab(T object, T prefab) {
@@ -61,7 +56,7 @@ public final class Prefabs {
 			return null;
 		}
 
-		ManagedObject prefab = getPrefab(child);
+		ManagedObject prefab = child.getPrefab();
 		if (prefab == null) {
 			return null;
 		}

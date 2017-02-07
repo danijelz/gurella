@@ -22,8 +22,8 @@ import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
-import com.gurella.engine.asset.persister.AssetIdResolver;
 import com.gurella.engine.asset.persister.AssetPersister;
+import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.disposable.DisposablesService;
@@ -31,7 +31,7 @@ import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, AssetIdResolver, AsyncTask<Void>, Disposable {
+class AssetsManager implements ApplicationCleanupListener, DependencyLocator, AsyncTask<Void>, Disposable {
 	private final Object mutex = new Object();
 
 	private final Files files = Gdx.files;

@@ -2,10 +2,9 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceIndexTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.assetReferenceType;
-import static com.gurella.engine.serialization.json.JsonSerialization.createAssetDescriptor;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
 import static com.gurella.engine.serialization.json.JsonSerialization.deserializeType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveObjectType;
@@ -13,7 +12,6 @@ import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -35,7 +33,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
 	private JsonValue rootValue;
-	private AssetProvider assetProvider;
 
 	private JsonValue value;
 	private final Array<JsonValue> valueStack = new Array<JsonValue>();
@@ -44,17 +41,11 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private final IntMap<Object> references = new IntMap<Object>();
 	private final ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
 
-	private boolean descriptorsInitialized;
-	private final Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 	private final Array<String> dependencyPaths = new Array<String>();
+	private final Array<String> dependencyBundleIds = new Array<String>();
 	private final Array<Class<?>> dependencyTypes = new Array<Class<?>>();
 
 	private CopyContext copyContext = new CopyContext();
-
-	// TODO move to loader
-	public void init(FileHandle file) {
-		this.rootValue = reader.parse(file);
-	}
 
 	public void init(FileHandle file, DependencyCollector dependencyCollector) {
 		this.rootValue = reader.parse(file);
@@ -80,22 +71,9 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		}
 	}
 
-	public void init(JsonValue rootValue) {
-		this.rootValue = rootValue;
-	}
-
-	public <T> T deserialize(Class<T> expectedType, String json) {
-		return deserialize(expectedType, json, null);
-	}
-
 	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
 		rootValue = reader.parse(json);
 		return deserialize(expectedType, template);
-	}
-
-	@Override
-	public <T> T deserialize(Class<T> expectedType) {
-		return deserialize(expectedType, (Object) null);
 	}
 
 	@Override
@@ -221,11 +199,9 @@ public class JsonInput implements Input, Deserializer, Poolable {
 			result = MetaTypes.getMetaType(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
-			if (assetReferenceType.equals(value.getString(typeTag, null))) {
-				int assetIndex = value.getInt(assetReferenceIndexTag);
-				String assetLocation = getAssetLocation(assetIndex);
-				result = assetProvider == null ? AssetService.<T> get(assetLocation)
-						: assetProvider.<T> getAsset(assetLocation);
+			if (dependencyType.equals(value.getString(typeTag, null))) {
+				int dependencyIndex = value.getInt(dependencyIndexTag);
+				result = getDependency(dependencyIndex);
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
@@ -261,14 +237,10 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		return result;
 	}
 
-	public void setAssetProvider(AssetProvider assetProvider) {
-		this.assetProvider = assetProvider;
-	}
-
-	private String getAssetLocation(int index) {
-		initDescriptors();
-		AssetDescriptor<?> assetDescriptor = descriptors.get(index);
-		return assetDescriptor.fileName;
+	private <T> T getDependency(int index) {
+		String path = dependencyPaths.get(index);
+		Class<?> type = dependencyTypes.get(index);
+		assetProvider.<T> getAsset(null);
 	}
 
 	@Override
@@ -359,43 +331,16 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	}
 
 	@Override
-	public Array<AssetDescriptor<?>> getExternalDependencies() {
-		initDescriptors();
-		return descriptors.size == 0 ? null : descriptors;
-	}
-
-	private void initDescriptors() {
-		if (descriptorsInitialized) {
-			return;
-		}
-
-		descriptorsInitialized = true;
-		int size = rootValue == null ? 0 : rootValue.size;
-		if (size < 1) {
-			return;
-		}
-
-		JsonValue lastValue = rootValue.get(size - 1);
-		if (!dependenciesTag.equals(lastValue.name)) {
-			return;
-		}
-
-		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(value.asString()));
-		}
-	}
-
-	@Override
 	public void reset() {
-		assetProvider = null;
 		rootValue = null;
 		value = null;
 		valueStack.clear();
 		objectStack.clear();
 		references.clear();
 		referenceValues.clear();
-		descriptorsInitialized = false;
-		descriptors.clear();
+		dependencyPaths.clear();
+		dependencyBundleIds.clear();
+		dependencyTypes.clear();
 		copyContext.reset();
 		reader.reset();
 	}

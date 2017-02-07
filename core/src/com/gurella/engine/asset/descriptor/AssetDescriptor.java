@@ -11,7 +11,7 @@ import com.gurella.engine.utils.Values;
 
 public class AssetDescriptor<TYPE> {
 	public final Class<TYPE> assetType;
-	public final boolean hasReferences; // AssetType.composite
+	public final boolean hasReferences;
 	public final boolean validForSubtypes;
 	final OrderedSet<String> _extensions = new OrderedSet<String>();
 	public final ImmutableArray<String> extensions = new ImmutableArray<String>(_extensions.orderedItems());

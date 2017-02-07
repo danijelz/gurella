@@ -41,8 +41,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		properties = editorContext.loadAssetProperties(target, Texture.class);
 		properties = properties == null ? new TextureProperties() : properties;
 		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, properties);
-		propertiesEditor.getContext().propertiesSignal
-				.addListener(e -> editorContext.saveProperties(target, properties));
+		propertiesEditor.addPropertiesListener(e -> editorContext.saveProperties(target, properties));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesEditor.setLayoutData(layoutData);
 
@@ -54,7 +53,6 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		imageComposite.addListener(SWT.Paint, e -> paintImage(e.gc));
 
 		image = Try.ignored(() -> createImage(), null);
-		addListener(SWT.Dispose, e -> image.dispose());
 
 		reflow(true);
 	}

@@ -444,7 +444,7 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	//TODO unused
+	// TODO unused
 	String getDiagnostics() {
 		StringBuilder builder = new StringBuilder();
 		for (Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {

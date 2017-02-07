@@ -28,13 +28,13 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 	transient int instanceId;
 	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to int
 
-	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
+	@PropertyDescriptor(property = UuidProperty.class)
 	@PropertyEditorDescriptor(editable = false)
 	String uuid;
 
-	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
+	@PropertyDescriptor(property = PrefabProperty.class)
 	@PropertyEditorDescriptor(editable = false)
-	PrefabReference prefab; //TODO change to ManagedObject
+	ManagedObject prefab;
 
 	private transient ManagedObject parent;
 	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();
@@ -62,7 +62,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 		return uuid;
 	}
 
-	public PrefabReference getPrefab() {
+	public ManagedObject getPrefab() {
 		return prefab;
 	}
 
@@ -197,6 +197,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 		state = ManagedObjectState.disposed;
 		destroyed();
 		ManagedObjects.destroyed(this);
+		
 		clear();
 		postDestruction();
 		reset();
@@ -213,12 +214,6 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 	private void clear() {
 		clearAttachments();
 		_children.reset();
-
-		if (prefab != null) {
-			prefab.free();
-			prefab = null;
-		}
-
 		// TODO EventService.removeChannel(instanceId);
 	}
 
@@ -227,6 +222,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 			instanceId = Sequence.next();
 			state = ManagedObjectState.idle;
 			parent = null;
+			prefab = null;
 			uuid = null;
 			resetPoolable();
 		}

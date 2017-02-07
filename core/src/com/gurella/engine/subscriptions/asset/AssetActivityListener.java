@@ -1,12 +1,12 @@
 package com.gurella.engine.subscriptions.asset;
 
+import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 
-//TODO remove
 public interface AssetActivityListener extends ApplicationEventSubscription {
-	void assetLoaded(String fileName, Object asset);
+	void assetLoaded(AssetId assetId, Object asset);
 
-	void assetUnloaded(String fileName, Object asset);
+	void assetUnloaded(AssetId assetId, Object asset);
 
-	void assetReloaded(String fileName, Object asset);
+	void assetReloaded(AssetId assetId, Object asset);
 }

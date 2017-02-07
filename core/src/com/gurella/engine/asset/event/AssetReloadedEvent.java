@@ -3,27 +3,27 @@ package com.gurella.engine.asset.event;
 import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.subscriptions.asset.AssetActivityListener2;
+import com.gurella.engine.subscriptions.asset.AssetActivityListener;
 
-public class AssetReloadedEvent implements Event<AssetActivityListener2> {
+public class AssetReloadedEvent implements Event<AssetActivityListener> {
 	AssetId assetId;
 	Object asset;
 
 	void set(AssetId assetId, Object asset) {
 		this.assetId = assetId;
 		this.asset = asset;
-		EventService.post(AssetActivityListener2.class, this);
+		EventService.post(AssetActivityListener.class, this);
 		this.assetId = null;
 		this.asset = null;
 	}
 
 	@Override
-	public void dispatch(AssetActivityListener2 listener) {
+	public void dispatch(AssetActivityListener listener) {
 		listener.assetReloaded(assetId, asset);
 	}
 
 	@Override
-	public Class<AssetActivityListener2> getSubscriptionType() {
-		return AssetActivityListener2.class;
+	public Class<AssetActivityListener> getSubscriptionType() {
+		return AssetActivityListener.class;
 	}
 }

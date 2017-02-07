@@ -193,8 +193,7 @@ class GraphMenu {
 				IPath projectAssetPath = new Path(fileName.get()).makeRelativeTo(projectPath);
 				SceneNode prefab = CopyContext.copyObject(node);
 				JsonOutput output = new JsonOutput();
-				SceneNode template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode) p.get()).orElse(null);
-				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
+				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, prefab, null);
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);

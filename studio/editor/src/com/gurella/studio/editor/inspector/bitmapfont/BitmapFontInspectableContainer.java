@@ -25,7 +25,7 @@ import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.ui.bean.DefaultBeanEditor;
 
 public class BitmapFontInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultBeanEditor<BitmapFontProperties> fontProperties;
+	private DefaultBeanEditor<BitmapFontProperties> propertiesEditor;
 	private CTabFolder pages;
 
 	public BitmapFontInspectableContainer(InspectorView parent, IFile target) {
@@ -37,9 +37,9 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		fontProperties = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
+		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		fontProperties.setLayoutData(layoutData);
+		propertiesEditor.setLayoutData(layoutData);
 
 		pages = new CTabFolder(getBody(), SWT.TOP | SWT.FLAT | SWT.MULTI);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

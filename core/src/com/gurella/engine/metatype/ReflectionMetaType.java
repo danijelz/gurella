@@ -29,7 +29,6 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.managedobject.ManagedObject;
-import com.gurella.engine.managedobject.PrefabReference;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.serialization.Output;
@@ -173,8 +172,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 		if (template != null) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
-			PrefabReference prefab = ((ManagedObject) instance).getPrefab();
-			return prefab == null ? null : prefab.get();
+			return ((ManagedObject) instance).getPrefab();
 		} else {
 			return null;
 		}
@@ -213,9 +211,8 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 	}
 
 	private Object resolveTemplate(T instance, Object template, Input input) {
-		if (instance instanceof ManagedObject && input.hasProperty("prefab")) {
-			PrefabReference prefab = input.readObjectProperty("prefab", PrefabReference.class, null);
-			return prefab == null ? null : prefab.get();
+		if (instance instanceof ManagedObject && ((ManagedObject) instance).getPrefab() != null) {
+			return ((ManagedObject) instance).getPrefab();
 		} else if (template != null) {
 			return template;
 		} else {

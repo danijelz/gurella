@@ -69,7 +69,6 @@ public class InputOutputTest {
 		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
-		// TODO MetaTypess.isEqual must handle circular references obj.child = obj;
 
 		JsonOutput output = new JsonOutput();
 		FileHandle file = new FileHandle("");

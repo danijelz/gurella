@@ -2,8 +2,6 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.createAssetDescriptor;
-import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveObjectType;
 import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
@@ -11,7 +9,6 @@ import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
 
 import java.io.ByteArrayInputStream;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -293,25 +290,5 @@ public class UBJsonInput implements Input, Poolable {
 	@Override
 	public <T> T copyObject(T original) {
 		return copyContext.copy(original);
-	}
-
-	@Override
-	public Array<AssetDescriptor<?>> getExternalDependencies() {
-		int size = rootValue.size;
-		if (size < 1) {
-			return null;
-		}
-
-		JsonValue lastValue = rootValue.get(size - 1);
-		if (!dependenciesTag.equals(lastValue.name)) {
-			return null;
-		}
-
-		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
-		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(value.asString()));
-		}
-
-		return descriptors;
 	}
 }
