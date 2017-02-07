@@ -7,7 +7,7 @@ public interface AssetLoader<ASYNC, TYPE, PROPS extends AssetProperties> {
 
 	ASYNC init(DependencyCollector collector, FileHandle assetFile);
 
-	ASYNC processAsync(DependencyProvider provider, FileHandle file, ASYNC asyncData, PROPS properties);
+	ASYNC processAsync(DependencySupplier provider, FileHandle file, ASYNC asyncData, PROPS properties);
 
-	TYPE finish(DependencyProvider provider, FileHandle file, ASYNC asyncData, PROPS properties);
+	TYPE finish(DependencySupplier provider, FileHandle file, ASYNC asyncData, PROPS properties);
 }

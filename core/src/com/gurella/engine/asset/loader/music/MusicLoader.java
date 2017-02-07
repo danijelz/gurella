@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class MusicLoader implements AssetLoader<Music, Music, MusicProperties> {
 	@Override
@@ -19,13 +19,13 @@ public class MusicLoader implements AssetLoader<Music, Music, MusicProperties> {
 	}
 
 	@Override
-	public Music processAsync(DependencyProvider provider, FileHandle file, Music asyncData,
+	public Music processAsync(DependencySupplier provider, FileHandle file, Music asyncData,
 			MusicProperties properties) {
 		return Gdx.audio.newMusic(file);
 	}
 
 	@Override
-	public Music finish(DependencyProvider provider, FileHandle file, Music asyncData, MusicProperties properties) {
+	public Music finish(DependencySupplier provider, FileHandle file, Music asyncData, MusicProperties properties) {
 		return asyncData;
 	}
 }

@@ -4,7 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.serialization.json.PoolableJsonReader;
 
 public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
@@ -22,7 +22,7 @@ public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
 	}
 
 	@Override
-	public Model finish(DependencyProvider provider, FileHandle file, ModelData asyncData, ModelProperties properties) {
+	public Model finish(DependencySupplier provider, FileHandle file, ModelData asyncData, ModelProperties properties) {
 		Model model = super.finish(provider, file, asyncData, properties);
 		reader.reset();
 		return model;

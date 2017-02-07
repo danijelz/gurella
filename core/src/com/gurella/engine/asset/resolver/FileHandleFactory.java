@@ -1,4 +1,4 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.asset.resolver;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;

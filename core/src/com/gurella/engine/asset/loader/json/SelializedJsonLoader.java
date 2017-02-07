@@ -3,7 +3,7 @@ package com.gurella.engine.asset.loader.json;
 import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.serialization.json.JsonInput;
 
 public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJsonProperties> {
@@ -26,14 +26,13 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJson
 	}
 
 	@Override
-	public T processAsync(DependencyProvider provider, FileHandle file, T asyncData,
+	public T processAsync(DependencySupplier provider, FileHandle file, T asyncData,
 			SelializedJsonProperties properties) {
-		return input.deserialize(expectedType, null);
+		return input.deserialize(provider, expectedType, null);
 	}
 
 	@Override
-	public T finish(DependencyProvider provider, FileHandle file, T asyncData,
-			SelializedJsonProperties properties) {
+	public T finish(DependencySupplier provider, FileHandle file, T asyncData, SelializedJsonProperties properties) {
 		return asyncData;
 	}
 }

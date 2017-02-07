@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public abstract class ModelLoader<PROPS extends ModelProperties> implements AssetLoader<ModelData, Model, PROPS> {
 	protected abstract ModelData loadModelData(final FileHandle fileHandle);
@@ -35,13 +35,13 @@ public abstract class ModelLoader<PROPS extends ModelProperties> implements Asse
 	}
 
 	@Override
-	public ModelData processAsync(DependencyProvider provider, FileHandle file, ModelData asyncData,
+	public ModelData processAsync(DependencySupplier provider, FileHandle file, ModelData asyncData,
 			ModelProperties properties) {
 		return asyncData;
 	}
 
 	@Override
-	public Model finish(DependencyProvider provider, FileHandle file, ModelData asyncData, ModelProperties properties) {
+	public Model finish(DependencySupplier provider, FileHandle file, ModelData asyncData, ModelProperties properties) {
 		final Model result = new Model(asyncData, new DependencyTextureProvider(provider, file.type()));
 		// remove the textures from the managed disposables fo ref counting to work!
 		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
@@ -56,10 +56,10 @@ public abstract class ModelLoader<PROPS extends ModelProperties> implements Asse
 	}
 
 	private static class DependencyTextureProvider implements TextureProvider {
-		private final DependencyProvider provider;
+		private final DependencySupplier provider;
 		private final FileType fileType;
 
-		public DependencyTextureProvider(DependencyProvider provider, FileType fileType) {
+		public DependencyTextureProvider(DependencySupplier provider, FileType fileType) {
 			this.provider = provider;
 			this.fileType = fileType;
 		}

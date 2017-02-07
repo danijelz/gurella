@@ -6,7 +6,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundle, I18NBundleProperties> {
 	@Override
@@ -20,7 +20,7 @@ public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundle, I18
 	}
 
 	@Override
-	public I18NBundle processAsync(DependencyProvider provider, FileHandle file, I18NBundle asyncData,
+	public I18NBundle processAsync(DependencySupplier provider, FileHandle file, I18NBundle asyncData,
 			I18NBundleProperties properties) {
 		Locale locale = properties == null ? Locale.getDefault() : properties.locale;
 		String encoding = properties == null ? null : properties.encoding;
@@ -33,7 +33,7 @@ public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundle, I18
 	}
 
 	@Override
-	public I18NBundle finish(DependencyProvider provider, FileHandle file, I18NBundle asyncData,
+	public I18NBundle finish(DependencySupplier provider, FileHandle file, I18NBundle asyncData,
 			I18NBundleProperties properties) {
 		return asyncData;
 	}

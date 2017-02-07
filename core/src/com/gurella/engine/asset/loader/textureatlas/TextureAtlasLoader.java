@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, TextureAtlas, TextureAtlasProperties> {
 	@Override
@@ -34,7 +34,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 	}
 
 	@Override
-	public TextureAtlasData processAsync(DependencyProvider provider, FileHandle file, TextureAtlasData asyncData,
+	public TextureAtlasData processAsync(DependencySupplier provider, FileHandle file, TextureAtlasData asyncData,
 			TextureAtlasProperties properties) {
 		FileType fileType = file.type();
 		Array<Page> pages = asyncData.getPages();
@@ -55,7 +55,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 	}
 
 	@Override
-	public TextureAtlas finish(DependencyProvider provider, FileHandle file, TextureAtlasData asyncData,
+	public TextureAtlas finish(DependencySupplier provider, FileHandle file, TextureAtlasData asyncData,
 			TextureAtlasProperties properties) {
 		return new TextureAtlas(asyncData);
 	}

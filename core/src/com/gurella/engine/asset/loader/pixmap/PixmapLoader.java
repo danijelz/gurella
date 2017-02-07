@@ -4,7 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class PixmapLoader implements AssetLoader<Pixmap, Pixmap, PixmapProperties> {
 	@Override
@@ -18,13 +18,13 @@ public class PixmapLoader implements AssetLoader<Pixmap, Pixmap, PixmapPropertie
 	}
 
 	@Override
-	public Pixmap processAsync(DependencyProvider provider, FileHandle file, Pixmap asyncData,
+	public Pixmap processAsync(DependencySupplier provider, FileHandle file, Pixmap asyncData,
 			PixmapProperties properties) {
 		return asyncData;
 	}
 
 	@Override
-	public Pixmap finish(DependencyProvider provider, FileHandle file, Pixmap asyncData, PixmapProperties properties) {
+	public Pixmap finish(DependencySupplier provider, FileHandle file, Pixmap asyncData, PixmapProperties properties) {
 		return asyncData;
 	}
 }

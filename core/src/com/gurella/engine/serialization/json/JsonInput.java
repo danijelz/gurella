@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.loader.DependencyCollector;
+import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
@@ -33,6 +34,7 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
 	private JsonValue rootValue;
+	private DependencySupplier supplier;
 
 	private JsonValue value;
 	private final Array<JsonValue> valueStack = new Array<JsonValue>();
@@ -62,25 +64,36 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
 			String strValue = value.asString();
 			int index = strValue.indexOf(' ');
-			String typeName = strValue.substring(0, index);
+			String typeName = strValue.substring(0, index++);
 			Class<Object> dependencyType = Reflection.forName(deserializeType(typeName));
 			dependencyTypes.add(dependencyType);
-			String dependencyPath = strValue.substring(index + 1, strValue.length());
+
+			if (strValue.charAt(index) == '-') {
+				index += 2;
+				dependencyBundleIds.add(null);
+			} else {
+				String bundleId = strValue.substring(index, index + 32);
+				dependencyBundleIds.add(bundleId);
+				index += 33;
+			}
+
+			String dependencyPath = strValue.substring(index, strValue.length());
 			dependencyPaths.add(dependencyPath);
 			dependencyCollector.addDependency(dependencyPath, FileType.Internal, dependencyType);
 		}
 	}
 
-	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
+	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, String json, Object template) {
 		rootValue = reader.parse(json);
-		return deserialize(expectedType, template);
+		return deserialize(supplier, expectedType, template);
 	}
 
 	@Override
-	public <T> T deserialize(Class<T> expectedType, Object template) {
+	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, Object template) {
 		if (rootValue == null || rootValue.child == null) {
 			return null;
 		}
+		this.supplier = supplier;
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
 		T result = deserialize(referenceValue, expectedType, template);
@@ -240,7 +253,8 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private <T> T getDependency(int index) {
 		String path = dependencyPaths.get(index);
 		Class<?> type = dependencyTypes.get(index);
-		assetProvider.<T> getAsset(null);
+		String bundleId = dependencyBundleIds.get(index);
+		return getAsset(path, type, bundleId);
 	}
 
 	@Override
@@ -333,6 +347,7 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	@Override
 	public void reset() {
 		rootValue = null;
+		supplier = null;
 		value = null;
 		valueStack.clear();
 		objectStack.clear();

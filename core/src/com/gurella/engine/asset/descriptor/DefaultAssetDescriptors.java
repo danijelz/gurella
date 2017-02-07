@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
@@ -22,6 +23,7 @@ import com.gurella.engine.asset.loader.model.ObjModelLoader;
 import com.gurella.engine.asset.loader.model.UbJsonG3dModelLoader;
 import com.gurella.engine.asset.loader.music.MusicLoader;
 import com.gurella.engine.asset.loader.pixmap.PixmapLoader;
+import com.gurella.engine.asset.loader.polygonregion.PolygonRegionLoader;
 import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
 import com.gurella.engine.asset.loader.sound.SoundLoader;
 import com.gurella.engine.asset.loader.texture.TextureLoader;
@@ -52,10 +54,10 @@ public class DefaultAssetDescriptors {
 	public static final AssetDescriptor<Sound> sound = create(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3");
 	public static final AssetDescriptor<Music> music = create(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3");
 	public static final AssetDescriptor<Pixmap> pixmap = create(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg");
+	public static final AssetDescriptor<PolygonRegion> polygonRegion = create(PolygonRegion.class, false, false, new PolygonRegionLoader(), "psh");
 	public static final AssetDescriptor<Model> model = createModelDescriptor();
 	//@formatter:on
 
-	// PolygonRegionLoader
 	// ShaderTemplateLoader
 	// soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
 	// polygonRegion(PolygonRegion.class, "psh"),

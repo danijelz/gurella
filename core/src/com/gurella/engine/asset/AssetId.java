@@ -13,7 +13,7 @@ public final class AssetId implements Poolable {
 	String bundleId;
 
 	// TODO try to use or remove
-	FileHandle file;
+	transient FileHandle file;
 
 	public String getFileName() {
 		return fileName;
@@ -25,6 +25,10 @@ public final class AssetId implements Poolable {
 
 	public Class<?> getAssetType() {
 		return assetType;
+	}
+
+	public String getBundleId() {
+		return bundleId;
 	}
 
 	public AssetId set(AssetId other) {

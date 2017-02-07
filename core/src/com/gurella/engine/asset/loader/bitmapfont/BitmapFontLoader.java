@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class BitmapFontLoader implements AssetLoader<BitmapFontData, BitmapFont, BitmapFontProperties> {
 	@Override
@@ -30,7 +30,7 @@ public class BitmapFontLoader implements AssetLoader<BitmapFontData, BitmapFont,
 	}
 
 	@Override
-	public BitmapFontData processAsync(DependencyProvider provider, FileHandle file, BitmapFontData asyncData,
+	public BitmapFontData processAsync(DependencySupplier provider, FileHandle file, BitmapFontData asyncData,
 			BitmapFontProperties properties) {
 		if (properties != null && properties.flip) {
 			asyncData.flipped = true;
@@ -39,7 +39,7 @@ public class BitmapFontLoader implements AssetLoader<BitmapFontData, BitmapFont,
 	}
 
 	@Override
-	public BitmapFont finish(DependencyProvider provider, FileHandle file, BitmapFontData asyncData,
+	public BitmapFont finish(DependencySupplier provider, FileHandle file, BitmapFontData asyncData,
 			BitmapFontProperties properties) {
 		FileType fileType = file.type();
 		String[] imagePaths = asyncData.getImagePaths();

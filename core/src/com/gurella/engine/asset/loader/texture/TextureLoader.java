@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class TextureLoader implements AssetLoader<TextureData, Texture, TextureProperties> {
 	private static final TextureProperties defaultProperties = new TextureProperties();
@@ -21,7 +21,7 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	}
 
 	@Override
-	public TextureData processAsync(DependencyProvider provider, FileHandle file, TextureData asyncData,
+	public TextureData processAsync(DependencySupplier provider, FileHandle file, TextureData asyncData,
 			TextureProperties properties) {
 		TextureProperties resolved = properties == null ? defaultProperties : properties;
 		TextureData textureData = TextureData.Factory.loadFromFile(file, resolved.format, resolved.generateMipMaps);
@@ -32,7 +32,7 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	}
 
 	@Override
-	public Texture finish(DependencyProvider provider, FileHandle file, TextureData asyncData,
+	public Texture finish(DependencySupplier provider, FileHandle file, TextureData asyncData,
 			TextureProperties properties) {
 		Texture texture = new Texture(asyncData);
 		if (properties != null) {

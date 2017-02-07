@@ -4,6 +4,7 @@ import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.serialization.json.JsonSerialization.serializeType;
@@ -20,6 +21,8 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
+import com.gurella.engine.asset.AssetId;
+import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
@@ -29,18 +32,21 @@ import com.gurella.engine.utils.IdentityObjectIntMap;
 public class JsonOutput implements Output, Serializer, Poolable {
 	private String filePath;
 	private JsonWriter writer;
+	private DependencyLocator locator;
 
 	private int currentId;
-	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
-	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private OrderedSet<String> externalDependencies = new OrderedSet<String>();
+	private final IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
+	private final Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
+	private final OrderedSet<String> externalDependencies = new OrderedSet<String>();
+	private final AssetId tempAssetId = new AssetId();
 
 	public void init(String filePath) {
 		this.filePath = filePath;
 	}
 
 	@Override
-	public <T> void serialize(Class<T> expectedType, T rootObject, Object template) {
+	public <T> void serialize(DependencyLocator locator, Class<T> expectedType, T rootObject, Object template) {
+		this.locator = locator;
 		serialize(expectedType, rootObject, template, new StringWriter());
 	}
 
@@ -71,6 +77,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		reset();
 	}
 
+	//TODO set up locator
 	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
 		return serialize(file, expectedType, rootObject, null);
 	}
@@ -245,9 +252,9 @@ public class JsonOutput implements Output, Serializer, Poolable {
 				pop();
 			}
 		} else {
-			String assetLocation = getAssetLocation(value);
-			if (assetLocation != null) {
-				writeAsset(value, assetLocation);
+			locator.getAssetId(value, tempAssetId);
+			if (!tempAssetId.isEmpty() && !tempAssetId.getFileName().equals(filePath)) {
+				writeAsset(value, tempAssetId);
 			} else if (flat) {
 				serializeObject(expectedType, value, template);
 			} else {
@@ -268,19 +275,18 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		}
 	}
 
-	private String getAssetLocation(Object object) {
-		String fileName = AssetService.getFileName(object);
-		return fileName == null || fileName.equals(filePath) ? null : fileName;
-	}
-
-	private void writeAsset(Object asset, String assetLocation) {
+	private void writeAsset(Object asset, AssetId assetId) {
 		object();
 		writeStringProperty(typeTag, dependencyType);
-		writeIntProperty(dependencyIndexTag, getAssetId(asset, assetLocation));
+		writeIntProperty(dependencyIndexTag, getDependencyIndex(asset, assetId.getFileName()));
+		String bundleId = assetId.getBundleId();
+		if (bundleId != null) {
+			writeStringProperty(dependencyBundleIdTag, bundleId);
+		}
 		pop();
 	}
 
-	private int getAssetId(Object asset, String assetLocation) {
+	private int getDependencyIndex(Object asset, String assetLocation) {
 		String dependency = serializeType(asset.getClass()) + " " + assetLocation;
 		if (externalDependencies.add(dependency)) {
 			externalDependencies.add(dependency);
@@ -462,6 +468,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	public void reset() {
 		filePath = null;
 		writer = null;
+		locator = null;
 		currentId = 0;
 		references.clear();
 		objectsToSerialize.clear();

@@ -12,11 +12,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.IdentityMap.Entries;
+import com.badlogic.gdx.utils.IdentityMap.Entry;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectMap.Entries;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -30,11 +30,10 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 
 class AssetRegistry implements Disposable {
-	private final ObjectMap<AssetId, AssetSlot<?>> slotsById = new ObjectMap<AssetId, AssetSlot<?>>();
+	private final IdentityMap<AssetId, AssetSlot<?>> slotsById = new IdentityMap<AssetId, AssetSlot<?>>();
 	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
 
-	private final AssetIdPool assetIdPool = new AssetIdPool();
 	private final AssetSlotPool assetSlotPool = new AssetSlotPool();
 
 	private final ObjectMap<String, Object> tempBundledAssets = new ObjectMap<String, Object>();
@@ -81,21 +80,30 @@ class AssetRegistry implements Disposable {
 	}
 
 	AssetId getAssetId(Object asset, AssetId out) {
-		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetId id = idsByAsset.get(asset);
 		if (id == null) {
 			return out.empty();
 		} else {
-			return out.set(id);
+			return out.set(id, getBundleId(asset, id));
 		}
 	}
 
+	private String getBundleId(Object asset, AssetId id) {
+		if (asset instanceof BundleAware) {
+			return ((BundleAware) asset).getBundleId();
+		}
+
+		AssetSlot<?> slot = slotsById.get(id);
+		return slot == null ? null : slot.getBundleId(asset);
+	}
+
 	<T> String getFileName(T asset) {
-		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetId id = idsByAsset.get(asset);
 		return id == null ? null : id.fileName;
 	}
 
 	<T> FileType getFileType(T asset) {
-		AssetId id = idsByAsset.get(getAssetOrRootBundle(asset));
+		AssetId id = idsByAsset.get(asset);
 		return id == null ? null : id.fileType;
 	}
 
@@ -148,9 +156,9 @@ class AssetRegistry implements Disposable {
 			throw new IllegalStateException("Asset is already loaded: " + tempId);
 		}
 
-		AssetId assetId = assetIdPool.obtain().set(tempId);
 		AssetSlot<T> slot = assetSlotPool.obtainSlot();
-		slot.init(assetId, asset, sticky, references, reservations, dependencies);
+		slot.init(tempId, asset, sticky, references, reservations, dependencies);
+		AssetId assetId = slot.assetId;
 
 		idsByAsset.put(asset, assetId);
 		slotsById.put(assetId, slot);
@@ -187,7 +195,7 @@ class AssetRegistry implements Disposable {
 
 	boolean removeAll(String fileName, FileType fileType) {
 		boolean removed = false;
-		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
 			Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			if (assetId.equalsFile(fileName, fileType)) {
@@ -200,15 +208,14 @@ class AssetRegistry implements Disposable {
 		return removed;
 	}
 
-	private void remove(AssetId id, AssetSlot<?> slot) {
+	private void remove(AssetId assetId, AssetSlot<?> slot) {
 		Object asset = slot.asset;
-		assetUnloadedEvent.post(id, asset);
+		assetUnloadedEvent.post(assetId, asset);
 		unloadBundledAssets(slot);
-		dereferenceDependencies(id, slot);
+		dereferenceDependencies(assetId, slot);
 
 		idsByAsset.remove(asset);
-		slotsById.remove(id);
-		assetIdPool.free(id);
+		slotsById.remove(assetId);
 		assetSlotPool.free(slot);
 
 		if (asset instanceof Poolable) {
@@ -306,11 +313,11 @@ class AssetRegistry implements Disposable {
 
 		assetBundle.put(asset, rootBundle);
 
-		AssetId id = idsByAsset.get(asset);
-		AssetSlot<?> slot = id == null ? null : slotsById.remove(id);
+		AssetId assetId = idsByAsset.remove(asset);
+		AssetSlot<?> slot = assetId == null ? null : slotsById.remove(assetId);
 		if (slot != null) {
 			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
-			if (bundledAssets != null && bundledAssets.size > 0) {
+			if (bundledAssets.size > 0) {
 				for (Object bundledAsset : slot.bundledAssets.values()) {
 					assetBundle.put(bundledAsset, rootBundle);
 				}
@@ -324,22 +331,15 @@ class AssetRegistry implements Disposable {
 			removeFromBundle(rootBundleSlot, asset);
 		}
 
-		if (id == null) {
-			id = assetIdPool.obtain().set(rootBundleId);
-			id.assetType = asset.getClass();
-			idsByAsset.put(asset, id);
-		}
-
+		idsByAsset.put(asset, rootBundleId);
 		rootBundleSlot.addBundledAsset(bundleId, asset);
 
 		if (asset instanceof Bundle) {
 			((Bundle) asset).getBundledAssets(tempBundledAssets);
-			for (Entry<String, Object> entry : tempBundledAssets.entries()) {
+			for (ObjectMap.Entry<String, Object> entry : tempBundledAssets.entries()) {
 				Object bundledAsset = entry.value;
 				if (bundledAsset != asset) {
-					id = assetIdPool.obtain().set(rootBundleId);
-					id.assetType = bundledAsset.getClass();
-					idsByAsset.put(bundledAsset, id);
+					idsByAsset.put(bundledAsset, rootBundleId);
 					assetBundle.put(bundledAsset, rootBundle);
 					rootBundleSlot.addBundledAsset(entry.key, asset);
 				}
@@ -366,7 +366,7 @@ class AssetRegistry implements Disposable {
 
 		if (asset instanceof Bundle) {
 			((Bundle) asset).getBundledAssets(tempBundledAssets);
-			for (Entry<String, Object> entry : tempBundledAssets.entries()) {
+			for (ObjectMap.Entry<String, Object> entry : tempBundledAssets.entries()) {
 				Object bundledAsset = entry.value;
 				if (bundledAsset != asset) {
 					idsByAsset.remove(bundledAsset);
@@ -384,6 +384,10 @@ class AssetRegistry implements Disposable {
 		}
 
 		Bundle bundle = assetBundle.get(asset);
+		if (bundle == null) {
+			return null;
+		}
+
 		AssetId id = idsByAsset.get(getRootBundle(bundle));
 		AssetSlot<?> slot = slotsById.get(id);
 		return slot.getBundleId(asset);
@@ -417,13 +421,12 @@ class AssetRegistry implements Disposable {
 		slotsById.clear();
 		idsByAsset.clear();
 		assetBundle.clear();
-		assetIdPool.clear();
 		assetSlotPool.clear();
 		tempBundledAssets.clear();
 	}
 
 	private void removeAll() {
-		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.iterator(); iter.hasNext;) {
+		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
 			Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			AssetSlot<?> slot = entry.value;
@@ -487,12 +490,5 @@ class AssetRegistry implements Disposable {
 		}
 
 		return builder.toString();
-	}
-
-	private static class AssetIdPool extends Pool<AssetId> {
-		@Override
-		protected AssetId newObject() {
-			return new AssetId();
-		}
 	}
 }

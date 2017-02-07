@@ -18,11 +18,11 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencyProvider;
+import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.utils.Values;
 
-class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencyProvider,
+class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
 		Comparable<AssetLoadingTask<?, ?>>, Poolable {
 	private static int requestSequence = Integer.MIN_VALUE;
 

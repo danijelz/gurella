@@ -1,13 +1,12 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.asset.persister;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.persister.DependencyLocator;
-import com.gurella.engine.asset.persister.AssetPersister;
 
-class AssetsPersister {
+//TODO unused
+class AssetsPersisters {
 	private final DependencyLocator dependencyLocator;
 	private final ObjectMap<Class<?>, PersisterInfo<?>> persisters = new ObjectMap<Class<?>, PersisterInfo<?>>();
 
@@ -23,7 +22,7 @@ class AssetsPersister {
 		// register(propertiesClass, true, new JsonObjectPersister<AssetProperties<?>>(propertiesClass));
 	}
 
-	AssetsPersister(DependencyLocator dependencyLocator) {
+	AssetsPersisters(DependencyLocator dependencyLocator) {
 		this.dependencyLocator = dependencyLocator;
 	}
 
