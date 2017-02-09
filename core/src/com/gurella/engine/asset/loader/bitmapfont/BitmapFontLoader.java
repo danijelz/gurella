@@ -46,7 +46,7 @@ public class BitmapFontLoader implements AssetLoader<BitmapFontData, BitmapFont,
 		int length = imagePaths.length;
 		Array<TextureRegion> regs = new Array<TextureRegion>(length);
 		for (int i = 0; i < length; i++) {
-			regs.add(new TextureRegion(provider.getDependency(imagePaths[i], fileType, Texture.class)));
+			regs.add(new TextureRegion(provider.getDependency(imagePaths[i], fileType, Texture.class, null)));
 		}
 		return new BitmapFont(asyncData, regs, true);
 	}

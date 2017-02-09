@@ -66,7 +66,7 @@ public abstract class ModelLoader<PROPS extends ModelProperties> implements Asse
 
 		@Override
 		public Texture load(String fileName) {
-			return provider.getDependency(fileName, fileType, Texture.class);
+			return provider.getDependency(fileName, fileType, Texture.class, null);
 		}
 	}
 }

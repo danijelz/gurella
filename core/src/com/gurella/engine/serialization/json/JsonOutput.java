@@ -40,9 +40,22 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	private final OrderedSet<String> externalDependencies = new OrderedSet<String>();
 	private final AssetId tempAssetId = new AssetId();
 
+	public <T> String serialize(DependencyLocator locator, FileHandle file, Class<T> expectedType, T rootObject) {
+		return serialize(locator, file, expectedType, rootObject, null);
+	}
+
+	public <T> String serialize(DependencyLocator dependencyLocator, FileHandle file, Class<T> expectedType,
+			T rootObject, Object template) {
+		this.dependencyLocator = dependencyLocator;
+		this.file = file;
+		StringWriter buffer = new StringWriter();
+		serialize(expectedType, rootObject, template, buffer);
+		return buffer.toString();
+	}
+
 	@Override
-	public <T> void serialize(DependencyLocator locator, Class<T> expectedType, T rootObject, Object template) {
-		this.dependencyLocator = locator;
+	public <T> void serialize(DependencyLocator dependencyLocator, Class<T> expectedType, T rootObject, Object template) {
+		this.dependencyLocator = dependencyLocator;
 		serialize(expectedType, rootObject, template, new StringWriter());
 	}
 
@@ -71,19 +84,6 @@ public class JsonOutput implements Output, Serializer, Poolable {
 
 		pop();
 		reset();
-	}
-
-	public <T> String serialize(DependencyLocator locator, FileHandle file, Class<T> expectedType, T rootObject) {
-		return serialize(locator, file, expectedType, rootObject, null);
-	}
-
-	public <T> String serialize(DependencyLocator dependencyLocator, FileHandle file, Class<T> expectedType,
-			T rootObject, Object template) {
-		this.dependencyLocator = dependencyLocator;
-		this.file = file;
-		StringWriter buffer = new StringWriter();
-		serialize(expectedType, rootObject, template, buffer);
-		return buffer.toString();
 	}
 
 	private void writeReference(Class<?> expectedType, Object object, Object template) {

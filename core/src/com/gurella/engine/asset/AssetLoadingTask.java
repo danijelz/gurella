@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
@@ -45,6 +46,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	A asyncData;
 	T asset;
+	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 	Throwable exception;
 
 	private AssetId propertiesId;
@@ -105,6 +107,9 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 			return false;
 		case syncLoading:
 			asset = loader.finish(this, file, asyncData, properties);
+			if (asset instanceof Bundle) {
+				((Bundle) asset).getBundledAssets(bundledAssets);
+			}
 			state = finished;
 			return false;
 		case finished:
@@ -234,12 +239,12 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	@Override
-	public <D> D getDependency(String depFileName, FileType depFileType, Class<D> depAssetType) {
+	public <D> D getDependency(String depFileName, FileType depFileType, Class<D> depAssetType, String bundleId) {
 		tempAssetId.set(depFileName, depFileType, depAssetType);
 		@SuppressWarnings("unchecked")
 		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);
 		dependencyCount.getAndIncrement(tempAssetId, 0, 1);
-		return dependency.getAsset();
+		return bundleId == null ? dependency.getAsset() : dependency.<D> getAsset(bundleId);
 	}
 
 	private <D> void addPropertiesDependency(String fileName, FileType fileType, Class<D> assetType) {
@@ -306,6 +311,17 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	@Override
+	public <B> B getAsset(String bundleId) {
+		if (!(asset instanceof Bundle)) {
+			throw new UnsupportedOperationException();
+		}
+
+		@SuppressWarnings("unchecked")
+		B casted = (B) bundledAssets.get(bundleId);
+		return casted;
+	}
+
+	@Override
 	public void onSuccess(Object value) {
 		if (state == waitingDependencies && allDependenciesResolved()) {
 			state = asyncLoading;
@@ -351,6 +367,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		properties = null;
 		asyncData = null;
 		asset = null;
+		bundledAssets.clear();
 		exception = null;
 		priority = 0;
 		requestId = 0;

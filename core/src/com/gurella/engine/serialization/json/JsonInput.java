@@ -33,6 +33,8 @@ import com.gurella.engine.utils.Reflection;
 public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
+	private FileHandle file;
+	private FileType fileType;
 	private JsonValue rootValue;
 	private DependencySupplier supplier;
 
@@ -50,6 +52,8 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private CopyContext copyContext = new CopyContext();
 
 	public void init(FileHandle file, DependencyCollector dependencyCollector) {
+		this.file = file;
+		fileType = file.type();
 		this.rootValue = reader.parse(file);
 		int size = rootValue == null ? 0 : rootValue.size;
 		if (size < 1) {
@@ -79,7 +83,7 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 			String dependencyPath = strValue.substring(index, strValue.length());
 			dependencyPaths.add(dependencyPath);
-			dependencyCollector.addDependency(dependencyPath, FileType.Internal, dependencyType);
+			dependencyCollector.addDependency(dependencyPath, fileType, dependencyType);
 		}
 	}
 
@@ -252,9 +256,10 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 	private <T> T getDependency(int index) {
 		String path = dependencyPaths.get(index);
-		Class<?> type = dependencyTypes.get(index);
+		@SuppressWarnings("unchecked")
+		Class<T> type = (Class<T>) dependencyTypes.get(index);
 		String bundleId = dependencyBundleIds.get(index);
-		return getAsset(path, type, bundleId);
+		return supplier.getDependency(path, fileType, type, bundleId);
 	}
 
 	@Override
@@ -346,6 +351,8 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 	@Override
 	public void reset() {
+		file = null;
+		fileType = null;
 		rootValue = null;
 		supplier = null;
 		value = null;

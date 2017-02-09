@@ -40,7 +40,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, Texture
 		Array<Page> pages = asyncData.getPages();
 		for (int i = 0, n = pages.size; i < n; i++) {
 			Page page = pages.get(i);
-			page.texture = provider.getDependency(page.textureFile.path(), fileType, Texture.class);
+			page.texture = provider.getDependency(page.textureFile.path(), fileType, Texture.class, null);
 		}
 
 		if (properties != null && properties.flip) {

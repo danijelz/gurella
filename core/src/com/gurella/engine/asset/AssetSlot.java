@@ -180,6 +180,11 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 	}
 
 	@Override
+	public <B> B getAsset(String bundleId) {
+		return getBundledAsset(bundleId);
+	}
+
+	@Override
 	public void reset() {
 		assetId = null;
 		asset = null;
