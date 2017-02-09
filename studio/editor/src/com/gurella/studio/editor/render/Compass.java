@@ -21,7 +21,7 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;

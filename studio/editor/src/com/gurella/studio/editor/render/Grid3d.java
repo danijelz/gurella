@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.gdx.GdxContext;

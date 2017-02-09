@@ -59,10 +59,10 @@ import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
+import com.gurella.engine.math.GridRectangle;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.utils.GridRectangle;
 
 public class TestPropertyEditorsComponent extends SceneNodeComponent {
 	@PropertyEditorDescriptor(group = "assets")

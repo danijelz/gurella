@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public interface EditorControl extends EditorWidget {
 	EditorBaseComposite getParent();

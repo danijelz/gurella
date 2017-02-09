@@ -52,8 +52,8 @@ import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneEditorContext;

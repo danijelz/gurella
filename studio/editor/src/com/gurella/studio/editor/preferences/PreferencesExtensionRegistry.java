@@ -3,8 +3,8 @@ package com.gurella.studio.editor.preferences;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.gurella.engine.plugin.Plugin;
-import com.gurella.engine.plugin.PluginListener;
+import com.gurella.engine.utils.plugin.Plugin;
+import com.gurella.engine.utils.plugin.PluginListener;
 
 public class PreferencesExtensionRegistry implements PluginListener {
 	private final PreferencesStore preferencesStore;

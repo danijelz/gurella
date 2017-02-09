@@ -4,7 +4,7 @@ import static com.gurella.studio.launch.SceneLauncher.launch;
 
 import org.eclipse.debug.core.ILaunchManager;
 
-import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;

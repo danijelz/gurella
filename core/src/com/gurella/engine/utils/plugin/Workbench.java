@@ -1,4 +1,4 @@
-package com.gurella.engine.plugin;
+package com.gurella.engine.utils.plugin;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.utils.OrderedIdentitySet;

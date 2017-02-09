@@ -3,7 +3,7 @@ package com.gurella.engine.editor.ui;
 import java.io.InputStream;
 
 import com.badlogic.gdx.graphics.Color;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public interface EditorTreeItem extends EditorItem {
 	void clear(int index, boolean all);

@@ -2,9 +2,9 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
-import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.serialization.json.JsonSerialization.serializeType;
@@ -30,9 +30,9 @@ import com.gurella.engine.serialization.Serializer;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class JsonOutput implements Output, Serializer, Poolable {
-	private String filePath;
+	private DependencyLocator dependencyLocator;
+	private FileHandle file;
 	private JsonWriter writer;
-	private DependencyLocator locator;
 
 	private int currentId;
 	private final IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
@@ -40,13 +40,9 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	private final OrderedSet<String> externalDependencies = new OrderedSet<String>();
 	private final AssetId tempAssetId = new AssetId();
 
-	public void init(String filePath) {
-		this.filePath = filePath;
-	}
-
 	@Override
 	public <T> void serialize(DependencyLocator locator, Class<T> expectedType, T rootObject, Object template) {
-		this.locator = locator;
+		this.dependencyLocator = locator;
 		serialize(expectedType, rootObject, template, new StringWriter());
 	}
 
@@ -54,7 +50,7 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		writer = new JsonWriter(buffer);
 
 		object();
-		addReference(expectedType, template, rootObject);
+		newReference(expectedType, template, rootObject);
 
 		while (objectsToSerialize.size > 0) {
 			ObjectInfo objectInfo = objectsToSerialize.removeIndex(0);
@@ -77,17 +73,14 @@ public class JsonOutput implements Output, Serializer, Poolable {
 		reset();
 	}
 
-	//TODO set up locator
-	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
-		return serialize(file, expectedType, rootObject, null);
+	public <T> String serialize(DependencyLocator locator, FileHandle file, Class<T> expectedType, T rootObject) {
+		return serialize(locator, file, expectedType, rootObject, null);
 	}
 
-	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject, Object template) {
-		return serialize(file.path(), expectedType, rootObject, template);
-	}
-
-	public <T> String serialize(String filePath, Class<T> expectedType, T rootObject, Object template) {
-		this.filePath = filePath;
+	public <T> String serialize(DependencyLocator dependencyLocator, FileHandle file, Class<T> expectedType,
+			T rootObject, Object template) {
+		this.dependencyLocator = dependencyLocator;
+		this.file = file;
 		StringWriter buffer = new StringWriter();
 		serialize(expectedType, rootObject, template, buffer);
 		return buffer.toString();
@@ -96,13 +89,13 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	private void writeReference(Class<?> expectedType, Object object, Object template) {
 		int ordinal = references.get(object, -1);
 		if (ordinal < 0) {
-			writeInt(addReference(expectedType, template, object));
+			writeInt(newReference(expectedType, template, object));
 		} else {
 			writeInt(ordinal);
 		}
 	}
 
-	private int addReference(Class<?> expectedType, Object template, Object object) {
+	private int newReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
@@ -252,8 +245,8 @@ public class JsonOutput implements Output, Serializer, Poolable {
 				pop();
 			}
 		} else {
-			locator.getAssetId(value, tempAssetId);
-			if (!tempAssetId.isEmpty() && !tempAssetId.getFileName().equals(filePath)) {
+			dependencyLocator.getAssetId(value, tempAssetId);
+			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(file)) {
 				writeAsset(value, tempAssetId);
 			} else if (flat) {
 				serializeObject(expectedType, value, template);
@@ -466,9 +459,9 @@ public class JsonOutput implements Output, Serializer, Poolable {
 
 	@Override
 	public void reset() {
-		filePath = null;
+		file = null;
 		writer = null;
-		locator = null;
+		dependencyLocator = null;
 		currentId = 0;
 		references.clear();
 		objectsToSerialize.clear();

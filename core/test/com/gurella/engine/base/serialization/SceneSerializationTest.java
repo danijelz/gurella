@@ -27,20 +27,20 @@ public class SceneSerializationTest {
 
 		FileHandle file = new FileHandle("");
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(file, Scene.class, scene);
+		String string = output.serialize(null, file, Scene.class, scene);
 		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 
 		JsonInput input = new JsonInput();
-		Scene deserialized = input.deserialize(Scene.class, string);
+		Scene deserialized = input.deserialize(null, Scene.class, string);
 		System.out.println("deserialized: " + MetaTypes.isEqual(scene, deserialized));
 
 		Scene duplicate = CopyContext.copyObject(scene);
 		System.out.println("duplicate: " + MetaTypes.isEqual(scene, duplicate));
 
-		String string1 = output.serialize(file, Scene.class, duplicate, scene);
+		String string1 = output.serialize(null, file, Scene.class, duplicate, scene);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 
-		Scene deserialized1 = input.deserialize(Scene.class, string1, scene);
+		Scene deserialized1 = input.deserialize(null, Scene.class, string1, scene);
 		System.out.println(MetaTypes.isEqual(scene, deserialized1));
 	}
 }

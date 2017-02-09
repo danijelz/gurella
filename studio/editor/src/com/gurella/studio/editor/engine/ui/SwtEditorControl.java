@@ -22,7 +22,7 @@ import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {

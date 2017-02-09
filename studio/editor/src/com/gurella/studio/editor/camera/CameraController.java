@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.gurella.engine.plugin.Plugin;
+import com.gurella.engine.utils.plugin.Plugin;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(Integer.MAX_VALUE)

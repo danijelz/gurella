@@ -17,7 +17,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Sphere;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 import com.gurella.engine.utils.struct.StructType.FloatStructProperty;
 
 public class ArrayOfStructs {

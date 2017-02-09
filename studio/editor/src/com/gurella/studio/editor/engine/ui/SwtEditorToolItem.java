@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorToolItem;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements EditorToolItem {
 	SwtEditorToolItem(SwtEditorToolBar parent, int style) {

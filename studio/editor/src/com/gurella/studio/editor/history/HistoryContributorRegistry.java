@@ -3,8 +3,8 @@ package com.gurella.studio.editor.history;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.gurella.engine.plugin.Plugin;
-import com.gurella.engine.plugin.PluginListener;
+import com.gurella.engine.utils.plugin.Plugin;
+import com.gurella.engine.utils.plugin.PluginListener;
 
 class HistoryContributorRegistry implements PluginListener {
 	private final HistoryService historyService;

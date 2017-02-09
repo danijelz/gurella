@@ -1,7 +1,7 @@
 package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public interface EditorScrollBar extends EditorWidget {
 	boolean getEnabled();

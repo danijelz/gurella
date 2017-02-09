@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import java.io.InputStream;
 
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public interface EditorToolItem extends EditorItem {
 	GridRectangle getBounds();

@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTableItem;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem> implements EditorTableItem {
 	SwtEditorTableItem(TableItem item) {

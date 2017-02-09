@@ -3,7 +3,7 @@ package com.gurella.engine.editor.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.GridPoint2;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public interface EditorGraphicContex {
 	void copyArea(EditorImage image, int x, int y);

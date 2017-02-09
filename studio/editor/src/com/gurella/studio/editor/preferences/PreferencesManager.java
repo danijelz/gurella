@@ -7,8 +7,8 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IPath;
 import org.osgi.service.prefs.Preferences;
 
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.SceneEditor;

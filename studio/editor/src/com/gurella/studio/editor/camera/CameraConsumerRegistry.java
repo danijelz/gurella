@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.gurella.engine.plugin.Plugin;
-import com.gurella.engine.plugin.PluginListener;
+import com.gurella.engine.utils.plugin.Plugin;
+import com.gurella.engine.utils.plugin.PluginListener;
 
 class CameraConsumerRegistry implements PluginListener {
 	private final Set<CameraConsumer> consumers = new HashSet<>();

@@ -16,7 +16,7 @@ import org.eclipse.ui.operations.RedoActionHandler;
 import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
-import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.menu.EditorContextMenuContributor;

@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGraphicContex;
 import com.gurella.engine.editor.ui.EditorImage;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public class SwtEditorGraphicContex implements EditorGraphicContex {
 	private Widget owner;

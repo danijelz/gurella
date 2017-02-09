@@ -48,7 +48,6 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.metatype.MetaTypes;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
@@ -77,6 +76,7 @@ import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;

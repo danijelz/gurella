@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorScrollBar;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public class SwtEditorScrollBar extends SwtEditorWidget<ScrollBar> implements EditorScrollBar {
 	SwtEditorScrollBar(ScrollBar scrollBar) {

@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.CoolItem;
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorCoolItem;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public class SwtEditorCoolItem extends SwtEditorItem<CoolItem> implements EditorCoolItem {
 	SwtEditorCoolItem(SwtEditorCoolBar parent, int style) {

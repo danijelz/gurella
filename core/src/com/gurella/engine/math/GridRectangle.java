@@ -1,4 +1,4 @@
-package com.gurella.engine.utils;
+package com.gurella.engine.math;
 
 public class GridRectangle {
 	public int x, y;

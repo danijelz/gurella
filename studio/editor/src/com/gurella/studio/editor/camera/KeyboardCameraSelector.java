@@ -1,8 +1,8 @@
 package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Input.Keys;
+import com.gurella.engine.utils.plugin.Plugin;
 import com.badlogic.gdx.InputAdapter;
-import com.gurella.engine.plugin.Plugin;
 
 class KeyboardCameraSelector extends InputAdapter implements Plugin {
 	private CameraManager cameraManager;

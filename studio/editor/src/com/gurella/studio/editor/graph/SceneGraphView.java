@@ -42,12 +42,12 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.metatype.CopyContext;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneConsumer;
 import com.gurella.studio.editor.SceneEditorContext;

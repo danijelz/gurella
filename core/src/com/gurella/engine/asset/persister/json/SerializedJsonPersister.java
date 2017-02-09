@@ -7,11 +7,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.asset.persister.AssetPersister;
+import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.serialization.json.JsonOutput;
 
-public class SerializedJsonPersister<T> implements AssetPersister<T>{
+public class SerializedJsonPersister<T> implements AssetPersister<T> {
 	private final Class<T> expectedType;
 	private final JsonOutput output = new JsonOutput();
 
@@ -21,7 +21,7 @@ public class SerializedJsonPersister<T> implements AssetPersister<T>{
 
 	@Override
 	public void persist(DependencyLocator dependencyLocator, FileHandle file, T asset) {
-		String string = output.serialize(file, expectedType, asset);
+		String string = output.serialize(dependencyLocator, file, expectedType, asset);
 		OutputStream outputStream = file.write(false);
 
 		try {

@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.assets.AssetsView;

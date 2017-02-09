@@ -3,7 +3,7 @@ package com.gurella.studio.editor.render;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraConsumer;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.gdx.GdxContext;

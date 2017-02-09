@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.gurella.engine.plugin.Plugin;
-import com.gurella.engine.plugin.PluginListener;
-import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.utils.plugin.Plugin;
+import com.gurella.engine.utils.plugin.PluginListener;
+import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.gdx.GdxContext;

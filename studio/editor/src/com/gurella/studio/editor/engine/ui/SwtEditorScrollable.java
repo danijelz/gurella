@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
 
 import com.gurella.engine.editor.ui.EditorScrollable;
-import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.math.GridRectangle;
 
 public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEditorControl<T>
 		implements EditorScrollable {
