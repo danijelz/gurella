@@ -11,7 +11,7 @@ public class UbJsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
 	private G3dModelLoader objLoader = new G3dModelLoader(reader);
 
 	@Override
-	public Class<ObjModelProperties> getAssetPropertiesType() {
+	public Class<ObjModelProperties> getPropertiesType() {
 		return ObjModelProperties.class;
 	}
 

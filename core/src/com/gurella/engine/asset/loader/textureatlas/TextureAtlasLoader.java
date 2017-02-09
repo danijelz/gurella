@@ -14,7 +14,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, TextureAtlas, TextureAtlasProperties> {
 	@Override
-	public Class<TextureAtlasProperties> getAssetPropertiesType() {
+	public Class<TextureAtlasProperties> getPropertiesType() {
 		return TextureAtlasProperties.class;
 	}
 

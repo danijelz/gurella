@@ -11,7 +11,7 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	private static final TextureProperties defaultProperties = new TextureProperties();
 
 	@Override
-	public Class<TextureProperties> getAssetPropertiesType() {
+	public Class<TextureProperties> getPropertiesType() {
 		return TextureProperties.class;
 	}
 

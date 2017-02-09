@@ -12,7 +12,7 @@ public final class AssetId implements Poolable {
 	Class<?> assetType;
 	String bundleId;
 
-	// TODO try to use or remove
+	// TODO try to make usefull or remove
 	transient FileHandle file;
 
 	public String getFileName() {
@@ -122,15 +122,19 @@ public final class AssetId implements Poolable {
 	}
 
 	public boolean equalsFile(FileHandle file) {
-		return fileName.equals(file.path()) && fileType == file.type();
+		if (file == null) {
+			return isEmpty();
+		} else {
+			return fileType == file.type() && Values.nullSafeEquals(fileName, file.path());
+		}
 	}
 
 	public boolean equalsFile(AssetId other) {
-		return fileName.equals(other.fileName) && fileType == other.fileType;
+		return other != null && fileType == other.fileType && Values.nullSafeEquals(fileName, other.fileName);
 	}
 
 	public boolean equalsFile(String fileName, FileType fileType) {
-		return this.fileName.equals(fileName) && this.fileType == fileType;
+		return this.fileType == fileType && Values.nullSafeEquals(this.fileName, fileName);
 	}
 
 	@Override

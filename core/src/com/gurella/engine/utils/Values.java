@@ -153,7 +153,7 @@ public class Values {
 	}
 
 	public static boolean nullSafeEquals(Object first, Object second) {
-		return first == null ? second == null : first.equals(second);
+		return first == second || (first != null && first.equals(second));
 	}
 
 	public static boolean isEqual(Object first, Object second) {

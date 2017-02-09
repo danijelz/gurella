@@ -10,7 +10,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundle, I18NBundleProperties> {
 	@Override
-	public Class<I18NBundleProperties> getAssetPropertiesType() {
+	public Class<I18NBundleProperties> getPropertiesType() {
 		return I18NBundleProperties.class;
 	}
 

@@ -9,7 +9,7 @@ public class ObjModelLoader extends ModelLoader<ObjModelProperties> {
 	private ObjLoader objLoader = new ObjLoader();
 	
 	@Override
-	public Class<ObjModelProperties> getAssetPropertiesType() {
+	public Class<ObjModelProperties> getPropertiesType() {
 		return ObjModelProperties.class;
 	}
 

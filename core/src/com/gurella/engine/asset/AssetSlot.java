@@ -77,11 +77,6 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 		return current == 0 ? fresh : steady;
 	}
 
-	DependencyActivity incDependencyCount(AssetId id, int increment) {
-		int current = dependencies.getAndIncrement(id, 0, increment);
-		return current == 0 ? fresh : steady;
-	}
-
 	DependencyActivity decDependencyCount(AssetId id) {
 		int ref = dependencies.get(id, -1);
 		if (ref < 0) {

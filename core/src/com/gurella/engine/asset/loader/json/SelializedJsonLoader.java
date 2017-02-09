@@ -15,7 +15,7 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJson
 	}
 
 	@Override
-	public Class<SelializedJsonProperties> getAssetPropertiesType() {
+	public Class<SelializedJsonProperties> getPropertiesType() {
 		return SelializedJsonProperties.class;
 	}
 

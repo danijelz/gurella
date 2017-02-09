@@ -9,7 +9,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class SoundLoader implements AssetLoader<Sound, Sound, SoundProperties> {
 	@Override
-	public Class<SoundProperties> getAssetPropertiesType() {
+	public Class<SoundProperties> getPropertiesType() {
 		return SoundProperties.class;
 	}
 

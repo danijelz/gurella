@@ -12,7 +12,7 @@ public class CubemapLoader implements AssetLoader<CubemapData, Cubemap, CubemapP
 	private static final CubemapProperties defaultProperties = new CubemapProperties();
 
 	@Override
-	public Class<CubemapProperties> getAssetPropertiesType() {
+	public Class<CubemapProperties> getPropertiesType() {
 		return CubemapProperties.class;
 	}
 

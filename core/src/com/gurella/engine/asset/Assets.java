@@ -51,7 +51,7 @@ public class Assets {
 
 	public static boolean hasProperties(String assetFileName, Class<?> assetType) {
 		AssetLoader<?, ?, ?> loader = AssetDescriptors.getLoader(assetFileName, assetType);
-		return loader != null && loader.getAssetPropertiesType() != null;
+		return loader != null && loader.getPropertiesType() != null;
 	}
 
 	public static boolean fileExists(String fileName, FileType fileType) {

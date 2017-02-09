@@ -80,7 +80,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	void update() {
-		boolean proceed = false;
+		boolean proceed = true;
 		while (proceed) {
 			try {
 				proceed = step();
@@ -111,7 +111,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 				((Bundle) asset).getBundledAssets(bundledAssets);
 			}
 			state = finished;
-			return false;
+			return true;
 		case finished:
 			finish();
 			return false;
@@ -268,7 +268,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		@SuppressWarnings("unchecked")
 		Dependency<AssetProperties> dependency = (Dependency<AssetProperties>) dependencies.get(propertiesId);
 		AssetProperties properties = dependency.getAsset();
-		if (ClassReflection.isInstance(loader.getAssetPropertiesType(), properties)) {
+		if (ClassReflection.isInstance(loader.getPropertiesType(), properties)) {
 			dependencyCount.getAndIncrement(propertiesId, 0, 1);
 			return properties;
 		} else {

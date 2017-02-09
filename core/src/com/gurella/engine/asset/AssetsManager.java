@@ -401,9 +401,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 				finishedQueue.add(task);
 				return;
 			default:
-				task.state = finished;
-				task.exception = new IllegalStateException("Invalid loading state.");
-				finishedQueue.add(task);
+				task.onException(new IllegalStateException("Invalid loading state."));
 				return;
 			}
 		}

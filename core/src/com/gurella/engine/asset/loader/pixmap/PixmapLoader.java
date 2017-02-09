@@ -8,7 +8,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class PixmapLoader implements AssetLoader<Pixmap, Pixmap, PixmapProperties> {
 	@Override
-	public Class<PixmapProperties> getAssetPropertiesType() {
+	public Class<PixmapProperties> getPropertiesType() {
 		return PixmapProperties.class;
 	}
 

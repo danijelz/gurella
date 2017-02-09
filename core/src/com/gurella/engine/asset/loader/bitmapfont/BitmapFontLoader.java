@@ -13,7 +13,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class BitmapFontLoader implements AssetLoader<BitmapFontData, BitmapFont, BitmapFontProperties> {
 	@Override
-	public Class<BitmapFontProperties> getAssetPropertiesType() {
+	public Class<BitmapFontProperties> getPropertiesType() {
 		return BitmapFontProperties.class;
 	}
 

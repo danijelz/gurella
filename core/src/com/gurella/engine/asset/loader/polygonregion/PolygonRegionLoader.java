@@ -9,7 +9,7 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 
 public class PolygonRegionLoader implements AssetLoader<String, PolygonRegion, AssetProperties>{
 	@Override
-	public Class<AssetProperties> getAssetPropertiesType() {
+	public Class<AssetProperties> getPropertiesType() {
 		return null;
 	}
 
