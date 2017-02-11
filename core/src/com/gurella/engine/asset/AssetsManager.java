@@ -92,8 +92,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	<T> void save(T asset) {
 		synchronized (mutex) {
-			registry.getAssetId(asset, tempAssetId);
-			if (tempAssetId.isEmpty()) {
+			if (registry.getAssetId(asset, tempAssetId).isEmpty()) {
 				throw new IllegalStateException("Asset is not yet persisted.");
 			}
 
@@ -123,8 +122,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
 			}
 
-			registry.getAssetId(asset, tempAssetId);
-			if (tempAssetId.isEmpty()) {
+			if (registry.getAssetId(asset, tempAssetId).isEmpty()) {
 				FileHandle file = files.getFileHandle(fileName, fileType);
 				persister.persist(this, file, asset);
 				tempAssetId.set(file, assetType);
@@ -140,8 +138,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	DeleteResult delete(Object asset) {
 		synchronized (mutex) {
-			registry.getAssetId(asset, tempAssetId);
-			if (tempAssetId.isEmpty()) {
+			if (registry.getAssetId(asset, tempAssetId).isEmpty()) {
 				return DeleteResult.unexisting;
 			}
 

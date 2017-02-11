@@ -15,7 +15,7 @@ import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.bundle.BundleAware;
 
 class AssetSlot<T> implements Dependency<T>, Poolable {
-	AssetId assetId;
+	final AssetId assetId = new AssetId();
 	T asset;
 	boolean sticky;
 
@@ -27,7 +27,7 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 
 	void init(AssetId assetId, T asset, boolean sticky, int references, int reservations,
 			ObjectIntMap<AssetId> dependencies) {
-		this.assetId = assetId;
+		this.assetId.set(assetId);
 		this.asset = asset;
 		this.sticky = sticky;
 		this.references = references;
@@ -181,7 +181,7 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 
 	@Override
 	public void reset() {
-		assetId = null;
+		assetId.reset();
 		asset = null;
 		sticky = false;
 		references = 0;

@@ -163,12 +163,6 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		if (exception == null) {
 			callback.onSuccess(asset);
 		} else {
-			if (asset instanceof Poolable) {
-				PoolService.free(asset);
-			} else {
-				DisposablesService.tryDispose(asset);
-			}
-
 			callback.onException(exception);
 		}
 	}
@@ -352,7 +346,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	private void onParentException(Throwable exception) {
-		if (phase != finished && callback.concurrentCallbacks.size == 0) {
+		if (callback.concurrentCallbacks.size == 0) {
 			onException(exception);
 		}
 	}
