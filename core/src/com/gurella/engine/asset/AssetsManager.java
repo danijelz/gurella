@@ -340,6 +340,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		for (Entry<AssetId, Dependency<?>> entry : task.getDependencies()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
+				//TODO check if unfinished and has concurrent callbacks -> make root task
 				freeTask((AssetLoadingTask<?, ?>) dependency);
 			}
 		}

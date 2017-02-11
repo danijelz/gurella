@@ -345,19 +345,19 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		if (phase != finished && this.exception == null) {
 			this.exception = exception == null ? new RuntimeException("propagated exception is null") : exception;
 			phase = finished;
-			notifyExceptionOnDependencies();
+			notifyDependenciesAboutException();
 			manager.taskStateChanged(this);
 			updateProgress();
 		}
 	}
 
 	private void onParentException(Throwable exception) {
-		if (callback.concurrentCallbacks.size == 0) {
+		if (phase != finished && callback.concurrentCallbacks.size == 0) {
 			onException(exception);
 		}
 	}
 
-	private void notifyExceptionOnDependencies() {
+	private void notifyDependenciesAboutException() {
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
