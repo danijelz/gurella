@@ -42,8 +42,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	private final ObjectMap<AssetId, AssetLoadingTask<?, ?>> allTasks = new ObjectMap<AssetId, AssetLoadingTask<?, ?>>();
 	private final Array<AssetLoadingTask<?, ?>> asyncQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> waitingQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> finishedQueue = new Array<AssetLoadingTask<?, ?>>();
+	private final Array<AssetLoadingTask<?, ?>> syncQueue = new Array<AssetLoadingTask<?, ?>>();
 	private final Sort sort = new Sort();
 
 	boolean isLoaded(String fileName, FileType fileType) {
@@ -288,6 +287,10 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	private <T> void startTask(AssetLoadingTask<?, T> task) {
 		allTasks.put(task.assetId, task);
+		addToAsyncQueue(task);
+	}
+
+	private <T> void addToAsyncQueue(AssetLoadingTask<?, T> task) {
 		asyncQueue.add(task);
 		sort.sort(asyncQueue);
 		if (!executing) {
@@ -298,13 +301,13 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	boolean update() {
 		synchronized (mutex) {
-			for (int i = 0; i < finishedQueue.size; i++) {
-				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
+			for (int i = 0; i < syncQueue.size; i++) {
+				AssetLoadingTask<?, ?> task = syncQueue.get(i);
 				allTasks.remove(task.assetId);
 				task.update();
 				finishTask(task);
 			}
-			finishedQueue.clear();
+			syncQueue.clear();
 			return allTasks.size == 0;
 		}
 	}
@@ -388,22 +391,17 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	void taskStateChanged(AssetLoadingTask<?, ?> task) {
 		synchronized (mutex) {
-			switch (task.state) {
+			switch (task.phase) {
 			case waitingDependencies:
-				waitingQueue.add(task);
 				return;
-			case asyncLoading:
-				asyncQueue.add(task);
-				if (!executing) {
-					executing = true;
-					executor.submit(this);
-				}
+			case async:
+				addToAsyncQueue(task);
 				return;
-			case syncLoading:
-				finishedQueue.add(task);
+			case sync:
+				syncQueue.add(task);
 				return;
 			case finished:
-				finishedQueue.add(task);
+				syncQueue.add(task);
 				return;
 			default:
 				task.onException(new IllegalStateException("Invalid loading state."));

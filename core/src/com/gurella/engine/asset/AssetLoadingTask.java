@@ -1,10 +1,10 @@
 package com.gurella.engine.asset;
 
-import static com.gurella.engine.asset.AssetLoadingState.asyncLoading;
-import static com.gurella.engine.asset.AssetLoadingState.finished;
-import static com.gurella.engine.asset.AssetLoadingState.ready;
-import static com.gurella.engine.asset.AssetLoadingState.syncLoading;
-import static com.gurella.engine.asset.AssetLoadingState.waitingDependencies;
+import static com.gurella.engine.asset.AssetLoadingPhase.async;
+import static com.gurella.engine.asset.AssetLoadingPhase.finished;
+import static com.gurella.engine.asset.AssetLoadingPhase.ready;
+import static com.gurella.engine.asset.AssetLoadingPhase.sync;
+import static com.gurella.engine.asset.AssetLoadingPhase.waitingDependencies;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
@@ -43,7 +43,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	AssetLoader<A, T, AssetProperties> loader;
 	AssetProperties properties;
 
-	volatile AssetLoadingState state = ready;
+	volatile AssetLoadingPhase phase = ready;
 	volatile float progress = 0;
 
 	A asyncData;
@@ -88,7 +88,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 				proceed = step();
 			} catch (Exception exception) {
 				this.exception = exception;
-				state = finished;
+				phase = finished;
 				proceed = false;
 			} finally {
 				// TODO handle exceptions
@@ -98,39 +98,39 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	private boolean step() {
-		switch (state) {
+		switch (phase) {
 		case ready:
-			state = start();
-			return state != waitingDependencies;
-		case asyncLoading:
+			phase = start();
+			return phase != waitingDependencies;
+		case async:
 			properties = getProperties();
 			asyncData = loader.processAsync(this, file, asyncData, properties);
-			state = syncLoading;
+			phase = sync;
 			return false;
-		case syncLoading:
+		case sync:
 			asset = loader.finish(this, file, asyncData, properties);
 			if (asset instanceof Bundle) {
 				((Bundle) asset).getBundledAssets(bundledAssets);
 			}
-			state = finished;
+			phase = finished;
 			return true;
 		case finished:
 			finish();
 			return false;
 		default:
 			this.exception = new IllegalStateException("Invalid loading state.");
-			state = finished;
+			phase = finished;
 			return false;
 		}
 	}
 
-	private AssetLoadingState start() {
+	private AssetLoadingPhase start() {
 		asyncData = loader.init(this, file);
 		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
 			//TODO addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
-		return allDependenciesResolved() ? asyncLoading : waitingDependencies;
+		return allDependenciesResolved() ? async : waitingDependencies;
 	}
 
 	private FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
@@ -151,7 +151,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
-			if (dependency instanceof AssetLoadingTask && ((AssetLoadingTask<?, ?>) dependency).state != finished) {
+			if (dependency instanceof AssetLoadingTask && ((AssetLoadingTask<?, ?>) dependency).phase != finished) {
 				return false;
 			}
 		}
@@ -182,14 +182,14 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	private float calculateProgress() {
-		switch (state) {
+		switch (phase) {
 		case ready:
 			return 0;
 		case waitingDependencies:
 			return 0.8f * getDepProgress();
-		case asyncLoading:
+		case async:
 			return 0.8f;
-		case syncLoading:
+		case sync:
 			return 0.9f;
 		case finished:
 			return 1;
@@ -331,8 +331,8 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	@Override
 	public void onSuccess(Object value) {
-		if (state == waitingDependencies && allDependenciesResolved()) {
-			state = asyncLoading;
+		if (phase == waitingDependencies && allDependenciesResolved()) {
+			phase = async;
 			manager.taskStateChanged(this);
 			updateProgress();
 		} else {
@@ -342,9 +342,9 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	@Override
 	public void onException(Throwable exception) {
-		if (state != finished && this.exception == null) {
+		if (phase != finished && this.exception == null) {
 			this.exception = exception == null ? new RuntimeException("propagated exception is null") : exception;
-			state = finished;
+			phase = finished;
 			notifyExceptionOnDependencies();
 			manager.taskStateChanged(this);
 			updateProgress();
@@ -396,7 +396,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		exception = null;
 		priority = 0;
 		requestId = 0;
-		state = ready;
+		phase = ready;
 		progress = 0;
 		assetId.reset();
 		callback.reset();
