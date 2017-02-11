@@ -21,6 +21,8 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Values;
 
 class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
@@ -126,7 +128,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		asyncData = loader.init(this, file);
 		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
-			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
+			//TODO addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
 		return allDependenciesResolved() ? asyncLoading : waitingDependencies;
 	}
@@ -161,6 +163,12 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		if (exception == null) {
 			callback.onSuccess(asset);
 		} else {
+			if (asset instanceof Poolable) {
+				PoolService.free(asset);
+			} else {
+				DisposablesService.tryDispose(asset);
+			}
+
 			callback.onException(exception);
 		}
 	}
@@ -325,8 +333,8 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	public void onSuccess(Object value) {
 		if (state == waitingDependencies && allDependenciesResolved()) {
 			state = asyncLoading;
-			updateProgress();
 			manager.taskStateChanged(this);
+			updateProgress();
 		} else {
 			updateProgress();
 		}
@@ -334,11 +342,28 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 	@Override
 	public void onException(Throwable exception) {
-		if (this.exception == null) {
+		if (state != finished && this.exception == null) {
 			this.exception = exception == null ? new RuntimeException("propagated exception is null") : exception;
 			state = finished;
-			updateProgress();
+			notifyExceptionOnDependencies();
 			manager.taskStateChanged(this);
+			updateProgress();
+		}
+	}
+
+	private void onParentException(Throwable exception) {
+		if (callback.concurrentCallbacks.size == 0) {
+			onException(exception);
+		}
+	}
+
+	private void notifyExceptionOnDependencies() {
+		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
+			Dependency<?> dependency = entry.value;
+			if (dependency instanceof AssetLoadingTask) {
+				AssetLoadingTask<?, ?> dependencyTask = (AssetLoadingTask<?, ?>) dependency;
+				dependencyTask.onParentException(exception);
+			}
 		}
 	}
 

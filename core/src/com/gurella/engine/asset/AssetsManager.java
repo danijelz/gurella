@@ -1,7 +1,5 @@
 package com.gurella.engine.asset;
 
-import static com.gurella.engine.asset.AssetLoadingState.finished;
-
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
@@ -300,7 +298,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	boolean update() {
 		synchronized (mutex) {
-			for (int i = 0, n = finishedQueue.size; i < n; i++) {
+			for (int i = 0; i < finishedQueue.size; i++) {
 				AssetLoadingTask<?, ?> task = finishedQueue.get(i);
 				allTasks.remove(task.assetId);
 				task.update();
@@ -324,7 +322,10 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 		Entries<AssetId, Dependency<?>> entries = task.getDependencies();
 		for (Entry<AssetId, Dependency<?>> entry : entries) {
-			registry.unreserve(entry.value.getAssetId());
+			Dependency<?> dependency = entry.value;
+			if (dependency instanceof AssetSlot) {
+				registry.unreserve(dependency.getAssetId());
+			}
 		}
 
 		if (task.isRoot()) {
@@ -393,6 +394,10 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 				return;
 			case asyncLoading:
 				asyncQueue.add(task);
+				if (!executing) {
+					executing = true;
+					executor.submit(this);
+				}
 				return;
 			case syncLoading:
 				finishedQueue.add(task);

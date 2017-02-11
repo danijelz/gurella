@@ -836,11 +836,11 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 			value.next = null;
 			value.prev = null;
 			value.parent = null;
-			value.name = null;
 		}
 
 		void reset() {
-			freeAll(obtainedValues);
+			//TODO freeAll(obtainedValues);
+			obtainedValues.clear();
 		}
 	}
 }
