@@ -53,8 +53,10 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		comboViewer.setInput(constants);
 
 		P value = getValue();
-		final ISelection selection = new StructuredSelection(value);
-		comboViewer.setSelection(selection);
+		if (value != null) {
+			final ISelection selection = new StructuredSelection(value);
+			comboViewer.setSelection(selection);
+		}
 
 		combo.addListener(SWT.Selection, e -> selectionChanged());
 		getToolkit().adapt(content);

@@ -237,26 +237,27 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 	}
 
 	<T> T load(String fileName, FileType fileType, Class<T> assetType) {
+		SimpleAsyncCallback<T> callback;
 		synchronized (mutex) {
 			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
 			if (asset != null) {
 				return asset;
 			}
 
-			SimpleAsyncCallback<T> callback = SimpleAsyncCallback.obtain();
+			callback = SimpleAsyncCallback.obtain();
 			load(callback, fileName, fileType, assetType, Integer.MAX_VALUE);
+		}
 
-			while (!callback.isDone()) {
-				update();
-				ThreadUtils.yield();
-			}
+		while (!callback.isDone()) {
+			update();
+			ThreadUtils.yield();
+		}
 
-			if (callback.isFailed()) {
-				tempAssetId.set(fileName, fileType, assetType);
-				throw new RuntimeException("Error loading asset " + tempAssetId, callback.getExceptionAndFree());
-			} else {
-				return callback.getValueAndFree();
-			}
+		if (callback.isFailed()) {
+			tempAssetId.set(fileName, fileType, assetType);
+			throw new RuntimeException("Error loading asset " + tempAssetId, callback.getExceptionAndFree());
+		} else {
+			return callback.getValueAndFree();
 		}
 	}
 

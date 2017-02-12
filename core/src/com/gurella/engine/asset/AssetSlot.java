@@ -25,17 +25,12 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 	final ObjectSet<AssetId> dependents = new ObjectSet<AssetId>();
 	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 
-	void init(AssetId assetId, T asset, boolean sticky, int references, int reservations,
-			ObjectIntMap<AssetId> dependencies) {
+	void init(AssetId assetId, T asset, boolean sticky, int references, int reservations) {
 		this.assetId.set(assetId);
 		this.asset = asset;
 		this.sticky = sticky;
 		this.references = references;
 		this.reservations += reservations;
-
-		if (dependencies != null && dependencies.size > 0) {
-			this.dependencies.putAll(dependencies);
-		}
 
 		if (asset instanceof Bundle) {
 			((Bundle) asset).getBundledAssets(bundledAssets);
@@ -72,8 +67,8 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 		return getActivity();
 	}
 
-	DependencyActivity incDependencyCount(AssetId id) {
-		int current = dependencies.getAndIncrement(id, 0, 1);
+	DependencyActivity incDependencyCount(AssetId id, int count) {
+		int current = dependencies.getAndIncrement(id, 0, count);
 		return current == 0 ? fresh : steady;
 	}
 

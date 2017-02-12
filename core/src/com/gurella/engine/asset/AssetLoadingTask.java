@@ -128,7 +128,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		asyncData = loader.init(this, file);
 		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
 		if (propsHandle != null) {
-			//TODO addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
+			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
 		return allDependenciesResolved() ? async : waitingDependencies;
 	}

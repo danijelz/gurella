@@ -69,6 +69,7 @@ public class InspectorView extends DockableView implements EditorSelectionListen
 	}
 
 	private void presentException(Throwable e) {
+		GurellaStudioPlugin.log(e, "Error creating inspector.");
 		UiUtils.disposeChildren(getContent());
 		target = e;
 		content = new ErrorInspectableContainer(this, e);

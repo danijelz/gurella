@@ -12,8 +12,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
-import com.badlogic.gdx.utils.IdentityMap.Entries;
-import com.badlogic.gdx.utils.IdentityMap.Entry;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -30,7 +28,7 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 
 class AssetRegistry implements Disposable {
-	private final IdentityMap<AssetId, AssetSlot<?>> slotsById = new IdentityMap<AssetId, AssetSlot<?>>();
+	private final ObjectMap<AssetId, AssetSlot<?>> slotsById = new ObjectMap<AssetId, AssetSlot<?>>();
 	private final IdentityMap<Object, AssetId> idsByAsset = new IdentityMap<Object, AssetId>();
 	private final IdentityMap<Object, Bundle> assetBundle = new IdentityMap<Object, Bundle>();
 
@@ -157,11 +155,20 @@ class AssetRegistry implements Disposable {
 		}
 
 		AssetSlot<T> slot = assetSlotPool.obtainSlot();
-		slot.init(tempId, asset, sticky, references, reservations, dependencies);
+		slot.init(tempId, asset, sticky, references, reservations);
 		AssetId assetId = slot.assetId;
 
 		idsByAsset.put(asset, assetId);
 		slotsById.put(assetId, slot);
+
+		if (dependencies != null && dependencies.size > 0) {
+			for (ObjectIntMap.Entry<AssetId> entry : dependencies.entries()) {
+				int count = entry.value;
+				if (count > 0) {
+					incDependencyCount(assetId, slot, slotsById.get(entry.key), count);
+				}
+			}
+		}
 
 		if (asset instanceof Bundle) {
 			ObjectMap<String, Object> bundledAssets = slot.bundledAssets;
@@ -175,6 +182,13 @@ class AssetRegistry implements Disposable {
 		}
 
 		assetLoadedEvent.post(assetId, asset);
+	}
+
+	private static void incDependencyCount(AssetId id, AssetSlot<?> slot, AssetSlot<?> dependencySlot, int count) {
+		AssetId dependencyId = dependencySlot.assetId;
+		if (slot.incDependencyCount(dependencyId, count) == fresh) {
+			dependencySlot.addDependent(id);
+		}
 	}
 
 	<T> Dependency<T> reserve(AssetId assetId) {
@@ -195,8 +209,8 @@ class AssetRegistry implements Disposable {
 
 	boolean removeAll(String fileName, FileType fileType) {
 		boolean removed = false;
-		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
-			Entry<AssetId, AssetSlot<?>> entry = iter.next();
+		for (ObjectMap.Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
+			ObjectMap.Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			if (assetId.equalsFile(fileName, fileType)) {
 				AssetSlot<?> slot = entry.value;
@@ -254,7 +268,7 @@ class AssetRegistry implements Disposable {
 
 	private void incDependencyCount(AssetId id, AssetSlot<?> slot, Object dependency) {
 		AssetId dependencyId = idsByAsset.get(dependency);
-		if (slot.incDependencyCount(dependencyId) == fresh) {
+		if (slot.incDependencyCount(dependencyId, 1) == fresh) {
 			AssetSlot<?> dependencySlot = slotsById.get(idsByAsset.get(dependency));
 			dependencySlot.addDependent(id);
 		}
@@ -426,8 +440,8 @@ class AssetRegistry implements Disposable {
 	}
 
 	private void removeAll() {
-		for (Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
-			Entry<AssetId, AssetSlot<?>> entry = iter.next();
+		for (ObjectMap.Entries<AssetId, AssetSlot<?>> iter = slotsById.entries(); iter.hasNext;) {
+			ObjectMap.Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			AssetSlot<?> slot = entry.value;
 			iter.remove();
@@ -450,7 +464,7 @@ class AssetRegistry implements Disposable {
 	// TODO unused
 	String getDiagnostics() {
 		StringBuilder builder = new StringBuilder();
-		for (Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {
+		for (ObjectMap.Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {
 			String fileName = entry.key.fileName;
 			AssetSlot<?> info = entry.value;
 
@@ -464,7 +478,8 @@ class AssetRegistry implements Disposable {
 				builder.append(", dependencies: [");
 				Keys<AssetId> dependencies = info.dependencies.keys();
 				for (Iterator<AssetId> iter = dependencies.iterator(); iter.hasNext();) {
-					builder.append(iter.next().fileName);
+					AssetId dependencyId = iter.next();
+					builder.append(dependencyId.fileName + " [" + info.dependencies.get(dependencyId, -1) + "]");
 					if (iter.hasNext()) {
 						builder.append(",");
 					}
