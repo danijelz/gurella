@@ -87,12 +87,8 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		return load(getAssetsRelativePath(assetFile).toString());
 	}
 
-	public <T> T loadAssetProperties(IFile assetFile, Class<?> assetType) {
+	public <T> T loadAssetProperties(IFile assetFile) {
 		String assetFileName = getAssetsRelativePath(assetFile).toString();
-		if (!Assets.hasProperties(assetFileName, assetType)) {
-			return null;
-		}
-
 		String propertiesFileName = Assets.toPropertiesFileName(assetFileName);
 		return GdxContext.fileExists(editorId, propertiesFileName, FileType.Internal) ? load(propertiesFileName) : null;
 	}

@@ -6,25 +6,26 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class PixmapLoader implements AssetLoader<Pixmap, Pixmap, PixmapProperties> {
+public class PixmapLoader implements AssetLoader<Pixmap, PixmapProperties> {
+	private Pixmap pixmap;
+
 	@Override
 	public Class<PixmapProperties> getPropertiesType() {
 		return PixmapProperties.class;
 	}
 
 	@Override
-	public Pixmap init(DependencyCollector collector, FileHandle assetFile) {
-		return new Pixmap(assetFile);
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+
 	}
 
 	@Override
-	public Pixmap processAsync(DependencySupplier provider, FileHandle file, Pixmap asyncData,
-			PixmapProperties properties) {
-		return asyncData;
+	public void processAsync(DependencySupplier provider, FileHandle file, PixmapProperties properties) {
+		pixmap = new Pixmap(file);
 	}
 
 	@Override
-	public Pixmap finish(DependencySupplier provider, FileHandle file, Pixmap asyncData, PixmapProperties properties) {
-		return asyncData;
+	public Pixmap finish(DependencySupplier provider, FileHandle file, PixmapProperties properties) {
+		return pixmap;
 	}
 }

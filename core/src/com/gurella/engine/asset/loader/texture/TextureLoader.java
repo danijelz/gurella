@@ -7,8 +7,10 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class TextureLoader implements AssetLoader<TextureData, Texture, TextureProperties> {
+public class TextureLoader implements AssetLoader<Texture, TextureProperties> {
 	private static final TextureProperties defaultProperties = new TextureProperties();
+
+	private TextureData textureData;
 
 	@Override
 	public Class<TextureProperties> getPropertiesType() {
@@ -16,25 +18,29 @@ public class TextureLoader implements AssetLoader<TextureData, Texture, TextureP
 	}
 
 	@Override
-	public TextureData init(DependencyCollector collector, FileHandle assetFile) {
-		return null;
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 	}
 
 	@Override
-	public TextureData processAsync(DependencySupplier provider, FileHandle file, TextureData asyncData,
-			TextureProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle file, TextureProperties properties) {
 		TextureProperties resolved = properties == null ? defaultProperties : properties;
-		TextureData textureData = TextureData.Factory.loadFromFile(file, resolved.format, resolved.generateMipMaps);
+		textureData = TextureData.Factory.loadFromFile(file, resolved.format, resolved.generateMipMaps);
 		if (!textureData.isPrepared()) {
 			textureData.prepare();
 		}
-		return textureData;
 	}
 
 	@Override
-	public Texture finish(DependencySupplier provider, FileHandle file, TextureData asyncData,
-			TextureProperties properties) {
-		Texture texture = new Texture(asyncData);
+	public Texture finish(DependencySupplier provider, FileHandle file, TextureProperties properties) {
+		try {
+			return createTexture(properties);
+		} finally {
+			textureData = null;
+		}
+	}
+
+	private Texture createTexture(TextureProperties properties) {
+		Texture texture = new Texture(textureData);
 		if (properties != null) {
 			texture.setFilter(properties.minFilter, properties.magFilter);
 			texture.setWrap(properties.wrapU, properties.wrapV);

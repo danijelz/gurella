@@ -33,6 +33,8 @@ import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.factory.Factory;
+import com.gurella.engine.utils.factory.ReflectionFactory;
 
 public class DefaultAssetDescriptors {
 	//@formatter:off
@@ -44,17 +46,17 @@ public class DefaultAssetDescriptors {
 	public static final AssetDescriptor<MaterialDescriptor> material = createSerialized(MaterialDescriptor.class, "gmat");
 	public static final AssetDescriptor<ApplicationConfig> appConfig = createSerialized(ApplicationConfig.class, "gcfg");
 	public static final AssetDescriptor<AssetProperties> assetProps = createSerialized(AssetProperties.class, "gprop");
-	public static final AssetDescriptor<RenderTarget> renderTarget = create(RenderTarget.class, true, true, new RenderTargetLoader(), "grt");
+	public static final AssetDescriptor<RenderTarget> renderTarget = create(RenderTarget.class, true, true, RenderTargetLoader.class, "grt");
 
-	public static final AssetDescriptor<Texture> texture = create(Texture.class, false, false, new TextureLoader(), "png", "jpg", "jpeg");
-	public static final AssetDescriptor<TextureAtlas> textureAtlas = create(TextureAtlas.class, false, false, new TextureAtlasLoader(), "atl");
-	public static final AssetDescriptor<Cubemap> cubemap = create(Cubemap.class, false, false, new CubemapLoader(), "ktx", "zktx");
-	public static final AssetDescriptor<BitmapFont> bitmapFont = create(BitmapFont.class, false, false, new BitmapFontLoader(), "fnt");
-	public static final AssetDescriptor<I18NBundle> i18NBundle = create(I18NBundle.class, false, false, new I18NBundleLoader(), "i18n");
-	public static final AssetDescriptor<Sound> sound = create(Sound.class, false, false, new SoundLoader(), "wav", "ogg", "mp3");
-	public static final AssetDescriptor<Music> music = create(Music.class, false, false, new MusicLoader(), "wav", "ogg", "mp3");
-	public static final AssetDescriptor<Pixmap> pixmap = create(Pixmap.class, false, false, new PixmapLoader(), "png", "bmp", "jpg", "jpeg");
-	public static final AssetDescriptor<PolygonRegion> polygonRegion = create(PolygonRegion.class, false, false, new PolygonRegionLoader(), "psh");
+	public static final AssetDescriptor<Texture> texture = create(Texture.class, false, false, TextureLoader.class, "png", "jpg", "jpeg");
+	public static final AssetDescriptor<TextureAtlas> textureAtlas = create(TextureAtlas.class, false, false, TextureAtlasLoader.class, "atl");
+	public static final AssetDescriptor<Cubemap> cubemap = create(Cubemap.class, false, false, CubemapLoader.class, "ktx", "zktx");
+	public static final AssetDescriptor<BitmapFont> bitmapFont = create(BitmapFont.class, false, false, BitmapFontLoader.class, "fnt");
+	public static final AssetDescriptor<I18NBundle> i18NBundle = create(I18NBundle.class, false, false, I18NBundleLoader.class, "i18n");
+	public static final AssetDescriptor<Sound> sound = create(Sound.class, false, false, SoundLoader.class, "wav", "ogg", "mp3");
+	public static final AssetDescriptor<Music> music = create(Music.class, false, false, MusicLoader.class, "wav", "ogg", "mp3");
+	public static final AssetDescriptor<Pixmap> pixmap = create(Pixmap.class, false, false, PixmapLoader.class, "png", "bmp", "jpg", "jpeg");
+	public static final AssetDescriptor<PolygonRegion> polygonRegion = create(PolygonRegion.class, false, false, PolygonRegionLoader.class, "psh");
 	public static final AssetDescriptor<Model> model = createModelDescriptor();
 	//@formatter:on
 
@@ -76,22 +78,48 @@ public class DefaultAssetDescriptors {
 	}
 
 	private static <T> AssetDescriptor<T> createSerialized(Class<T> type, String extension) {
-		return create(type, true, true, new SelializedJsonLoader<T>(type), extension);
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(type, true, true);
+		descriptor.registerLoaderFactory(new SelializedJsonLoaderFactory<T>(type), extension);
+		_descriptors.add(descriptor);
+		return descriptor;
 	}
 
-	private static <T> AssetDescriptor<T> create(Class<T> assetType, boolean subtypes, boolean references,
-			AssetLoader<?, T, ? extends AssetProperties> loader, String... extensions) {
-		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, subtypes, references, loader, extensions);
+	private static <T, L extends AssetLoader<T, ? extends AssetProperties>> AssetDescriptor<T> create(
+			Class<T> assetType, boolean subtypes, boolean references, Class<L> loaderType, String extension) {
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, subtypes, references);
+		descriptor.registerLoaderFactory(new ReflectionFactory<L>(loaderType), extension);
+		_descriptors.add(descriptor);
+		return descriptor;
+	}
+
+	private static <T, L extends AssetLoader<T, ? extends AssetProperties>> AssetDescriptor<T> create(
+			Class<T> assetType, boolean subtypes, boolean references, Class<L> loaderType, String... extensions) {
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(assetType, subtypes, references);
+		descriptor.registerLoaderFactory(new ReflectionFactory<L>(loaderType), extensions);
 		_descriptors.add(descriptor);
 		return descriptor;
 	}
 
 	private static AssetDescriptor<Model> createModelDescriptor() {
 		AssetDescriptor<Model> descriptor = new AssetDescriptor<Model>(Model.class, false, false);
-		descriptor.registerLoader(new ObjModelLoader(), "obj");
-		descriptor.registerLoader(new JsonG3dModelLoader(), "g3dj");
-		descriptor.registerLoader(new UbJsonG3dModelLoader(), "g3db");
+		descriptor.registerLoaderFactory(new ReflectionFactory<ObjModelLoader>(ObjModelLoader.class), "obj");
+		descriptor.registerLoaderFactory(new ReflectionFactory<JsonG3dModelLoader>(JsonG3dModelLoader.class), "g3dj");
+		descriptor.registerLoaderFactory(new ReflectionFactory<UbJsonG3dModelLoader>(UbJsonG3dModelLoader.class),
+				"g3db");
 		_descriptors.add(descriptor);
 		return descriptor;
+	}
+
+	private static class SelializedJsonLoaderFactory<T> implements Factory<SelializedJsonLoader<T>> {
+		private final Class<T> expectedType;
+
+		SelializedJsonLoaderFactory(Class<T> expectedType) {
+			this.expectedType = expectedType;
+		}
+
+		@Override
+		public SelializedJsonLoader<T> create() {
+			return new SelializedJsonLoader<T>(expectedType);
+		}
 	}
 }

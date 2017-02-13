@@ -12,9 +12,8 @@ public class RenderTargetLoader extends SelializedJsonLoader<RenderTarget> {
 	}
 
 	@Override
-	public RenderTarget finish(DependencySupplier provider, FileHandle file, RenderTarget asyncData,
-			SelializedJsonProperties properties) {
-		RenderTarget renderTarget = super.finish(provider, file, asyncData, properties);
+	public RenderTarget finish(DependencySupplier provider, FileHandle file, SelializedJsonProperties properties) {
+		RenderTarget renderTarget = super.finish(provider, file, properties);
 		renderTarget.init();
 		return renderTarget;
 	}

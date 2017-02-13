@@ -12,51 +12,51 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class TextureAtlasLoader implements AssetLoader<TextureAtlasData, TextureAtlas, TextureAtlasProperties> {
+public class TextureAtlasLoader implements AssetLoader<TextureAtlas, TextureAtlasProperties> {
+	private TextureAtlasData textureAtlasData;
+
 	@Override
 	public Class<TextureAtlasProperties> getPropertiesType() {
 		return TextureAtlasProperties.class;
 	}
 
 	@Override
-	public TextureAtlasData init(DependencyCollector collector, FileHandle assetFile) {
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		FileHandle imgDir = assetFile.parent();
-		TextureAtlasData data = new TextureAtlasData(assetFile, imgDir, false);
+		textureAtlasData = new TextureAtlasData(assetFile, imgDir, false);
 
 		FileType fileType = assetFile.type();
-		Array<Page> pages = data.getPages();
+		Array<Page> pages = textureAtlasData.getPages();
 		for (int i = 0, n = pages.size; i < n; i++) {
 			Page page = pages.get(i);
 			collector.addDependency(page.textureFile.path(), fileType, Texture.class);
 		}
-
-		return data;
 	}
 
 	@Override
-	public TextureAtlasData processAsync(DependencySupplier provider, FileHandle file, TextureAtlasData asyncData,
-			TextureAtlasProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle file, TextureAtlasProperties properties) {
 		FileType fileType = file.type();
-		Array<Page> pages = asyncData.getPages();
+		Array<Page> pages = textureAtlasData.getPages();
 		for (int i = 0, n = pages.size; i < n; i++) {
 			Page page = pages.get(i);
 			page.texture = provider.getDependency(page.textureFile.path(), fileType, Texture.class, null);
 		}
 
 		if (properties != null && properties.flip) {
-			Array<Region> regions = asyncData.getRegions();
+			Array<Region> regions = textureAtlasData.getRegions();
 			for (int i = 0, n = regions.size; i < n; i++) {
 				Region region = regions.get(i);
 				region.flip = true;
 			}
 		}
-
-		return asyncData;
 	}
 
 	@Override
-	public TextureAtlas finish(DependencySupplier provider, FileHandle file, TextureAtlasData asyncData,
-			TextureAtlasProperties properties) {
-		return new TextureAtlas(asyncData);
+	public TextureAtlas finish(DependencySupplier provider, FileHandle file, TextureAtlasProperties properties) {
+		try {
+			return new TextureAtlas(textureAtlasData);
+		} finally {
+			textureAtlasData = null;
+		}
 	}
 }

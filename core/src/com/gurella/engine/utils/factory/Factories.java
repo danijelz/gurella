@@ -1,4 +1,4 @@
-package com.gurella.engine.factory;
+package com.gurella.engine.utils.factory;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Reflection;

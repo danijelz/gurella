@@ -10,10 +10,10 @@ import com.badlogic.gdx.utils.ReflectionPool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.async.AsyncService;
-import com.gurella.engine.factory.Factories;
-import com.gurella.engine.factory.Factory;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.factory.Factories;
+import com.gurella.engine.utils.factory.Factory;
 import com.gurella.engine.utils.priority.Priority;
 
 //TODO factory pools, 

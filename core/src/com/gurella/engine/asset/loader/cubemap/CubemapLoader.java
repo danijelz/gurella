@@ -8,8 +8,10 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class CubemapLoader implements AssetLoader<CubemapData, Cubemap, CubemapProperties> {
+public class CubemapLoader implements AssetLoader<Cubemap, CubemapProperties> {
 	private static final CubemapProperties defaultProperties = new CubemapProperties();
+
+	private CubemapData cubemapData;
 
 	@Override
 	public Class<CubemapProperties> getPropertiesType() {
@@ -17,25 +19,29 @@ public class CubemapLoader implements AssetLoader<CubemapData, Cubemap, CubemapP
 	}
 
 	@Override
-	public CubemapData init(DependencyCollector collector, FileHandle assetFile) {
-		return null;
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 	}
 
 	@Override
-	public CubemapData processAsync(DependencySupplier provider, FileHandle file, CubemapData asyncData,
-			CubemapProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle file, CubemapProperties properties) {
 		CubemapProperties resolved = properties == null ? defaultProperties : properties;
-		CubemapData data = new KTXTextureData(file, resolved.genMipMaps);
-		if (!data.isPrepared()) {
-			data.prepare();
+		cubemapData = new KTXTextureData(file, resolved.genMipMaps);
+		if (!cubemapData.isPrepared()) {
+			cubemapData.prepare();
 		}
-		return data;
 	}
 
 	@Override
-	public Cubemap finish(DependencySupplier provider, FileHandle file, CubemapData asyncData,
-			CubemapProperties properties) {
-		Cubemap cubemap = new Cubemap(asyncData);
+	public Cubemap finish(DependencySupplier provider, FileHandle file, CubemapProperties properties) {
+		try {
+			return createCubemap(properties);
+		} finally {
+			cubemapData = null;
+		}
+	}
+
+	private Cubemap createCubemap(CubemapProperties properties) {
+		Cubemap cubemap = new Cubemap(cubemapData);
 		if (properties != null) {
 			cubemap.setFilter(properties.minFilter, properties.magFilter);
 			cubemap.setWrap(properties.wrapU, properties.wrapV);

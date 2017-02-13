@@ -123,7 +123,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private ModelProperties getProperties(IFile target) {
-		ModelProperties persistedProperties = editorContext.loadAssetProperties(target, Model.class);
+		ModelProperties persistedProperties = editorContext.loadAssetProperties(target);
 		if (persistedProperties != null) {
 			return persistedProperties;
 		}

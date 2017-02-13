@@ -2,12 +2,12 @@ package com.gurella.engine.asset.loader;
 
 import com.badlogic.gdx.files.FileHandle;
 
-public interface AssetLoader<ASYNC, TYPE, PROPS extends AssetProperties> {
+public interface AssetLoader<TYPE, PROPS extends AssetProperties> {
 	Class<PROPS> getPropertiesType();
 
-	ASYNC init(DependencyCollector collector, FileHandle assetFile);
+	void initDependencies(DependencyCollector collector, FileHandle assetFile);
 
-	ASYNC processAsync(DependencySupplier supplier, FileHandle assetFile, ASYNC asyncData, PROPS properties);
+	void processAsync(DependencySupplier supplier, FileHandle assetFile, PROPS properties);
 
-	TYPE finish(DependencySupplier supplier, FileHandle assetFile, ASYNC asyncData, PROPS properties);
+	TYPE finish(DependencySupplier supplier, FileHandle assetFile, PROPS properties);
 }

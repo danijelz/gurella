@@ -6,9 +6,7 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
-import com.gurella.engine.asset.loader.AssetLoader;
 
 public class Assets {
 	public static final String filePathDelimiters = "\\/";
@@ -47,11 +45,6 @@ public class Assets {
 
 	public static String toPropertiesFileName(String assetFileName) {
 		return assetFileName + '.' + DefaultAssetDescriptors.assetProps.getSingleExtension();
-	}
-
-	public static boolean hasProperties(String assetFileName, Class<?> assetType) {
-		AssetLoader<?, ?, ?> loader = AssetDescriptors.getLoader(assetFileName, assetType);
-		return loader != null && loader.getPropertiesType() != null;
 	}
 
 	public static boolean fileExists(String fileName, FileType fileType) {

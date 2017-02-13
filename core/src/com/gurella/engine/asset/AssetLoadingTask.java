@@ -21,12 +21,10 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Values;
 
-class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
-		Comparable<AssetLoadingTask<?, ?>>, Poolable {
+class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
+		Comparable<AssetLoadingTask<?>>, Poolable {
 	private static int requestSequence = Integer.MIN_VALUE;
 
 	int priority;
@@ -35,18 +33,18 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	final AssetId assetId = new AssetId();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
 
-	AssetLoadingTask<?, ?> parent;
+	AssetLoadingTask<?> parent;
 
 	AssetsManager manager;
+	AssetLoadingExecutor executor;
 	FileHandle file;
 
-	AssetLoader<A, T, AssetProperties> loader;
+	AssetLoader<T, AssetProperties> loader;
 	AssetProperties properties;
 
 	volatile AssetLoadingPhase phase = ready;
 	volatile float progress = 0;
 
-	A asyncData;
 	T asset;
 	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 	Throwable exception;
@@ -56,9 +54,10 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	private final ObjectIntMap<AssetId> dependencyCount = new ObjectIntMap<AssetId>();
 	private final AssetId tempAssetId = new AssetId();
 
-	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AssetLoader<A, T, AssetProperties> loader,
+	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AssetLoader<T, AssetProperties> loader,
 			AsyncCallback<T> callback, int priority) {
 		this.manager = manager;
+		this.executor = manager.executor;
 		this.file = file;
 		this.callback.delegate = callback;
 		this.priority = priority;
@@ -68,10 +67,10 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		assetId.set(file, assetType);
 	}
 
-	void init(AssetLoadingTask<?, ?> parent, FileHandle file, Class<T> assetType,
-			AssetLoader<A, T, AssetProperties> loader) {
+	void init(AssetLoadingTask<?> parent, FileHandle file, Class<T> assetType, AssetLoader<T, AssetProperties> loader) {
 		this.parent = parent;
 		this.manager = parent.manager;
+		this.executor = manager.executor;
 		this.file = file;
 		this.callback.delegate = parent;
 		this.priority = parent.priority;
@@ -104,11 +103,11 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 			return phase != waitingDependencies;
 		case async:
 			properties = getProperties();
-			asyncData = loader.processAsync(this, file, asyncData, properties);
+			loader.processAsync(this, file, properties);
 			phase = sync;
 			return false;
 		case sync:
-			asset = loader.finish(this, file, asyncData, properties);
+			asset = loader.finish(this, file, properties);
 			if (asset instanceof Bundle) {
 				((Bundle) asset).getBundledAssets(bundledAssets);
 			}
@@ -125,16 +124,16 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	private AssetLoadingPhase start() {
-		asyncData = loader.init(this, file);
-		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType, assetId.assetType);
+		loader.initDependencies(this, file);
+		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType);
 		if (propsHandle != null) {
 			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
 		return allDependenciesResolved() ? async : waitingDependencies;
 	}
 
-	private FileHandle getPropertiesFile(String assetFileName, FileType fileType, Class<?> assetType) {
-		if (!Assets.hasProperties(assetFileName, assetType)) {
+	private FileHandle getPropertiesFile(String assetFileName, FileType fileType) {
+		if (loader.getPropertiesType() != null) {
 			return null;
 		}
 
@@ -151,7 +150,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
-			if (dependency instanceof AssetLoadingTask && ((AssetLoadingTask<?, ?>) dependency).phase != finished) {
+			if (dependency instanceof AssetLoadingTask && ((AssetLoadingTask<?>) dependency).phase != finished) {
 				return false;
 			}
 		}
@@ -201,7 +200,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		float progres = 0;
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
-			progres += dependency instanceof AssetLoadingTask ? ((AssetLoadingTask<?, ?>) dependency).progress : 1;
+			progres += dependency instanceof AssetLoadingTask ? ((AssetLoadingTask<?>) dependency).progress : 1;
 		}
 
 		return Math.min(1, progres / size);
@@ -222,7 +221,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
-				((AssetLoadingTask<?, ?>) dependency).renice(newRequestId, newPriority);
+				((AssetLoadingTask<?>) dependency).renice(newRequestId, newPriority);
 			}
 		}
 	}
@@ -327,7 +326,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	public void onSuccess(Object value) {
 		if (phase == waitingDependencies && allDependenciesResolved()) {
 			phase = async;
-			manager.taskStateChanged(this);
+			executor.taskStateChanged(this);
 			updateProgress();
 		} else {
 			updateProgress();
@@ -340,7 +339,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 			this.exception = exception == null ? new RuntimeException("propagated exception is null") : exception;
 			phase = finished;
 			notifyDependenciesAboutException();
-			manager.taskStateChanged(this);
+			executor.taskStateChanged(this);
 			updateProgress();
 		}
 	}
@@ -355,7 +354,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
-				AssetLoadingTask<?, ?> dependencyTask = (AssetLoadingTask<?, ?>) dependency;
+				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
 				dependencyTask.onParentException(exception);
 			}
 		}
@@ -372,7 +371,7 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	}
 
 	@Override
-	public int compareTo(AssetLoadingTask<?, ?> other) {
+	public int compareTo(AssetLoadingTask<?> other) {
 		int result = Values.compare(priority, other.priority);
 		return result == 0 ? Values.compare(requestId, other.requestId) : result;
 	}
@@ -381,10 +380,10 @@ class AssetLoadingTask<A, T> implements AsyncCallback<Object>, Dependency<T>, De
 	public void reset() {
 		parent = null;
 		manager = null;
+		executor = null;
 		file = null;
 		loader = null;
 		properties = null;
-		asyncData = null;
 		asset = null;
 		bundledAssets.clear();
 		exception = null;

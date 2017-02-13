@@ -4,6 +4,7 @@ import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
 import static com.gurella.engine.serialization.json.JsonSerialization.deserializeType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
@@ -46,7 +47,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private final ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
 
 	private final Array<String> dependencyPaths = new Array<String>();
-	private final Array<String> dependencyBundleIds = new Array<String>();
 	private final Array<Class<?>> dependencyTypes = new Array<Class<?>>();
 
 	private CopyContext copyContext = new CopyContext();
@@ -71,16 +71,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 			String typeName = strValue.substring(0, index++);
 			Class<Object> dependencyType = Reflection.forName(deserializeType(typeName));
 			dependencyTypes.add(dependencyType);
-
-			if (strValue.charAt(index) == '-') {
-				index += 2;
-				dependencyBundleIds.add(null);
-			} else {
-				String bundleId = strValue.substring(index, index + 32);
-				dependencyBundleIds.add(bundleId);
-				index += 33;
-			}
-
 			String dependencyPath = strValue.substring(index, strValue.length());
 			dependencyPaths.add(dependencyPath);
 			dependencyCollector.addDependency(dependencyPath, fileType, dependencyType);
@@ -220,7 +210,8 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		} else if (value.isObject()) {
 			if (dependencyType.equals(value.getString(typeTag, null))) {
 				int dependencyIndex = value.getInt(dependencyIndexTag);
-				result = getDependency(dependencyIndex);
+				String bundleId = value.getString(dependencyBundleIdTag, null);
+				result = getDependency(dependencyIndex, bundleId);
 			} else {
 				result = deserialize(value, expectedType, template);
 			}
@@ -256,11 +247,10 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		return result;
 	}
 
-	private <T> T getDependency(int index) {
+	private <T> T getDependency(int index, String bundleId) {
 		String path = dependencyPaths.get(index);
 		@SuppressWarnings("unchecked")
 		Class<T> type = (Class<T>) dependencyTypes.get(index);
-		String bundleId = dependencyBundleIds.get(index);
 		return supplier.getDependency(path, fileType, type, bundleId);
 	}
 
@@ -363,7 +353,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		references.clear();
 		referenceValues.clear();
 		dependencyPaths.clear();
-		dependencyBundleIds.clear();
 		dependencyTypes.clear();
 		copyContext.reset();
 		reader.reset();

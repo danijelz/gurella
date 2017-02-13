@@ -159,7 +159,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			Serializable<T> serializable = (Serializable<T>) instance;
 			serializable.serialize(instance, template, output);
 		} else {
-			Object resolvedTemplate = resolveTemplate(instance, template);
+			Object resolvedTemplate = resolveSerializtionTemplate(instance, template);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
@@ -168,7 +168,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 		}
 	}
 
-	private Object resolveTemplate(T instance, Object template) {
+	private Object resolveSerializtionTemplate(T instance, Object template) {
 		if (template != null) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
@@ -192,7 +192,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			return null;
 		} else {
 			T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-			Object resolvedTemplate = resolveTemplate(instance, template, input);
+			Object resolvedTemplate = resolveDeserializtionTemplate(instance, template);
 			input.pushObject(instance);
 			if (instance instanceof Serializable) {
 				@SuppressWarnings("unchecked")
@@ -210,7 +210,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 		}
 	}
 
-	private Object resolveTemplate(T instance, Object template, Input input) {
+	private Object resolveDeserializtionTemplate(T instance, Object template) {
 		if (instance instanceof ManagedObject && ((ManagedObject) instance).getPrefab() != null) {
 			return ((ManagedObject) instance).getPrefab();
 		} else if (template != null) {

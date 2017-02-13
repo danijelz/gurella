@@ -10,6 +10,7 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.factory.Factory;
 
 public class AssetDescriptors {
 	private static final ObjectMap<Class<?>, AssetDescriptor<?>> descriptorByType = new ObjectMap<Class<?>, AssetDescriptor<?>>();
@@ -76,13 +77,13 @@ public class AssetDescriptors {
 		resolvedDescriptors.clear();
 	}
 
-	public static <T> void registerLoader(Class<T> assetType, AssetLoader<?, T, ? extends AssetProperties> loader,
-			String... extensions) {
+	public static <T> void registerLoaderFactory(Class<T> assetType,
+			Factory<AssetLoader<T, ? extends AssetProperties>> loaderFactory, String... extensions) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
 		if (descriptor == null) {
 			throw new IllegalArgumentException("assetType " + assetType.getName() + " not registered.");
 		}
-		descriptor.registerLoader(loader, extensions);
+		descriptor.registerLoaderFactory(loaderFactory, extensions);
 
 		for (int i = 0; i < extensions.length; i++) {
 			String extension = extensions[i];
@@ -98,27 +99,28 @@ public class AssetDescriptors {
 		}
 	}
 
-	public <T> AssetLoader<?, T, ? extends AssetProperties> getLoader(final Class<T> assetType) {
-		return getLoader(null, assetType);
+	public <T, P extends AssetProperties> Factory<AssetLoader<T, P>> getLoaderFactory(final Class<T> assetType) {
+		return getLoaderFactory(null, assetType);
 	}
 
-	public static <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName, final Class<T> assetType) {
+	public static <T, P extends AssetProperties> Factory<AssetLoader<T, P>> getLoaderFactory(final String fileName,
+			final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
-		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
+		return descriptor == null ? null : descriptor.<P> getLoaderFactory(fileName);
 	}
 
-	public static <A, T> AssetLoader<A, T, AssetProperties> getLoader(final String fileName) {
+	public static <T, P extends AssetProperties> Factory<AssetLoader<T, P>> getLoaderFactory(final String fileName) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(fileName);
-		return descriptor == null ? null : descriptor.<A> getLoader(fileName);
+		return descriptor == null ? null : descriptor.<P> getLoaderFactory(fileName);
 	}
 
-	public <T> AssetPersister<T> getPersister(final Class<T> assetType) {
-		return getPersister(null, assetType);
+	public <T> Factory<AssetPersister<T>> getPersisterFactory(final Class<T> assetType) {
+		return getPersisterFactory(null, assetType);
 	}
 
-	public static <T> AssetPersister<T> getPersister(final String fileName, final Class<T> assetType) {
+	public static <T> Factory<AssetPersister<T>> getPersisterFactory(final String fileName, final Class<T> assetType) {
 		AssetDescriptor<T> descriptor = getAssetDescriptor(assetType);
-		return descriptor == null ? null : descriptor.getPersister(fileName);
+		return descriptor == null ? null : descriptor.getPersisterFactory(fileName);
 	}
 
 	public static boolean hasValidExtension(String fileName, Class<?> assetType) {

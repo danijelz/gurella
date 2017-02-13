@@ -6,9 +6,10 @@ import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.serialization.json.JsonInput;
 
-public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJsonProperties> {
+public class SelializedJsonLoader<T> implements AssetLoader<T, SelializedJsonProperties> {
 	private final Class<T> expectedType;
 	private final JsonInput input = new JsonInput();
+	private T result;
 
 	public SelializedJsonLoader(Class<T> expectedType) {
 		this.expectedType = expectedType;
@@ -20,19 +21,19 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, T, SelializedJson
 	}
 
 	@Override
-	public T init(DependencyCollector collector, FileHandle assetFile) {
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		input.init(assetFile, collector);
-		return null;
 	}
 
 	@Override
-	public T processAsync(DependencySupplier provider, FileHandle file, T asyncData,
-			SelializedJsonProperties properties) {
-		return input.deserialize(provider, expectedType, null);
+	public void processAsync(DependencySupplier provider, FileHandle file, SelializedJsonProperties properties) {
+		result = input.deserialize(provider, expectedType, null);
 	}
 
 	@Override
-	public T finish(DependencySupplier provider, FileHandle file, T asyncData, SelializedJsonProperties properties) {
-		return asyncData;
+	public T finish(DependencySupplier provider, FileHandle file, SelializedJsonProperties properties) {
+		T temp = result;
+		result = null;
+		return temp;
 	}
 }

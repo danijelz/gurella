@@ -7,25 +7,29 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class MusicLoader implements AssetLoader<Music, Music, MusicProperties> {
+public class MusicLoader implements AssetLoader<Music, MusicProperties> {
+	private Music music;
+
 	@Override
 	public Class<MusicProperties> getPropertiesType() {
 		return MusicProperties.class;
 	}
 
 	@Override
-	public Music init(DependencyCollector collector, FileHandle assetFile) {
-		return null;
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 	}
 
 	@Override
-	public Music processAsync(DependencySupplier provider, FileHandle file, Music asyncData,
-			MusicProperties properties) {
-		return Gdx.audio.newMusic(file);
+	public void processAsync(DependencySupplier provider, FileHandle file, MusicProperties properties) {
+		music = Gdx.audio.newMusic(file);
 	}
 
 	@Override
-	public Music finish(DependencySupplier provider, FileHandle file, Music asyncData, MusicProperties properties) {
-		return asyncData;
+	public Music finish(DependencySupplier provider, FileHandle file, MusicProperties properties) {
+		try {
+			return music;
+		} finally {
+			music = null;
+		}
 	}
 }

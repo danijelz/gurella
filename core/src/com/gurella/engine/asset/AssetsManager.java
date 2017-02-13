@@ -6,15 +6,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
@@ -24,26 +20,23 @@ import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
-import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
+import com.gurella.engine.utils.factory.Factory;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, DependencyLocator, AsyncTask<Void>, Disposable {
-	private final Object mutex = new Object();
+class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Disposable {
+	final Object mutex = new Object();
+	AssetLoadingExecutor executor = new AssetLoadingExecutor(this);
+	private final TaskPool taskPool = new TaskPool();
+
+	private final IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>> loaders = new IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>>();
+	private final IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>> persisters = new IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>>();
 
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
+
 	private final AssetId tempAssetId = new AssetId();
-
-	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
-	private final TaskPool taskPool = new TaskPool();
-	private boolean executing;
-
-	private final ObjectMap<AssetId, AssetLoadingTask<?, ?>> allTasks = new ObjectMap<AssetId, AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> asyncQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Array<AssetLoadingTask<?, ?>> syncQueue = new Array<AssetLoadingTask<?, ?>>();
-	private final Sort sort = new Sort();
 
 	boolean isLoaded(String fileName, FileType fileType) {
 		return registry.isLoaded(tempAssetId.set(fileName, fileType, AssetDescriptors.getAssetType(fileName)));
@@ -99,14 +92,26 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 			String fileName = tempAssetId.fileName;
 			@SuppressWarnings("unchecked")
 			Class<T> assetType = (Class<T>) tempAssetId.assetType;
-			AssetPersister<T> persister = AssetDescriptors.getPersister(fileName, assetType);
-			if (persister == null) {
-				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
-			}
-
+			AssetPersister<T> persister = getPersister(fileName, assetType);
 			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
 			persister.persist(this, file, asset);
 		}
+	}
+
+	private <T> AssetPersister<T> getPersister(String fileName, Class<T> assetType) {
+		Factory<AssetPersister<T>> factory = AssetDescriptors.getPersisterFactory(fileName, assetType);
+		if (factory == null) {
+			throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
+		}
+
+		@SuppressWarnings("unchecked")
+		AssetPersister<T> persister = (AssetPersister<T>) persisters.get(factory);
+		if (persister == null) {
+			persister = factory.create();
+			persisters.put(factory, persister);
+		}
+
+		return persister;
 	}
 
 	<T> void save(T asset, String fileName, FileType fileType) {
@@ -117,11 +122,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 						"No descrptor registered for asset type: " + asset.getClass().getName());
 			}
 
-			AssetPersister<T> persister = AssetDescriptors.getPersister(fileName, assetType);
-			if (persister == null) {
-				throw new IllegalStateException("No persistor registered for asset type: " + assetType.getName());
-			}
-
+			AssetPersister<T> persister = getPersister(fileName, assetType);
 			if (registry.getAssetId(asset, tempAssetId).isEmpty()) {
 				FileHandle file = files.getFileHandle(fileName, fileType);
 				persister.persist(this, file, asset);
@@ -215,6 +216,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 	}
 
 	////////////////////////////// loading
+
 	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, int priority) {
 		loadAsync(callback, fileName, fileType, AssetDescriptors.<T> getAssetType(fileName), priority);
 	}
@@ -249,7 +251,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		}
 
 		while (!callback.isDone()) {
-			update();
+			executor.update();
 			ThreadUtils.yield();
 		}
 
@@ -261,21 +263,36 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		}
 	}
 
-	private <A, T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	private <T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		tempAssetId.set(fileName, fileType, assetType);
-		@SuppressWarnings("unchecked")
-		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
+		AssetLoadingTask<T> queuedTask = executor.findTask(tempAssetId);
 
 		if (queuedTask == null) {
-			AssetLoadingTask<A, T> task = taskPool.obtainTask();
+			AssetLoadingTask<T> task = taskPool.obtainTask();
 			FileHandle file = resolveFile(fileName, fileType);
-			AssetLoader<A, T, AssetProperties> loader = AssetDescriptors.getLoader(fileName, assetType);
+			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
 			task.init(this, file, assetType, loader, callback, priority);
-			startTask(task);
+			executor.startTask(task);
 		} else {
 			queuedTask.merge(callback, priority);
 		}
+	}
+
+	private <T> AssetLoader<T, AssetProperties> getLoader(String fileName, Class<T> assetType) {
+		Factory<AssetLoader<T, AssetProperties>> factory = AssetDescriptors.getLoaderFactory(fileName, assetType);
+		if (factory == null) {
+			throw new IllegalStateException("No loader registered for asset type: " + assetType.getName());
+		}
+
+		@SuppressWarnings("unchecked")
+		AssetLoader<T, AssetProperties> loader = (AssetLoader<T, AssetProperties>) loaders.get(factory);
+		if (loader == null) {
+			loader = factory.create();
+			loaders.put(factory, loader);
+		}
+
+		return loader;
 	}
 
 	private FileHandle resolveFile(String fileName, FileType fileType) {
@@ -283,34 +300,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		return files.getFileHandle(fileName, fileType);
 	}
 
-	private <T> void startTask(AssetLoadingTask<?, T> task) {
-		allTasks.put(task.assetId, task);
-		addToAsyncQueue(task);
-	}
-
-	private <T> void addToAsyncQueue(AssetLoadingTask<?, T> task) {
-		asyncQueue.add(task);
-		sort.sort(asyncQueue);
-		if (!executing) {
-			executing = true;
-			executor.submit(this);
-		}
-	}
-
-	boolean update() {
-		synchronized (mutex) {
-			for (int i = 0; i < syncQueue.size; i++) {
-				AssetLoadingTask<?, ?> task = syncQueue.get(i);
-				allTasks.remove(task.assetId);
-				task.update();
-				finishTask(task);
-			}
-			syncQueue.clear();
-			return allTasks.size == 0;
-		}
-	}
-
-	private void finishTask(AssetLoadingTask<?, ?> task) {
+	void finishTask(AssetLoadingTask<?> task) {
 		boolean revert = task.exception != null;
 		if (!revert) {
 			AssetId assetId = task.assetId;
@@ -334,18 +324,18 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		}
 	}
 
-	private void freeTask(AssetLoadingTask<?, ?> task) {
+	private void freeTask(AssetLoadingTask<?> task) {
 		for (Entry<AssetId, Dependency<?>> entry : task.getDependencies()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
-				//TODO check if unfinished and has concurrent callbacks -> make root task
-				freeTask((AssetLoadingTask<?, ?>) dependency);
+				// TODO check if unfinished and has concurrent callbacks -> make root task
+				freeTask((AssetLoadingTask<?>) dependency);
 			}
 		}
 		taskPool.free(task);
 	}
 
-	<T> Dependency<T> getDependency(AssetLoadingTask<?, ?> parent, String fileName, FileType fileType,
+	<T> Dependency<T> getDependency(AssetLoadingTask<?> parent, String fileName, FileType fileType,
 			Class<T> assetType) {
 		synchronized (mutex) {
 			tempAssetId.set(fileName, fileType, assetType);
@@ -354,58 +344,24 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 		}
 	}
 
-	private <A, T> AssetLoadingTask<?, T> subTask(AssetLoadingTask<?, ?> parent, Class<T> assetType) {
-		@SuppressWarnings("unchecked")
-		AssetLoadingTask<?, T> queuedTask = (AssetLoadingTask<?, T>) allTasks.get(tempAssetId);
+	private <T> AssetLoadingTask<T> subTask(AssetLoadingTask<?> parent, Class<T> assetType) {
+		AssetLoadingTask<T> queuedTask = executor.findTask(tempAssetId);
 		if (queuedTask == null) {
-			AssetLoadingTask<A, T> task = taskPool.obtainTask();
+			AssetLoadingTask<T> task = taskPool.obtainTask();
 			String fileName = tempAssetId.fileName;
 			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
-			AssetLoader<A, T, AssetProperties> loader = AssetDescriptors.getLoader(fileName, assetType);
+			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
 			task.init(parent, file, assetType, loader);
-			startTask(task);
+			executor.startTask(task);
 			return task;
 		} else {
 			return queuedTask;
 		}
 	}
 
-	@Override
-	public Void call() throws Exception {
-		while (true) {
-			AssetLoadingTask<?, ?> task;
-			synchronized (mutex) {
-				if (asyncQueue.size > 0) {
-					task = asyncQueue.pop();
-				} else {
-					executing = false;
-					return null;
-				}
-			}
-
-			task.update();
-			taskStateChanged(task);
-		}
-	}
-
-	void taskStateChanged(AssetLoadingTask<?, ?> task) {
+	boolean update() {
 		synchronized (mutex) {
-			switch (task.phase) {
-			case waitingDependencies:
-				return;
-			case async:
-				addToAsyncQueue(task);
-				return;
-			case sync:
-				syncQueue.add(task);
-				return;
-			case finished:
-				syncQueue.add(task);
-				return;
-			default:
-				task.onException(new IllegalStateException("Invalid loading state."));
-				return;
-			}
+			return executor.update();
 		}
 	}
 
@@ -443,32 +399,16 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, As
 
 	@Override
 	public void onCleanup() {
-		update();
+		synchronized (mutex) {
+			executor.update();
+		}
 	}
 
 	@Override
 	public void dispose() {
-		while (true) {
-			finishLoading();
-			synchronized (mutex) {
-				if (allTasks.size == 0) {
-					DisposablesService.dispose(executor);
-					registry.dispose();
-					return;
-				}
-			}
-		}
-	}
-
-	private static class TaskPool extends Pool<AssetLoadingTask<?, ?>> {
-		@Override
-		protected AssetLoadingTask<Object, Object> newObject() {
-			return new AssetLoadingTask<Object, Object>();
-		}
-
-		@SuppressWarnings("unchecked")
-		<A, T> AssetLoadingTask<A, T> obtainTask() {
-			return (AssetLoadingTask<A, T>) super.obtain();
+		synchronized (mutex) {
+			executor.dispose();
+			registry.dispose();
 		}
 	}
 }

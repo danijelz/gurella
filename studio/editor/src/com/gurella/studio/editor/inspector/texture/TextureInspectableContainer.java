@@ -13,7 +13,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.gurella.engine.asset.loader.texture.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
@@ -38,7 +37,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
 		addDisposeListener(e -> editorContext.unload(properties));
-		properties = editorContext.loadAssetProperties(target, Texture.class);
+		properties = editorContext.loadAssetProperties(target);
 		properties = properties == null ? new TextureProperties() : properties;
 		propertiesEditor = new DefaultBeanEditor<>(getBody(), editorContext.editorId, properties);
 		propertiesEditor.addPropertiesListener(e -> editorContext.saveProperties(target, properties));

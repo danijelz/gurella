@@ -15,34 +15,40 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public abstract class ModelLoader<PROPS extends ModelProperties> implements AssetLoader<ModelData, Model, PROPS> {
+public abstract class ModelLoader<PROPS extends ModelProperties> implements AssetLoader<Model, PROPS> {
+	private ModelData modelData;
+
 	protected abstract ModelData loadModelData(final FileHandle fileHandle);
 
 	@Override
-	public ModelData init(DependencyCollector collector, FileHandle assetFile) {
-		ModelData data = loadModelData(assetFile);
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+		modelData = loadModelData(assetFile);
 
 		FileType fileType = assetFile.type();
-		for (final ModelMaterial modelMaterial : data.materials) {
+		for (final ModelMaterial modelMaterial : modelData.materials) {
 			if (modelMaterial.textures != null) {
 				for (final ModelTexture modelTexture : modelMaterial.textures) {
 					collector.addDependency(modelTexture.fileName, fileType, Texture.class);
 				}
 			}
 		}
-
-		return data;
 	}
 
 	@Override
-	public ModelData processAsync(DependencySupplier provider, FileHandle file, ModelData asyncData,
-			ModelProperties properties) {
-		return asyncData;
+	public void processAsync(DependencySupplier provider, FileHandle file, ModelProperties properties) {
 	}
 
 	@Override
-	public Model finish(DependencySupplier provider, FileHandle file, ModelData asyncData, ModelProperties properties) {
-		final Model result = new Model(asyncData, new DependencyTextureProvider(provider, file.type()));
+	public Model finish(DependencySupplier provider, FileHandle file, ModelProperties properties) {
+		try {
+			return createModel(provider, file);
+		} finally {
+			modelData = null;
+		}
+	}
+
+	private Model createModel(DependencySupplier provider, FileHandle file) {
+		final Model result = new Model(modelData, new DependencyTextureProvider(provider, file.type()));
 		// remove the textures from the managed disposables fo ref counting to work!
 		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
 		while (disposables.hasNext()) {

@@ -444,7 +444,6 @@ class AssetRegistry implements Disposable {
 			ObjectMap.Entry<AssetId, AssetSlot<?>> entry = iter.next();
 			AssetId assetId = entry.key;
 			AssetSlot<?> slot = entry.value;
-			iter.remove();
 			remove(assetId, slot);
 		}
 	}

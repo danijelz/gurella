@@ -1,7 +1,7 @@
 package com.gurella.engine.pool;
 
 import com.badlogic.gdx.utils.Pool;
-import com.gurella.engine.factory.Factory;
+import com.gurella.engine.utils.factory.Factory;
 
 public class FactoryPool<T> extends Pool<T> {
 	private final Factory<T> factory;

@@ -1,4 +1,4 @@
-package com.gurella.engine.factory;
+package com.gurella.engine.utils.factory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

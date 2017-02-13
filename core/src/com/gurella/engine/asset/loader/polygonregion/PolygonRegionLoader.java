@@ -7,28 +7,24 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class PolygonRegionLoader implements AssetLoader<String, PolygonRegion, AssetProperties>{
+public class PolygonRegionLoader implements AssetLoader<PolygonRegion, AssetProperties> {
 	@Override
 	public Class<AssetProperties> getPropertiesType() {
 		return null;
 	}
 
 	@Override
-	public String init(DependencyCollector collector, FileHandle assetFile) {
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public String processAsync(DependencySupplier provider, FileHandle file, String asyncData,
-			AssetProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle file, AssetProperties properties) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public PolygonRegion finish(DependencySupplier provider, FileHandle file, String asyncData,
-			AssetProperties properties) {
+	public PolygonRegion finish(DependencySupplier provider, FileHandle file, AssetProperties properties) {
 		// TODO Auto-generated method stub
 		return null;
 	}

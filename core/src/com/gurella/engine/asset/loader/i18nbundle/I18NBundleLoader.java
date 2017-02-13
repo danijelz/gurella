@@ -8,33 +8,36 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundle, I18NBundleProperties> {
+public class I18NBundleLoader implements AssetLoader<I18NBundle, I18NBundleProperties> {
+	private I18NBundle i18NBundle;
+
 	@Override
 	public Class<I18NBundleProperties> getPropertiesType() {
 		return I18NBundleProperties.class;
 	}
 
 	@Override
-	public I18NBundle init(DependencyCollector collector, FileHandle assetFile) {
-		return null;
+	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 	}
 
 	@Override
-	public I18NBundle processAsync(DependencySupplier provider, FileHandle file, I18NBundle asyncData,
-			I18NBundleProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle file, I18NBundleProperties properties) {
 		Locale locale = properties == null ? Locale.getDefault() : properties.locale;
 		String encoding = properties == null ? null : properties.encoding;
 
 		if (encoding == null) {
-			return I18NBundle.createBundle(file, locale);
+			i18NBundle = I18NBundle.createBundle(file, locale);
 		} else {
-			return I18NBundle.createBundle(file, locale, encoding);
+			i18NBundle = I18NBundle.createBundle(file, locale, encoding);
 		}
 	}
 
 	@Override
-	public I18NBundle finish(DependencySupplier provider, FileHandle file, I18NBundle asyncData,
-			I18NBundleProperties properties) {
-		return asyncData;
+	public I18NBundle finish(DependencySupplier provider, FileHandle file, I18NBundleProperties properties) {
+		try {
+			return i18NBundle;
+		} finally {
+			i18NBundle = null;
+		}
 	}
 }
