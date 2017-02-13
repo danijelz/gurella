@@ -18,6 +18,8 @@ import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.DependencyLocator;
+import com.gurella.engine.asset.resolver.FileHandleResolver;
+import com.gurella.engine.asset.resolver.FilehandleResolverRegistry;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
@@ -30,11 +32,13 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	AssetLoadingExecutor executor = new AssetLoadingExecutor(this);
 	private final TaskPool taskPool = new TaskPool();
 
-	private final IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>> loaders = new IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>>();
-	private final IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>> persisters = new IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>>();
-
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
+
+	private final FilehandleResolverRegistry resolvers = new FilehandleResolverRegistry();
+
+	private final IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>> loaders = new IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>>();
+	private final IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>> persisters = new IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>>();
 
 	private final AssetId tempAssetId = new AssetId();
 
@@ -93,7 +97,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			@SuppressWarnings("unchecked")
 			Class<T> assetType = (Class<T>) tempAssetId.assetType;
 			AssetPersister<T> persister = getPersister(fileName, assetType);
-			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
+			FileHandle file = resolvers.resolveFile(tempAssetId);
 			persister.persist(this, file, asset);
 		}
 	}
@@ -147,7 +151,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			FileType fileType = tempAssetId.fileType;
 			registry.removeAll(fileName, fileType);
 
-			FileHandle file = resolveFile(fileName, fileType);
+			FileHandle file = resolvers.resolveFile(tempAssetId);
 			if (!file.exists()) {
 				return DeleteResult.unexisting;
 			} else if (file.delete()) {
@@ -270,7 +274,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 
 		if (queuedTask == null) {
 			AssetLoadingTask<T> task = taskPool.obtainTask();
-			FileHandle file = resolveFile(fileName, fileType);
+			FileHandle file = resolvers.resolveFile(tempAssetId);
 			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
 			task.init(this, file, assetType, loader, callback, priority);
 			executor.startTask(task);
@@ -295,11 +299,6 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		return loader;
 	}
 
-	private FileHandle resolveFile(String fileName, FileType fileType) {
-		// TODO resolve by FileHandleResolver
-		return files.getFileHandle(fileName, fileType);
-	}
-
 	void finishTask(AssetLoadingTask<?> task) {
 		boolean revert = task.exception != null;
 		if (!revert) {
@@ -322,6 +321,9 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		if (task.isRoot()) {
 			freeTask(task);
 		}
+		
+		System.out.println(registry.getDiagnostics());
+		System.out.println("\n\n");
 	}
 
 	private void freeTask(AssetLoadingTask<?> task) {
@@ -349,7 +351,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		if (queuedTask == null) {
 			AssetLoadingTask<T> task = taskPool.obtainTask();
 			String fileName = tempAssetId.fileName;
-			FileHandle file = resolveFile(fileName, tempAssetId.fileType);
+			FileHandle file = resolvers.resolveFile(tempAssetId);
 			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
 			task.init(parent, file, assetType, loader);
 			executor.startTask(task);
@@ -395,6 +397,14 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 
 	FileHandle getFileHandle(String path, FileType type) {
 		return files.getFileHandle(path, type);
+	}
+
+	void registerResolver(FileHandleResolver resolver) {
+		resolvers.registerResolver(resolver);
+	}
+
+	boolean unregisterResolver(FileHandleResolver resolver) {
+		return resolvers.unregisterResolver(resolver);
 	}
 
 	@Override

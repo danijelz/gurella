@@ -11,6 +11,7 @@ public class ReflectionFactory<T> implements Factory<T> {
 		if (constructor == null) {
 			throw new RuntimeException("Missing no-arg constructor: " + type.getName());
 		}
+		constructor.setAccessible(true);
 	}
 
 	@Override

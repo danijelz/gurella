@@ -85,13 +85,12 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		while (proceed) {
 			try {
 				proceed = step();
+				updateProgress();
 			} catch (Exception exception) {
 				this.exception = exception;
 				phase = finished;
 				proceed = false;
-			} finally {
-				// TODO handle exceptions
-				updateProgress();
+				// TODO updateProgressSafely();
 			}
 		}
 	}
@@ -133,7 +132,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	private FileHandle getPropertiesFile(String assetFileName, FileType fileType) {
-		if (loader.getPropertiesType() != null) {
+		if (loader.getPropertiesType() == null) {
 			return null;
 		}
 

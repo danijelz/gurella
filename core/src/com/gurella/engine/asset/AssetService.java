@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.bundle.Bundle;
+import com.gurella.engine.asset.resolver.FileHandleResolver;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
@@ -215,6 +216,14 @@ public class AssetService {
 
 	public static boolean fileExists(String fileName, FileType fileType) {
 		return getManager().fileExists(fileName, fileType);
+	}
+
+	public static void registerResolver(FileHandleResolver resolver) {
+		getManager().registerResolver(resolver);
+	}
+
+	public static boolean unregisterResolver(FileHandleResolver resolver) {
+		return getManager().unregisterResolver(resolver);
 	}
 
 	private static class Cleaner implements ApplicationShutdownListener {
