@@ -439,7 +439,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			builder.append("]");
 		}
 
-		builder.append("\n");
 		return builder.toString();
 	}
 

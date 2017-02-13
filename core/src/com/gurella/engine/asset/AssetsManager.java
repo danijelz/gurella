@@ -436,6 +436,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	}
 
 	String getDiagnostics() {
-		return "registry:\n" + registry.getDiagnostics() + "\n" + "executor:\n" + executor.getDiagnostics();
+		return "loaded:\n" + registry.getDiagnostics() + "executing:\n" + executor.getDiagnostics() + "pool:\n"
+				+ taskPool.toString();
 	}
 }
