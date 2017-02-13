@@ -364,7 +364,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			executor.startTask(task);
 			return task;
 		} else {
-			queuedTask.merge(parent, parent.priority);
+			queuedTask.merge(parent);
 			return queuedTask;
 		}
 	}

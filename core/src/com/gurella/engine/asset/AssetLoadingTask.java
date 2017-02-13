@@ -213,6 +213,17 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 		concurrentCallback.onProgress(progress);
 	}
+	
+	void merge(AssetLoadingTask<?> parent) {
+		this.parent = parent;
+		callback.concurrentCallbacks.add(callback.delegate);
+		callback.delegate = parent;
+		int newPriority = parent.priority;
+		if (priority < newPriority) {
+			renice(requestSequence++, newPriority);
+		}
+		parent.onProgress(progress);
+	}
 
 	private void renice(int newRequestId, int newPriority) {
 		requestId = newRequestId;
