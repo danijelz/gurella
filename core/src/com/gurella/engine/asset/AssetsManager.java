@@ -223,11 +223,11 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 
 	////////////////////////////// loading
 
-	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, int priority) {
+	<T> void loadAsync(AsyncCallback<? super T> callback, String fileName, FileType fileType, int priority) {
 		loadAsync(callback, fileName, fileType, AssetDescriptors.<T> getAssetType(fileName), priority);
 	}
 
-	<T> void loadAsync(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	<T> void loadAsync(AsyncCallback<? super T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		synchronized (mutex) {
 			T asset = registry.getLoaded(tempAssetId.set(fileName, fileType, assetType), null);
@@ -269,7 +269,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		}
 	}
 
-	private <T> void load(AsyncCallback<T> callback, String fileName, FileType fileType, Class<T> assetType,
+	private <T> void load(AsyncCallback<? super T> callback, String fileName, FileType fileType, Class<T> assetType,
 			int priority) {
 		tempAssetId.set(fileName, fileType, assetType);
 		AssetLoadingTask<T> queuedTask = executor.findTask(tempAssetId);
@@ -278,7 +278,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			AssetLoadingTask<T> task = taskPool.obtainTask();
 			FileHandle file = resolvers.resolveFile(tempAssetId);
 			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
-			task.init(this, file, assetType, loader, callback, priority);
+			task.init(this, tempAssetId, file, loader, callback, priority);
 			executor.startTask(task);
 		} else {
 			queuedTask.merge(callback, priority);
@@ -330,7 +330,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		}
 
 		System.out.println(getDiagnostics());
-		System.out.println("\n\n");
+		System.out.println("--------------------------------------------\n\n");
 	}
 
 	private void freeTask(AssetLoadingTask<?> task) {
@@ -360,7 +360,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			String fileName = tempAssetId.fileName;
 			FileHandle file = resolvers.resolveFile(tempAssetId);
 			AssetLoader<T, AssetProperties> loader = getLoader(fileName, assetType);
-			task.init(parent, file, assetType, loader);
+			task.init(parent, tempAssetId, file, loader);
 			executor.startTask(task);
 			return task;
 		} else {
@@ -430,6 +430,6 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	}
 
 	String getDiagnostics() {
-		return registry.getDiagnostics();
+		return "registry:\n" + registry.getDiagnostics() + "\n" + "executor:\n" + executor.getDiagnostics();
 	}
 }

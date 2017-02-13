@@ -460,25 +460,24 @@ class AssetRegistry implements Disposable {
 		}
 	}
 
-	// TODO unused
 	String getDiagnostics() {
 		StringBuilder builder = new StringBuilder();
 		for (ObjectMap.Entry<AssetId, AssetSlot<?>> entry : slotsById.entries()) {
 			String fileName = entry.key.fileName;
-			AssetSlot<?> info = entry.value;
+			AssetSlot<?> slot = entry.value;
 
 			builder.append(fileName);
 			builder.append(", ");
-			builder.append(info.asset.getClass().getSimpleName());
+			builder.append(slot.asset.getClass().getSimpleName());
 			builder.append(", refCount: ");
-			builder.append(info.references);
+			builder.append(slot.references);
 
-			if (info.dependencies.size > 0) {
+			if (slot.dependencies.size > 0) {
 				builder.append(", dependencies: [");
-				Keys<AssetId> dependencies = info.dependencies.keys();
+				Keys<AssetId> dependencies = slot.dependencies.keys();
 				for (Iterator<AssetId> iter = dependencies.iterator(); iter.hasNext();) {
 					AssetId dependencyId = iter.next();
-					builder.append(dependencyId.fileName + " (" + info.dependencies.get(dependencyId, -1) + ")");
+					builder.append(dependencyId.fileName + " (" + slot.dependencies.get(dependencyId, -1) + ")");
 					if (iter.hasNext()) {
 						builder.append(", ");
 					}
@@ -487,7 +486,7 @@ class AssetRegistry implements Disposable {
 				builder.append("]");
 			}
 
-			ObjectSet<AssetId> dependents = info.dependents;
+			ObjectSet<AssetId> dependents = slot.dependents;
 			if (dependents.size > 0) {
 				builder.append(", dependents: [");
 				for (Iterator<AssetId> iter = dependents.iterator(); iter.hasNext();) {

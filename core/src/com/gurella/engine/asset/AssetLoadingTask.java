@@ -6,6 +6,8 @@ import static com.gurella.engine.asset.AssetLoadingPhase.ready;
 import static com.gurella.engine.asset.AssetLoadingPhase.sync;
 import static com.gurella.engine.asset.AssetLoadingPhase.waitingDependencies;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -54,8 +56,8 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	private final ObjectIntMap<AssetId> dependencyCount = new ObjectIntMap<AssetId>();
 	private final AssetId tempAssetId = new AssetId();
 
-	void init(AssetsManager manager, FileHandle file, Class<T> assetType, AssetLoader<T, AssetProperties> loader,
-			AsyncCallback<T> callback, int priority) {
+	void init(AssetsManager manager, AssetId assetId, FileHandle file, AssetLoader<T, AssetProperties> loader,
+			AsyncCallback<? super T> callback, int priority) {
 		this.manager = manager;
 		this.executor = manager.executor;
 		this.file = file;
@@ -64,10 +66,10 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		this.loader = loader;
 
 		requestId = requestSequence++;
-		assetId.set(file, assetType);
+		this.assetId.set(assetId, file);
 	}
 
-	void init(AssetLoadingTask<?> parent, FileHandle file, Class<T> assetType, AssetLoader<T, AssetProperties> loader) {
+	void init(AssetLoadingTask<?> parent, AssetId assetId, FileHandle file, AssetLoader<T, AssetProperties> loader) {
 		this.parent = parent;
 		this.manager = parent.manager;
 		this.executor = manager.executor;
@@ -77,7 +79,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		this.loader = loader;
 
 		requestId = requestSequence++;
-		assetId.set(file, assetType);
+		this.assetId.set(assetId, file);
 	}
 
 	void update() {
@@ -205,7 +207,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		return Math.min(1, progres / size);
 	}
 
-	void merge(AsyncCallback<T> concurrentCallback, int newPriority) {
+	void merge(AsyncCallback<? super T> concurrentCallback, int newPriority) {
 		callback.concurrentCallbacks.add(concurrentCallback);
 		if (priority < newPriority) {
 			renice(requestSequence++, newPriority);
@@ -396,6 +398,37 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		dependencies.clear();
 		dependencyCount.clear();
 		tempAssetId.reset();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(assetId.fileName);
+		builder.append(", ");
+		builder.append(assetId.assetType.getSimpleName());
+		builder.append(" phase: ");
+		builder.append(phase.name());
+		builder.append(", refCount: ");
+		builder.append(getReferences());
+
+		if (dependencies.size > 0) {
+			builder.append(", dependencies: [");
+			ObjectIntMap.Entries<AssetId> entries = dependencyCount.entries();
+			for (Iterator<ObjectIntMap.Entry<AssetId>> iter = entries; iter.hasNext();) {
+				ObjectIntMap.Entry<AssetId> entry = iter.next();
+				AssetId dependencyId = entry.key;
+				builder.append(dependencyId.fileName + " (" + entry.value + ")");
+				if (iter.hasNext()) {
+					builder.append(", ");
+				}
+			}
+
+			builder.append("]");
+		}
+
+		builder.append("\n");
+		return builder.toString();
 	}
 
 	private static class DelegatingCallback<T> implements AsyncCallback<T> {

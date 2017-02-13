@@ -58,6 +58,10 @@ public class SimpleAsyncCallback<T> implements AsyncCallback<T>, Poolable {
 		return state == CallbackState.successful;
 	}
 
+	public CallbackState getState() {
+		return state;
+	}
+
 	public T getValue() {
 		if (!isSuccessful()) {
 			throw new RuntimeException("Invalid state.");
@@ -119,7 +123,7 @@ public class SimpleAsyncCallback<T> implements AsyncCallback<T>, Poolable {
 		PoolService.free(this);
 	}
 
-	private enum CallbackState {
+	public enum CallbackState {
 		processing, successful, cancelled, failed;
 	}
 }

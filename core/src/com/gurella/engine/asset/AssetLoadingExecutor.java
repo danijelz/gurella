@@ -1,9 +1,13 @@
 package com.gurella.engine.asset;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Sort;
+import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.disposable.DisposablesService;
@@ -101,5 +105,18 @@ class AssetLoadingExecutor implements AsyncTask<Void>, Disposable {
 		asyncQueue.clear();
 		allTasks.clear();
 		DisposablesService.dispose(executor);
+	}
+	
+	String getDiagnostics() {
+		StringBuilder builder = new StringBuilder();
+		for (ObjectMap.Entry<AssetId, AssetLoadingTask<?>> entry : allTasks.entries()) {
+			AssetLoadingTask<?> task = entry.value;
+			if(task.parent == null) {
+				builder.append(task.toString());
+				builder.append("\n");
+			}
+		}
+		
+		return builder.toString();
 	}
 }
