@@ -39,15 +39,15 @@ public class AssetManagerLoadingTest {
 
 		AssetsManager manager = new AssetsManager();
 		manager.registerResolver(new TestResolver());
+		
+		SimpleAsyncCallback<TestAsset2> callback2 = new SimpleAsyncCallback<TestAsset2>();
+		manager.loadAsync(callback2, "TestAsset2/1.t2", FileType.Internal, TestAsset2.class, 0);
 
 		SimpleAsyncCallback<TestAsset1> callback = new SimpleAsyncCallback<TestAsset1>();
 		manager.loadAsync(callback, "TestAsset1/1.t1", FileType.Internal, TestAsset1.class, 0);
 		
-		SimpleAsyncCallback<TestAsset2> callback2 = new SimpleAsyncCallback<TestAsset2>();
-		manager.loadAsync(callback2, "TestAsset2/1.t2", FileType.Internal, TestAsset2.class, 0);
-		
 		manager.finishLoading();
-		System.out.println("Final: " + callback.getState());
+		System.out.println("Final: " + callback.getState() + " " + callback2.getState());
 		System.out.println(manager.getDiagnostics());
 	}
 
@@ -110,7 +110,7 @@ public class AssetManagerLoadingTest {
 		@Override
 		public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 			if (i++ == 1) {
-				//throw new NullPointerException();
+				throw new NullPointerException();
 			}
 		}
 
