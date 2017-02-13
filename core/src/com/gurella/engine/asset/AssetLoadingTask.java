@@ -213,17 +213,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 		concurrentCallback.onProgress(progress);
 	}
-	
-	void merge(AssetLoadingTask<?> parent) {
-		this.parent = parent;
-		callback.concurrentCallbacks.add(callback.delegate);
-		callback.delegate = parent;
-		int newPriority = parent.priority;
-		if (priority < newPriority) {
-			renice(requestSequence++, newPriority);
-		}
-		parent.onProgress(progress);
-	}
 
 	private void renice(int newRequestId, int newPriority) {
 		requestId = newRequestId;
@@ -297,7 +286,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	int getReferences() {
-		return (parent == null ? 1 : 0) + callback.concurrentCallbacks.size;
+		return (parent == null ? 1 : 0) + callback.getRootConcurrentCount();
 	}
 
 	ObjectIntMap<AssetId> getDependencyCount() {
@@ -310,6 +299,14 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 
 	boolean isRoot() {
 		return parent == null;
+	}
+
+	AssetLoadingTask<?> getRoot() {
+		AssetLoadingTask<?> root = this;
+		while (root.parent != null) {
+			root = root.parent;
+		}
+		return root;
 	}
 
 	@Override
@@ -379,6 +376,10 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	@Override
 	public void onProgress(float progress) {
 		updateProgress();
+	}
+
+	boolean isActive() {
+		return callback.isActive();
 	}
 
 	@Override
@@ -475,6 +476,32 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				concurrentCallbacks.get(i).onProgress(progress);
 			}
+		}
+
+		boolean isActive() {
+			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				AsyncCallback<? super T> concurrentCallback = concurrentCallbacks.get(i);
+				if (concurrentCallback instanceof AssetLoadingTask) {
+					AssetLoadingTask<?> concurrentTask = (AssetLoadingTask<?>) concurrentCallback;
+					if (concurrentTask.getRoot().phase != finished) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		public int getRootConcurrentCount() {
+			int count = 0;
+			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
+				AsyncCallback<? super T> concurrentCallback = concurrentCallbacks.get(i);
+				if (!(concurrentCallback instanceof AssetLoadingTask)) {
+					count++;
+				}
+			}
+
+			return count;
 		}
 
 		void reset() {

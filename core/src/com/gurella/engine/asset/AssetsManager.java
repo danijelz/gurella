@@ -334,6 +334,10 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	}
 
 	private void freeTask(AssetLoadingTask<?> task) {
+		if (task.isActive()) {
+			return;
+		}
+
 		for (Entry<AssetId, Dependency<?>> entry : task.getDependencies()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
@@ -341,6 +345,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 				freeTask((AssetLoadingTask<?>) dependency);
 			}
 		}
+
 		taskPool.free(task);
 	}
 
@@ -364,7 +369,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			executor.startTask(task);
 			return task;
 		} else {
-			queuedTask.merge(parent);
+			queuedTask.merge(parent, parent.priority);
 			return queuedTask;
 		}
 	}
