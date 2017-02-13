@@ -313,9 +313,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		Entries<AssetId, Dependency<?>> entries = task.getDependencies();
 		for (Entry<AssetId, Dependency<?>> entry : entries) {
 			Dependency<?> dependency = entry.value;
-			if (dependency instanceof AssetSlot) {
-				registry.unreserve(dependency.getAssetId());
-			}
+			registry.unreserve(dependency.getAssetId());
 		}
 
 		if (task.isRoot()) {
