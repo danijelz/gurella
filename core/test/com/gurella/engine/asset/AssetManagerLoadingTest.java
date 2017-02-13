@@ -43,6 +43,9 @@ public class AssetManagerLoadingTest {
 		SimpleAsyncCallback<TestAsset1> callback = new SimpleAsyncCallback<TestAsset1>();
 		manager.loadAsync(callback, "TestAsset1/1.t1", FileType.Internal, TestAsset1.class, 0);
 		manager.finishLoading();
+		
+		System.out.println("Final:");
+		System.out.println(manager.getDiagnostics());
 	}
 
 	private static class TestAsset1 {
@@ -71,14 +74,14 @@ public class AssetManagerLoadingTest {
 
 		@Override
 		public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-			collector.addDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class);
-			collector.addDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class);
+			collector.addDependency("TestAsset2/1.t2", FileType.Absolute, TestAsset2.class);
+			collector.addDependency("TestAsset2/2.t2", FileType.Absolute, TestAsset2.class);
 		}
 
 		@Override
 		public void processAsync(DependencySupplier supplier, FileHandle assetFile, AssetProperties properties) {
-			supplier.getDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class, null);
-			supplier.getDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class, null);
+			supplier.getDependency("TestAsset2/1.t2", FileType.Absolute, TestAsset2.class, null);
+			supplier.getDependency("TestAsset2/2.t2", FileType.Absolute, TestAsset2.class, null);
 		}
 
 		@Override
@@ -88,6 +91,8 @@ public class AssetManagerLoadingTest {
 	}
 
 	private static class TestAsset2Loader implements AssetLoader<TestAsset2, AssetProperties> {
+		int i = 0;
+		
 		@Override
 		public Class<AssetProperties> getPropertiesType() {
 			return null;
@@ -95,6 +100,9 @@ public class AssetManagerLoadingTest {
 
 		@Override
 		public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
+			if (i++ == 1) {
+				throw new NullPointerException();
+			}
 		}
 
 		@Override

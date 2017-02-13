@@ -1,5 +1,7 @@
 package com.gurella.engine.asset;
 
+import static com.gurella.engine.asset.AssetLoadingPhase.finished;
+
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
@@ -313,14 +315,21 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		Entries<AssetId, Dependency<?>> entries = task.getDependencies();
 		for (Entry<AssetId, Dependency<?>> entry : entries) {
 			Dependency<?> dependency = entry.value;
-			registry.unreserve(dependency.getAssetId());
+			if (dependency instanceof AssetSlot) {
+				registry.unreserve(dependency.getAssetId());
+			} else {
+				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
+				if (dependencyTask.phase == finished && dependencyTask.asset != null) {
+					registry.unreserve(dependency.getAssetId());
+				}
+			}
 		}
 
 		if (task.isRoot()) {
 			freeTask(task);
 		}
-		
-		System.out.println(registry.getDiagnostics());
+
+		System.out.println(getDiagnostics());
 		System.out.println("\n\n");
 	}
 
@@ -418,5 +427,9 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			executor.dispose();
 			registry.dispose();
 		}
+	}
+
+	String getDiagnostics() {
+		return registry.getDiagnostics();
 	}
 }

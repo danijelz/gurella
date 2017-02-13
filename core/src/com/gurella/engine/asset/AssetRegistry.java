@@ -478,9 +478,9 @@ class AssetRegistry implements Disposable {
 				Keys<AssetId> dependencies = info.dependencies.keys();
 				for (Iterator<AssetId> iter = dependencies.iterator(); iter.hasNext();) {
 					AssetId dependencyId = iter.next();
-					builder.append(dependencyId.fileName + " [" + info.dependencies.get(dependencyId, -1) + "]");
+					builder.append(dependencyId.fileName + " (" + info.dependencies.get(dependencyId, -1) + ")");
 					if (iter.hasNext()) {
-						builder.append(",");
+						builder.append(", ");
 					}
 				}
 
@@ -493,7 +493,7 @@ class AssetRegistry implements Disposable {
 				for (Iterator<AssetId> iter = dependents.iterator(); iter.hasNext();) {
 					builder.append(iter.next().fileName);
 					if (iter.hasNext()) {
-						builder.append(",");
+						builder.append(", ");
 					}
 				}
 

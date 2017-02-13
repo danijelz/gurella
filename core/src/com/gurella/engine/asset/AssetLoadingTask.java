@@ -243,7 +243,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		tempAssetId.set(depFileName, depFileType, depAssetType);
 		@SuppressWarnings("unchecked")
 		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);
-		dependencyCount.getAndIncrement(tempAssetId, 0, 1);
+		dependencyCount.getAndIncrement(dependency.getAssetId(), 0, 1);
 		return bundleId == null ? dependency.getAsset() : dependency.<D> getAsset(bundleId);
 	}
 
