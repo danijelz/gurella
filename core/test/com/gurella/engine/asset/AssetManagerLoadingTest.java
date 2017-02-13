@@ -79,15 +79,18 @@ public class AssetManagerLoadingTest {
 		public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 			collector.addDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class);
 			collector.addDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class);
-			for (int i = 0; i < 1000; i++) {
+			/*for (int i = 0; i < 1000; i++) {
 				assetFile.path();
-			}
+			}*/
 		}
 
 		@Override
 		public void processAsync(DependencySupplier supplier, FileHandle assetFile, AssetProperties properties) {
 			supplier.getDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class, null);
 			supplier.getDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class, null);
+			for (int i = 0; i < 10000; i++) {
+				assetFile.path();
+			}
 		}
 
 		@Override

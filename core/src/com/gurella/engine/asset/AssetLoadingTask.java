@@ -144,8 +144,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	private boolean allDependenciesResolved() {
-		int size = dependencies.size;
-		if (size == 0) {
+		if (dependencies.size == 0) {
 			return true;
 		}
 
