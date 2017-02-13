@@ -357,13 +357,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
 				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
-				dependencyTask.onParentException(exception);
+				dependencyTask.onDependantException(this, exception);
 			}
 		}
 	}
 
-	private void onParentException(Throwable exception) {
-		if (callback.getIndependentConcurrentCount() == 0) {
+	private void onDependantException(AsyncCallback<?> dependant, Throwable exception) {
+		if (callback.getIndependentConcurrentCount() == 0 && parent == dependant) {
 			//TODO cancle dependency
 			onException(exception);
 		}
