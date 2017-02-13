@@ -286,7 +286,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	int getReferences() {
-		return (parent == null ? 1 : 0) + callback.getRootConcurrentCount();
+		return (parent == null ? 1 : 0) + callback.getIndependentConcurrentCount();
 	}
 
 	ObjectIntMap<AssetId> getDependencyCount() {
@@ -352,12 +352,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 	}
 
-	private void onParentException(Throwable exception) {
-		if (callback.concurrentCallbacks.size == 0) {
-			onException(exception);
-		}
-	}
-
 	private void notifyDependenciesAboutException() {
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
@@ -365,6 +359,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
 				dependencyTask.onParentException(exception);
 			}
+		}
+	}
+
+	private void onParentException(Throwable exception) {
+		if (callback.getIndependentConcurrentCount() == 0) {
+			//TODO cancle dependency
+			onException(exception);
 		}
 	}
 
@@ -492,7 +493,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			return false;
 		}
 
-		public int getRootConcurrentCount() {
+		public int getIndependentConcurrentCount() {
 			int count = 0;
 			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
 				AsyncCallback<? super T> concurrentCallback = concurrentCallbacks.get(i);
