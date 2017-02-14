@@ -281,7 +281,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			task.init(this, tempAssetId, file, loader, callback, priority);
 			executor.startTask(task);
 		} else {
-			queuedTask.merge(callback, priority);
+			queuedTask.join(callback, priority);
 		}
 	}
 
@@ -325,9 +325,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			}
 		}
 
-		if (task.isRoot()) {
-			freeTask(task);
-		}
+		freeTask(task);
 
 		System.out.println(getDiagnostics());
 		System.out.println("--------------------------------------------\n\n");
@@ -341,8 +339,9 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		for (Entry<AssetId, Dependency<?>> entry : task.getDependencies()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
-				// TODO check if unfinished and has concurrent callbacks -> make root task
-				freeTask((AssetLoadingTask<?>) dependency);
+				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
+				dependencyTask.split(task);
+				freeTask(dependencyTask);
 			}
 		}
 
@@ -369,7 +368,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			executor.startTask(task);
 			return task;
 		} else {
-			queuedTask.merge(parent, parent.priority);
+			queuedTask.join(parent, parent.priority);
 			return queuedTask;
 		}
 	}
@@ -436,7 +435,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	}
 
 	String getDiagnostics() {
-		return "loaded:\n" + registry.getDiagnostics() + "executing:\n" + executor.getDiagnostics() + "pool:\n"
+		return "loaded:\n" + registry.getDiagnostics() + "executing:\n" + executor.getDiagnostics() + "pool: "
 				+ taskPool.toString();
 	}
 }

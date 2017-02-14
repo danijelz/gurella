@@ -1,12 +1,16 @@
 package com.gurella.engine.async;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.ImmutableArray;
 
-public class CompositeAsyncCallback<T> implements AsyncCallback<T> {
-	private final Array<AsyncCallback<T>> callbacks = new Array<AsyncCallback<T>>();
+public class CompositeAsyncCallback<T> implements AsyncCallback<T>, Poolable {
+	private final Array<AsyncCallback<? super T>> _callbacks = new Array<AsyncCallback<? super T>>();
+	public final ImmutableArray<AsyncCallback<? super T>> callbacks = new ImmutableArray<AsyncCallback<? super T>>(
+			_callbacks);
 
-	CompositeAsyncCallback() {
+	public CompositeAsyncCallback() {
 	}
 
 	@SuppressWarnings("unchecked")
@@ -14,14 +18,15 @@ public class CompositeAsyncCallback<T> implements AsyncCallback<T> {
 		return PoolService.obtain(CompositeAsyncCallback.class);
 	}
 
-	public static <T> CompositeAsyncCallback<T> obtain(AsyncCallback<T> callback) {
+	public static <T> CompositeAsyncCallback<T> obtain(AsyncCallback<? super T> callback) {
 		@SuppressWarnings("unchecked")
 		CompositeAsyncCallback<T> compositeCallback = PoolService.obtain(CompositeAsyncCallback.class);
 		compositeCallback.add(callback);
 		return compositeCallback;
 	}
 
-	public static <T> CompositeAsyncCallback<T> obtain(AsyncCallback<T> callback1, AsyncCallback<T> callback2) {
+	public static <T> CompositeAsyncCallback<T> obtain(AsyncCallback<? super T> callback1,
+			AsyncCallback<? super T> callback2) {
 		@SuppressWarnings("unchecked")
 		CompositeAsyncCallback<T> compositeCallback = PoolService.obtain(CompositeAsyncCallback.class);
 		compositeCallback.add(callback1);
@@ -29,41 +34,59 @@ public class CompositeAsyncCallback<T> implements AsyncCallback<T> {
 		return compositeCallback;
 	}
 
-	private void add(AsyncCallback<T> callback2) {
-		callbacks.add(callback2);
+	public static <T> CompositeAsyncCallback<T> obtain(AsyncCallback<? super T>... callbacks) {
+		@SuppressWarnings("unchecked")
+		CompositeAsyncCallback<T> compositeCallback = PoolService.obtain(CompositeAsyncCallback.class);
+		compositeCallback.addAll(callbacks);
+		return compositeCallback;
+	}
+
+	public void add(AsyncCallback<? super T> callback) {
+		_callbacks.add(callback);
+	}
+
+	public void remove(AsyncCallback<? super T> callback) {
+		_callbacks.removeValue(callback, true);
+	}
+
+	public void addAll(AsyncCallback<? super T>... callbacks) {
+		_callbacks.addAll(callbacks);
 	}
 
 	@Override
 	public void onSuccess(T value) {
-		for (int i = 0, n = callbacks.size; i < n; i++) {
-			callbacks.get(i).onSuccess(value);
+		for (int i = 0, n = _callbacks.size; i < n; i++) {
+			_callbacks.get(i).onSuccess(value);
 		}
-		callbacks.clear();
-		PoolService.free(this);
 	}
 
 	@Override
 	public void onException(Throwable exception) {
-		for (int i = 0, n = callbacks.size; i < n; i++) {
-			callbacks.get(i).onException(exception);
+		for (int i = 0, n = _callbacks.size; i < n; i++) {
+			_callbacks.get(i).onException(exception);
 		}
-		callbacks.clear();
-		PoolService.free(this);
 	}
 
 	@Override
 	public void onCanceled(String message) {
-		for (int i = 0, n = callbacks.size; i < n; i++) {
-			callbacks.get(i).onCanceled(message);
+		for (int i = 0, n = _callbacks.size; i < n; i++) {
+			_callbacks.get(i).onCanceled(message);
 		}
-		callbacks.clear();
-		PoolService.free(this);
 	}
 
 	@Override
 	public void onProgress(float progress) {
-		for (int i = 0, n = callbacks.size; i < n; i++) {
-			callbacks.get(i).onProgress(progress);
+		for (int i = 0, n = _callbacks.size; i < n; i++) {
+			_callbacks.get(i).onProgress(progress);
 		}
+	}
+
+	@Override
+	public void reset() {
+		_callbacks.clear();
+	}
+
+	public void free() {
+		PoolService.free(this);
 	}
 }

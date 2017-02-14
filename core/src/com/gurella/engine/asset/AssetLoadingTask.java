@@ -10,7 +10,6 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
@@ -23,6 +22,7 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.async.CompositeAsyncCallback;
 import com.gurella.engine.utils.Values;
 
 class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
@@ -34,8 +34,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 
 	final AssetId assetId = new AssetId();
 	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
-
-	AssetLoadingTask<?> parent;
 
 	AssetsManager manager;
 	AssetLoadingExecutor executor;
@@ -61,7 +59,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		this.manager = manager;
 		this.executor = manager.executor;
 		this.file = file;
-		this.callback.delegate = callback;
+		this.callback.add(callback);
 		this.priority = priority;
 		this.loader = loader;
 
@@ -70,11 +68,10 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	void init(AssetLoadingTask<?> parent, AssetId assetId, FileHandle file, AssetLoader<T, AssetProperties> loader) {
-		this.parent = parent;
 		this.manager = parent.manager;
 		this.executor = manager.executor;
 		this.file = file;
-		this.callback.delegate = parent;
+		this.callback.add(parent);
 		this.priority = parent.priority;
 		this.loader = loader;
 
@@ -206,24 +203,30 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		return Math.min(1, progres / size);
 	}
 
-	void merge(AsyncCallback<? super T> concurrentCallback, int newPriority) {
-		callback.concurrentCallbacks.add(concurrentCallback);
-		if (priority < newPriority) {
-			renice(requestSequence++, newPriority);
-		}
+	void join(AsyncCallback<? super T> concurrentCallback, int newPriority) {
+		callback.add(concurrentCallback);
+		renice(newPriority);
 		concurrentCallback.onProgress(progress);
 	}
 
-	private void renice(int newRequestId, int newPriority) {
-		requestId = newRequestId;
+	private void renice(int newPriority) {
+		if (priority >= newPriority) {
+			return;
+		}
+
+		requestId = requestSequence++;
 		priority = newPriority;
 
 		for (Entry<AssetId, Dependency<?>> entry : dependencies.entries()) {
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
-				((AssetLoadingTask<?>) dependency).renice(newRequestId, newPriority);
+				((AssetLoadingTask<?>) dependency).renice(newPriority);
 			}
 		}
+	}
+
+	public void split(AssetLoadingTask<?> task) {
+		callback.remove(task);
 	}
 
 	@Override
@@ -286,7 +289,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	int getReferences() {
-		return (parent == null ? 1 : 0) + callback.getIndependentConcurrentCount();
+		return callback.getReferences();
 	}
 
 	ObjectIntMap<AssetId> getDependencyCount() {
@@ -294,19 +297,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	int getReservations() {
-		return parent == null ? 0 : 1;
-	}
-
-	boolean isRoot() {
-		return parent == null;
-	}
-
-	AssetLoadingTask<?> getRoot() {
-		AssetLoadingTask<?> root = this;
-		while (root.parent != null) {
-			root = root.parent;
-		}
-		return root;
+		return callback.getReservations();
 	}
 
 	@Override
@@ -357,14 +348,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			Dependency<?> dependency = entry.value;
 			if (dependency instanceof AssetLoadingTask) {
 				AssetLoadingTask<?> dependencyTask = (AssetLoadingTask<?>) dependency;
-				dependencyTask.onDependantException(this, exception);
+				dependencyTask.onDependantException(exception);
 			}
 		}
 	}
 
-	private void onDependantException(AsyncCallback<?> dependant, Throwable exception) {
-		if (callback.getIndependentConcurrentCount() == 0 && parent == dependant) {
-			//TODO cancle dependency
+	private void onDependantException(Throwable exception) {
+		if (callback.callbacks.size() < 2) {
 			onException(exception);
 		}
 	}
@@ -380,18 +370,17 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	boolean isActive() {
-		return callback.isActive();
+		return phase != finished || callback.isActive();
 	}
 
 	@Override
 	public int compareTo(AssetLoadingTask<?> other) {
 		int result = Values.compare(priority, other.priority);
-		return result == 0 ? Values.compare(requestId, other.requestId) : result;
+		return result == 0 ? Values.compare(other.requestId, requestId) : result;
 	}
 
 	@Override
 	public void reset() {
-		parent = null;
 		manager = null;
 		executor = null;
 		file = null;
@@ -442,48 +431,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		return builder.toString();
 	}
 
-	private static class DelegatingCallback<T> implements AsyncCallback<T> {
-		private AsyncCallback<? super T> delegate;
-		private final Array<AsyncCallback<? super T>> concurrentCallbacks = new Array<AsyncCallback<? super T>>();
-
-		@Override
-		public void onSuccess(T value) {
-			delegate.onSuccess(value);
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				concurrentCallbacks.get(i).onSuccess(value);
-			}
-		}
-
-		@Override
-		public void onException(Throwable exception) {
-			delegate.onException(exception);
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				concurrentCallbacks.get(i).onException(exception);
-			}
-		}
-
-		@Override
-		public void onCanceled(String message) {
-			delegate.onCanceled(message);
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				concurrentCallbacks.get(i).onCanceled(message);
-			}
-		}
-
-		@Override
-		public void onProgress(float progress) {
-			delegate.onProgress(progress);
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				concurrentCallbacks.get(i).onProgress(progress);
-			}
-		}
-
+	private static class DelegatingCallback<T> extends CompositeAsyncCallback<T> {
 		boolean isActive() {
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				AsyncCallback<? super T> concurrentCallback = concurrentCallbacks.get(i);
-				if (concurrentCallback instanceof AssetLoadingTask) {
-					AssetLoadingTask<?> concurrentTask = (AssetLoadingTask<?>) concurrentCallback;
-					if (concurrentTask.getRoot().phase != finished) {
+			for (int i = 0, n = callbacks.size(); i < n; i++) {
+				AsyncCallback<? super T> callback = callbacks.get(i);
+				if (callback instanceof AssetLoadingTask) {
+					AssetLoadingTask<?> dependentTask = (AssetLoadingTask<?>) callback;
+					if (dependentTask.phase != finished) {
 						return true;
 					}
 				}
@@ -492,10 +446,10 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			return false;
 		}
 
-		public int getIndependentConcurrentCount() {
+		public int getReferences() {
 			int count = 0;
-			for (int i = 0, n = concurrentCallbacks.size; i < n; i++) {
-				AsyncCallback<? super T> concurrentCallback = concurrentCallbacks.get(i);
+			for (int i = 0, n = callbacks.size(); i < n; i++) {
+				AsyncCallback<? super T> concurrentCallback = callbacks.get(i);
 				if (!(concurrentCallback instanceof AssetLoadingTask)) {
 					count++;
 				}
@@ -504,9 +458,16 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			return count;
 		}
 
-		void reset() {
-			delegate = null;
-			concurrentCallbacks.clear();
+		public int getReservations() {
+			int count = 0;
+			for (int i = 0, n = callbacks.size(); i < n; i++) {
+				AsyncCallback<? super T> concurrentCallback = callbacks.get(i);
+				if (concurrentCallback instanceof AssetLoadingTask) {
+					count++;
+				}
+			}
+
+			return count;
 		}
 	}
 }

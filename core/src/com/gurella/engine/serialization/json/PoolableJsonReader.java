@@ -735,8 +735,9 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 
 	protected void pop() {
 		root = elements.pop();
-		if (current.size > 0)
+		if (current.size > 0) {
 			lastChild.pop();
+		}
 		current = elements.size > 0 ? elements.peek() : null;
 	}
 
@@ -836,10 +837,13 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 			value.next = null;
 			value.prev = null;
 			value.parent = null;
+			value.name = null;
+			value.set(0.0, null);
+			value.setType(ValueType.nullValue);
 		}
 
 		void reset() {
-			//TODO freeAll(obtainedValues);
+			freeAll(obtainedValues);
 			obtainedValues.clear();
 		}
 	}
