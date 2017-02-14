@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
@@ -51,7 +52,7 @@ public final class GurellaApplication implements ApplicationListener {
 	}
 
 	public static GurellaApplication current() {
-		return (GurellaApplication) Gdx.app.getApplicationListener();
+		return (GurellaApplication) AsyncService.getApplication().getApplicationListener();
 	}
 
 	@Override

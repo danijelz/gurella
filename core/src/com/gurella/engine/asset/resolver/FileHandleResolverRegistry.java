@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Sort;
 import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.utils.priority.PriorityComparator;
 
-public class FilehandleResolverRegistry implements FileHandleFactory {
+public class FileHandleResolverRegistry implements FileHandleFactory {
 	private final Files files = Gdx.files;
 	private final Array<FileHandleResolver> resolvers = new Array<FileHandleResolver>();
 	private final Sort sort = new Sort();

@@ -47,10 +47,6 @@ public class Assets {
 		return assetFileName + '.' + DefaultAssetDescriptors.assetProps.getSingleExtension();
 	}
 
-	public static boolean fileExists(String fileName, FileType fileType) {
-		return Gdx.files.getFileHandle(fileName, fileType).exists();
-	}
-
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
 		char fileTypeInfo = hasFileTypeInfo ? path.charAt(0) : getDefaultFileTypeInfo(path);
@@ -91,7 +87,7 @@ public class Assets {
 		}
 	}
 
-	private static char getDefaultFileTypeInfo(String path) {
+	public static char getDefaultFileTypeInfo(String path) {
 		return isAbsolutePath(path) ? absoluteFileType : internalFileType;
 	}
 

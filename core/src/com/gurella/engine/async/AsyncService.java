@@ -4,14 +4,14 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public final class AsyncService {
+	static final ThreadLocal<Application> applicationContext = new ThreadLocal<Application>();
+
 	private static final ObjectMap<Application, AsyncExecutor> instances = new ObjectMap<Application, AsyncExecutor>();
 	private static AsyncExecutor lastSelected;
 	private static Application lastApp;
@@ -38,7 +38,6 @@ public final class AsyncService {
 
 			lastApp = app;
 			lastSelected = executor;
-
 		}
 
 		if (subscribe) {
@@ -46,6 +45,11 @@ public final class AsyncService {
 		}
 
 		return executor;
+	}
+
+	public static Application getApplication() {
+		Application application = applicationContext.get();
+		return application == null ? Gdx.app : application;
 	}
 
 	public static <T> AsyncResult<T> submit(final AsyncTask<T> task) {

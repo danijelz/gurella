@@ -21,7 +21,7 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.asset.resolver.FileHandleResolver;
-import com.gurella.engine.asset.resolver.FilehandleResolverRegistry;
+import com.gurella.engine.asset.resolver.FileHandleResolverRegistry;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.SimpleAsyncCallback;
 import com.gurella.engine.subscriptions.application.ApplicationCleanupListener;
@@ -37,7 +37,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 	private final Files files = Gdx.files;
 	private final AssetRegistry registry = new AssetRegistry();
 
-	private final FilehandleResolverRegistry resolvers = new FilehandleResolverRegistry();
+	private final FileHandleResolverRegistry resolvers = new FileHandleResolverRegistry();
 
 	private final IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>> loaders = new IdentityMap<Factory<? extends AssetLoader<?, ?>>, AssetLoader<?, ?>>();
 	private final IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>> persisters = new IdentityMap<Factory<? extends AssetPersister<?>>, AssetPersister<?>>();
