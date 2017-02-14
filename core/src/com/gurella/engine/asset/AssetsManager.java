@@ -257,7 +257,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 		}
 
 		while (!callback.isDone()) {
-			executor.update();
+			update();
 			ThreadUtils.yield();
 		}
 

@@ -326,9 +326,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		if (phase == waitingDependencies && allDependenciesResolved()) {
 			phase = async;
 			executor.taskStateChanged(this);
-			updateProgress();
-		} else {
-			updateProgress();
 		}
 	}
 
@@ -339,7 +336,6 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			phase = finished;
 			notifyDependenciesAboutException();
 			executor.taskStateChanged(this);
-			updateProgress();
 		}
 	}
 
