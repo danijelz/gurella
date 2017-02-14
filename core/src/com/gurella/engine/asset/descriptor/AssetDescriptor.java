@@ -20,8 +20,8 @@ public class AssetDescriptor<TYPE> {
 	private Factory<? extends AssetLoader<TYPE, ? extends AssetProperties>> defaultLoaderFactory;
 	private final ObjectMap<String, Factory<? extends AssetLoader<TYPE, ? extends AssetProperties>>> loadersByExtension = new ObjectMap<String, Factory<? extends AssetLoader<TYPE, ? extends AssetProperties>>>();
 
-	private Factory<AssetPersister<TYPE>> defaultPersisterFactory;
-	private final ObjectMap<String, Factory<AssetPersister<TYPE>>> persistersByExtension = new ObjectMap<String, Factory<AssetPersister<TYPE>>>();
+	private Factory<? extends AssetPersister<TYPE>> defaultPersisterFactory;
+	private final ObjectMap<String, Factory<? extends AssetPersister<TYPE>>> persistersByExtension = new ObjectMap<String, Factory<? extends AssetPersister<TYPE>>>();
 	// TODO AssetReloader, MissingValueProvider
 
 	public AssetDescriptor(Class<TYPE> assetType, boolean validForSubtypes, boolean hasReferences, String extension) {
@@ -70,8 +70,9 @@ public class AssetDescriptor<TYPE> {
 	public AssetDescriptor<TYPE> registerLoaderFactory(
 			Factory<? extends AssetLoader<TYPE, ? extends AssetProperties>> loaderFactory, String extension) {
 		if (Values.isNotBlank(extension) && !"*".equals(extension)) {
-			loadersByExtension.put(extension.toLowerCase(), loaderFactory);
-			this._extensions.add(extension);
+			String temp = extension.toLowerCase();
+			loadersByExtension.put(temp, loaderFactory);
+			this._extensions.add(temp);
 		} else {
 			defaultLoaderFactory = loaderFactory;
 		}
@@ -93,16 +94,41 @@ public class AssetDescriptor<TYPE> {
 		return loader;
 	}
 
+	public AssetDescriptor<TYPE> registerPersisterFactory(Factory<? extends AssetPersister<TYPE>> persisterFactory,
+			String... extensions) {
+		for (int i = 0; i < extensions.length; i++) {
+			String extension = extensions[i];
+			registerPersisterFactory(persisterFactory, extension);
+		}
+		return this;
+	}
+
+	public AssetDescriptor<TYPE> registerPersisterFactory(Factory<? extends AssetPersister<TYPE>> persisterFactory,
+			String extension) {
+		if (Values.isNotBlank(extension) && !"*".equals(extension)) {
+			String temp = extension.toLowerCase();
+			persistersByExtension.put(temp, persisterFactory);
+			this._extensions.add(temp);
+		} else {
+			defaultPersisterFactory = persisterFactory;
+		}
+		return this;
+	}
+
 	public Factory<AssetPersister<TYPE>> getPersisterFactory(String fileName) {
 		if (Assets.hasFileExtension(fileName)) {
 			String extension = Assets.getFileExtension(fileName).toLowerCase();
-			Factory<AssetPersister<TYPE>> persister = persistersByExtension.get(extension);
+			@SuppressWarnings("unchecked")
+			Factory<AssetPersister<TYPE>> persister = (Factory<AssetPersister<TYPE>>) persistersByExtension
+					.get(extension);
 			if (persister != null) {
 				return persister;
 			}
 		}
 
-		return defaultPersisterFactory;
+		@SuppressWarnings("unchecked")
+		Factory<AssetPersister<TYPE>> persister = (Factory<AssetPersister<TYPE>>) defaultPersisterFactory;
+		return persister;
 	}
 
 	public boolean isValidExtension(String extension) {

@@ -28,6 +28,7 @@ import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
 import com.gurella.engine.asset.loader.sound.SoundLoader;
 import com.gurella.engine.asset.loader.texture.TextureLoader;
 import com.gurella.engine.asset.loader.textureatlas.TextureAtlasLoader;
+import com.gurella.engine.asset.persister.json.SerializedJsonPersister;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.scene.Scene;
@@ -46,7 +47,7 @@ public class DefaultAssetDescriptors {
 	public static final AssetDescriptor<MaterialDescriptor> material = createSerialized(MaterialDescriptor.class, "gmat");
 	public static final AssetDescriptor<ApplicationConfig> appConfig = createSerialized(ApplicationConfig.class, "gcfg");
 	public static final AssetDescriptor<AssetProperties> assetProps = createSerialized(AssetProperties.class, "gprop");
-	public static final AssetDescriptor<RenderTarget> renderTarget = create(RenderTarget.class, true, true, RenderTargetLoader.class, "grt");
+	public static final AssetDescriptor<RenderTarget> renderTarget = createSerialized(RenderTarget.class, RenderTargetLoader.class, "grt");
 
 	public static final AssetDescriptor<Texture> texture = create(Texture.class, false, false, TextureLoader.class, "png", "jpg", "jpeg");
 	public static final AssetDescriptor<TextureAtlas> textureAtlas = create(TextureAtlas.class, false, false, TextureAtlasLoader.class, "atl");
@@ -62,7 +63,6 @@ public class DefaultAssetDescriptors {
 
 	// ShaderTemplateLoader
 	// soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
-	// polygonRegion(PolygonRegion.class, "psh"),
 	// inputActionMap(InputActionMap.class, true, null, "giam"),
 	// shaderTemplate(ShaderTemplate.class, true, null, "glslt"),
 	// renderProgram(UnimplementedAsset.class),
@@ -80,6 +80,16 @@ public class DefaultAssetDescriptors {
 	private static <T> AssetDescriptor<T> createSerialized(Class<T> type, String extension) {
 		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(type, true, true);
 		descriptor.registerLoaderFactory(new SelializedJsonLoaderFactory<T>(type), extension);
+		descriptor.registerPersisterFactory(new SelializedJsonPersisterFactory<T>(type), extension);
+		_descriptors.add(descriptor);
+		return descriptor;
+	}
+
+	private static <T, L extends AssetLoader<T, ? extends AssetProperties>> AssetDescriptor<T> createSerialized(
+			Class<T> type, Class<L> loaderType, String extension) {
+		AssetDescriptor<T> descriptor = new AssetDescriptor<T>(type, true, true);
+		descriptor.registerLoaderFactory(new ReflectionFactory<L>(loaderType), extension);
+		descriptor.registerPersisterFactory(new SelializedJsonPersisterFactory<T>(type), extension);
 		_descriptors.add(descriptor);
 		return descriptor;
 	}
@@ -120,6 +130,19 @@ public class DefaultAssetDescriptors {
 		@Override
 		public SelializedJsonLoader<T> create() {
 			return new SelializedJsonLoader<T>(expectedType);
+		}
+	}
+
+	private static class SelializedJsonPersisterFactory<T> implements Factory<SerializedJsonPersister<T>> {
+		private final Class<T> expectedType;
+
+		SelializedJsonPersisterFactory(Class<T> expectedType) {
+			this.expectedType = expectedType;
+		}
+
+		@Override
+		public SerializedJsonPersister<T> create() {
+			return new SerializedJsonPersister<T>(expectedType);
 		}
 	}
 }
