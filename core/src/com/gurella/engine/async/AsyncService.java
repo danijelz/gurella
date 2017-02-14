@@ -24,7 +24,7 @@ public final class AsyncService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
