@@ -160,7 +160,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 		addAll(Values.<T[]> cast(array.items), offset, length);
 	}
 
-	public void addAll(@SuppressWarnings("unchecked") T... array) {
+	public void addAll(T... array) {
 		addAll(array, 0, array.length);
 	}
 
@@ -349,17 +349,18 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 	 * capacity is used instead.
 	 */
 	public void shrink(int maximumCapacity) {
-		if (maximumCapacity < 0) {
-			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
+		int tempMaximumCapacity = maximumCapacity;
+		if (tempMaximumCapacity < 0) {
+			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + tempMaximumCapacity);
 		}
-		if (size > maximumCapacity) {
-			maximumCapacity = size;
+		if (size > tempMaximumCapacity) {
+			tempMaximumCapacity = size;
 		}
-		if (capacity <= maximumCapacity) {
+		if (capacity <= tempMaximumCapacity) {
 			return;
 		}
-		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
-		resize(maximumCapacity, 0);
+		tempMaximumCapacity = MathUtils.nextPowerOfTwo(tempMaximumCapacity);
+		resize(tempMaximumCapacity, 0);
 	}
 
 	/** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
@@ -463,13 +464,13 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 	}
 
 	private int hash2(int h) {
-		h *= PRIME1;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME1;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
 
 	private int hash3(int h) {
-		h *= PRIME2;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME2;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
 
 	@Override
@@ -570,7 +571,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 		}
 	}
 
-	static public <T> IdentitySet<T> with(@SuppressWarnings("unchecked") T... array) {
+	static public <T> IdentitySet<T> with(T... array) {
 		IdentitySet<T> set = new IdentitySet<T>();
 		set.addAll(array);
 		return set;

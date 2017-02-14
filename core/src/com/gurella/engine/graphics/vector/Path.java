@@ -851,6 +851,7 @@ public class Path implements PathConstants, Poolable {
 	}
 	
 	private void reverseSegment(int segmentStart, FloatArray segmentCommands) {
+		int segment = segmentStart;
 		int last = segmentCommands.size - 1;
 		boolean segmentClosed = false;
 		boolean segmentWinding = false;
@@ -869,9 +870,9 @@ public class Path implements PathConstants, Poolable {
 
 		tempCommands.reverse();
 		int i = 0;
-		commands.set(segmentStart++, moveTo);
-		commands.set(segmentStart++, tempCommands.get(i + 1));
-		commands.set(segmentStart++, tempCommands.get(i));
+		commands.set(segment++, moveTo);
+		commands.set(segment++, tempCommands.get(i + 1));
+		commands.set(segment++, tempCommands.get(i));
 		i += 2;
 
 		while (last > 0) {
@@ -879,19 +880,19 @@ public class Path implements PathConstants, Poolable {
 
 			switch (cmd) {
 			case lineTo:
-				commands.set(segmentStart++, lineTo);
-				commands.set(segmentStart++, tempCommands.get(i + 1));
-				commands.set(segmentStart++, tempCommands.get(i));
+				commands.set(segment++, lineTo);
+				commands.set(segment++, tempCommands.get(i + 1));
+				commands.set(segment++, tempCommands.get(i));
 				i += 2;
 				break;
 			case cubicTo:
-				commands.set(segmentStart++, cubicTo);
-				commands.set(segmentStart++, tempCommands.get(i + 1));
-				commands.set(segmentStart++, tempCommands.get(i));
-				commands.set(segmentStart++, tempCommands.get(i + 3));
-				commands.set(segmentStart++, tempCommands.get(i + 2));
-				commands.set(segmentStart++, tempCommands.get(i + 5));
-				commands.set(segmentStart++, tempCommands.get(i + 4));
+				commands.set(segment++, cubicTo);
+				commands.set(segment++, tempCommands.get(i + 1));
+				commands.set(segment++, tempCommands.get(i));
+				commands.set(segment++, tempCommands.get(i + 3));
+				commands.set(segment++, tempCommands.get(i + 2));
+				commands.set(segment++, tempCommands.get(i + 5));
+				commands.set(segment++, tempCommands.get(i + 4));
 				i += 6;
 				break;
 			default:
@@ -900,12 +901,12 @@ public class Path implements PathConstants, Poolable {
 		}
 		
 		if(segmentWinding) {
-			commands.set(segmentStart++, winding);
-			commands.set(segmentStart++, lastWinding);
+			commands.set(segment++, winding);
+			commands.set(segment++, lastWinding);
 		}
 		
 		if(segmentClosed) {
-			commands.set(segmentStart++, close);
+			commands.set(segment++, close);
 		}
 	}
 	

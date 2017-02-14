@@ -10,21 +10,20 @@ public class ArcShape extends Shape {
 	private Direction direction;
 	private ArcType type;
 
-	public ArcShape(float centerX, float centerY, float radius, float startAngleRad, float endAngleRad, Direction direction, ArcType type) {
+	public ArcShape(float centerX, float centerY, float radius, float startAngleRad, float endAngleRad,
+			Direction direction, ArcType type) {
 		this(centerX, centerY, radius, radius, startAngleRad, endAngleRad, direction, type);
 	}
 
 	/*
-	 * TODO public ArcShape(float left, float top, float width, float height,
-	 * float startAngleRad, float endAngleRad, Direction direction, ArcType
-	 * type) { this.centerX = centerX; this.centerY = centerY; this.radiusX =
-	 * radiusX; this.radiusY = radiusY; this.startAngleRad = startAngleRad;
-	 * this.endAngleRad = endAngleRad; this.direction = direction == null ?
-	 * Direction.clockwise : direction; this.type = type == null ? ArcType.OPEN
-	 * : type; }
+	 * TODO public ArcShape(float left, float top, float width, float height, float startAngleRad, float endAngleRad,
+	 * Direction direction, ArcType type) { this.centerX = centerX; this.centerY = centerY; this.radiusX = radiusX;
+	 * this.radiusY = radiusY; this.startAngleRad = startAngleRad; this.endAngleRad = endAngleRad; this.direction =
+	 * direction == null ? Direction.clockwise : direction; this.type = type == null ? ArcType.OPEN : type; }
 	 */
 
-	public ArcShape(float centerX, float centerY, float radiusX, float radiusY, float startAngleRad, float endAngleRad, Direction direction, ArcType type) {
+	public ArcShape(float centerX, float centerY, float radiusX, float radiusY, float startAngleRad, float endAngleRad,
+			Direction direction, ArcType type) {
 		this.centerX = centerX;
 		this.centerY = centerY;
 		this.radiusX = radiusX;
@@ -106,9 +105,9 @@ public class ArcShape extends Shape {
 	}
 
 	public void setDirection(Direction direction) {
-		direction = direction == null ? Direction.clockwise : direction;
-		if (this.direction != direction) {
-			this.direction = direction;
+		Direction resolvedDirection = direction == null ? Direction.clockwise : direction;
+		if (this.direction != resolvedDirection) {
+			this.direction = resolvedDirection;
 			markDataChanged();
 		}
 	}
@@ -118,9 +117,9 @@ public class ArcShape extends Shape {
 	}
 
 	public void setType(ArcType type) {
-		type = type == null ? ArcType.OPEN : type;
-		if (this.type != type) {
-			this.type = type;
+		ArcType resolvedType = type == null ? ArcType.OPEN : type;
+		if (this.type != resolvedType) {
+			this.type = resolvedType;
 			markDataChanged();
 		}
 	}

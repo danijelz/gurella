@@ -22,7 +22,6 @@ import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.async.CompositeAsyncCallback;
 import com.gurella.engine.utils.Values;
 
 class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, DependencyCollector, DependencySupplier,
@@ -33,7 +32,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	int requestId;
 
 	final AssetId assetId = new AssetId();
-	final TaskCallback<T> callback = new TaskCallback<T>();
+	final AssetLoadingTaskCallback<T> callback = new AssetLoadingTaskCallback<T>();
 
 	AssetsManager manager;
 	AssetLoadingExecutor executor;
@@ -96,19 +95,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	private boolean step() {
 		switch (phase) {
 		case ready:
-			phase = start();
+			start();
 			return phase != waitingDependencies;
 		case async:
-			properties = getProperties();
-			loader.processAsync(this, file, properties);
-			phase = sync;
+			async();
 			return false;
 		case sync:
-			asset = loader.finish(this, file, properties);
-			if (asset instanceof Bundle) {
-				((Bundle) asset).getBundledAssets(bundledAssets);
-			}
-			phase = finished;
+			sync();
 			return true;
 		case finished:
 			finish();
@@ -119,13 +112,13 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 	}
 
-	private AssetLoadingPhase start() {
+	private void start() {
 		loader.initDependencies(this, file);
 		FileHandle propsHandle = getPropertiesFile(assetId.fileName, assetId.fileType);
 		if (propsHandle != null) {
 			addPropertiesDependency(propsHandle.path(), propsHandle.type(), AssetProperties.class);
 		}
-		return allDependenciesResolved() ? async : waitingDependencies;
+		phase = allDependenciesResolved() ? async : waitingDependencies;
 	}
 
 	private FileHandle getPropertiesFile(String assetFileName, FileType fileType) {
@@ -151,6 +144,20 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 
 		return true;
+	}
+
+	private void async() {
+		properties = getProperties();
+		loader.processAsync(this, file, properties);
+		phase = sync;
+	}
+
+	private void sync() {
+		asset = loader.finish(this, file, properties);
+		if (asset instanceof Bundle) {
+			((Bundle) asset).getBundledAssets(bundledAssets);
+		}
+		phase = finished;
 	}
 
 	private void finish() {
@@ -429,45 +436,5 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		}
 
 		return builder.toString();
-	}
-
-	private static class TaskCallback<T> extends CompositeAsyncCallback<T> {
-		boolean isActive() {
-			for (int i = 0, n = callbacks.size(); i < n; i++) {
-				AsyncCallback<? super T> callback = callbacks.get(i);
-				if (callback instanceof AssetLoadingTask) {
-					AssetLoadingTask<?> dependentTask = (AssetLoadingTask<?>) callback;
-					if (dependentTask.phase != finished) {
-						return true;
-					}
-				}
-			}
-
-			return false;
-		}
-
-		public int getReferences() {
-			int count = 0;
-			for (int i = 0, n = callbacks.size(); i < n; i++) {
-				AsyncCallback<? super T> concurrentCallback = callbacks.get(i);
-				if (!(concurrentCallback instanceof AssetLoadingTask)) {
-					count++;
-				}
-			}
-
-			return count;
-		}
-
-		public int getReservations() {
-			int count = 0;
-			for (int i = 0, n = callbacks.size(); i < n; i++) {
-				AsyncCallback<? super T> concurrentCallback = callbacks.get(i);
-				if (concurrentCallback instanceof AssetLoadingTask) {
-					count++;
-				}
-			}
-
-			return count;
-		}
 	}
 }

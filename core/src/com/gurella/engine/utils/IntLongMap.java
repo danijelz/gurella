@@ -220,6 +220,14 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 
 	private void push(int insertKey, long insertValue, int index1, int key1, int index2, int key2, int index3,
 			int key3) {
+		int tempInsertKey = insertKey;
+		long tempInsertValue = insertValue;
+		int tempIndex1 = index1;
+		int tempKey1 = key1;
+		int tempIndex2 = index2;
+		int tempKey2 = key2;
+		int tempIndex3 = index3;
+		int tempKey3 = key3;
 		int[] keyTable = this.keyTable;
 		long[] valueTable = this.valueTable;
 		int mask = this.mask;
@@ -232,53 +240,53 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 			// Replace the key and value for one of the hashes.
 			switch (MathUtils.random(2)) {
 			case 0:
-				evictedKey = key1;
-				evictedValue = valueTable[index1];
-				keyTable[index1] = insertKey;
-				valueTable[index1] = insertValue;
+				evictedKey = tempKey1;
+				evictedValue = valueTable[tempIndex1];
+				keyTable[tempIndex1] = tempInsertKey;
+				valueTable[tempIndex1] = tempInsertValue;
 				break;
 			case 1:
-				evictedKey = key2;
-				evictedValue = valueTable[index2];
-				keyTable[index2] = insertKey;
-				valueTable[index2] = insertValue;
+				evictedKey = tempKey2;
+				evictedValue = valueTable[tempIndex2];
+				keyTable[tempIndex2] = tempInsertKey;
+				valueTable[tempIndex2] = tempInsertValue;
 				break;
 			default:
-				evictedKey = key3;
-				evictedValue = valueTable[index3];
-				keyTable[index3] = insertKey;
-				valueTable[index3] = insertValue;
+				evictedKey = tempKey3;
+				evictedValue = valueTable[tempIndex3];
+				keyTable[tempIndex3] = tempInsertKey;
+				valueTable[tempIndex3] = tempInsertValue;
 				break;
 			}
 
 			// If the evicted key hashes to an empty bucket, put it there and stop.
-			index1 = evictedKey & mask;
-			key1 = keyTable[index1];
-			if (key1 == EMPTY) {
-				keyTable[index1] = evictedKey;
-				valueTable[index1] = evictedValue;
+			tempIndex1 = evictedKey & mask;
+			tempKey1 = keyTable[tempIndex1];
+			if (tempKey1 == EMPTY) {
+				keyTable[tempIndex1] = evictedKey;
+				valueTable[tempIndex1] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
 				return;
 			}
 
-			index2 = hash2(evictedKey);
-			key2 = keyTable[index2];
-			if (key2 == EMPTY) {
-				keyTable[index2] = evictedKey;
-				valueTable[index2] = evictedValue;
+			tempIndex2 = hash2(evictedKey);
+			tempKey2 = keyTable[tempIndex2];
+			if (tempKey2 == EMPTY) {
+				keyTable[tempIndex2] = evictedKey;
+				valueTable[tempIndex2] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
 				return;
 			}
 
-			index3 = hash3(evictedKey);
-			key3 = keyTable[index3];
-			if (key3 == EMPTY) {
-				keyTable[index3] = evictedKey;
-				valueTable[index3] = evictedValue;
+			tempIndex3 = hash3(evictedKey);
+			tempKey3 = keyTable[tempIndex3];
+			if (tempKey3 == EMPTY) {
+				keyTable[tempIndex3] = evictedKey;
+				valueTable[tempIndex3] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
@@ -289,8 +297,8 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 				break;
 			}
 
-			insertKey = evictedKey;
-			insertValue = evictedValue;
+			tempInsertKey = evictedKey;
+			tempInsertValue = evictedValue;
 		} while (true);
 
 		putStash(evictedKey, evictedValue);
