@@ -1,6 +1,6 @@
 package com.gurella.engine.utils;
 
-import static com.gurella.engine.utils.Values.*; 
+import static com.gurella.engine.utils.Values.*;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -199,6 +199,15 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	private void push(K insertKey, int insertValue, int index1, K key1, int index2, K key2, int index3, K key3) {
+		K tempInsertKey = insertKey;
+		int tempInsertValue = insertValue;
+		int tempIndex1 = index1;
+		K tempKey1 = key1;
+		int tempIndex2 = index2;
+		K tempKey2 = key2;
+		int tempIndex3 = index3;
+		K tempKey3 = key3;
+
 		K[] keyTable = this.keyTable;
 		int[] valueTable = this.valueTable;
 		int mask = this.mask;
@@ -211,54 +220,54 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			// Replace the key and value for one of the hashes.
 			switch (MathUtils.random(2)) {
 			case 0:
-				evictedKey = key1;
-				evictedValue = valueTable[index1];
-				keyTable[index1] = insertKey;
-				valueTable[index1] = insertValue;
+				evictedKey = tempKey1;
+				evictedValue = valueTable[tempIndex1];
+				keyTable[tempIndex1] = tempInsertKey;
+				valueTable[tempIndex1] = tempInsertValue;
 				break;
 			case 1:
-				evictedKey = key2;
-				evictedValue = valueTable[index2];
-				keyTable[index2] = insertKey;
-				valueTable[index2] = insertValue;
+				evictedKey = tempKey2;
+				evictedValue = valueTable[tempIndex2];
+				keyTable[tempIndex2] = tempInsertKey;
+				valueTable[tempIndex2] = tempInsertValue;
 				break;
 			default:
-				evictedKey = key3;
-				evictedValue = valueTable[index3];
-				keyTable[index3] = insertKey;
-				valueTable[index3] = insertValue;
+				evictedKey = tempKey3;
+				evictedValue = valueTable[tempIndex3];
+				keyTable[tempIndex3] = tempInsertKey;
+				valueTable[tempIndex3] = tempInsertValue;
 				break;
 			}
 
 			// If the evicted key hashes to an empty bucket, put it there and stop.
 			int hashCode = System.identityHashCode(evictedKey);
-			index1 = hashCode & mask;
-			key1 = keyTable[index1];
-			if (key1 == null) {
-				keyTable[index1] = evictedKey;
-				valueTable[index1] = evictedValue;
+			tempIndex1 = hashCode & mask;
+			tempKey1 = keyTable[tempIndex1];
+			if (tempKey1 == null) {
+				keyTable[tempIndex1] = evictedKey;
+				valueTable[tempIndex1] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
 				return;
 			}
 
-			index2 = hash2(hashCode);
-			key2 = keyTable[index2];
-			if (key2 == null) {
-				keyTable[index2] = evictedKey;
-				valueTable[index2] = evictedValue;
+			tempIndex2 = hash2(hashCode);
+			tempKey2 = keyTable[tempIndex2];
+			if (tempKey2 == null) {
+				keyTable[tempIndex2] = evictedKey;
+				valueTable[tempIndex2] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
 				return;
 			}
 
-			index3 = hash3(hashCode);
-			key3 = keyTable[index3];
-			if (key3 == null) {
-				keyTable[index3] = evictedKey;
-				valueTable[index3] = evictedValue;
+			tempIndex3 = hash3(hashCode);
+			tempKey3 = keyTable[tempIndex3];
+			if (tempKey3 == null) {
+				keyTable[tempIndex3] = evictedKey;
+				valueTable[tempIndex3] = evictedValue;
 				if (size++ >= threshold) {
 					resize(capacity << 1);
 				}
@@ -269,8 +278,8 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 				break;
 			}
 
-			insertKey = evictedKey;
-			insertValue = evictedValue;
+			tempInsertKey = evictedKey;
+			tempInsertValue = evictedValue;
 		} while (true);
 
 		putStash(evictedKey, evictedValue);
@@ -411,17 +420,18 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	 * capacity is used instead.
 	 */
 	public void shrink(int maximumCapacity) {
-		if (maximumCapacity < 0) {
-			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
+		int tempMaximumCapacity = maximumCapacity;
+		if (tempMaximumCapacity < 0) {
+			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + tempMaximumCapacity);
 		}
-		if (size > maximumCapacity) {
-			maximumCapacity = size;
+		if (size > tempMaximumCapacity) {
+			tempMaximumCapacity = size;
 		}
-		if (capacity <= maximumCapacity) {
+		if (capacity <= tempMaximumCapacity) {
 			return;
 		}
-		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
-		resize(maximumCapacity);
+		tempMaximumCapacity = MathUtils.nextPowerOfTwo(tempMaximumCapacity);
+		resize(tempMaximumCapacity);
 	}
 
 	/** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
@@ -434,6 +444,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		resize(maximumCapacity);
 	}
 
+	@Override
 	public void clear() {
 		if (size == 0) {
 			return;
@@ -525,7 +536,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		K[] oldKeyTable = keyTable;
 		int[] oldValueTable = valueTable;
 
-		keyTable = (K[]) new Object[newSize + stashCapacity];
+		@SuppressWarnings("unchecked")
+		K[] casted = (K[]) new Object[newSize + stashCapacity];
+		keyTable = casted;
 		valueTable = new int[newSize + stashCapacity];
 
 		int oldSize = size;
@@ -542,15 +555,15 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	private int hash2(int h) {
-		h *= PRIME1;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME1;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
 
 	private int hash3(int h) {
-		h *= PRIME2;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME2;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
-	
+
 	@Override
 	public int size() {
 		return size;

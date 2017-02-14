@@ -1,7 +1,5 @@
 package com.gurella.engine.graphics.vector.sfnt.opentype;
 
-import java.util.Arrays;
-
 import com.gurella.engine.graphics.vector.sfnt.RandomAccessFile;
 import com.gurella.engine.graphics.vector.sfnt.Table;
 

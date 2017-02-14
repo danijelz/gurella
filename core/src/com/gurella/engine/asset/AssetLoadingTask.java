@@ -33,7 +33,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	int requestId;
 
 	final AssetId assetId = new AssetId();
-	final DelegatingCallback<T> callback = new DelegatingCallback<T>();
+	final TaskCallback<T> callback = new TaskCallback<T>();
 
 	AssetsManager manager;
 	AssetLoadingExecutor executor;
@@ -86,9 +86,8 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 				proceed = step();
 				updateProgress();
 			} catch (Exception exception) {
-				this.exception = exception;
-				phase = finished;
 				proceed = false;
+				handleException(exception, false);
 				// TODO updateProgressSafely();
 			}
 		}
@@ -115,8 +114,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 			finish();
 			return false;
 		default:
-			this.exception = new IllegalStateException("Invalid loading state.");
-			phase = finished;
+			handleException(exception, false);
 			return false;
 		}
 	}
@@ -331,11 +329,17 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 
 	@Override
 	public void onException(Throwable exception) {
+		handleException(exception, true);
+	}
+
+	private void handleException(Throwable exception, boolean notifyManager) {
 		if (phase != finished && this.exception == null) {
 			this.exception = exception == null ? new RuntimeException("propagated exception is null") : exception;
 			phase = finished;
 			notifyDependenciesAboutException();
-			executor.taskStateChanged(this);
+			if (notifyManager) {
+				executor.taskStateChanged(this);
+			}
 		}
 	}
 
@@ -427,7 +431,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		return builder.toString();
 	}
 
-	private static class DelegatingCallback<T> extends CompositeAsyncCallback<T> {
+	private static class TaskCallback<T> extends CompositeAsyncCallback<T> {
 		boolean isActive() {
 			for (int i = 0, n = callbacks.size(); i < n; i++) {
 				AsyncCallback<? super T> callback = callbacks.get(i);

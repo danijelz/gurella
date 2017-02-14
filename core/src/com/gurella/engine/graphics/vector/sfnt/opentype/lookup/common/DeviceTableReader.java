@@ -66,7 +66,7 @@ public class DeviceTableReader {
 		return extractDeltaValue(deltaValue, deltaSize, deltaValueIndex);
 	}
 	
-	private int extractDeltaValue(int deltaValue, short deltaSize, int deltaValueIndex) {
+	private static int extractDeltaValue(int deltaValue, short deltaSize, int deltaValueIndex) {
 		int endBitPos = deltaSize * deltaValueIndex;
 		int startBitPos = endBitPos + deltaSize;
 		// Clear unnecessary high bits

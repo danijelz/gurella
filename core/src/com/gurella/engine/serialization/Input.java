@@ -1,7 +1,5 @@
 package com.gurella.engine.serialization;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.ImmutableArray;
 
 public interface Input {

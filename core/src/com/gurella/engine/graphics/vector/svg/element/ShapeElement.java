@@ -45,14 +45,14 @@ public abstract class ShapeElement extends KnownElement implements RenderableEle
 
 	protected boolean initFillPaint(Canvas canvas, float globalOpacity) {
 		Paint fillPaint = getPropertyOrDefault(PropertyType.fill);
-		if(fillPaint == Paint.currentColor) {
+		if (fillPaint == Paint.currentColor) {
 			fillPaint = getPropertyOrDefault(PropertyType.color);
 		}
-		
+
 		if (fillPaint == null || fillPaint == Paint.none) {
 			return false;
 		}
-		
+
 		float fillOpacity = getOpacity(PropertyType.fillOpacity);
 		if (fillOpacity * globalOpacity > 0) {
 			fillPaint.initCanvasPaint(getSvg(), canvas.getFillPaint(), fillOpacity);
@@ -64,10 +64,10 @@ public abstract class ShapeElement extends KnownElement implements RenderableEle
 
 	protected boolean initStrokePaint(Canvas canvas, float globalOpacity) {
 		Paint strokePaint = getPropertyOrDefault(PropertyType.stroke);
-		if(strokePaint == Paint.currentColor) {
+		if (strokePaint == Paint.currentColor) {
 			strokePaint = getPropertyOrDefault(PropertyType.color);
 		}
-		
+
 		if (strokePaint == null || strokePaint == Paint.none) {
 			return false;
 		}
@@ -98,7 +98,7 @@ public abstract class ShapeElement extends KnownElement implements RenderableEle
 	}
 
 	private float getOpacity(PropertyType propertyType) {
-		float opacity = getPropertyOrDefault(propertyType);
+		float opacity = this.<Float> getPropertyOrDefault(propertyType).floatValue();
 		return MathUtils.clamp(opacity, 0, 1);
 	}
 
@@ -117,7 +117,8 @@ public abstract class ShapeElement extends KnownElement implements RenderableEle
 		}
 
 		float halfStrokeWidth = strokeWidth / 2;
-		return out.set(out.x - halfStrokeWidth, out.y - halfStrokeWidth, out.width + strokeWidth, out.height + strokeWidth);
+		return out.set(out.x - halfStrokeWidth, out.y - halfStrokeWidth, out.width + strokeWidth,
+				out.height + strokeWidth);
 	}
 
 	private Path getPath() {

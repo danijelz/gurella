@@ -13,10 +13,10 @@ public class StopElement extends KnownElement {
 	}
 
 	public float getStopOpacity() {
-		return getPropertyOrDefault(PropertyType.stopOpacity);
+		return this.<Float> getPropertyOrDefault(PropertyType.stopOpacity).floatValue();
 	}
 
 	public float getOffset() {
-		return getPropertyOrDefault(PropertyType.offset);
+		return this.<Float> getPropertyOrDefault(PropertyType.offset).floatValue();
 	}
 }

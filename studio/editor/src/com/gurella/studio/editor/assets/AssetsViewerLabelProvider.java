@@ -1,5 +1,18 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.appConfig;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.assetProps;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.bitmapFont;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.material;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.model;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.pixmap;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.polygonRegion;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.prefab;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.scene;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.sound;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.texture;
+import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.textureAtlas;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -9,9 +22,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.*;
-
-import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 

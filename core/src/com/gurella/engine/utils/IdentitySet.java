@@ -372,6 +372,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable, Container {
 		resize(maximumCapacity, 0);
 	}
 
+	@Override
 	public void clear() {
 		if (size == 0)
 			return;

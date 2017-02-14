@@ -8,13 +8,16 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.StringBuilder;
 
-/** An unordered map where the keys and values are ints. This implementation is a cuckoo hash map using 3 hashes, random walking,
- * and a small stash for problematic keys. No allocation is done except when growing the table size. <br>
+/**
+ * An unordered map where the keys and values are ints. This implementation is a cuckoo hash map using 3 hashes, random
+ * walking, and a small stash for problematic keys. No allocation is done except when growing the table size. <br>
  * <br>
- * This map performs very fast get, containsKey, and remove (typically O(1), worst case O(log(n))). Put may be a bit slower,
- * depending on hash collisions. Load factors greater than 0.91 greatly increase the chances the map will have to rehash to the
- * next higher POT size.
- * @author Nathan Sweet */
+ * This map performs very fast get, containsKey, and remove (typically O(1), worst case O(log(n))). Put may be a bit
+ * slower, depending on hash collisions. Load factors greater than 0.91 greatly increase the chances the map will have
+ * to rehash to the next higher POT size.
+ * 
+ * @author Nathan Sweet
+ */
 public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
@@ -452,17 +455,18 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 	 * capacity is used instead.
 	 */
 	public void shrink(int maximumCapacity) {
-		if (maximumCapacity < 0) {
-			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
+		int tempMaximumCapacity = maximumCapacity;
+		if (tempMaximumCapacity < 0) {
+			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + tempMaximumCapacity);
 		}
-		if (size > maximumCapacity) {
-			maximumCapacity = size;
+		if (size > tempMaximumCapacity) {
+			tempMaximumCapacity = size;
 		}
-		if (capacity <= maximumCapacity) {
+		if (capacity <= tempMaximumCapacity) {
 			return;
 		}
-		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
-		resize(maximumCapacity);
+		tempMaximumCapacity = MathUtils.nextPowerOfTwo(tempMaximumCapacity);
+		resize(tempMaximumCapacity);
 	}
 
 	/** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
@@ -476,6 +480,7 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 		resize(maximumCapacity);
 	}
 
+	@Override
 	public void clear() {
 		if (size == 0) {
 			return;
@@ -591,13 +596,13 @@ public class IntLongMap implements Iterable<IntLongMap.Entry>, Container {
 	}
 
 	private int hash2(int h) {
-		h *= PRIME1;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME1;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
 
 	private int hash3(int h) {
-		h *= PRIME2;
-		return (h ^ h >>> hashShift) & mask;
+		int temp = h * PRIME2;
+		return (temp ^ temp >>> hashShift) & mask;
 	}
 
 	@Override

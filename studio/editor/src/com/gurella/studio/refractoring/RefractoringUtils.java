@@ -22,8 +22,6 @@ import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
-import com.gurella.studio.common.AssetsFolderLocator;
-
 @SuppressWarnings("restriction")
 public class RefractoringUtils {
 	private RefractoringUtils() {

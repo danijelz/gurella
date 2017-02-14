@@ -1,8 +1,5 @@
 package com.gurella.engine.application;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import com.badlogic.gdx.Gdx;
 import com.gurella.engine.scene.Scene;
 
