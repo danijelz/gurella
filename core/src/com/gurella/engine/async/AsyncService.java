@@ -12,7 +12,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public final class AsyncService {
-	private static final ThreadLocal<Application> applicationContext = new ThreadLocal<Application>();
+	private static final ThreadLocal<Application> contextApplication = new ThreadLocal<Application>();
 	private static final ObjectMap<Application, ContextAsyncExecutor> instances = new ObjectMap<Application, ContextAsyncExecutor>();
 	private static ContextAsyncExecutor lastSelected;
 	private static Application lastApp;
@@ -49,16 +49,16 @@ public final class AsyncService {
 	}
 
 	public static Application getApplication() {
-		Application application = applicationContext.get();
+		Application application = contextApplication.get();
 		return application == null ? Gdx.app : application;
-	}
-
-	public static <T> AsyncResult<T> submit(final AsyncTask<T> task) {
-		return getInstance().submit(task);
 	}
 
 	public static AsyncExecutor createAsyncExecutor(final int maxConcurrent) {
 		return new ContextAsyncExecutor(maxConcurrent);
+	}
+
+	public static <T> AsyncResult<T> submit(final AsyncTask<T> task) {
+		return getInstance().submit(task);
 	}
 
 	public static <T> void submit(final AsyncTask<T> task, final AsyncCallback<T> callback) {
@@ -98,11 +98,11 @@ public final class AsyncService {
 		@Override
 		public T call() throws Exception {
 			try {
-				applicationContext.set(contextApp);
+				contextApplication.set(contextApp);
 				return task.call();
 			} finally {
 				PoolService.free(this);
-				applicationContext.set(null);
+				contextApplication.set(null);
 			}
 		}
 
@@ -130,7 +130,7 @@ public final class AsyncService {
 		@Override
 		public Void call() throws Exception {
 			try {
-				applicationContext.set(contextApp);
+				contextApplication.set(contextApp);
 				T value;
 				try {
 					value = task.call();
@@ -141,7 +141,7 @@ public final class AsyncService {
 				callback.onSuccess(value);
 			} finally {
 				PoolService.free(this);
-				applicationContext.set(null);
+				contextApplication.set(null);
 			}
 			return null;
 		}
