@@ -4,23 +4,24 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public final class AsyncService {
-	static final ThreadLocal<Application> applicationContext = new ThreadLocal<Application>();
-
-	private static final ObjectMap<Application, AsyncExecutor> instances = new ObjectMap<Application, AsyncExecutor>();
-	private static AsyncExecutor lastSelected;
+	private static final ThreadLocal<Application> applicationContext = new ThreadLocal<Application>();
+	private static final ObjectMap<Application, ContextAsyncExecutor> instances = new ObjectMap<Application, ContextAsyncExecutor>();
+	private static ContextAsyncExecutor lastSelected;
 	private static Application lastApp;
 
 	private AsyncService() {
 	}
 
-	private static AsyncExecutor getInstance() {
-		AsyncExecutor executor;
+	private static ContextAsyncExecutor getInstance() {
+		ContextAsyncExecutor executor;
 		boolean subscribe = false;
 
 		synchronized (instances) {
@@ -31,7 +32,7 @@ public final class AsyncService {
 
 			executor = instances.get(app);
 			if (executor == null) {
-				executor = new AsyncExecutor(1);
+				executor = new ContextAsyncExecutor(1);
 				instances.put(app, executor);
 				subscribe = true;
 			}
@@ -56,34 +57,98 @@ public final class AsyncService {
 		return getInstance().submit(task);
 	}
 
+	public static AsyncExecutor createAsyncExecutor(final int maxConcurrent) {
+		return new ContextAsyncExecutor(maxConcurrent);
+	}
+
 	public static <T> void submit(final AsyncTask<T> task, final AsyncCallback<T> callback) {
-		@SuppressWarnings("unchecked")
-		CallbackTask<T> callbackTask = PoolService.obtain(CallbackTask.class);
-		callbackTask.task = task;
-		callbackTask.callback = callback;
-		getInstance().submit(callbackTask);
+		getInstance().submit(task, callback);
+	}
+
+	private static class ContextAsyncExecutor extends AsyncExecutor {
+		private final Application contextApp;
+
+		public ContextAsyncExecutor(int maxConcurrent) {
+			super(maxConcurrent);
+			this.contextApp = getApplication();
+		}
+
+		public <T> void submit(final AsyncTask<T> task, final AsyncCallback<T> callback) {
+			super.submit(CallbackTask.obtain(task, callback));
+		}
+
+		@Override
+		public <T> AsyncResult<T> submit(AsyncTask<T> task) {
+			return super.submit(ContextTask.obtain(contextApp, task));
+		}
+	}
+
+	private static class ContextTask<T> implements AsyncTask<T>, Poolable {
+		private Application contextApp;
+		private AsyncTask<T> task;
+
+		static <T> ContextTask<T> obtain(Application contextApp, AsyncTask<T> task) {
+			@SuppressWarnings("unchecked")
+			ContextTask<T> contextTask = PoolService.obtain(ContextTask.class);
+			contextTask.contextApp = contextApp;
+			contextTask.task = task;
+			return contextTask;
+		}
+
+		@Override
+		public T call() throws Exception {
+			try {
+				applicationContext.set(contextApp);
+				return task.call();
+			} finally {
+				PoolService.free(this);
+				applicationContext.set(null);
+			}
+		}
+
+		@Override
+		public void reset() {
+			contextApp = null;
+			task = null;
+		}
 	}
 
 	private static class CallbackTask<T> implements AsyncTask<Void>, Poolable {
+		private Application contextApp;
 		private AsyncTask<T> task;
 		private AsyncCallback<T> callback;
 
+		static <T> CallbackTask<T> obtain(AsyncTask<T> task, AsyncCallback<T> callback) {
+			@SuppressWarnings("unchecked")
+			CallbackTask<T> callbackTask = PoolService.obtain(CallbackTask.class);
+			callbackTask.contextApp = getApplication();
+			callbackTask.task = task;
+			callbackTask.callback = callback;
+			return callbackTask;
+		}
+
 		@Override
 		public Void call() throws Exception {
-			T value;
 			try {
-				value = task.call();
-			} catch (Exception e) {
-				callback.onException(e);
-				return null;
+				applicationContext.set(contextApp);
+				T value;
+				try {
+					value = task.call();
+				} catch (Exception e) {
+					callback.onException(e);
+					return null;
+				}
+				callback.onSuccess(value);
+			} finally {
+				PoolService.free(this);
+				applicationContext.set(null);
 			}
-			callback.onSuccess(value);
-			PoolService.free(this);
 			return null;
 		}
 
 		@Override
 		public void reset() {
+			contextApp = null;
 			task = null;
 			callback = null;
 		}

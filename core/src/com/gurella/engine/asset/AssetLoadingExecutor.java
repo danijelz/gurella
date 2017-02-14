@@ -4,15 +4,16 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Sort;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
-import com.gurella.engine.async.AsyncExecutor;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.disposable.DisposablesService;
 
 class AssetLoadingExecutor implements AsyncTask<Void>, Disposable {
 	private final AssetsManager manager;
 	private final Object mutex;
 
-	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
+	private final AsyncExecutor executor = DisposablesService.add(AsyncService.createAsyncExecutor(1));
 	private boolean executing;
 
 	private final ObjectMap<AssetId, AssetLoadingTask<?>> allTasks = new ObjectMap<AssetId, AssetLoadingTask<?>>();
