@@ -3,6 +3,7 @@ package com.gurella.studio.editor.assets;
 import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.prefab;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
+import static com.gurella.studio.editor.utils.UiUtils.getActiveShell;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.dnd.DND;
@@ -21,17 +23,16 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
 import com.gurella.studio.editor.history.HistoryContributor;
 import com.gurella.studio.editor.history.HistoryService;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
+import com.gurella.studio.editor.utils.PrettyPrintSerializer;
 import com.gurella.studio.editor.utils.Try;
 
 class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements HistoryContributor {
@@ -114,31 +115,28 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		}
 
 		Try.run(() -> convertToPrefab(folder, node, prefabName.get()),
-				e -> showError(e, "Error while converting to prefab."));
+				e -> showError(e, "Error converting to prefab."));
 	}
 
 	private void convertToPrefab(IFolder folder, SceneNode node, String prefabName)
 			throws UnsupportedEncodingException, CoreException {
 		IProject project = folder.getProject();
 		IPath projectPath = project.getLocation();
-		IPath assetsRootPath = projectPath.append("assets");
 		IPath projectAssetPath = folder.getFile(prefabName).getLocation().makeRelativeTo(projectPath);
-
-		SceneNode prefab = CopyContext.copyObject(node);
-		String source = new JsonOutput().serialize(projectAssetPath.toString(), SceneNode.class, prefab, null);
-		String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
-		InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 		IFile file = project.getFile(projectAssetPath);
-		if (file.exists()) {
-			// TODO make shure this does not happen
-			file.setContents(is, true, true, context.getProgressMonitor());
-		} else {
-			file.create(is, true, context.getProgressMonitor());
-		}
 
-		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
-		AssetService.put(prefab, gdxAssetPath.toString());
-		String errMsg = "Error while converting to prefab";
-		historyService.executeOperation(new ConvertToPrefabOperation(context.editorId, node, prefab), errMsg);
+		if (file.exists()) {
+			MessageDialog.openError(getActiveShell(), "Error converting to prefab", "File allready exists.");
+		} else {
+			SceneNode prefab = CopyContext.copyObject(node);
+			String pretty = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
+			InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
+			file.create(is, true, context.getProgressMonitor());
+			IPath assetsRootPath = projectPath.append("assets");
+			IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
+			AssetService.put(prefab, gdxAssetPath.toString());
+			ConvertToPrefabOperation operation = new ConvertToPrefabOperation(context.editorId, node, prefab);
+			historyService.executeOperation(operation, "Error while converting to prefab");
+		}
 	}
 }

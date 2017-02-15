@@ -36,6 +36,7 @@ public class CopyContext implements Poolable {
 	}
 
 	public <T> T copy(T original) {
+		// TODO check if value is external asset (different file) and return original
 		if (original == null) {
 			return null;
 		}
@@ -55,6 +56,10 @@ public class CopyContext implements Poolable {
 	}
 
 	public static <T> T copyObject(T original) {
+		if (original == null) {
+			return null;
+		}
+
 		CopyContext context = PoolService.obtain(CopyContext.class);
 		T duplicate = context.copy(original);
 		PoolService.free(context);

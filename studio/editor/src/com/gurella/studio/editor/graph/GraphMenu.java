@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.graph;
 
-import com.gurella.engine.asset.descriptor.AssetDescriptors;
-import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
+import static com.gurella.studio.editor.utils.UiUtils.getActiveShell;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
@@ -16,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -23,10 +23,9 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaTypes;
@@ -58,7 +57,6 @@ import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.serialization.json.JsonOutput;
 import com.gurella.engine.test.TestArrayEditorComponent;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.test.TestInputComponent;
@@ -72,6 +70,8 @@ import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
 import com.gurella.studio.editor.utils.FileDialogUtils;
+import com.gurella.studio.editor.utils.PrettyPrintSerializer;
+import com.gurella.studio.editor.utils.UiUtils;
 
 class GraphMenu {
 	private final SceneGraphView view;
@@ -191,26 +191,20 @@ class GraphMenu {
 				}
 
 				IPath projectAssetPath = new Path(fileName.get()).makeRelativeTo(projectPath);
-				SceneNode prefab = CopyContext.copyObject(node);
-				JsonOutput output = new JsonOutput();
-				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, prefab, null);
-				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
-				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);
-				IPath gdxAssetPath = new Path(fileName.get()).makeRelativeTo(assetsRootPath);
 
 				if (file.exists()) {
-					ManagedObject oldPrefab = prefab.getPrefab();
-					if (oldPrefab != null && oldPrefab.getFileName().equals(gdxAssetPath.toString())) {
-						// TODO overriding existing prefab
-					}
-					file.setContents(is, true, true, context.getProgressMonitor());
+					MessageDialog.openError(getActiveShell(), "Error converting to prefab", "File allready exists.");
 				} else {
+					SceneNode prefab = CopyContext.copyObject(node);
+					String pretty = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
+					InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 					file.create(is, true, context.getProgressMonitor());
+					IPath gdxAssetPath = new Path(fileName.get()).makeRelativeTo(assetsRootPath);
+					AssetService.put(prefab, gdxAssetPath.toString());
+					ConvertToPrefabOperation operation = new ConvertToPrefabOperation(editorId, node, prefab);
+					view.historyService.executeOperation(operation, "Error converting to prefab");
 				}
-				AssetService.put(prefab, gdxAssetPath.toString());
-				String errMsg = "Error while converting to prefab";
-				view.historyService.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
 			} catch (Exception e) {
 				GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
 			}
