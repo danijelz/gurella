@@ -82,11 +82,11 @@ class AssetRegistry implements Disposable {
 		if (id == null) {
 			return out.empty();
 		} else {
-			return out.set(id, getBundleId(asset, id));
+			return out.set(id, findBundleId(asset, id));
 		}
 	}
 
-	private String getBundleId(Object asset, AssetId id) {
+	private String findBundleId(Object asset, AssetId id) {
 		if (asset instanceof BundleAware) {
 			return ((BundleAware) asset).getBundleId();
 		}
