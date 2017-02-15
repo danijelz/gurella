@@ -25,13 +25,12 @@ import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
-import com.gurella.engine.serialization.Deserializer;
 import com.gurella.engine.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
-public class JsonInput implements Input, Deserializer, Poolable {
+public class JsonInput implements Input, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
 	private FileType fileType;
@@ -80,7 +79,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 		return deserialize(supplier, expectedType, template);
 	}
 
-	@Override
 	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, Object template) {
 		if (rootValue == null || rootValue.child == null) {
 			return null;

@@ -27,10 +27,9 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
-import com.gurella.engine.serialization.Serializer;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
-public class JsonOutput implements Output, Serializer<String>, Poolable {
+public class JsonOutput implements Output, Poolable {
 	private final AssetId assetId = new AssetId();
 	private AssetLocator assetLocator;
 
@@ -54,7 +53,6 @@ public class JsonOutput implements Output, Serializer<String>, Poolable {
 		return buffer.toString();
 	}
 
-	@Override
 	public <T> String serialize(Class<? super T> expectedType, T rootObject, Object template) {
 		AssetService.getAssetId(rootObject, assetId);
 		this.assetLocator = AssetService.getAssetLocator();
