@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.IntSet;
@@ -71,8 +70,7 @@ public class InputOutputTest {
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
 
 		JsonOutput output = new JsonOutput();
-		FileHandle file = new FileHandle("");
-		String string = output.serialize(null, file, Test.class, obj);
+		String string = output.serialize(Test.class, obj, null);
 
 		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 
@@ -83,7 +81,7 @@ public class InputOutputTest {
 		Test duplicate = CopyContext.copyObject(obj);
 		System.out.println(MetaTypes.isEqual(obj, duplicate));
 
-		String string1 = output.serialize(null, file, Test.class, duplicate, obj);
+		String string1 = output.serialize(Test.class, duplicate, obj);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 		Test deserialized1 = input.deserialize(null, Test.class, string1, obj);
 		System.out.println(MetaTypes.isEqual(obj, deserialized1));

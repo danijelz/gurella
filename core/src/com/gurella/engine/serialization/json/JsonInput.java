@@ -3,8 +3,8 @@ package com.gurella.engine.serialization.json;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
 import static com.gurella.engine.serialization.json.JsonSerialization.deserializeType;
 import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
@@ -34,7 +34,6 @@ import com.gurella.engine.utils.Reflection;
 public class JsonInput implements Input, Deserializer, Poolable {
 	private PoolableJsonReader reader = new PoolableJsonReader();
 
-	private FileHandle file;
 	private FileType fileType;
 	private JsonValue rootValue;
 	private DependencySupplier supplier;
@@ -52,7 +51,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 	private CopyContext copyContext = new CopyContext();
 
 	public void init(FileHandle file, DependencyCollector dependencyCollector) {
-		this.file = file;
 		fileType = file.type();
 		this.rootValue = reader.parse(file);
 		int size = rootValue == null ? 0 : rootValue.size;
@@ -343,7 +341,6 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 	@Override
 	public void reset() {
-		file = null;
 		fileType = null;
 		rootValue = null;
 		supplier = null;

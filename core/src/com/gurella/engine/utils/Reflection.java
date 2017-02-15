@@ -3,7 +3,6 @@ package com.gurella.engine.utils;
 import java.lang.annotation.Annotation;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -11,10 +10,11 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-//TODO caches + exceptions description
+//TODO caches, exceptions message
 public class Reflection {
 	// private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
 	// private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>,
@@ -27,7 +27,7 @@ public class Reflection {
 
 	public static ClassResolver getClassResolver() {
 		synchronized (resolvers) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -44,7 +44,7 @@ public class Reflection {
 		ClassResolver oldResolver;
 
 		synchronized (resolvers) {
-			oldResolver = resolvers.put(Gdx.app, resolver);
+			oldResolver = resolvers.put(AsyncService.getApplication(), resolver);
 
 			if (lastSelected != null && lastSelected == oldResolver) {
 				lastSelected = resolver == null ? DefaultClassResolver.instance : resolver;
@@ -474,7 +474,7 @@ public class Reflection {
 			EventService.unsubscribe(this);
 
 			synchronized (resolvers) {
-				if (resolvers.remove(Gdx.app) == lastSelected) {
+				if (resolvers.remove(AsyncService.getApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

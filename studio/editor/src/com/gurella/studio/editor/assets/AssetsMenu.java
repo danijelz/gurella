@@ -215,7 +215,7 @@ class AssetsMenu {
 			IFile file = parent.getFile(name);
 			@SuppressWarnings("unchecked")
 			Class<T> expectedType = (Class<T>) asset.getClass();
-			String serialized = serialize(file.getName(), expectedType, asset);
+			String serialized = serialize(expectedType, asset);
 			Try.successful(serialized).map(s -> new ByteArrayInputStream(s.getBytes("UTF-8")))
 					.peek(is -> file.create(is, true, new NullProgressMonitor()))
 					.onFailure(e -> showError(e, "Error creating material."));
@@ -229,7 +229,8 @@ class AssetsMenu {
 
 		private void addNewScene() {
 			IFolder parent = getParentFolder();
-			enterNewFileName(parent, "scene", true, scene.getSingleExtension()).ifPresent(n -> addAsset(parent, n, newScene()));
+			enterNewFileName(parent, "scene", true, scene.getSingleExtension())
+					.ifPresent(n -> addAsset(parent, n, newScene()));
 		}
 
 		private static Scene newScene() {

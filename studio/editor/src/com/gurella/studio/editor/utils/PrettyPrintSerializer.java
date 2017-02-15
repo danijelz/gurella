@@ -8,13 +8,13 @@ public class PrettyPrintSerializer {
 	private PrettyPrintSerializer() {
 	}
 
-	public static <T> String serialize(String filePath, Class<T> expectedType, T rootObject) {
-		return serialize(filePath, expectedType, null, rootObject);
+	public static <T> String serialize(Class<T> expectedType, T rootObject) {
+		return serialize(expectedType, null, rootObject);
 	}
 
-	public static <T> String serialize(String filePath, Class<T> expectedType, Object template, T rootObject) {
+	public static <T> String serialize(Class<T> expectedType, Object template, T rootObject) {
 		JsonOutput output = new JsonOutput();
-		String serialized = output.serialize(filePath, expectedType, rootObject, template);
+		String serialized = output.serialize(expectedType, rootObject, template);
 		return new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
 	}
 }

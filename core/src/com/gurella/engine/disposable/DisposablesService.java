@@ -1,10 +1,10 @@
 package com.gurella.engine.disposable;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
@@ -24,7 +24,7 @@ public class DisposablesService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -82,7 +82,7 @@ public class DisposablesService {
 			Array<Disposable> disposables;
 
 			synchronized (instances) {
-				disposables = instances.remove(Gdx.app);
+				disposables = instances.remove(AsyncService.getApplication());
 
 				if (disposables == lastSelected) {
 					lastSelected = null;

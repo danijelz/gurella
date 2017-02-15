@@ -15,23 +15,24 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetId;
-import com.gurella.engine.asset.persister.DependencyLocator;
+import com.gurella.engine.asset.AssetLocator;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.serialization.Output;
 import com.gurella.engine.serialization.Serializer;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
-public class JsonOutput implements Output, Serializer, Poolable {
-	private DependencyLocator dependencyLocator;
-	private FileHandle file;
+public class JsonOutput implements Output, Serializer<String>, Poolable {
+	private final AssetId assetId = new AssetId();
+	private AssetLocator assetLocator;
+
 	private JsonWriter writer;
 
 	private int currentId;
@@ -40,23 +41,25 @@ public class JsonOutput implements Output, Serializer, Poolable {
 	private final OrderedSet<String> externalDependencies = new OrderedSet<String>();
 	private final AssetId tempAssetId = new AssetId();
 
-	public <T> String serialize(DependencyLocator locator, FileHandle file, Class<T> expectedType, T rootObject) {
-		return serialize(locator, file, expectedType, rootObject, null);
+	public <T> String serialize(AssetId assetId, Class<T> expectedType, T rootObject) {
+		return serialize(assetId, expectedType, rootObject, null);
 	}
 
-	public <T> String serialize(DependencyLocator dependencyLocator, FileHandle file, Class<T> expectedType,
-			T rootObject, Object template) {
-		this.dependencyLocator = dependencyLocator;
-		this.file = file;
+	public <T> String serialize(AssetId assetId, Class<T> expectedType, T rootObject, Object template) {
+		this.assetId.set(assetId);
+		this.assetLocator = AssetService.getAssetLocator();
 		StringWriter buffer = new StringWriter();
 		serialize(expectedType, rootObject, template, buffer);
 		return buffer.toString();
 	}
 
 	@Override
-	public <T> void serialize(DependencyLocator dependencyLocator, Class<T> expectedType, T rootObject, Object template) {
-		this.dependencyLocator = dependencyLocator;
-		serialize(expectedType, rootObject, template, new StringWriter());
+	public <T> String serialize(Class<T> expectedType, T rootObject, Object template) {
+		AssetService.getAssetId(rootObject, assetId);
+		this.assetLocator = AssetService.getAssetLocator();
+		StringWriter buffer = new StringWriter();
+		serialize(expectedType, rootObject, template, buffer);
+		return buffer.toString();
 	}
 
 	private <T> void serialize(Class<T> expectedType, T rootObject, Object template, Writer buffer) {
@@ -245,8 +248,8 @@ public class JsonOutput implements Output, Serializer, Poolable {
 				pop();
 			}
 		} else {
-			dependencyLocator.getAssetId(value, tempAssetId);
-			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(file)) {
+			assetLocator.getAssetId(value, tempAssetId);
+			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(assetId)) {
 				writeAsset(value, tempAssetId);
 			} else if (flat) {
 				serializeObject(expectedType, value, template);
@@ -459,9 +462,9 @@ public class JsonOutput implements Output, Serializer, Poolable {
 
 	@Override
 	public void reset() {
-		file = null;
+		assetId.reset();
 		writer = null;
-		dependencyLocator = null;
+		assetLocator = null;
 		currentId = 0;
 		references.clear();
 		objectsToSerialize.clear();

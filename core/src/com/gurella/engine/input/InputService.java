@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
@@ -24,15 +25,15 @@ public class InputService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
 
-			input = instances.get(Gdx.app);
+			input = instances.get(app);
 			if (input == null) {
 				input = new ApplicationInput();
-				instances.put(Gdx.app, input);
+				instances.put(app, input);
 				subscribe = true;
 			}
 
@@ -82,7 +83,7 @@ public class InputService {
 			EventService.unsubscribe(this);
 
 			synchronized (instances) {
-				if (instances.remove(Gdx.app) == lastSelected) {
+				if (instances.remove(AsyncService.getApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

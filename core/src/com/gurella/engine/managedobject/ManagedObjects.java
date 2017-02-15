@@ -1,8 +1,8 @@
 package com.gurella.engine.managedobject;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.managedobject.ObjectOperation.OperationType;
@@ -46,7 +46,7 @@ final class ManagedObjects {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -182,7 +182,7 @@ final class ManagedObjects {
 			PendingOperations operations;
 
 			synchronized (instances) {
-				operations = instances.remove(Gdx.app);
+				operations = instances.remove(AsyncService.getApplication());
 
 				if (operations == lastSelected) {
 					lastSelected = null;

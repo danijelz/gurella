@@ -3,7 +3,7 @@ package com.gurella.engine.scene.renderable.skybox;
 import static com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute.EnvironmentMap;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 
 /**
  * @author Marcus Brummer
@@ -36,17 +37,19 @@ public class SkyboxShader extends BaseShader {
 	private Matrix4 transform = new Matrix4();
 
 	public static SkyboxShader getInstance() {
-		SkyboxShader instance = instances.get(Gdx.app);
+		Application app = AsyncService.getApplication();
+		SkyboxShader instance = instances.get(app);
 		if (instance == null) {
 			instance = new SkyboxShader();
-			instances.put(Gdx.app, instance);
+			instances.put(app, instance);
 		}
 		return instance;
 	}
 
 	private SkyboxShader() {
-		String vert = Gdx.files.classpath(VERTEX_SHADER).readString();
-		String frag = Gdx.files.classpath(FRAGMENT_SHADER).readString();
+		Files files = AsyncService.getApplication().getFiles();
+		String vert = files.classpath(VERTEX_SHADER).readString();
+		String frag = files.classpath(FRAGMENT_SHADER).readString();
 
 		program = new ShaderProgram(vert, frag);
 		if (!program.isCompiled()) {

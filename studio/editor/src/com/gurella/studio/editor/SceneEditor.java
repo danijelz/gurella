@@ -31,9 +31,10 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.event.Event;
@@ -98,7 +99,9 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 		JsonOutput output = new JsonOutput();
 		String relativeFileName = getAssetsRelativePath(file).toString();
-		String serialized = output.serialize(new FileHandle(relativeFileName), Scene.class, scene);
+		AssetId assetId = new AssetId();
+		assetId.set(relativeFileName, FileType.Internal, Scene.class);
+		String serialized = output.serialize(assetId, Scene.class, scene);
 		String pretty = new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
 
 		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);

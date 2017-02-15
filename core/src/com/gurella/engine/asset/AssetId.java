@@ -6,8 +6,9 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.utils.Values;
 
+//TODO try to generalize for remote assets -> rename fileName to uri, use ResourceType instead of FileType...
 public final class AssetId implements Poolable {
-	String fileName;
+	String fileName;//TODO rename fileName to uri
 	FileType fileType;
 	Class<?> assetType;
 	String bundleId;
@@ -121,7 +122,7 @@ public final class AssetId implements Poolable {
 	}
 
 	public boolean isEmpty() {
-		return fileName != null && fileType != null && assetType != null;
+		return fileName != null && assetType != null;
 	}
 
 	public AssetId empty() {

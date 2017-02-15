@@ -12,11 +12,12 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 
 /**
  * @author Marcus Brummer
  * 
- * https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
+ *         https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
  */
 public class WireframeShader extends BaseShader {
 	private static final ObjectMap<Application, WireframeShader> instances = new ObjectMap<Application, WireframeShader>();
@@ -30,10 +31,11 @@ public class WireframeShader extends BaseShader {
 	private final Matrix4 worldTransform = new Matrix4();
 
 	public static WireframeShader getInstance() {
-		WireframeShader instance = instances.get(Gdx.app);
+		Application app = AsyncService.getApplication();
+		WireframeShader instance = instances.get(app);
 		if (instance == null) {
 			instance = new WireframeShader();
-			instances.put(Gdx.app, instance);
+			instances.put(app, instance);
 		}
 		return instance;
 	}

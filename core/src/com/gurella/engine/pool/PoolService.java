@@ -1,9 +1,9 @@
 package com.gurella.engine.pool;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.priority.Priority;
@@ -22,7 +22,7 @@ public final class PoolService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -150,7 +150,7 @@ public final class PoolService {
 			ApplicationPool pool;
 
 			synchronized (instances) {
-				pool = instances.remove(Gdx.app);
+				pool = instances.remove(AsyncService.getApplication());
 
 				if (pool == lastSelected) {
 					lastSelected = null;

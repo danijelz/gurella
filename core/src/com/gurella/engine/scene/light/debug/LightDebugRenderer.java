@@ -1,7 +1,7 @@
 package com.gurella.engine.scene.light.debug;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -42,23 +43,25 @@ public class LightDebugRenderer implements ApplicationShutdownListener, Disposab
 
 	private static LightDebugRenderer getRenderer() {
 		synchronized (instances) {
-			LightDebugRenderer renderer = instances.get(Gdx.app);
+			Application app = AsyncService.getApplication();
+			LightDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = new LightDebugRenderer();
-				instances.put(Gdx.app, renderer);
+				instances.put(app, renderer);
 			}
 			return renderer;
 		}
 	}
 
 	private LightDebugRenderer() {
-		pointLightTexture = new Texture(Gdx.files.classpath(pointLightTextureLocation));
+		Files files = AsyncService.getApplication().getFiles();
+		pointLightTexture = new Texture(files.classpath(pointLightTextureLocation));
 		pointLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		pointLightSprite = new Sprite(pointLightTexture);
 		pointLightSprite.setSize(0.2f, 0.2f);
 		pointLightSprite.setOriginCenter();
 
-		spotLightTexture = new Texture(Gdx.files.classpath(spotLightTextureLocation));
+		spotLightTexture = new Texture(files.classpath(spotLightTextureLocation));
 		spotLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		spotLightSprite = new Sprite(spotLightTexture);
 		spotLightSprite.setSize(0.2f, 0.2f);
@@ -97,7 +100,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener, Disposab
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(Gdx.app);
+			instances.remove(AsyncService.getApplication());
 		}
 	}
 

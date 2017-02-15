@@ -2,7 +2,6 @@ package com.gurella.engine.pool;
 
 import java.util.Comparator;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
@@ -261,7 +260,8 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationCleanupListener {
 			}
 		} catch (Exception e) {
 			// TODO LogService
-			Gdx.app.log(PoolService.class.getSimpleName(), "Error occured while freeing objects", e);
+			String msg = "Error occured while freeing objects";
+			AsyncService.getApplication().log(PoolService.class.getSimpleName(), msg, e);
 		}
 
 		workingObjects.clear();

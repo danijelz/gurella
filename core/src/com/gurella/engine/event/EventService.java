@@ -3,10 +3,10 @@ package com.gurella.engine.event;
 import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.OrderedIdentitySet;
@@ -29,7 +29,7 @@ public class EventService {
 		boolean subscribe = false;
 
 		synchronized (globals) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -184,7 +184,7 @@ public class EventService {
 			EventService.unsubscribe(this);
 
 			synchronized (globals) {
-				if (globals.remove(Gdx.app) == lastSelected) {
+				if (globals.remove(AsyncService.getApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

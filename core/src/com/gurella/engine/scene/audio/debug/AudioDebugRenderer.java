@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -39,10 +40,11 @@ public class AudioDebugRenderer implements ApplicationShutdownListener, Disposab
 
 	private static AudioDebugRenderer getRenderer() {
 		synchronized (instances) {
-			AudioDebugRenderer renderer = instances.get(Gdx.app);
+			Application app = AsyncService.getApplication();
+			AudioDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = DisposablesService.add(new AudioDebugRenderer());
-				instances.put(Gdx.app, renderer);
+				instances.put(app, renderer);
 				EventService.subscribe(renderer);
 			}
 			return renderer;
@@ -94,7 +96,7 @@ public class AudioDebugRenderer implements ApplicationShutdownListener, Disposab
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(Gdx.app);
+			instances.remove(AsyncService.getApplication());
 		}
 	}
 

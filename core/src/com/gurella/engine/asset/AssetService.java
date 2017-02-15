@@ -2,7 +2,6 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.resolver.FileHandleResolver;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.Values;
@@ -35,7 +35,7 @@ public class AssetService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = Gdx.app;
+			Application app = AsyncService.getApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -226,6 +226,10 @@ public class AssetService {
 		return getManager().unregisterResolver(resolver);
 	}
 
+	public static AssetLocator getAssetLocator() {
+		return getManager();
+	}
+
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
 		public void shutdown() {
@@ -233,7 +237,7 @@ public class AssetService {
 			AssetsManager removed;
 
 			synchronized (instances) {
-				removed = instances.remove(Gdx.app);
+				removed = instances.remove(AsyncService.getApplication());
 
 				if (removed == lastSelected) {
 					lastSelected = null;

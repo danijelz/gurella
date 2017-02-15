@@ -5,9 +5,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.studio.editor.swtgdx.SwtLwjglApplication;
 import com.gurella.studio.gdx.GdxContext;
 
@@ -50,7 +50,7 @@ public class SceneEditorRegistry {
 	}
 
 	static int getCurrentEditorId() {
-		Application app = Gdx.app;
+		Application app = AsyncService.getApplication();
 		if (app instanceof SwtLwjglApplication) {
 			return idByGdxApp.get((SwtLwjglApplication) app, invalidId);
 		} else {
@@ -59,7 +59,7 @@ public class SceneEditorRegistry {
 	}
 
 	static SceneEditor getCurrentEditor() {
-		Application app = Gdx.app;
+		Application app = AsyncService.getApplication();
 		if (app instanceof SwtLwjglApplication) {
 			return editorsById.get(idByGdxApp.get((SwtLwjglApplication) app, invalidId));
 		} else {

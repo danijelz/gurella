@@ -1,6 +1,5 @@
 package com.gurella.engine.base.serialization;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.metatype.CopyContext;
@@ -25,9 +24,8 @@ public class SceneSerializationTest {
 		MetaType<Scene> metaType = MetaTypes.getMetaType(Scene.class);
 		metaType.getProperties();
 
-		FileHandle file = new FileHandle("");
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(null, file, Scene.class, scene);
+		String string = output.serialize(Scene.class, scene, null);
 		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 
 		JsonInput input = new JsonInput();
@@ -37,7 +35,7 @@ public class SceneSerializationTest {
 		Scene duplicate = CopyContext.copyObject(scene);
 		System.out.println("duplicate: " + MetaTypes.isEqual(scene, duplicate));
 
-		String string1 = output.serialize(null, file, Scene.class, duplicate, scene);
+		String string1 = output.serialize(Scene.class, duplicate, scene);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 
 		Scene deserialized1 = input.deserialize(null, Scene.class, string1, scene);

@@ -38,7 +38,16 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncResult;
+import com.badlogic.gdx.utils.async.AsyncTask;
+import com.gurella.engine.async.AsyncService;
+import com.gurella.engine.async.AsyncService.AsyncServiceConfig;
 import com.gurella.engine.editor.ui.EditorLogLevel;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -52,6 +61,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	private static Map<String, File> pluginFiles = new HashMap<>();
 	private static DeviceResourceManager resourceManager;
 	private static GurellaFormToolkit toolkit;
+
+	static {
+		AsyncService.config = PluginAsyncServiceConfig.instance;
+	}
 
 	public GurellaStudioPlugin() {
 	}
@@ -412,6 +425,70 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		@Override
 		protected void updateBorderColor() {
 			this.border = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
+		}
+	}
+
+	private static class PluginAsyncServiceConfig implements AsyncServiceConfig {
+		private static final ThreadLocal<Application> contextApplication = new ThreadLocal<Application>();
+
+		static final AsyncServiceConfig instance = new PluginAsyncServiceConfig();
+
+		private PluginAsyncServiceConfig() {
+		}
+
+		@Override
+		public Application getApplication() {
+			Application application = contextApplication.get();
+			return application == null ? Gdx.app : application;
+		}
+
+		@Override
+		public AsyncExecutor createAsyncExecutor(final int maxConcurrent) {
+			return new ContextAsyncExecutor(maxConcurrent, getApplication());
+		}
+
+		private static class ContextAsyncExecutor extends AsyncExecutor {
+			private final Application contextApp;
+
+			public ContextAsyncExecutor(int maxConcurrent, Application contextApp) {
+				super(maxConcurrent);
+				this.contextApp = contextApp;
+			}
+
+			@Override
+			public <T> AsyncResult<T> submit(AsyncTask<T> task) {
+				return super.submit(ContextTask.obtain(contextApp, task));
+			}
+		}
+
+		private static class ContextTask<T> implements AsyncTask<T>, Poolable {
+			private Application contextApp;
+			private AsyncTask<T> task;
+
+			static <T> ContextTask<T> obtain(Application contextApp, AsyncTask<T> task) {
+				@SuppressWarnings("unchecked")
+				ContextTask<T> contextTask = PoolService.obtain(ContextTask.class);
+				contextTask.contextApp = contextApp;
+				contextTask.task = task;
+				return contextTask;
+			}
+
+			@Override
+			public T call() throws Exception {
+				try {
+					contextApplication.set(contextApp);
+					return task.call();
+				} finally {
+					PoolService.free(this);
+					contextApplication.set(null);
+				}
+			}
+
+			@Override
+			public void reset() {
+				contextApp = null;
+				task = null;
+			}
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.camera.debug;
 
 import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -51,10 +53,11 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 
 	private static CameraDebugRenderer getRenderer() {
 		synchronized (instances) {
-			CameraDebugRenderer renderer = instances.get(Gdx.app);
+			Application app = AsyncService.getApplication();
+			CameraDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = DisposablesService.add(new CameraDebugRenderer());
-				instances.put(Gdx.app, renderer);
+				instances.put(app, renderer);
 				EventService.subscribe(renderer);
 			}
 			return renderer;
@@ -67,13 +70,14 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 		fboSprite.flip(false, true);
 		fboSprite.setOriginCenter();
 
-		camera2dTexture = new Texture(Gdx.files.classpath(camera2dTextureLocation));
+		Files files = AsyncService.getApplication().getFiles();
+		camera2dTexture = new Texture(files.classpath(camera2dTextureLocation));
 		camera2dSprite = new Sprite(camera2dTexture);
 		camera2dSprite.setSize(0.2f, 0.2f);
 		camera2dSprite.flip(true, true);
 		camera2dSprite.setOriginCenter();
 
-		camera3dTexture = new Texture(Gdx.files.classpath(camera3dTextureLocation));
+		camera3dTexture = new Texture(files.classpath(camera3dTextureLocation));
 		camera3dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		camera3dSprite = new Sprite(camera3dTexture);
 		camera3dSprite.setSize(0.2f, 0.2f);
@@ -142,7 +146,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(Gdx.app);
+			instances.remove(AsyncService.getApplication());
 		}
 	}
 

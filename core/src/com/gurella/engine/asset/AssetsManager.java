@@ -19,7 +19,6 @@ import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.asset.persister.AssetPersister;
-import com.gurella.engine.asset.persister.DependencyLocator;
 import com.gurella.engine.asset.resolver.FileHandleResolver;
 import com.gurella.engine.asset.resolver.FileHandleResolverRegistry;
 import com.gurella.engine.async.AsyncCallback;
@@ -29,7 +28,7 @@ import com.gurella.engine.utils.factory.Factory;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Disposable {
+class AssetsManager implements ApplicationCleanupListener, AssetLocator, Disposable {
 	final Object mutex = new Object();
 	AssetLoadingExecutor executor = new AssetLoadingExecutor(this);
 	private final TaskPool taskPool = new TaskPool();
@@ -100,7 +99,7 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			Class<T> assetType = (Class<T>) tempAssetId.assetType;
 			AssetPersister<T> persister = getPersister(fileName, assetType);
 			FileHandle file = resolvers.resolveFile(tempAssetId);
-			persister.persist(this, file, asset);
+			persister.persist(file, asset);
 		}
 	}
 
@@ -131,12 +130,12 @@ class AssetsManager implements ApplicationCleanupListener, DependencyLocator, Di
 			AssetPersister<T> persister = getPersister(fileName, assetType);
 			if (registry.getAssetId(asset, tempAssetId).isEmpty()) {
 				FileHandle file = files.getFileHandle(fileName, fileType);
-				persister.persist(this, file, asset);
+				persister.persist(file, asset);
 				tempAssetId.set(file, assetType);
 				registry.add(tempAssetId, asset);
 			} else if (tempAssetId.equalsFile(fileName, fileType)) {
 				FileHandle file = files.getFileHandle(fileName, fileType);
-				persister.persist(this, file, asset);
+				persister.persist(file, asset);
 			} else {
 				throw new IllegalStateException("Asset allready persisted on another location.");
 			}
