@@ -2,6 +2,7 @@ package com.gurella.engine.serialization.json;
 
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
 import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.serialization.json.JsonSerialization.dependenciesTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyBundleIdTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyIndexTag;
 import static com.gurella.engine.serialization.json.JsonSerialization.dependencyType;
@@ -68,8 +69,9 @@ public class JsonOutput implements Output, Serializer<String>, Poolable {
 		object();
 		newReference(expectedType, template, rootObject);
 
-		while (objectsToSerialize.size > 0) {
-			ObjectInfo objectInfo = objectsToSerialize.removeIndex(0);
+		int i = 0;
+		while (objectsToSerialize.size > i) {
+			ObjectInfo objectInfo = objectsToSerialize.get(i++);
 			name(Integer.toString(objectInfo.ordinal));
 			serializeObject(objectInfo.expectedType, objectInfo.object, objectInfo.template);
 			objectInfo.free();
@@ -77,7 +79,7 @@ public class JsonOutput implements Output, Serializer<String>, Poolable {
 
 		int externalDependenciesSize = externalDependencies.size;
 		if (externalDependenciesSize > 0) {
-			name("d");
+			name(dependenciesTag);
 			array();
 			for (String dependency : externalDependencies) {
 				value(dependency);

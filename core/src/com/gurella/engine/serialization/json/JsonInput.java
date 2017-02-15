@@ -82,14 +82,15 @@ public class JsonInput implements Input, Deserializer, Poolable {
 
 	@Override
 	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, Object template) {
+		if (rootValue == null || rootValue.child == null) {
+			return null;
+		}
+
 		try {
-			if (rootValue == null || rootValue.child == null) {
-				return null;
-			}
 			this.supplier = supplier;
-			JsonValue referenceValue = rootValue.get(0);
-			referenceValues.put(referenceValue, 0);
-			return deserialize(referenceValue, expectedType, template);
+			JsonValue rootReference = rootValue.get(0);
+			referenceValues.put(rootReference, 0);
+			return deserialize(rootReference, expectedType, template);
 		} finally {
 			reset();
 		}
