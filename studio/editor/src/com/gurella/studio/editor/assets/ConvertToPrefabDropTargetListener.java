@@ -136,7 +136,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 			IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
 			AssetService.put(prefab, gdxAssetPath.toString());
 			ConvertToPrefabOperation operation = new ConvertToPrefabOperation(context.editorId, node, prefab);
-			historyService.executeOperation(operation, "Error while converting to prefab");
+			historyService.executeOperation(operation, "Error converting to prefab");
 		}
 	}
 }

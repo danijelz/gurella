@@ -206,7 +206,7 @@ class GraphMenu {
 					view.historyService.executeOperation(operation, "Error converting to prefab");
 				}
 			} catch (Exception e) {
-				GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
+				GurellaStudioPlugin.showError(e, "Error converting to prefab.");
 			}
 		}
 
