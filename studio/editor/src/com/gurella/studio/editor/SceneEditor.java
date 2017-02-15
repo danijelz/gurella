@@ -23,6 +23,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -265,11 +266,15 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 	// TODO move to SceneProvider
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
+		private Display display;
 		private Label progressLabel;
 
 		public LoadSceneCallback() {
 			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 			glCanvas.setLayout(new GridLayout());
+
+			display = glCanvas.getDisplay();
+
 			progressLabel = new Label(glCanvas, SWT.DM_FILL_NONE);
 			progressLabel.setBackground(glCanvas.getDisplay().getSystemColor(SWT.COLOR_TRANSPARENT));
 			progressLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
@@ -299,7 +304,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		}
 
 		private void asyncExec(Runnable runnable) {
-			content.getDisplay().asyncExec(runnable);
+			display.asyncExec(runnable);
 		}
 	}
 }
