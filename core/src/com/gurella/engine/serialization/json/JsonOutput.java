@@ -54,7 +54,7 @@ public class JsonOutput implements Output, Serializer<String>, Poolable {
 	}
 
 	@Override
-	public <T> String serialize(Class<T> expectedType, T rootObject, Object template) {
+	public <T> String serialize(Class<? super T> expectedType, T rootObject, Object template) {
 		AssetService.getAssetId(rootObject, assetId);
 		this.assetLocator = AssetService.getAssetLocator();
 		StringWriter buffer = new StringWriter();

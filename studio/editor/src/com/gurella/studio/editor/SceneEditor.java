@@ -99,8 +99,7 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 
 		JsonOutput output = new JsonOutput();
 		String relativeFileName = getAssetsRelativePath(file).toString();
-		AssetId assetId = new AssetId();
-		assetId.set(relativeFileName, FileType.Internal, Scene.class);
+		AssetId assetId = new AssetId().set(relativeFileName, FileType.Internal, Scene.class);
 		String serialized = output.serialize(assetId, Scene.class, scene);
 		String pretty = new JsonReader().parse(serialized).prettyPrint(OutputType.minimal, 120);
 
@@ -283,7 +282,9 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 		}
 
 		private void updateProgress(int progress) {
-			progressLabel.setText("Loading... " + progress);
+			if (!progressLabel.isDisposed()) {
+				progressLabel.setText("Loading... " + progress);
+			}
 		}
 
 		@Override

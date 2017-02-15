@@ -262,7 +262,7 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, Disposa
 
 		if (callback.isFailed()) {
 			tempAssetId.set(fileName, fileType, assetType);
-			throw new RuntimeException("Error loading asset " + tempAssetId, callback.getExceptionAndFree());
+			throw new RuntimeException("Error loading asset: " + tempAssetId, callback.getExceptionAndFree());
 		} else {
 			return callback.getValueAndFree();
 		}
