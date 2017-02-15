@@ -11,12 +11,6 @@ public class CopyContext implements Poolable {
 	private ArrayExt<Object> copiedObjectStack = new ArrayExt<Object>();
 	private IdentityMap<Object, Object> copiedObjects = new IdentityMap<Object, Object>();
 
-	@Override
-	public void reset() {
-		objectStack.clear();
-		copiedObjects.clear();
-	}
-
 	public void pushObject(Object duplicate) {
 		objectStack.add(duplicate);
 		if (copiedObjectStack.size > 0) {
@@ -36,10 +30,11 @@ public class CopyContext implements Poolable {
 	}
 
 	public <T> T copy(T original) {
-		// TODO check if value is external asset (different file) and return original
+		// TODO check if value is external asset and return original
 		if (original == null) {
 			return null;
 		}
+
 		@SuppressWarnings("unchecked")
 		T duplicate = (T) copiedObjects.get(original);
 		if (duplicate != null) {
@@ -64,5 +59,12 @@ public class CopyContext implements Poolable {
 		T duplicate = context.copy(original);
 		PoolService.free(context);
 		return duplicate;
+	}
+
+	@Override
+	public void reset() {
+		objectStack.clear();
+		copiedObjectStack.clear();
+		copiedObjects.clear();
 	}
 }

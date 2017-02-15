@@ -49,7 +49,6 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
-
 		editorSite = editor.getEditorSite();
 		editorInput = (IPathEditorInput) editor.getEditorInput();
 		sceneFile = editorInput.getAdapter(IFile.class);
