@@ -141,6 +141,24 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 
 		throw new IllegalStateException();
 	}
+	
+	String findBundleId(Object bundledAsset) {
+		if (!(asset instanceof Bundle)) {
+			return null;
+		}
+
+		if (bundledAsset instanceof BundleAware) {
+			return ((BundleAware) bundledAsset).getBundleId();
+		}
+
+		for (Entry<String, Object> bundledAssetsEntry : bundledAssets.entries()) {
+			if (bundledAssetsEntry.value == bundledAsset) {
+				return bundledAssetsEntry.key;
+			}
+		}
+
+		throw new IllegalStateException();
+	}
 
 	void merge(AssetSlot<?> other) {
 		// TODO if(other.reserved) throw ...

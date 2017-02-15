@@ -92,7 +92,7 @@ class AssetRegistry implements Disposable {
 		}
 
 		AssetSlot<?> slot = slotsById.get(id);
-		return slot == null ? null : slot.getBundleId(asset);
+		return slot == null ? null : slot.findBundleId(asset);
 	}
 
 	<T> String getFileName(T asset) {

@@ -14,8 +14,9 @@ import com.gurella.engine.serialization.json.JsonOutput;
 
 public class SerializedJsonPersister<T> implements AssetPersister<T> {
 	private final Class<T> expectedType;
-	private final AssetId assetId = new AssetId();
 	private final JsonOutput output = new JsonOutput();
+	
+	private final AssetId tempAssetId = new AssetId();
 
 	public SerializedJsonPersister(Class<T> expectedType) {
 		this.expectedType = expectedType;
@@ -23,8 +24,8 @@ public class SerializedJsonPersister<T> implements AssetPersister<T> {
 
 	@Override
 	public void persist(FileHandle file, T asset) {
-		assetId.set(file, AssetDescriptors.getAssetType(asset));
-		String string = output.serialize(assetId, expectedType, asset);
+		tempAssetId.set(file, AssetDescriptors.getAssetType(asset));
+		String string = output.serialize(tempAssetId, expectedType, asset);
 		OutputStream outputStream = file.write(false);
 
 		try {

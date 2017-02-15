@@ -122,7 +122,7 @@ public final class AssetId implements Poolable {
 	}
 
 	public boolean isEmpty() {
-		return fileName != null && assetType != null;
+		return fileName == null || assetType == null;
 	}
 
 	public AssetId empty() {
