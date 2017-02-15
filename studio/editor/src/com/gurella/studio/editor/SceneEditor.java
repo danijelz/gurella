@@ -67,8 +67,8 @@ public class SceneEditor extends EditorPart implements SceneDirtyListener, Edito
 	private Dock dock;
 
 	SceneEditorContext sceneContext;
-	private SceneProvider sceneProvider;
 	ViewRegistry viewRegistry;
+	private SceneProvider sceneProvider;
 	private DndAssetPlacementManager dndAssetPlacementManager;
 	private HistoryManager historyManager;
 	private LaunchManager launchManager;

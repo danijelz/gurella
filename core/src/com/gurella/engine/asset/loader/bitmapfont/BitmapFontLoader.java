@@ -31,9 +31,7 @@ public class BitmapFontLoader implements AssetLoader<BitmapFont, BitmapFontPrope
 
 	@Override
 	public void processAsync(DependencySupplier provider, FileHandle file, BitmapFontProperties properties) {
-		if (properties != null && properties.flip) {
-			bitmapFontData.flipped = true;
-		}
+		bitmapFontData.flipped = properties != null && properties.flip;
 	}
 
 	@Override

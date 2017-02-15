@@ -59,6 +59,12 @@ public class PolygonRegionLoader implements AssetLoader<PolygonRegion, PolygonRe
 			StreamUtils.closeQuietly(reader);
 		}
 
+		if (imagePath == null) {
+			throw new GdxRuntimeException("Error reading " + file.path() + ". No image file specified.");
+		} else if (vertices == null) {
+			throw new GdxRuntimeException("Error reading " + file.path() + ". No vertices specified.");
+		}
+
 		collector.addDependency(imagePath, file.type(), Texture.class);
 	}
 
