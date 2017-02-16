@@ -31,7 +31,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonInput implements Input, Poolable {
-	private PoolableJsonReader reader = new PoolableJsonReader();
+	private final PoolableJsonReader reader = new PoolableJsonReader();
 
 	private FileType fileType;
 	private JsonValue rootValue;
@@ -49,17 +49,18 @@ public class JsonInput implements Input, Poolable {
 
 	private CopyContext copyContext = new CopyContext();
 
-	public void init(FileHandle file, DependencyCollector dependencyCollector) {
+	public JsonValue init(FileHandle file, DependencyCollector dependencyCollector) {
+		copyContext.init(file);
 		fileType = file.type();
 		this.rootValue = reader.parse(file);
 		int size = rootValue == null ? 0 : rootValue.size;
 		if (size < 1) {
-			return;
+			return rootValue;
 		}
 
 		JsonValue lastValue = rootValue.get(size - 1);
 		if (!dependenciesTag.equals(lastValue.name)) {
-			return;
+			return rootValue;
 		}
 
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
@@ -72,6 +73,12 @@ public class JsonInput implements Input, Poolable {
 			dependencyPaths.add(dependencyPath);
 			dependencyCollector.addDependency(dependencyPath, fileType, dependencyType);
 		}
+		return rootValue;
+	}
+
+	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, JsonValue rootValue, Object template) {
+		this.rootValue = rootValue;
+		return deserialize(supplier, expectedType, template);
 	}
 
 	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, String json, Object template) {
@@ -351,6 +358,5 @@ public class JsonInput implements Input, Poolable {
 		dependencyPaths.clear();
 		dependencyTypes.clear();
 		copyContext.reset();
-		reader.reset();
 	}
 }

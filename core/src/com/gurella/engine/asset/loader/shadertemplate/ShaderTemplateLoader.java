@@ -10,7 +10,6 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 
 public class ShaderTemplateLoader extends BaseAssetLoader<ShaderTemplate, AssetProperties> {
 	private ShaderTemplateParser parser = new ShaderTemplateParser();
-	private ShaderTemplate result;
 
 	@Override
 	public Class<AssetProperties> getPropertiesType() {
@@ -19,21 +18,19 @@ public class ShaderTemplateLoader extends BaseAssetLoader<ShaderTemplate, AssetP
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		result = parser.parse(assetFile.reader());
-		// TODO Auto-generated method stub
-
+		ShaderTemplate shaderTemplate = parser.parse(assetFile.reader());
+		shaderTemplate.collectDependencies(collector);
+		put(assetFile, shaderTemplate);
 	}
 
 	@Override
 	public void processAsync(DependencySupplier supplier, FileHandle assetFile, AssetProperties properties) {
-		// TODO Auto-generated method stub
-
+		ShaderTemplate shaderTemplate = get(assetFile);
+		shaderTemplate.initDependencies(supplier);
 	}
 
 	@Override
 	public ShaderTemplate finish(DependencySupplier supplier, FileHandle assetFile, AssetProperties properties) {
-		ShaderTemplate temp = result;
-		result = null;
-		return temp;
+		return remove(assetFile);
 	}
 }

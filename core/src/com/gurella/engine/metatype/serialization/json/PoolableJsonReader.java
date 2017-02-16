@@ -11,13 +11,12 @@ import com.badlogic.gdx.utils.BaseJsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonValue.ValueType;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.gurella.engine.pool.PoolService;
 
-public class PoolableJsonReader implements BaseJsonReader, Poolable {
+public class PoolableJsonReader implements BaseJsonReader {
 	private JsonValuePool valuesPool = new JsonValuePool();
 
 	private char[] tempChars = PoolService.obtainCharArray(1024, 0.5f);
@@ -811,21 +810,11 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 		return buffer.toString();
 	}
 
-	@Override
-	public void reset() {
-		valuesPool.reset();
+	public void free(JsonValue value) {
+		valuesPool.freeHierarchy(value);
 	}
 
 	private static class JsonValuePool extends Pool<JsonValue> {
-		private Array<JsonValue> obtainedValues = new Array<JsonValue>(1024);
-
-		@Override
-		public JsonValue obtain() {
-			JsonValue value = super.obtain();
-			obtainedValues.add(value);
-			return value;
-		}
-
 		@Override
 		protected JsonValue newObject() {
 			return new JsonValue(true);
@@ -843,9 +832,11 @@ public class PoolableJsonReader implements BaseJsonReader, Poolable {
 			value.setType(ValueType.nullValue);
 		}
 
-		void reset() {
-			freeAll(obtainedValues);
-			obtainedValues.clear();
+		void freeHierarchy(JsonValue value) {
+			for (JsonValue child = value.child; child != null; child = child.next) {
+				freeHierarchy(child);
+			}
+			free(value);
 		}
 	}
 }

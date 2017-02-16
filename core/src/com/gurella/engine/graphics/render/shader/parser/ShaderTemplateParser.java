@@ -20,6 +20,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTok
 import java.io.IOException;
 import java.io.Reader;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
@@ -47,9 +48,13 @@ public class ShaderTemplateParser implements Poolable {
 
 	ShaderParserBlockType type = root;
 
+	public ShaderTemplate parse(FileHandle file) {
+		return parse(file.reader());
+	}
+
 	public ShaderTemplate parse(Reader reader) {
 		try {
-			return parseSafely(reader);
+			return _parse(reader);
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		} finally {
@@ -57,7 +62,7 @@ public class ShaderTemplateParser implements Poolable {
 		}
 	}
 
-	protected ShaderTemplate parseSafely(Reader reader) throws IOException {
+	protected ShaderTemplate _parse(Reader reader) throws IOException {
 		while (true) {
 			int length = reader.read(data);
 			if (length < 1) {

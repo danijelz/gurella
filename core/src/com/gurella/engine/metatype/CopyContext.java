@@ -1,5 +1,6 @@
 package com.gurella.engine.metatype;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetId;
@@ -24,6 +25,10 @@ public class CopyContext implements Poolable {
 
 	public void init(AssetId rootObjectAssetId) {
 		this.rootObjectAssetId.set(rootObjectAssetId);
+	}
+
+	public void init(FileHandle file) {
+		this.rootObjectAssetId.set(file);
 	}
 
 	public void init(Object rootObject) {
@@ -74,7 +79,7 @@ public class CopyContext implements Poolable {
 
 	private <T> boolean isExternalAsset(T original) {
 		AssetService.getAssetId(original, tempAssetId);
-		return !tempAssetId.isEmpty() && tempAssetId.equalsFile(rootObjectAssetId);
+		return !tempAssetId.isEmpty() && !tempAssetId.equalsFile(rootObjectAssetId);
 	}
 
 	public static <T> T copyObject(T original) {

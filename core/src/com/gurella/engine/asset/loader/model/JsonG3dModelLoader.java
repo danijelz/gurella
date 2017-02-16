@@ -24,7 +24,7 @@ public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
 	@Override
 	public Model finish(DependencySupplier provider, FileHandle file, ModelProperties properties) {
 		Model model = super.finish(provider, file, properties);
-		reader.reset();
+		//TODO reader.reset();
 		return model;
 	}
 }

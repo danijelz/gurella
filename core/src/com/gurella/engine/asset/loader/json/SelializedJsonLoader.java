@@ -5,8 +5,11 @@ import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.metatype.serialization.json.JsonInput;
+import com.gurella.engine.metatype.serialization.json.PoolableJsonReader;
 
 public class SelializedJsonLoader<T> extends BaseAssetLoader<T, SelializedJsonProperties> {
+	private final PoolableJsonReader reader = new PoolableJsonReader();
+	
 	private final Class<T> expectedType;
 	private final JsonInput input = new JsonInput();
 

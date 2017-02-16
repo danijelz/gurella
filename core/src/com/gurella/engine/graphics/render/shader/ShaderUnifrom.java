@@ -20,7 +20,7 @@ public class ShaderUnifrom {
 		return null;
 	}
 
-	public static class AutomaticUniform extends ShaderUnifrom {
+	public static class AutoUniform extends ShaderUnifrom {
 		public void updateValue(RenderContext context) {
 
 		}
