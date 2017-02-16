@@ -4,14 +4,12 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.CubemapData;
 import com.badlogic.gdx.graphics.glutils.KTXTextureData;
-import com.gurella.engine.asset.loader.AssetLoader;
+import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class CubemapLoader implements AssetLoader<Cubemap, CubemapProperties> {
+public class CubemapLoader extends BaseAssetLoader<Cubemap, CubemapProperties> {
 	private static final CubemapProperties defaultProperties = new CubemapProperties();
-
-	private CubemapData cubemapData;
 
 	@Override
 	public Class<CubemapProperties> getPropertiesType() {
@@ -23,24 +21,18 @@ public class CubemapLoader implements AssetLoader<Cubemap, CubemapProperties> {
 	}
 
 	@Override
-	public void processAsync(DependencySupplier provider, FileHandle file, CubemapProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle assetFile, CubemapProperties properties) {
 		CubemapProperties resolved = properties == null ? defaultProperties : properties;
-		cubemapData = new KTXTextureData(file, resolved.genMipMaps);
+		CubemapData cubemapData = new KTXTextureData(assetFile, resolved.genMipMaps);
 		if (!cubemapData.isPrepared()) {
 			cubemapData.prepare();
 		}
+		put(assetFile, cubemapData);
 	}
 
 	@Override
-	public Cubemap finish(DependencySupplier provider, FileHandle file, CubemapProperties properties) {
-		try {
-			return createCubemap(properties);
-		} finally {
-			cubemapData = null;
-		}
-	}
-
-	private Cubemap createCubemap(CubemapProperties properties) {
+	public Cubemap finish(DependencySupplier provider, FileHandle assetFile, CubemapProperties properties) {
+		CubemapData cubemapData = remove(assetFile);
 		Cubemap cubemap = new Cubemap(cubemapData);
 		if (properties != null) {
 			cubemap.setFilter(properties.minFilter, properties.magFilter);

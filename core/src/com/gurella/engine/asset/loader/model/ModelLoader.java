@@ -11,19 +11,16 @@ import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelTexture;
 import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.asset.loader.AssetLoader;
+import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public abstract class ModelLoader<PROPS extends ModelProperties> implements AssetLoader<Model, PROPS> {
-	private ModelData modelData;
-
+public abstract class ModelLoader<PROPS extends ModelProperties> extends BaseAssetLoader<Model, PROPS> {
 	protected abstract ModelData loadModelData(final FileHandle fileHandle);
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		modelData = loadModelData(assetFile);
-
+		ModelData modelData = loadModelData(assetFile);
 		FileType fileType = assetFile.type();
 		for (final ModelMaterial modelMaterial : modelData.materials) {
 			if (modelMaterial.textures != null) {
@@ -32,23 +29,17 @@ public abstract class ModelLoader<PROPS extends ModelProperties> implements Asse
 				}
 			}
 		}
+		put(assetFile, modelData);
 	}
 
 	@Override
-	public void processAsync(DependencySupplier provider, FileHandle file, ModelProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle assetFile, ModelProperties properties) {
 	}
 
 	@Override
-	public Model finish(DependencySupplier provider, FileHandle file, ModelProperties properties) {
-		try {
-			return createModel(provider, file);
-		} finally {
-			modelData = null;
-		}
-	}
-
-	private Model createModel(DependencySupplier provider, FileHandle file) {
-		final Model result = new Model(modelData, new DependencyTextureProvider(provider, file.type()));
+	public Model finish(DependencySupplier provider, FileHandle assetFile, ModelProperties properties) {
+		ModelData modelData = remove(assetFile);
+		final Model result = new Model(modelData, new DependencyTextureProvider(provider, assetFile.type()));
 		// remove the textures from the managed disposables fo ref counting to work!
 		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
 		while (disposables.hasNext()) {

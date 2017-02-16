@@ -250,7 +250,7 @@ public class JsonOutput implements Output, Poolable {
 		} else {
 			assetLocator.getAssetId(value, tempAssetId);
 			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(assetId)) {
-				writeAsset(value, tempAssetId);
+				writeAsset(tempAssetId);
 			} else if (flat) {
 				serializeObject(expectedType, value, template);
 			} else {
@@ -271,10 +271,9 @@ public class JsonOutput implements Output, Poolable {
 		}
 	}
 
-	private void writeAsset(Object asset, AssetId assetId) {
+	private void writeAsset(AssetId assetId) {
 		object();
 		writeStringProperty(typeTag, dependencyType);
-		Class<?> assetType = assetId.getAssetType();
 		writeIntProperty(dependencyIndexTag, getDependencyIndex(assetId));
 		String bundleId = assetId.getBundleId();
 		if (bundleId != null) {

@@ -2,13 +2,11 @@ package com.gurella.engine.asset.loader.pixmap;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.gurella.engine.asset.loader.AssetLoader;
+import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class PixmapLoader implements AssetLoader<Pixmap, PixmapProperties> {
-	private Pixmap pixmap;
-
+public class PixmapLoader extends BaseAssetLoader<Pixmap, PixmapProperties> {
 	@Override
 	public Class<PixmapProperties> getPropertiesType() {
 		return PixmapProperties.class;
@@ -20,12 +18,12 @@ public class PixmapLoader implements AssetLoader<Pixmap, PixmapProperties> {
 	}
 
 	@Override
-	public void processAsync(DependencySupplier provider, FileHandle file, PixmapProperties properties) {
-		pixmap = new Pixmap(file);
+	public void processAsync(DependencySupplier provider, FileHandle assetFile, PixmapProperties properties) {
+		put(assetFile, new Pixmap(assetFile));
 	}
 
 	@Override
-	public Pixmap finish(DependencySupplier provider, FileHandle file, PixmapProperties properties) {
-		return pixmap;
+	public Pixmap finish(DependencySupplier provider, FileHandle assetFile, PixmapProperties properties) {
+		return remove(assetFile);
 	}
 }

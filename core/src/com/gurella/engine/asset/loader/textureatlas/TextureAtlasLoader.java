@@ -8,13 +8,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Page;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.loader.AssetLoader;
+import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class TextureAtlasLoader implements AssetLoader<TextureAtlas, TextureAtlasProperties> {
-	private TextureAtlasData textureAtlasData;
-
+public class TextureAtlasLoader extends BaseAssetLoader<TextureAtlas, TextureAtlasProperties> {
 	@Override
 	public Class<TextureAtlasProperties> getPropertiesType() {
 		return TextureAtlasProperties.class;
@@ -23,7 +21,7 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlas, TextureAtla
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		FileHandle imgDir = assetFile.parent();
-		textureAtlasData = new TextureAtlasData(assetFile, imgDir, false);
+		TextureAtlasData textureAtlasData = new TextureAtlasData(assetFile, imgDir, false);
 
 		FileType fileType = assetFile.type();
 		Array<Page> pages = textureAtlasData.getPages();
@@ -31,11 +29,13 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlas, TextureAtla
 			Page page = pages.get(i);
 			collector.addDependency(page.textureFile.path(), fileType, Texture.class);
 		}
+		put(assetFile, textureAtlasData);
 	}
 
 	@Override
-	public void processAsync(DependencySupplier provider, FileHandle file, TextureAtlasProperties properties) {
-		FileType fileType = file.type();
+	public void processAsync(DependencySupplier provider, FileHandle assetFile, TextureAtlasProperties properties) {
+		TextureAtlasData textureAtlasData = get(assetFile);
+		FileType fileType = assetFile.type();
 		Array<Page> pages = textureAtlasData.getPages();
 		for (int i = 0, n = pages.size; i < n; i++) {
 			Page page = pages.get(i);
@@ -52,11 +52,8 @@ public class TextureAtlasLoader implements AssetLoader<TextureAtlas, TextureAtla
 	}
 
 	@Override
-	public TextureAtlas finish(DependencySupplier provider, FileHandle file, TextureAtlasProperties properties) {
-		try {
-			return new TextureAtlas(textureAtlasData);
-		} finally {
-			textureAtlasData = null;
-		}
+	public TextureAtlas finish(DependencySupplier provider, FileHandle assetFile, TextureAtlasProperties properties) {
+		TextureAtlasData textureAtlasData = remove(assetFile);
+		return new TextureAtlas(textureAtlasData);
 	}
 }

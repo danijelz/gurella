@@ -7,13 +7,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.loader.AssetLoader;
+import com.gurella.engine.asset.loader.BaseAssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 
-public class BitmapFontLoader implements AssetLoader<BitmapFont, BitmapFontProperties> {
-	private BitmapFontData bitmapFontData;
-
+public class BitmapFontLoader extends BaseAssetLoader<BitmapFont, BitmapFontProperties> {
 	@Override
 	public Class<BitmapFontProperties> getPropertiesType() {
 		return BitmapFontProperties.class;
@@ -21,30 +19,25 @@ public class BitmapFontLoader implements AssetLoader<BitmapFont, BitmapFontPrope
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		bitmapFontData = new BitmapFontData(assetFile, false);
+		BitmapFontData bitmapFontData = new BitmapFontData(assetFile, false);
 		FileType fileType = assetFile.type();
 		String[] imagePaths = bitmapFontData.getImagePaths();
 		for (int i = 0, n = imagePaths.length; i < n; i++) {
 			collector.addDependency(imagePaths[i], fileType, Texture.class);
 		}
+		put(assetFile, bitmapFontData);
 	}
 
 	@Override
-	public void processAsync(DependencySupplier provider, FileHandle file, BitmapFontProperties properties) {
+	public void processAsync(DependencySupplier provider, FileHandle assetFile, BitmapFontProperties properties) {
+		BitmapFontData bitmapFontData = get(assetFile);
 		bitmapFontData.flipped = properties != null && properties.flip;
 	}
 
 	@Override
-	public BitmapFont finish(DependencySupplier provider, FileHandle file, BitmapFontProperties properties) {
-		try {
-			return createBitmapFont(provider, file);
-		} finally {
-			bitmapFontData = null;
-		}
-	}
-
-	private BitmapFont createBitmapFont(DependencySupplier provider, FileHandle file) {
-		FileType fileType = file.type();
+	public BitmapFont finish(DependencySupplier provider, FileHandle assetFile, BitmapFontProperties properties) {
+		BitmapFontData bitmapFontData = remove(assetFile);
+		FileType fileType = assetFile.type();
 		String[] imagePaths = bitmapFontData.getImagePaths();
 		int length = imagePaths.length;
 		Array<TextureRegion> regs = new Array<TextureRegion>(length);
