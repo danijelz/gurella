@@ -34,12 +34,12 @@ public class FileDialogUtils {
 
 	public static Optional<String> selectNewFileName(IFolder parent, String defaultName,
 			AssetDescriptor<?> descriptor) {
-		String[] extensions = descriptor.extensions.toArray();
+		String[] extensions = descriptor.extensions.toArray(String.class);
 		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
 	public static Optional<String> selectNewFileName(IPath parent, String defaultName, AssetDescriptor<?> descriptor) {
-		String[] extensions = descriptor.extensions.toArray();
+		String[] extensions = descriptor.extensions.toArray(String.class);
 		return selectNewFileName(parent, defaultName, extensions);
 	}
 
@@ -77,6 +77,12 @@ public class FileDialogUtils {
 		} else {
 			return Optional.of(fileName);
 		}
+	}
+
+	public static Optional<String> getUniqueFileName(IFolder parent, String defaultName, boolean suggestName,
+			String extension) {
+		return validateNewFileName(parent, defaultName) == null ? Optional.of(defaultName)
+				: enterNewFileName(parent, defaultName, suggestName, extension);
 	}
 
 	public static Optional<String> enterNewFileName(IFolder parent, String defaultName, boolean suggestName,

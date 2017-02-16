@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.graph;
 
-import static com.gurella.studio.editor.utils.UiUtils.getActiveShell;
+import static com.gurella.studio.editor.utils.FileDialogUtils.selectNewFileName;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -23,6 +22,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.descriptor.DefaultAssetDescriptors;
@@ -63,15 +63,14 @@ import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
-import com.gurella.studio.editor.utils.FileDialogUtils;
 import com.gurella.studio.editor.utils.PrettyPrintSerializer;
-import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.editor.utils.Try;
 
 class GraphMenu {
 	private final SceneGraphView view;
@@ -153,7 +152,7 @@ class GraphMenu {
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Convert to prefab");
-			item.addListener(SWT.Selection, e -> convertToPrefab());
+			item.addListener(SWT.Selection, e -> Try.unchecked(this::convertToPrefab));
 			item.setEnabled(nodeSelected);
 
 			item = new MenuItem(menu, SWT.PUSH);
@@ -177,37 +176,27 @@ class GraphMenu {
 			view.historyService.executeOperation(new ReparentNodeOperation(editorId, node, null, newIndex), errorMsg);
 		}
 
-		private void convertToPrefab() {
-			try {
-				IProject project = context.project;
-				IPath projectPath = project.getLocation();
-				IPath assetsRootPath = projectPath.append("assets");
-				SceneNode node = (SceneNode) selection;
-				IFolder folder = project.getFolder(assetsRootPath);
-				Optional<String> fileName = FileDialogUtils.selectNewFileName(folder, node.getName(),
-						DefaultAssetDescriptors.prefab);
-				if (!fileName.isPresent()) {
-					return;
-				}
-
-				IPath projectAssetPath = new Path(fileName.get()).makeRelativeTo(projectPath);
-				IFile file = project.getFile(projectAssetPath);
-
-				if (file.exists()) {
-					MessageDialog.openError(getActiveShell(), "Error converting to prefab", "File allready exists.");
-				} else {
-					SceneNode prefab = CopyContext.copyObject(node);
-					String pretty = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
-					InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
-					file.create(is, true, context.getProgressMonitor());
-					IPath gdxAssetPath = new Path(fileName.get()).makeRelativeTo(assetsRootPath);
-					AssetService.put(prefab, gdxAssetPath.toString());
-					ConvertToPrefabOperation operation = new ConvertToPrefabOperation(editorId, node, prefab);
-					view.historyService.executeOperation(operation, "Error converting to prefab");
-				}
-			} catch (Exception e) {
-				GurellaStudioPlugin.showError(e, "Error converting to prefab.");
+		private void convertToPrefab() throws Exception {
+			IProject project = context.project;
+			IFolder assetsFolder = AssetsFolderLocator.getAssetsFolder(project);
+			SceneNode node = (SceneNode) selection;
+			Optional<String> fileName = selectNewFileName(assetsFolder, node.getName(), DefaultAssetDescriptors.prefab);
+			if (!fileName.isPresent()) {
+				return;
 			}
+
+			SceneNode prefab = CopyContext.copyObject(node);
+			String serialized = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
+			InputStream is = new ByteArrayInputStream(serialized.getBytes("UTF-8"));
+
+			IPath prefabPath = new Path(fileName.get()).makeRelativeTo(project.getLocation());
+			IFile file = project.getFile(prefabPath);
+			file.create(is, true, context.getProgressMonitor());
+			IPath gdxAssetPath = file.getProjectRelativePath().makeRelativeTo(assetsFolder.getProjectRelativePath());
+
+			AssetService.save(prefab, gdxAssetPath.toString(), FileType.Internal);
+			ConvertToPrefabOperation operation = new ConvertToPrefabOperation(editorId, node, prefab);
+			view.historyService.executeOperation(operation, "Error converting to prefab");
 		}
 
 		protected void createNodeSubMenu(Menu menu, String label, SceneNode parent, boolean enabled) {

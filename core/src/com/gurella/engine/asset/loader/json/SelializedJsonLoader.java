@@ -22,7 +22,7 @@ public class SelializedJsonLoader<T> implements AssetLoader<T, SelializedJsonPro
 
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-		input.reset();
+		//input.reset();
 		input.init(assetFile, collector);
 	}
 

@@ -274,7 +274,8 @@ public class JsonOutput implements Output, Poolable {
 	private void writeAsset(Object asset, AssetId assetId) {
 		object();
 		writeStringProperty(typeTag, dependencyType);
-		writeIntProperty(dependencyIndexTag, getDependencyIndex(asset, assetId.getFileName()));
+		Class<?> assetType = assetId.getAssetType();
+		writeIntProperty(dependencyIndexTag, getDependencyIndex(assetId));
 		String bundleId = assetId.getBundleId();
 		if (bundleId != null) {
 			writeStringProperty(dependencyBundleIdTag, bundleId);
@@ -282,8 +283,8 @@ public class JsonOutput implements Output, Poolable {
 		pop();
 	}
 
-	private int getDependencyIndex(Object asset, String assetLocation) {
-		String dependency = serializeType(asset.getClass()) + " " + assetLocation;
+	private int getDependencyIndex(AssetId assetId) {
+		String dependency = serializeType(assetId.getAssetType()) + " " + assetId.getFileName();
 		if (externalDependencies.add(dependency)) {
 			externalDependencies.add(dependency);
 			return externalDependencies.orderedItems().indexOf(dependency, false);

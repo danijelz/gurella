@@ -63,7 +63,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 		this.loader = loader;
 
 		requestId = requestSequence++;
-		this.assetId.set(assetId, file);
+		this.assetId.set(assetId, null, file);
 	}
 
 	void init(AssetLoadingTask<?> parent, AssetId assetId, FileHandle file, AssetLoader<T, AssetProperties> loader) {

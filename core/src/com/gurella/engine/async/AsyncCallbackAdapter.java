@@ -1,7 +1,6 @@
 package com.gurella.engine.async;
 
 public class AsyncCallbackAdapter<T> implements AsyncCallback<T> {
-
 	@Override
 	public void onSuccess(T value) {
 	}

@@ -3,7 +3,6 @@ package com.gurella.studio.editor.assets;
 import static com.gurella.engine.asset.descriptor.DefaultAssetDescriptors.prefab;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.utils.FileDialogUtils.enterNewFileName;
-import static com.gurella.studio.editor.utils.UiUtils.getActiveShell;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -15,7 +14,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.dnd.DND;
@@ -23,6 +21,7 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.badlogic.gdx.Files.FileType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
@@ -125,18 +124,14 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		IPath projectAssetPath = folder.getFile(prefabName).getLocation().makeRelativeTo(projectPath);
 		IFile file = project.getFile(projectAssetPath);
 
-		if (file.exists()) {
-			MessageDialog.openError(getActiveShell(), "Error converting to prefab", "File allready exists.");
-		} else {
-			SceneNode prefab = CopyContext.copyObject(node);
-			String pretty = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
-			InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
-			file.create(is, true, context.getProgressMonitor());
-			IPath assetsRootPath = projectPath.append("assets");
-			IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
-			AssetService.put(prefab, gdxAssetPath.toString());
-			ConvertToPrefabOperation operation = new ConvertToPrefabOperation(context.editorId, node, prefab);
-			historyService.executeOperation(operation, "Error converting to prefab");
-		}
+		SceneNode prefab = CopyContext.copyObject(node);
+		String serialized = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
+		InputStream is = new ByteArrayInputStream(serialized.getBytes("UTF-8"));
+		file.create(is, true, context.getProgressMonitor());
+		IPath assetsRootPath = projectPath.append("assets");
+		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
+		AssetService.save(prefab, gdxAssetPath.toString(), FileType.Internal);
+		ConvertToPrefabOperation operation = new ConvertToPrefabOperation(context.editorId, node, prefab);
+		historyService.executeOperation(operation, "Error converting to prefab");
 	}
 }

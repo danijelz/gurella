@@ -120,6 +120,14 @@ public final class AssetId implements Poolable {
 		this.file = file;
 		this.bundleId = other.bundleId;
 	}
+	
+	public void set(AssetId other, String bundleId, FileHandle file) {
+		this.fileName = other.fileName;
+		this.fileType = other.fileType;
+		this.assetType = other.assetType;
+		this.file = file;
+		this.bundleId = bundleId;
+	}
 
 	public boolean isEmpty() {
 		return fileName == null || assetType == null;

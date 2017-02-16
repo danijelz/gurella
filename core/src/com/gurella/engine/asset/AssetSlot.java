@@ -26,7 +26,7 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 	final ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
 
 	void init(AssetId assetId, T asset, boolean sticky, int references, int reservations) {
-		this.assetId.set(assetId);
+		this.assetId.set(assetId, (String) null);
 		this.asset = asset;
 		this.sticky = sticky;
 		this.references = references;
@@ -141,7 +141,7 @@ class AssetSlot<T> implements Dependency<T>, Poolable {
 
 		throw new IllegalStateException();
 	}
-	
+
 	String findBundleId(Object bundledAsset) {
 		if (!(asset instanceof Bundle)) {
 			return null;
