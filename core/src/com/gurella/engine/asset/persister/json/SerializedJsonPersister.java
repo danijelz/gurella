@@ -10,7 +10,7 @@ import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.asset.persister.AssetPersister;
 import com.gurella.engine.async.AsyncService;
-import com.gurella.engine.serialization.json.JsonOutput;
+import com.gurella.engine.metatype.serialization.json.JsonOutput;
 
 public class SerializedJsonPersister<T> implements AssetPersister<T> {
 	private final Class<T> expectedType;

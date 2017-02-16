@@ -5,11 +5,11 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.metatype.serialization.json.JsonInput;
+import com.gurella.engine.metatype.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.serialization.json.JsonInput;
-import com.gurella.engine.serialization.json.JsonOutput;
 
 public class SceneSerializationTest {
 	public static void main(String[] args) {

@@ -1,11 +1,11 @@
-package com.gurella.engine.serialization.json;
+package com.gurella.engine.metatype.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
-import static com.gurella.engine.serialization.json.JsonSerialization.resolveObjectType;
-import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.resolveObjectType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.valueTag;
 
 import java.io.ByteArrayInputStream;
 
@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
-import com.gurella.engine.serialization.Input;
+import com.gurella.engine.metatype.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;

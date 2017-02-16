@@ -3,8 +3,8 @@ package com.gurella.engine.metatype;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.metatype.DefaultMetaType.AbstractSimpleMetaType;
-import com.gurella.engine.serialization.Input;
-import com.gurella.engine.serialization.Output;
+import com.gurella.engine.metatype.serialization.Input;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.Values;
 
 public class EnumMetaTypeFactory implements MetaTypeFactory {

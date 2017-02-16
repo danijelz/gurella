@@ -1,4 +1,4 @@
-package com.gurella.engine.serialization.json;
+package com.gurella.engine.metatype.serialization.json;
 
 import java.io.IOException;
 import java.io.InputStream;

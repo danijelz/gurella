@@ -21,8 +21,8 @@ import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaTypes;
-import com.gurella.engine.serialization.json.JsonInput;
-import com.gurella.engine.serialization.json.JsonOutput;
+import com.gurella.engine.metatype.serialization.json.JsonInput;
+import com.gurella.engine.metatype.serialization.json.JsonOutput;
 import com.gurella.engine.utils.ArrayExt;
 
 public class InputOutputTest {

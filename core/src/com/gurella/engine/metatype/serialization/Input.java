@@ -1,4 +1,4 @@
-package com.gurella.engine.serialization;
+package com.gurella.engine.metatype.serialization;
 
 import com.gurella.engine.utils.ImmutableArray;
 

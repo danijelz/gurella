@@ -2,8 +2,8 @@ package com.gurella.engine.metatype;
 
 import java.util.Locale;
 
-import com.gurella.engine.serialization.Input;
-import com.gurella.engine.serialization.Output;
+import com.gurella.engine.metatype.serialization.Input;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 

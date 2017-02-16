@@ -1,4 +1,4 @@
-package com.gurella.engine.serialization;
+package com.gurella.engine.metatype.serialization;
 
 public interface Serializable<T> {
 	void serialize(T instance, Object template, Output output);

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
 import com.gurella.engine.asset.loader.DependencySupplier;
-import com.gurella.engine.serialization.json.PoolableJsonReader;
+import com.gurella.engine.metatype.serialization.json.PoolableJsonReader;
 
 public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
 	private PoolableJsonReader reader = new PoolableJsonReader();

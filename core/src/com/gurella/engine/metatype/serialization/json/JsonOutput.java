@@ -1,99 +1,110 @@
-package com.gurella.engine.serialization.json;
+package com.gurella.engine.metatype.serialization.json;
 
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayType;
-import static com.gurella.engine.serialization.json.JsonSerialization.arrayTypeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.isSimpleType;
-import static com.gurella.engine.serialization.json.JsonSerialization.resolveOutputType;
-import static com.gurella.engine.serialization.json.JsonSerialization.typeTag;
-import static com.gurella.engine.serialization.json.JsonSerialization.valueTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.arrayType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.arrayTypeTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.dependenciesTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.dependencyBundleIdTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.dependencyIndexTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.dependencyType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.resolveOutputType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.serializeType;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.typeTag;
+import static com.gurella.engine.metatype.serialization.json.JsonSerialization.valueTag;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
-import com.badlogic.gdx.utils.UBJsonWriter;
+import com.gurella.engine.asset.AssetId;
+import com.gurella.engine.asset.AssetLocator;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.MetaTypes;
-import com.gurella.engine.serialization.Output;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
-public class UBJsonOutput implements Output, Poolable {
-	private UBJsonWriter writer;
+public class JsonOutput implements Output, Poolable {
+	private final AssetId assetId = new AssetId();
+	private AssetLocator assetLocator;
+
+	private JsonWriter writer;
 
 	private int currentId;
-	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
-	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private Array<String> externalDependencies = new Array<String>();
+	private final IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
+	private final Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
+	private final OrderedSet<String> externalDependencies = new OrderedSet<String>();
+	private final AssetId tempAssetId = new AssetId();
 
-	@Override
-	public void reset() {
-		writer = null;
-		currentId = 0;
-		references.clear();
-		objectsToSerialize.clear();
-		externalDependencies.clear();
+	public <T> String serialize(AssetId assetId, Class<T> expectedType, T rootObject) {
+		return serialize(assetId, expectedType, rootObject, null);
 	}
 
-	public <T> byte[] serialize(Class<T> expectedType, T rootObject) {
-		return serialize(expectedType, null, rootObject);
+	public <T> String serialize(AssetId assetId, Class<T> expectedType, T rootObject, Object template) {
+		this.assetId.set(assetId);
+		this.assetLocator = AssetService.getAssetLocator();
+		StringWriter buffer = new StringWriter();
+		serialize(expectedType, rootObject, template, buffer);
+		return buffer.toString();
 	}
 
-	public <T> byte[] serialize(Class<T> expectedType, Object template, T rootObject) {
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		writer = new UBJsonWriter(stream);
+	public <T> String serialize(Class<? super T> expectedType, T rootObject, Object template) {
+		AssetService.getAssetId(rootObject, assetId);
+		this.assetLocator = AssetService.getAssetLocator();
+		StringWriter buffer = new StringWriter();
+		serialize(expectedType, rootObject, template, buffer);
+		return buffer.toString();
+	}
+
+	private <T> void serialize(Class<T> expectedType, T rootObject, Object template, Writer buffer) {
+		writer = new JsonWriter(buffer);
 
 		object();
-		addReference(expectedType, template, rootObject);
+		newReference(expectedType, template, rootObject);
 
-		while (objectsToSerialize.size > 0) {
-			ObjectInfo objectInfo = objectsToSerialize.removeIndex(0);
+		int i = 0;
+		while (objectsToSerialize.size > i) {
+			ObjectInfo objectInfo = objectsToSerialize.get(i++);
 			name(Integer.toString(objectInfo.ordinal));
-			serializeObject(objectInfo.expectedType, objectInfo.template, objectInfo.object);
+			serializeObject(objectInfo.expectedType, objectInfo.object, objectInfo.template);
 			objectInfo.free();
 		}
 
 		int externalDependenciesSize = externalDependencies.size;
 		if (externalDependenciesSize > 0) {
-			name("d");
+			name(dependenciesTag);
 			array();
-			for (int i = 0; i < externalDependenciesSize; i++) {
-				String dependency = externalDependencies.get(i);
+			for (String dependency : externalDependencies) {
 				value(dependency);
 			}
 			pop();
 		}
 
 		pop();
-
-		byte[] result = stream.toByteArray();
 		reset();
-		return result;
 	}
 
-	private void writeReference(Class<?> expectedType, Object template, Object object) {
+	private void writeReference(Class<?> expectedType, Object object, Object template) {
 		int ordinal = references.get(object, -1);
 		if (ordinal < 0) {
-			writeInt(addReference(expectedType, template, object));
+			writeInt(newReference(expectedType, template, object));
 		} else {
 			writeInt(ordinal);
 		}
 	}
 
-	private int addReference(Class<?> expectedType, Object template, Object object) {
+	private int newReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String fileName = AssetService.getFileName(object);
-		if (fileName != null) {
-			// TODO
-		}
-
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}
 
-	private void serializeObject(Class<?> expectedType, Object template, Object object) {
+	private void serializeObject(Class<?> expectedType, Object object, Object template) {
 		if (object == null) {
 			writeNull();
 		} else if (object.getClass().isArray()) {
@@ -102,7 +113,7 @@ public class UBJsonOutput implements Output, Poolable {
 			if (actualType != expectedType) {
 				object();
 				writeStringProperty(typeTag, arrayType);
-				writeStringProperty(arrayTypeTag, actualType.getName());
+				writeStringProperty(arrayTypeTag, serializeType(actualType));
 				pop();
 			}
 
@@ -236,10 +247,15 @@ public class UBJsonOutput implements Output, Poolable {
 				metaType.serialize(value, null, this);
 				pop();
 			}
-		} else if (flat) {
-			serializeObject(expectedType, template, value);
 		} else {
-			writeReference(expectedType, template, value);
+			assetLocator.getAssetId(value, tempAssetId);
+			if (!tempAssetId.isEmpty() && !tempAssetId.equalsFile(assetId)) {
+				writeAsset(value, tempAssetId);
+			} else if (flat) {
+				serializeObject(expectedType, value, template);
+			} else {
+				writeReference(expectedType, value, template);
+			}
 		}
 	}
 
@@ -252,6 +268,28 @@ public class UBJsonOutput implements Output, Poolable {
 			return expectedType == actualType.getSuperclass();
 		} else {
 			return false;
+		}
+	}
+
+	private void writeAsset(Object asset, AssetId assetId) {
+		object();
+		writeStringProperty(typeTag, dependencyType);
+		Class<?> assetType = assetId.getAssetType();
+		writeIntProperty(dependencyIndexTag, getDependencyIndex(assetId));
+		String bundleId = assetId.getBundleId();
+		if (bundleId != null) {
+			writeStringProperty(dependencyBundleIdTag, bundleId);
+		}
+		pop();
+	}
+
+	private int getDependencyIndex(AssetId assetId) {
+		String dependency = serializeType(assetId.getAssetType()) + " " + assetId.getFileName();
+		if (externalDependencies.add(dependency)) {
+			externalDependencies.add(dependency);
+			return externalDependencies.orderedItems().indexOf(dependency, false);
+		} else {
+			return externalDependencies.size - 1;
 		}
 	}
 
@@ -393,7 +431,7 @@ public class UBJsonOutput implements Output, Poolable {
 
 	private void type(Class<?> type) {
 		try {
-			writer.set(typeTag, resolveOutputType(type).getName());
+			writer.set(typeTag, serializeType(resolveOutputType(type)));
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}
@@ -421,5 +459,16 @@ public class UBJsonOutput implements Output, Poolable {
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}
+	}
+
+	@Override
+	public void reset() {
+		assetId.reset();
+		writer = null;
+		assetLocator = null;
+		currentId = 0;
+		references.clear();
+		objectsToSerialize.clear();
+		externalDependencies.clear();
 	}
 }

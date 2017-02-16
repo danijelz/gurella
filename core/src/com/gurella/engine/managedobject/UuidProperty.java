@@ -3,8 +3,8 @@ package com.gurella.engine.managedobject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
 import com.gurella.engine.metatype.Property;
-import com.gurella.engine.serialization.Input;
-import com.gurella.engine.serialization.Output;
+import com.gurella.engine.metatype.serialization.Input;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.Range;
 
 class UuidProperty implements Property<String> {

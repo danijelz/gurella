@@ -1,4 +1,4 @@
-package com.gurella.engine.serialization.json;
+package com.gurella.engine.metatype.serialization.json;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;

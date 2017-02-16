@@ -6,9 +6,9 @@ import java.util.Date;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.engine.metatype.serialization.Input;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.scene.renderable.Layer;
-import com.gurella.engine.serialization.Input;
-import com.gurella.engine.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;

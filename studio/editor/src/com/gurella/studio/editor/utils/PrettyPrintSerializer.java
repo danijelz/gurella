@@ -2,7 +2,7 @@ package com.gurella.studio.editor.utils;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.gurella.engine.serialization.json.JsonOutput;
+import com.gurella.engine.metatype.serialization.json.JsonOutput;
 
 public class PrettyPrintSerializer {
 	private PrettyPrintSerializer() {

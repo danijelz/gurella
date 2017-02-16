@@ -1,4 +1,4 @@
-package com.gurella.engine.serialization.json;
+package com.gurella.engine.metatype.serialization.json;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;

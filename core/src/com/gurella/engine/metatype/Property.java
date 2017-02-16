@@ -1,7 +1,7 @@
 package com.gurella.engine.metatype;
 
-import com.gurella.engine.serialization.Input;
-import com.gurella.engine.serialization.Output;
+import com.gurella.engine.metatype.serialization.Input;
+import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.Range;
 
 public interface Property<T> {

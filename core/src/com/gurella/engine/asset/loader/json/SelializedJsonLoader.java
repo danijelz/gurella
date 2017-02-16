@@ -4,7 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset.loader.AssetLoader;
 import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
-import com.gurella.engine.serialization.json.JsonInput;
+import com.gurella.engine.metatype.serialization.json.JsonInput;
 
 public class SelializedJsonLoader<T> implements AssetLoader<T, SelializedJsonProperties> {
 	private final Class<T> expectedType;
