@@ -43,7 +43,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener, Disposab
 
 	private static LightDebugRenderer getRenderer() {
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			LightDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = new LightDebugRenderer();
@@ -54,7 +54,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener, Disposab
 	}
 
 	private LightDebugRenderer() {
-		Files files = AsyncService.getApplication().getFiles();
+		Files files = AsyncService.getCurrentApplication().getFiles();
 		pointLightTexture = new Texture(files.classpath(pointLightTextureLocation));
 		pointLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		pointLightSprite = new Sprite(pointLightTexture);
@@ -100,7 +100,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener, Disposab
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(AsyncService.getApplication());
+			instances.remove(AsyncService.getCurrentApplication());
 		}
 	}
 

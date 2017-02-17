@@ -13,6 +13,7 @@ public class DisposablesService {
 	// TODO Array<Disposable> -> OrderedIdentitySet<Disposable>
 	private static final IdentityMap<Application, Array<Disposable>> instances = new IdentityMap<Application, Array<Disposable>>();
 
+	private static Array<Disposable> singleton;
 	private static Array<Disposable> lastSelected;
 	private static Application lastApp;
 
@@ -20,11 +21,20 @@ public class DisposablesService {
 	}
 
 	private static Array<Disposable> getDisposables() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		Array<Disposable> disposables;
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new Array<Disposable>();
+				return singleton;
+			}
+
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -82,7 +92,7 @@ public class DisposablesService {
 			Array<Disposable> disposables;
 
 			synchronized (instances) {
-				disposables = instances.remove(AsyncService.getApplication());
+				disposables = instances.remove(AsyncService.getCurrentApplication());
 
 				if (disposables == lastSelected) {
 					lastSelected = null;

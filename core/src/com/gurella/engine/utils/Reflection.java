@@ -27,7 +27,7 @@ public class Reflection {
 
 	public static ClassResolver getClassResolver() {
 		synchronized (resolvers) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -40,11 +40,11 @@ public class Reflection {
 		}
 	}
 
-	public static void setClassResolver(ClassResolver resolver) {
+	static void setClassResolver(ClassResolver resolver) {
 		ClassResolver oldResolver;
 
 		synchronized (resolvers) {
-			oldResolver = resolvers.put(AsyncService.getApplication(), resolver);
+			oldResolver = resolvers.put(AsyncService.getCurrentApplication(), resolver);
 
 			if (lastSelected != null && lastSelected == oldResolver) {
 				lastSelected = resolver == null ? DefaultClassResolver.instance : resolver;
@@ -474,7 +474,7 @@ public class Reflection {
 			EventService.unsubscribe(this);
 
 			synchronized (resolvers) {
-				if (resolvers.remove(AsyncService.getApplication()) == lastSelected) {
+				if (resolvers.remove(AsyncService.getCurrentApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

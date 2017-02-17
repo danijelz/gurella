@@ -29,7 +29,7 @@ public class EventService {
 		boolean subscribe = false;
 
 		synchronized (globals) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -184,7 +184,7 @@ public class EventService {
 			EventService.unsubscribe(this);
 
 			synchronized (globals) {
-				if (globals.remove(AsyncService.getApplication()) == lastSelected) {
+				if (globals.remove(AsyncService.getCurrentApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

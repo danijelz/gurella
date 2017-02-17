@@ -10,9 +10,10 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public final class AsyncService {
-	public static AsyncServiceConfig config = DefaultAsyncServiceConfig.instance;
-
+	private static AsyncServiceConfig config = DefaultAsyncServiceConfig.instance;
 	private static final ObjectMap<Application, AsyncExecutor> instances = new ObjectMap<Application, AsyncExecutor>();
+
+	private static AsyncExecutor singleton;
 	private static AsyncExecutor lastSelected;
 	private static Application lastApp;
 
@@ -20,11 +21,20 @@ public final class AsyncService {
 	}
 
 	private static AsyncExecutor getInstance() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		AsyncExecutor executor;
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = getApplication();
+			if (!config.isMultiApplicationEnvironment()) {
+				singleton = config.createAsyncExecutor(1);
+				return singleton;
+			}
+
+			Application app = getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -47,8 +57,12 @@ public final class AsyncService {
 		return executor;
 	}
 
-	public static Application getApplication() {
+	public static Application getCurrentApplication() {
 		return config.getApplication();
+	}
+
+	public static boolean isMultiApplicationEnvironment() {
+		return config.isMultiApplicationEnvironment();
 	}
 
 	public static AsyncExecutor createAsyncExecutor(final int maxConcurrent) {
@@ -66,7 +80,7 @@ public final class AsyncService {
 			AsyncExecutor removed;
 
 			synchronized (instances) {
-				removed = instances.remove(getApplication());
+				removed = instances.remove(getCurrentApplication());
 
 				if (removed == lastSelected) {
 					lastSelected = null;
@@ -82,6 +96,8 @@ public final class AsyncService {
 		Application getApplication();
 
 		AsyncExecutor createAsyncExecutor(final int maxConcurrent);
+
+		boolean isMultiApplicationEnvironment();
 	}
 
 	private static class DefaultAsyncServiceConfig implements AsyncServiceConfig {
@@ -98,6 +114,11 @@ public final class AsyncService {
 		@Override
 		public AsyncExecutor createAsyncExecutor(final int maxConcurrent) {
 			return new AsyncExecutor(maxConcurrent);
+		}
+
+		@Override
+		public boolean isMultiApplicationEnvironment() {
+			return false;
 		}
 	}
 }

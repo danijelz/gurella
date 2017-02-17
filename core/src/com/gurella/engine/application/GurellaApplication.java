@@ -52,7 +52,7 @@ public final class GurellaApplication implements ApplicationListener {
 	}
 
 	public static GurellaApplication current() {
-		return (GurellaApplication) AsyncService.getApplication().getApplicationListener();
+		return (GurellaApplication) AsyncService.getCurrentApplication().getApplicationListener();
 	}
 
 	@Override

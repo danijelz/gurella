@@ -31,7 +31,7 @@ public class WireframeShader extends BaseShader {
 	private final Matrix4 worldTransform = new Matrix4();
 
 	public static WireframeShader getInstance() {
-		Application app = AsyncService.getApplication();
+		Application app = AsyncService.getCurrentApplication();
 		WireframeShader instance = instances.get(app);
 		if (instance == null) {
 			instance = new WireframeShader();

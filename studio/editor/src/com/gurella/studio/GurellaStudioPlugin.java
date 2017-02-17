@@ -44,10 +44,12 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
+import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.async.AsyncService.AsyncServiceConfig;
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -63,7 +65,9 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	private static GurellaFormToolkit toolkit;
 
 	static {
-		AsyncService.config = PluginAsyncServiceConfig.instance;
+		Field configField = Reflection.getDeclaredField(AsyncService.class, "config");
+		configField.setAccessible(true);
+		Reflection.setFieldValue(configField, null, PluginAsyncServiceConfig.instance);
 	}
 
 	public GurellaStudioPlugin() {
@@ -482,6 +486,11 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 				contextApp = null;
 				task = null;
 			}
+		}
+
+		@Override
+		public boolean isMultiApplicationEnvironment() {
+			return true;
 		}
 	}
 }

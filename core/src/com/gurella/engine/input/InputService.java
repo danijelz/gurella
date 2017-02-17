@@ -25,7 +25,7 @@ public class InputService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -83,7 +83,7 @@ public class InputService {
 			EventService.unsubscribe(this);
 
 			synchronized (instances) {
-				if (instances.remove(AsyncService.getApplication()) == lastSelected) {
+				if (instances.remove(AsyncService.getCurrentApplication()) == lastSelected) {
 					lastSelected = null;
 					lastApp = null;
 				}

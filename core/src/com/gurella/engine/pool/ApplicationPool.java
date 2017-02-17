@@ -261,7 +261,7 @@ class ApplicationPool implements AsyncTask<Void>, ApplicationCleanupListener {
 		} catch (Exception e) {
 			// TODO LogService
 			String msg = "Error occured while freeing objects";
-			AsyncService.getApplication().log(PoolService.class.getSimpleName(), msg, e);
+			AsyncService.getCurrentApplication().log(PoolService.class.getSimpleName(), msg, e);
 		}
 
 		workingObjects.clear();

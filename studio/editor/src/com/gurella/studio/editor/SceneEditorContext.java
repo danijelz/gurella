@@ -20,10 +20,12 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.loader.AssetProperties;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Reflection.ClassResolver;
 import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.plugin.Workbench;
 import com.gurella.studio.common.AssetsFolderLocator;
@@ -56,7 +58,13 @@ public class SceneEditorContext implements SceneConsumer, EditorCloseListener {
 		project = sceneFile.getProject();
 		assetsFolder = AssetsFolderLocator.getAssetsFolder(project);
 		javaProject = JavaCore.create(project);
-		Reflection.setClassResolver(DynamicURLClassLoader.newInstance(javaProject)::loadClass);
+
+		Method classResolverSetter = Reflection.getDeclaredMethod(Reflection.class, "setClassResolver",
+				ClassResolver.class);
+		classResolverSetter.setAccessible(true);
+		ClassResolver resolver = DynamicURLClassLoader.newInstance(javaProject)::loadClass;
+		Reflection.invokeMethod(classResolverSetter, null, resolver);
+
 		GdxContext.subscribe(editorId, editorId, this);
 		Workbench.activate(editorId, this);
 	}

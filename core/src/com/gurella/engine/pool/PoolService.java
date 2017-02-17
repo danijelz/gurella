@@ -22,7 +22,7 @@ public final class PoolService {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -150,7 +150,7 @@ public final class PoolService {
 			ApplicationPool pool;
 
 			synchronized (instances) {
-				pool = instances.remove(AsyncService.getApplication());
+				pool = instances.remove(AsyncService.getCurrentApplication());
 
 				if (pool == lastSelected) {
 					lastSelected = null;

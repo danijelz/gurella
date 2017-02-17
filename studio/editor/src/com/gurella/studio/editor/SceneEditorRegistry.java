@@ -50,7 +50,7 @@ public class SceneEditorRegistry {
 	}
 
 	static int getCurrentEditorId() {
-		Application app = AsyncService.getApplication();
+		Application app = AsyncService.getCurrentApplication();
 		if (app instanceof SwtLwjglApplication) {
 			return idByGdxApp.get((SwtLwjglApplication) app, invalidId);
 		} else {
@@ -59,7 +59,7 @@ public class SceneEditorRegistry {
 	}
 
 	static SceneEditor getCurrentEditor() {
-		Application app = AsyncService.getApplication();
+		Application app = AsyncService.getCurrentApplication();
 		if (app instanceof SwtLwjglApplication) {
 			return editorsById.get(idByGdxApp.get((SwtLwjglApplication) app, invalidId));
 		} else {

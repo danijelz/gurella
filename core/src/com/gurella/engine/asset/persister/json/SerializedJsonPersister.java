@@ -34,7 +34,7 @@ public class SerializedJsonPersister<T> implements AssetPersister<T> {
 		} catch (Exception e) {
 			String message = "Error while saving asset '" + file.path() + "'.";
 			// TODO LogService
-			AsyncService.getApplication().log(SerializedJsonPersister.class.getName(), message, e);
+			AsyncService.getCurrentApplication().log(SerializedJsonPersister.class.getName(), message, e);
 			throw new GdxRuntimeException(message, e);
 		}
 	}

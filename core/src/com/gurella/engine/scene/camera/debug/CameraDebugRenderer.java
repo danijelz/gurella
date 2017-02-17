@@ -53,7 +53,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 
 	private static CameraDebugRenderer getRenderer() {
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			CameraDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = DisposablesService.add(new CameraDebugRenderer());
@@ -70,7 +70,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 		fboSprite.flip(false, true);
 		fboSprite.setOriginCenter();
 
-		Files files = AsyncService.getApplication().getFiles();
+		Files files = AsyncService.getCurrentApplication().getFiles();
 		camera2dTexture = new Texture(files.classpath(camera2dTextureLocation));
 		camera2dSprite = new Sprite(camera2dTexture);
 		camera2dSprite.setSize(0.2f, 0.2f);
@@ -146,7 +146,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(AsyncService.getApplication());
+			instances.remove(AsyncService.getCurrentApplication());
 		}
 	}
 

@@ -40,7 +40,7 @@ public class AudioDebugRenderer implements ApplicationShutdownListener, Disposab
 
 	private static AudioDebugRenderer getRenderer() {
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			AudioDebugRenderer renderer = instances.get(app);
 			if (renderer == null) {
 				renderer = DisposablesService.add(new AudioDebugRenderer());
@@ -96,7 +96,7 @@ public class AudioDebugRenderer implements ApplicationShutdownListener, Disposab
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {
-			instances.remove(AsyncService.getApplication());
+			instances.remove(AsyncService.getCurrentApplication());
 		}
 	}
 

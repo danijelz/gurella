@@ -35,7 +35,7 @@ public class Box2dPhysicsSystem extends BuiltinSceneSystem
 
 	@Override
 	protected void serviceActivated() {
-		paused = ((GurellaApplication) AsyncService.getApplication().getApplicationListener()).isPaused();
+		paused = ((GurellaApplication) AsyncService.getCurrentApplication().getApplicationListener()).isPaused();
 	}
 
 	@Override

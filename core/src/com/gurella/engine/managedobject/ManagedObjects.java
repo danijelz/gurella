@@ -46,7 +46,7 @@ final class ManagedObjects {
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -182,7 +182,7 @@ final class ManagedObjects {
 			PendingOperations operations;
 
 			synchronized (instances) {
-				operations = instances.remove(AsyncService.getApplication());
+				operations = instances.remove(AsyncService.getCurrentApplication());
 
 				if (operations == lastSelected) {
 					lastSelected = null;

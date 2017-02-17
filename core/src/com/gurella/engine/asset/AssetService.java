@@ -11,6 +11,7 @@ import com.gurella.engine.asset.bundle.Bundle;
 import com.gurella.engine.asset.resolver.FileHandleResolver;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.AsyncService;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.utils.Values;
@@ -19,6 +20,8 @@ public class AssetService {
 	private static final MockAssetManager mockManager = new MockAssetManager();
 
 	private static final ObjectMap<Application, AssetsManager> instances = new ObjectMap<Application, AssetsManager>();
+
+	private static AssetsManager singleton;
 	private static AssetsManager lastSelected;
 	private static Application lastApp;
 
@@ -31,11 +34,21 @@ public class AssetService {
 	}
 
 	private static AssetsManager getManager() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		AssetsManager manager;
 		boolean subscribe = false;
 
 		synchronized (instances) {
-			Application app = AsyncService.getApplication();
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = DisposablesService.add(new AssetsManager());
+				EventService.subscribe(singleton);
+				return singleton;
+			}
+
+			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
 			}
@@ -237,7 +250,7 @@ public class AssetService {
 			AssetsManager removed;
 
 			synchronized (instances) {
-				removed = instances.remove(AsyncService.getApplication());
+				removed = instances.remove(AsyncService.getCurrentApplication());
 
 				if (removed == lastSelected) {
 					lastSelected = null;

@@ -37,7 +37,7 @@ public class SkyboxShader extends BaseShader {
 	private Matrix4 transform = new Matrix4();
 
 	public static SkyboxShader getInstance() {
-		Application app = AsyncService.getApplication();
+		Application app = AsyncService.getCurrentApplication();
 		SkyboxShader instance = instances.get(app);
 		if (instance == null) {
 			instance = new SkyboxShader();
@@ -47,7 +47,7 @@ public class SkyboxShader extends BaseShader {
 	}
 
 	private SkyboxShader() {
-		Files files = AsyncService.getApplication().getFiles();
+		Files files = AsyncService.getCurrentApplication().getFiles();
 		String vert = files.classpath(VERTEX_SHADER).readString();
 		String frag = files.classpath(FRAGMENT_SHADER).readString();
 
