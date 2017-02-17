@@ -288,7 +288,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void serialize(Object object, Object template, Output output) {
 		T value = getValue(object);
-		Object templateValue = template == null ? defaultValue : getValue(template);
+		Object resolvedTemplate = MetaTypes.resolveTemplate(object, template);
+		Object templateValue = resolvedTemplate == null ? defaultValue : getValue(resolvedTemplate);
 
 		if (!Values.isEqual(value, templateValue)) {
 			if (value == null) {
@@ -301,14 +302,14 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
+		Object resolvedTemplate = MetaTypes.resolveTemplate(object, template);
 		if (input.hasProperty(name)) {
 			T value = getValue(object);
-			T templateValue = getValue(template);
-			Object templatePropertyValue = template == null ? value : templateValue;
-			setValue(object, input.readObjectProperty(name, type, templatePropertyValue));
-		} else if (template != null) {
+			Object templateValue = resolvedTemplate == null ? value : getValue(resolvedTemplate);
+			setValue(object, input.readObjectProperty(name, type, templateValue));
+		} else if (resolvedTemplate != null) {
 			T value = getValue(object);
-			T templateValue = getValue(template);
+			T templateValue = getValue(resolvedTemplate);
 			if (!Values.isEqual(value, templateValue)) {
 				setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));
 			}

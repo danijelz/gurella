@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.BooleanArrayMetaType;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.ByteArrayMetaType;
 import com.gurella.engine.metatype.DefaultArrayMetaTypes.CharArrayMetaType;
@@ -300,5 +301,16 @@ public class MetaTypes {
 	private static boolean isEqualValue(Property<?> property, Object first, Object second) {
 		// TODO handle with property.equalValues(first, second) and EqualsFunction implementation in PropertyDescriptor
 		return isEqual(property.getValue(first), property.getValue(second));
+	}
+
+	public static Object resolveTemplate(Object object, Object template) {
+		if (object instanceof ManagedObject) {
+			ManagedObject prefab = ((ManagedObject) object).getPrefab();
+			if (prefab != null) {
+				return prefab;
+			}
+		}
+
+		return template;
 	}
 }

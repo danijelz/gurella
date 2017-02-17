@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
-import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.serialization.Input;
 import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.metatype.serialization.Serializable;
@@ -159,22 +158,12 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			Serializable<T> serializable = (Serializable<T>) instance;
 			serializable.serialize(instance, template, output);
 		} else {
-			Object resolvedTemplate = resolveSerializtionTemplate(instance, template);
+			Object resolvedTemplate = MetaTypes.resolveTemplate(instance, template);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
 				property.serialize(instance, resolvedTemplate, output);
 			}
-		}
-	}
-
-	private Object resolveSerializtionTemplate(T instance, Object template) {
-		if (template != null) {
-			return template;
-		} else if (instance instanceof ManagedObject) {
-			return ((ManagedObject) instance).getPrefab();
-		} else {
-			return null;
 		}
 	}
 
@@ -192,8 +181,10 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			return null;
 		} else {
 			T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-			Object resolvedTemplate = resolveDeserializtionTemplate(instance, template);
 			input.pushObject(instance);
+
+			Object resolvedTemplate = MetaTypes.resolveTemplate(instance, template);
+
 			if (instance instanceof Serializable) {
 				@SuppressWarnings("unchecked")
 				Serializable<T> serializable = (Serializable<T>) instance;
@@ -207,16 +198,6 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			}
 			input.popObject();
 			return instance;
-		}
-	}
-
-	private Object resolveDeserializtionTemplate(T instance, Object template) {
-		if (instance instanceof ManagedObject && ((ManagedObject) instance).getPrefab() != null) {
-			return ((ManagedObject) instance).getPrefab();
-		} else if (template != null) {
-			return template;
-		} else {
-			return null;
 		}
 	}
 

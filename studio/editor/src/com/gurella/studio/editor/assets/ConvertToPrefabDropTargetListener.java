@@ -26,6 +26,7 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.managedobject.ManagedObject;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.scene.SceneNode;
+import com.gurella.studio.common.AssetsFolderLocator;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.NodeSelection;
 import com.gurella.studio.editor.history.HistoryContributor;
@@ -128,8 +129,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter implements His
 		String serialized = PrettyPrintSerializer.serialize(ManagedObject.class, prefab);
 		InputStream is = new ByteArrayInputStream(serialized.getBytes("UTF-8"));
 		file.create(is, true, context.getProgressMonitor());
-		IPath assetsRootPath = projectPath.append("assets");
-		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
+		IPath gdxAssetPath = AssetsFolderLocator.getAssetsRelativePath(file);
 		AssetService.save(prefab, gdxAssetPath.toString(), FileType.Internal);
 		ConvertToPrefabOperation operation = new ConvertToPrefabOperation(context.editorId, node, prefab);
 		historyService.executeOperation(operation, "Error converting to prefab");

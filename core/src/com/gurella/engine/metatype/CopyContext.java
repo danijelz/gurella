@@ -94,7 +94,6 @@ public class CopyContext implements Poolable {
 		} finally {
 			PoolService.free(context);
 		}
-
 	}
 
 	@Override
