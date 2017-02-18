@@ -28,6 +28,7 @@ public class SelializedJsonLoader<T> extends BaseAssetLoader<T, SelializedJsonPr
 	@Override
 	public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
 		SerializedObject serializedObject = new SerializedObject();
+		serializedObject.file = assetFile;
 		input.init(assetFile, serializedObject);
 		FileType fileType = assetFile.type();
 		Array<String> dependencyPaths = serializedObject.dependencyPaths;
@@ -43,7 +44,7 @@ public class SelializedJsonLoader<T> extends BaseAssetLoader<T, SelializedJsonPr
 		SerializedObject serializedObject = get(assetFile);
 		T deserialized = input.deserialize(provider, expectedType, serializedObject);
 		put(assetFile, deserialized);
-		//free JsonValues
+		//TODO free JsonValues
 	}
 
 	@Override

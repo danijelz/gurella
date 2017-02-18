@@ -81,7 +81,7 @@ public class JsonInput implements Input, Poolable {
 		rootValue = serializedObject.rootValue;
 		dependencyTypes.addAll(serializedObject.dependencyTypes);
 		dependencyPaths.addAll(serializedObject.dependencyPaths);
-		return deserialize(supplier, expectedType, null);
+		return deserialize(supplier, expectedType, (Object) null);
 	}
 
 	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, JsonValue rootValue, Object template) {
