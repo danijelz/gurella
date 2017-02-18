@@ -20,7 +20,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset.loader.DependencyCollector;
 import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.metatype.CopyContext;
 import com.gurella.engine.metatype.MetaType;
@@ -28,6 +27,7 @@ import com.gurella.engine.metatype.MetaTypes;
 import com.gurella.engine.metatype.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.PoolableJsonReader;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonInput implements Input, Poolable {
@@ -49,18 +49,16 @@ public class JsonInput implements Input, Poolable {
 
 	private CopyContext copyContext = new CopyContext();
 
-	public JsonValue init(FileHandle file, DependencyCollector dependencyCollector) {
-		copyContext.init(file);
-		fileType = file.type();
-		this.rootValue = reader.parse(file);
-		int size = rootValue == null ? 0 : rootValue.size;
+	public SerializedObject init(FileHandle file, SerializedObject out) {
+		out.rootValue = reader.parse(file);
+		int size = out.rootValue == null ? 0 : out.rootValue.size;
 		if (size < 1) {
-			return rootValue;
+			return out;
 		}
 
-		JsonValue lastValue = rootValue.get(size - 1);
+		JsonValue lastValue = out.rootValue.get(size - 1);
 		if (!dependenciesTag.equals(lastValue.name)) {
-			return rootValue;
+			return out;
 		}
 
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
@@ -68,12 +66,22 @@ public class JsonInput implements Input, Poolable {
 			int index = strValue.indexOf(' ');
 			String typeName = strValue.substring(0, index++);
 			Class<Object> dependencyType = Reflection.forName(deserializeType(typeName));
-			dependencyTypes.add(dependencyType);
+			out.dependencyTypes.add(dependencyType);
 			String dependencyPath = strValue.substring(index, strValue.length());
-			dependencyPaths.add(dependencyPath);
-			dependencyCollector.addDependency(dependencyPath, fileType, dependencyType);
+			out.dependencyPaths.add(dependencyPath);
 		}
-		return rootValue;
+
+		return out;
+	}
+
+	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, SerializedObject serializedObject) {
+		reset();
+		fileType = serializedObject.file.type();
+		copyContext.init(serializedObject.file);
+		rootValue = serializedObject.rootValue;
+		dependencyTypes.addAll(serializedObject.dependencyTypes);
+		dependencyPaths.addAll(serializedObject.dependencyPaths);
+		return deserialize(supplier, expectedType, null);
 	}
 
 	public <T> T deserialize(DependencySupplier supplier, Class<T> expectedType, JsonValue rootValue, Object template) {
@@ -358,5 +366,20 @@ public class JsonInput implements Input, Poolable {
 		dependencyPaths.clear();
 		dependencyTypes.clear();
 		copyContext.reset();
+	}
+
+	public static class SerializedObject implements Poolable {
+		public FileHandle file;
+		public JsonValue rootValue;
+		public final Array<String> dependencyPaths = new Array<String>();
+		public final Array<Class<?>> dependencyTypes = new Array<Class<?>>();
+
+		@Override
+		public void reset() {
+			file = null;
+			rootValue = null;
+			dependencyPaths.clear();
+			dependencyTypes.clear();
+		}
 	}
 }

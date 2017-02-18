@@ -1,4 +1,4 @@
-package com.gurella.engine.metatype.serialization.json;
+package com.gurella.engine.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +17,16 @@ import com.badlogic.gdx.utils.StringBuilder;
 import com.gurella.engine.pool.PoolService;
 
 public class PoolableJsonReader implements BaseJsonReader {
-	private JsonValuePool valuesPool = new JsonValuePool();
-
+	private JsonValuePool valuesPool;
 	private char[] tempChars = PoolService.obtainCharArray(1024, 0.5f);
+
+	public PoolableJsonReader() {
+		this.valuesPool = new JsonValuePool();
+	}
+
+	public PoolableJsonReader(JsonValuePool valuesPool) {
+		this.valuesPool = valuesPool;
+	}
 
 	public JsonValue parse(String json) {
 		char[] data = json.toCharArray();
@@ -814,7 +821,7 @@ public class PoolableJsonReader implements BaseJsonReader {
 		valuesPool.freeHierarchy(value);
 	}
 
-	private static class JsonValuePool extends Pool<JsonValue> {
+	public static class JsonValuePool extends Pool<JsonValue> {
 		@Override
 		protected JsonValue newObject() {
 			return new JsonValue(true);

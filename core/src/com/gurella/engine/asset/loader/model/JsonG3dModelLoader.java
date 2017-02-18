@@ -1,14 +1,13 @@
 package com.gurella.engine.asset.loader.model;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelData;
-import com.gurella.engine.asset.loader.DependencySupplier;
-import com.gurella.engine.metatype.serialization.json.PoolableJsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+import com.gurella.engine.utils.PoolableJsonReader;
 
 public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
-	private PoolableJsonReader reader = new PoolableJsonReader();
+	private TrackingPoolableJsonReader reader = new TrackingPoolableJsonReader();
 	private G3dModelLoader objLoader = new G3dModelLoader(reader);
 
 	@Override
@@ -18,13 +17,23 @@ public class JsonG3dModelLoader extends ModelLoader<ObjModelProperties> {
 
 	@Override
 	protected ModelData loadModelData(FileHandle fileHandle) {
-		return objLoader.parseModel(fileHandle);
+		ModelData modelData = objLoader.parseModel(fileHandle);
+		reader.free();
+		return modelData;
 	}
 
-	@Override
-	public Model finish(DependencySupplier provider, FileHandle file, ModelProperties properties) {
-		Model model = super.finish(provider, file, properties);
-		//TODO reader.reset();
-		return model;
+	private static class TrackingPoolableJsonReader extends PoolableJsonReader {
+		private JsonValue value;
+
+		@Override
+		public JsonValue parse(FileHandle file) {
+			value = super.parse(file);
+			return value;
+		}
+
+		void free() {
+			free(value);
+			value = null;
+		}
 	}
 }
