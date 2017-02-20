@@ -1,38 +1,26 @@
 package com.gurella.engine.graphics.render.shader.template;
 
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.gurella.engine.asset.loader.DependencyCollector;
-import com.gurella.engine.asset.loader.DependencySupplier;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class ShaderTemplate extends ShaderTemplateNode {
-	private final Array<String> dependencies = new Array<String>();
+	private final Array<String> _dependencies = new Array<String>();
+	public final ImmutableArray<String> dependencies = new ImmutableArray<String>(_dependencies);
 	private final ObjectMap<String, PieceNode> piecesByName = new ObjectMap<String, PieceNode>();
 
-	public void collectDependencies(DependencyCollector collector) {
-		for (int i = 0, n = dependencies.size; i < n; i++) {
-			String dependency = dependencies.get(i);
-			collector.addDependency(dependency, FileType.Internal, ShaderTemplate.class);
-		}
+	public void addDependency(String dependencyPath) {
+		_dependencies.add(dependencyPath);
 	}
 
-	public void initDependencies(DependencySupplier supplier) {
-		for (int i = 0, n = dependencies.size; i < n; i++) {
-			String dependency = dependencies.get(i);
-			ShaderTemplate template = supplier.getDependency(dependency, FileType.Internal, ShaderTemplate.class, null);
-			for (Entry<String, PieceNode> entry : template.piecesByName) {
-				if (!piecesByName.containsKey(entry.key)) {
-					piecesByName.put(entry.key, entry.value);
-				}
+	public void addPieces(ShaderTemplate template) {
+		for (Entry<String, PieceNode> entry : template.piecesByName) {
+			if (!piecesByName.containsKey(entry.key)) {
+				piecesByName.put(entry.key, entry.value);
 			}
 		}
-	}
-
-	public void addDependency(String dependencyPath) {
-		dependencies.add(dependencyPath);
 	}
 
 	public void addPiece(PieceNode piece) {
