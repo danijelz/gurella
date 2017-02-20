@@ -27,7 +27,6 @@ public class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
 			return;
 		}
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -36,7 +35,6 @@ public class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
 			return;
 		}
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -45,7 +43,6 @@ public class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
 			return;
 		}
 		// TODO Auto-generated method stub
-
 	}
 
 	public void requestFocus(UiComponent uiComponent) {

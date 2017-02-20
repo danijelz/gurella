@@ -20,9 +20,9 @@ import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.BuiltinSceneSystem;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
@@ -41,6 +41,15 @@ import com.gurella.engine.utils.Values;
 
 public class RenderSystem extends BuiltinSceneSystem
 		implements ComponentActivityListener, RenderUpdateListener, CameraOrdinalChangedListener {
+	static {
+		defaultCullFace();
+	}
+
+	@SuppressWarnings("deprecation")
+	private static void defaultCullFace() {
+		DefaultShader.defaultCullFace = 0;
+	}
+
 	private GenericBatch batch;
 
 	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
@@ -62,14 +71,12 @@ public class RenderSystem extends BuiltinSceneSystem
 
 	private SpatialSystem<?> spatialSystem;
 
-	@SuppressWarnings("deprecation")
 	public RenderSystem(Scene scene) {
 		super(scene);
 		environment.set(depthTest);
 		environment.set(directionalLights);
 		environment.set(pointLights);
 		environment.set(spotLights);
-		DefaultShader.defaultCullFace = 0;
 	}
 
 	@Override
@@ -263,8 +270,7 @@ public class RenderSystem extends BuiltinSceneSystem
 
 		@Override
 		public int compare(Spatial spatial1, Spatial spatial2) {
-			return Values.compare(spatial1.renderable.layer.ordinal,
-					spatial2.renderable.layer.ordinal);
+			return Values.compare(spatial1.renderable.layer.ordinal, spatial2.renderable.layer.ordinal);
 		}
 	}
 }

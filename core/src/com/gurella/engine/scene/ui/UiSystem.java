@@ -11,7 +11,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 public class UiSystem extends BuiltinSceneSystem implements ComponentActivityListener, ObjectsParentListener, Composite {
-	UiFocusManager uiFocusManager;
+	transient final UiFocusManager uiFocusManager;
 
 	transient final OrderedIdentitySet<UiComponent> _components = new OrderedIdentitySet<UiComponent>();
 	public transient final ImmutableArray<UiComponent> components = _components.orderedItems();
