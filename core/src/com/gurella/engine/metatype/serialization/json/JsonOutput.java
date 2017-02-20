@@ -285,10 +285,9 @@ public class JsonOutput implements Output, Poolable {
 	private int getDependencyIndex(AssetId assetId) {
 		String dependency = serializeType(assetId.getAssetType()) + " " + assetId.getFileName();
 		if (externalDependencies.add(dependency)) {
-			externalDependencies.add(dependency);
-			return externalDependencies.orderedItems().indexOf(dependency, false);
-		} else {
 			return externalDependencies.size - 1;
+		} else {
+			return externalDependencies.orderedItems().indexOf(dependency, false);
 		}
 	}
 

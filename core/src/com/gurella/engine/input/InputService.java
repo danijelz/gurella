@@ -14,6 +14,7 @@ public class InputService {
 	private static final ObjectMap<Application, ApplicationInput> instances = new ObjectMap<Application, ApplicationInput>();
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 
+	private static ApplicationInput singleton;
 	private static ApplicationInput lastSelected;
 	private static Application lastApp;
 
@@ -21,10 +22,19 @@ public class InputService {
 	}
 
 	private static ApplicationInput getInstance() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		ApplicationInput input;
 		boolean subscribe = false;
 
 		synchronized (instances) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new ApplicationInput();
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
@@ -43,7 +53,7 @@ public class InputService {
 		}
 
 		if (subscribe) {
-			EventService.unsubscribe(new Cleaner());
+			EventService.subscribe(new Cleaner());
 		}
 
 		return input;

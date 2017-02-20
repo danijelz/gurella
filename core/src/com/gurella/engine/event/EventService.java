@@ -18,6 +18,7 @@ public class EventService {
 	private static final IntMap<EventBus> channels = new IntMap<EventBus>();
 	private static final SubscriberComparator channelsComparator = new SubscriberComparator();
 
+	private static EventBus singleton;
 	private static EventBus lastSelected;
 	private static Application lastApp;
 
@@ -25,10 +26,19 @@ public class EventService {
 	}
 
 	private static EventBus getGlobal() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		EventBus bus;
 		boolean subscribe = false;
 
 		synchronized (globals) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new EventBus();
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;

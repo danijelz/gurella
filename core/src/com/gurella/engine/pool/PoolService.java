@@ -11,6 +11,7 @@ import com.gurella.engine.utils.priority.Priority;
 public final class PoolService {
 	private static final IdentityMap<Application, ApplicationPool> instances = new IdentityMap<Application, ApplicationPool>();
 
+	private static ApplicationPool singleton;
 	private static ApplicationPool lastSelected;
 	private static Application lastApp;
 
@@ -18,10 +19,20 @@ public final class PoolService {
 	}
 
 	private static ApplicationPool getPool() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		ApplicationPool pool;
 		boolean subscribe = false;
 
 		synchronized (instances) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new ApplicationPool();
+				EventService.subscribe(singleton);
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;

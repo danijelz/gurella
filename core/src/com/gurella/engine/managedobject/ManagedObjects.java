@@ -35,6 +35,7 @@ final class ManagedObjects {
 
 	private static final IdentityMap<Application, PendingOperations> instances = new IdentityMap<Application, PendingOperations>();
 
+	private static PendingOperations singleton;
 	private static PendingOperations lastSelected;
 	private static Application lastApp;
 
@@ -42,10 +43,20 @@ final class ManagedObjects {
 	}
 
 	private static PendingOperations getOperations() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		PendingOperations operations;
 		boolean subscribe = false;
 
 		synchronized (instances) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new PendingOperations();
+				EventService.subscribe(singleton);
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;

@@ -22,11 +22,21 @@ public class Reflection {
 
 	private static final IdentityMap<Application, ClassResolver> resolvers = new IdentityMap<Application, ClassResolver>();
 
+	private static ClassResolver singleton;
 	private static ClassResolver lastSelected;
 	private static Application lastApp;
 
 	public static ClassResolver getClassResolver() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		synchronized (resolvers) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = DefaultClassResolver.instance;
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;

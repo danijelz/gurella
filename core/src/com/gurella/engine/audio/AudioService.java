@@ -9,6 +9,7 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 public class AudioService {
 	private static final ObjectMap<Application, AudioService> instances = new ObjectMap<Application, AudioService>();
 
+	private static AudioService singleton;
 	private static AudioService lastSelected;
 	private static Application lastApp;
 
@@ -19,10 +20,19 @@ public class AudioService {
 	}
 
 	private static AudioService getInstance() {
+		if (singleton != null) {
+			return singleton;
+		}
+
 		AudioService instance;
 		boolean subscribe = false;
 
 		synchronized (instances) {
+			if (!AsyncService.isMultiApplicationEnvironment()) {
+				singleton = new AudioService();
+				return singleton;
+			}
+
 			Application app = AsyncService.getCurrentApplication();
 			if (lastApp == app) {
 				return lastSelected;
