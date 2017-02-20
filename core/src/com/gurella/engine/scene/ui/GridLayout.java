@@ -2,9 +2,12 @@ package com.gurella.engine.scene.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.scene.ui.GridData.HorizontalAlignment;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class GridLayout implements Layout {
+	private static final int DEFAULT = -1;
+
 	public int marginLeft = 0;
 	public int marginTop = 0;
 	public int marginRight = 0;
@@ -38,17 +41,282 @@ public class GridLayout implements Layout {
 		int y = 0;
 		int width = 0;
 		int height = 0;
+		int[] widths = new int[cols];
+		int[] minWidths = new int[cols];
+		int[] heights = new int[rows];
 
-		calculateColumnWidths(width);
+		calculateColumnWidths(width, widths, minWidths);
+		computeWrapping(width, widths);
+		computeRowHeights(height, heights);
+		positionControls(x, y, widths, heights);
 
 		// TODO Auto-generated method stub
 	}
 
-	private void calculateColumnWidths(int width) {
+	private void positionControls(int x, int y, int[] widths, int[] heights) {
+		int gridY = y + marginTop;
+		for (int i = 0; i < rows; i++) {
+			int gridX = x + marginLeft;
+			for (int j = 0; j < cols; j++) {
+				GridData data = getGridData(i, j);
+				if (data != null) {
+					int hSpan = Math.max(1, Math.min(data.horizontalSpan, cols));
+					int vSpan = Math.max(1, data.verticalSpan);
+					int cellWidth = 0, cellHeight = 0;
+					for (int k = 0; k < hSpan; k++) {
+						cellWidth += widths[j + k];
+					}
+					for (int k = 0; k < vSpan; k++) {
+						cellHeight += heights[i + k];
+					}
+					cellWidth += horizontalSpacing * (hSpan - 1);
+					int childX = gridX + data.horizontalIndent;
+					int childWidth = Math.min(data.cacheWidth, cellWidth);
+					switch (data.horizontalAlignment) {
+					case CENTER:
+						childX += Math.max(0, (cellWidth - data.horizontalIndent - childWidth) / 2);
+						break;
+					case RIGHT:
+						childX += Math.max(0, cellWidth - data.horizontalIndent - childWidth);
+						break;
+					case FILL:
+						childWidth = cellWidth - data.horizontalIndent;
+						break;
+					}
+					cellHeight += verticalSpacing * (vSpan - 1);
+					int childY = gridY + data.verticalIndent;
+					int childHeight = Math.min(data.cacheHeight, cellHeight);
+					switch (data.verticalAlignment) {
+					case CENTER:
+						childY += Math.max(0, (cellHeight - data.verticalIndent - childHeight) / 2);
+						break;
+					case BOTTOM:
+						childY += Math.max(0, cellHeight - data.verticalIndent - childHeight);
+						break;
+					case FILL:
+						childHeight = cellHeight - data.verticalIndent;
+						break;
+					}
+					UiComponent child = getComponent(i, j);
+					if (child != null) {
+						//TODO child.setBounds (childX, childY, childWidth, childHeight);
+					}
+				}
+				gridX += widths[j] + horizontalSpacing;
+			}
+			gridY += heights[i] + verticalSpacing;
+		}
+	}
+
+	private void computeRowHeights(int height, int[] heights) {
+		int availableHeight = height - verticalSpacing * (rows - 1) - (marginTop + marginBottom);
+		int expandCount = 0;
+
+		int[] minHeights = new int[rows];
+		boolean[] expandRow = new boolean[rows];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				GridData data = getGridData(i, j);
+				if (data != null) {
+					int vSpan = Math.max(1, Math.min(data.verticalSpan, rows));
+					if (vSpan == 1) {
+						int h = data.cacheHeight + data.verticalIndent;
+						heights[i] = Math.max(heights[i], h);
+						if (data.grabExcessVerticalSpace) {
+							if (!expandRow[i]) {
+								expandCount++;
+							}
+							expandRow[i] = true;
+						}
+						if (!data.grabExcessVerticalSpace || data.minimumHeight != 0) {
+							h = !data.grabExcessVerticalSpace || data.minimumHeight == DEFAULT ? data.cacheHeight
+									: data.minimumHeight;
+							h += data.verticalIndent;
+							minHeights[i] = Math.max(minHeights[i], h);
+						}
+					}
+				}
+			}
+
+			for (int j = 0; j < cols; j++) {
+				GridData data = getGridData(i, j);
+				if (data != null) {
+					int vSpan = Math.max(1, Math.min(data.verticalSpan, rows));
+					if (vSpan > 1) {
+						int spanHeight = 0, spanMinHeight = 0, spanExpandCount = 0;
+						for (int k = 0; k < vSpan; k++) {
+							spanHeight += heights[i - k];
+							spanMinHeight += minHeights[i - k];
+							if (expandRow[i - k]) {
+								spanExpandCount++;
+							}
+						}
+						if (data.grabExcessVerticalSpace && spanExpandCount == 0) {
+							expandCount++;
+							expandRow[i] = true;
+						}
+						int h = data.cacheHeight + data.verticalIndent - spanHeight - (vSpan - 1) * verticalSpacing;
+						if (h > 0) {
+							if (spanExpandCount == 0) {
+								heights[i] += h;
+							} else {
+								int delta = h / spanExpandCount;
+								int remainder = h % spanExpandCount, last = -1;
+								for (int k = 0; k < vSpan; k++) {
+									if (expandRow[i - k]) {
+										heights[last = i - k] += delta;
+									}
+								}
+								if (last > -1) {
+									heights[last] += remainder;
+								}
+							}
+						}
+						if (!data.grabExcessVerticalSpace || data.minimumHeight != 0) {
+							h = !data.grabExcessVerticalSpace || data.minimumHeight == DEFAULT ? data.cacheHeight
+									: data.minimumHeight;
+							h += data.verticalIndent - spanMinHeight - (vSpan - 1) * verticalSpacing;
+							if (h > 0) {
+								if (spanExpandCount == 0) {
+									minHeights[i] += h;
+								} else {
+									int delta = h / spanExpandCount;
+									int remainder = h % spanExpandCount, last = -1;
+									for (int k = 0; k < vSpan; k++) {
+										if (expandRow[i - k]) {
+											minHeights[last = i - k] += delta;
+										}
+									}
+									if (last > -1) {
+										minHeights[last] += remainder;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (height != DEFAULT && expandCount > 0) {
+			int totalHeight = 0;
+			for (int i = 0; i < rows; i++) {
+				totalHeight += heights[i];
+			}
+			int c = expandCount;
+			int delta = (availableHeight - totalHeight) / c;
+			int remainder = (availableHeight - totalHeight) % c;
+			int last = -1;
+			while (totalHeight != availableHeight) {
+				for (int i = 0; i < rows; i++) {
+					if (expandRow[i]) {
+						if (heights[i] + delta > minHeights[i]) {
+							heights[last = i] = heights[i] + delta;
+						} else {
+							heights[i] = minHeights[i];
+							expandRow[i] = false;
+							c--;
+						}
+					}
+				}
+
+				if (last > -1) {
+					heights[last] += remainder;
+				}
+
+				for (int i = 0; i < rows; i++) {
+					for (int j = 0; j < cols; j++) {
+						GridData data = getGridData(i, j);
+						if (data != null) {
+							int vSpan = Math.max(1, Math.min(data.verticalSpan, rows));
+							if (vSpan > 1) {
+								if (!data.grabExcessVerticalSpace || data.minimumHeight != 0) {
+									int spanHeight = 0, spanExpandCount = 0;
+									for (int k = 0; k < vSpan; k++) {
+										spanHeight += heights[i - k];
+										if (expandRow[i - k]) {
+											spanExpandCount++;
+										}
+									}
+									int h = !data.grabExcessVerticalSpace || data.minimumHeight == DEFAULT
+											? data.cacheHeight : data.minimumHeight;
+									h += data.verticalIndent - spanHeight - (vSpan - 1) * verticalSpacing;
+									if (h > 0) {
+										if (spanExpandCount == 0) {
+											heights[i] += h;
+										} else {
+											int delta2 = h / spanExpandCount;
+											int remainder2 = h % spanExpandCount, last2 = -1;
+											for (int k = 0; k < vSpan; k++) {
+												if (expandRow[i - k]) {
+													heights[last2 = i - k] += delta2;
+												}
+											}
+											if (last2 > -1) {
+												heights[last2] += remainder2;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if (c == 0) {
+					break;
+				}
+				totalHeight = 0;
+				for (int i = 0; i < rows; i++) {
+					totalHeight += heights[i];
+				}
+				delta = (availableHeight - totalHeight) / c;
+				remainder = (availableHeight - totalHeight) % c;
+				last = -1;
+			}
+		}
+	}
+
+	private void computeWrapping(int width, int[] widths) {
+		GridData[] flush = null;
+		int flushLength = 0;
+		if (width != DEFAULT) {
+			for (int j = 0; j < cols; j++) {
+				for (int i = 0; i < rows; i++) {
+					GridData data = getGridData(i, j);
+					if (data != null) {
+						if (data.heightHint == DEFAULT) {
+							UiComponent child = getComponent(i, j);
+							//TEMPORARY CODE
+							int hSpan = Math.max(1, Math.min(data.horizontalSpan, cols));
+							int currentWidth = 0;
+							for (int k = 0; k < hSpan; k++) {
+								currentWidth += widths[j - k];
+							}
+							currentWidth += (hSpan - 1) * horizontalSpacing - data.horizontalIndent;
+							if ((currentWidth != data.cacheWidth
+									&& data.horizontalAlignment == HorizontalAlignment.FILL)
+									|| (data.cacheWidth > currentWidth)) {
+								int trim = 0;//TODO child.getBorderWidth() * 2;
+								data.cacheWidth = data.cacheHeight = DEFAULT;
+								data.computeSize(child, Math.max(0, currentWidth - trim), data.heightHint, false);
+								if (data.grabExcessVerticalSpace && data.minimumHeight > 0) {
+									data.cacheHeight = Math.max(data.cacheHeight, data.minimumHeight);
+								}
+								if (flush == null) {
+									flush = new GridData[controlCount];
+								}
+								flush[flushLength++] = data;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void calculateColumnWidths(int width, int[] widths, int[] minWidths) {
 		int availableWidth = width - horizontalSpacing * (cols - 1) - (marginLeft + marginRight);
 		int expandCount = 0;
-		int[] widths = new int[cols];
-		int[] minWidths = new int[cols];
 		boolean[] expandColumn = new boolean[cols];
 
 		for (int j = 0; j < cols; j++) {
@@ -87,10 +355,12 @@ public class GridLayout implements Layout {
 							if (expandColumn[j - k])
 								spanExpandCount++;
 						}
+
 						if (data.grabExcessHorizontalSpace && spanExpandCount == 0) {
 							expandCount++;
 							expandColumn[j] = true;
 						}
+
 						int w = data.cacheWidth + data.horizontalIndent - spanWidth - (hSpan - 1) * horizontalSpacing;
 						if (w > 0) {
 							if (columnsEqualWidth) {
@@ -118,6 +388,7 @@ public class GridLayout implements Layout {
 								}
 							}
 						}
+
 						if (!data.grabExcessHorizontalSpace || data.minimumWidth != 0) {
 							w = !data.grabExcessHorizontalSpace || data.minimumWidth == -1 ? data.cacheWidth
 									: data.minimumWidth;

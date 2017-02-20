@@ -16,8 +16,8 @@ public class GridData {
 	public int minimumHeight = 0;
 	public boolean grabExcessHorizontalSpace = false;
 	public boolean grabExcessVerticalSpace = false;
-	public Alignment verticalAlignment = Alignment.CENTER;
-	public Alignment horizontalAlignment = Alignment.LEFT;
+	public VerticalAlignment verticalAlignment = VerticalAlignment.CENTER;
+	public HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 	public boolean exclude = false;
 
 	int cacheWidth = -1, cacheHeight = -1;
@@ -28,7 +28,7 @@ public class GridData {
 		if (cacheWidth != -1 && cacheHeight != -1) {
 			return;
 		}
-		
+
 		if (wHint == this.widthHint && hHint == this.heightHint) {
 			if (defaultWidth == -1 || defaultHeight == -1 || wHint != defaultWhint || hHint != defaultHhint) {
 				GridPoint2 size = null; //TODO control.computeSize(wHint, hHint, flushCache);
@@ -41,7 +41,7 @@ public class GridData {
 			cacheHeight = defaultHeight;
 			return;
 		}
-		
+
 		if (currentWidth == -1 || currentHeight == -1 || wHint != currentWhint || hHint != currentHhint) {
 			GridPoint2 size = null;//TODO control.computeSize(wHint, hHint, flushCache);
 			currentWhint = wHint;
@@ -49,7 +49,7 @@ public class GridData {
 			currentWidth = size.x;
 			currentHeight = size.y;
 		}
-		
+
 		cacheWidth = currentWidth;
 		cacheHeight = currentHeight;
 	}
@@ -60,7 +60,11 @@ public class GridData {
 		currentWidth = currentHeight = -1;
 	}
 
-	public enum Alignment {
+	public enum VerticalAlignment {
+		TOP, BOTTOM, CENTER, FILL;
+	}
+
+	public enum HorizontalAlignment {
 		LEFT, RIGHT, CENTER, FILL;
 	}
 }
