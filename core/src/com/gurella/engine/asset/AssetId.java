@@ -8,7 +8,7 @@ import com.gurella.engine.utils.Values;
 
 //TODO try to generalize for remote assets -> rename fileName to uri, use ResourceType instead of FileType...
 public final class AssetId implements Poolable {
-	String fileName;//TODO rename fileName to uri
+	String fileName;// TODO rename fileName to uri
 	FileType fileType;
 	Class<?> assetType;
 	String bundleId;
@@ -120,7 +120,7 @@ public final class AssetId implements Poolable {
 		this.file = file;
 		this.bundleId = other.bundleId;
 	}
-	
+
 	public void set(AssetId other, String bundleId, FileHandle file) {
 		this.fileName = other.fileName;
 		this.fileType = other.fileType;
@@ -140,18 +140,19 @@ public final class AssetId implements Poolable {
 
 	public boolean equalsFile(FileHandle file) {
 		if (file == null) {
-			return isEmpty();
+			return false;
 		} else {
 			return fileType == file.type() && Values.nullSafeEquals(fileName, file.path());
 		}
 	}
 
 	public boolean equalsFile(AssetId other) {
-		return other != null && fileType == other.fileType && Values.nullSafeEquals(fileName, other.fileName);
+		return other != null && !isEmpty() && fileType == other.fileType
+				&& Values.nullSafeEquals(fileName, other.fileName);
 	}
 
 	public boolean equalsFile(String fileName, FileType fileType) {
-		return this.fileType == fileType && Values.nullSafeEquals(this.fileName, fileName);
+		return !isEmpty() && this.fileType == fileType && Values.nullSafeEquals(this.fileName, fileName);
 	}
 
 	@Override

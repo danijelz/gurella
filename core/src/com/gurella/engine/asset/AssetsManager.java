@@ -219,6 +219,12 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, Disposa
 			return registry.getAssetRootBundle(asset);
 		}
 	}
+	
+	<T> T getBundledAsset(Bundle bundle, String bundleId) {
+		synchronized (mutex) {
+			return registry.getBundledAsset(bundle, bundleId);
+		}
+	}
 
 	////////////////////////////// loading
 

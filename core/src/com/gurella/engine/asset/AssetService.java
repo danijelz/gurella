@@ -206,6 +206,10 @@ public class AssetService {
 	public static Bundle getBundle(Object asset) {
 		return getManager().getBundle(asset);
 	}
+	
+	public static <T> T getBundledAsset(Bundle bundle, String bundleId) {
+		return getManager().getBundledAsset(bundle, bundleId);
+	}
 
 	public static void addDependency(Object asset, Object dependency) {
 		getManager().addDependency(asset, dependency);

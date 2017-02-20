@@ -428,6 +428,12 @@ class AssetRegistry implements Disposable {
 		Bundle bundle = assetBundle.get(asset);
 		return bundle == null ? asset : getRootBundle(bundle);
 	}
+	
+	<T> T getBundledAsset(Bundle bundle, String bundleId) {
+		AssetId id = idsByAsset.get(getRootBundle(bundle));
+		AssetSlot<?> slot = slotsById.get(id);
+		return slot.getBundledAsset(bundleId);
+	}
 
 	@Override
 	public void dispose() {
