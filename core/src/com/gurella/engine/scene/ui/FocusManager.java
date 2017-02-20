@@ -5,11 +5,11 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
 
-public class UiFocusManager implements SceneKeyListener, SceneKeyTypedListener {
+public class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	private final Scene scene;
 	private UiComponent focusedComponent;
 
-	public UiFocusManager(Scene scene) {
+	public FocusManager(Scene scene) {
 		this.scene = scene;
 	}
 

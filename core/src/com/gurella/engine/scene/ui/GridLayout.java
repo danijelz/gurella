@@ -34,7 +34,7 @@ public class GridLayout implements Layout {
 			return;
 		}
 
-		initGridDatas(flushCache);
+		initGrid(flushCache);
 
 		// TODO get from composite
 		int x = 0;
@@ -45,7 +45,7 @@ public class GridLayout implements Layout {
 		int[] minWidths = new int[cols];
 		int[] heights = new int[rows];
 
-		calculateColumnWidths(width, widths, minWidths);
+		computeWidths(width, widths, minWidths);
 		computeWrapping(width, widths);
 		computeRowHeights(height, heights);
 		positionControls(x, y, widths, heights);
@@ -99,7 +99,7 @@ public class GridLayout implements Layout {
 					}
 					UiComponent child = getComponent(i, j);
 					if (child != null) {
-						//TODO child.setBounds (childX, childY, childWidth, childHeight);
+						child.setBounds(childX, childY, childWidth, childHeight);
 					}
 				}
 				gridX += widths[j] + horizontalSpacing;
@@ -314,7 +314,7 @@ public class GridLayout implements Layout {
 		}
 	}
 
-	private void calculateColumnWidths(int width, int[] widths, int[] minWidths) {
+	private void computeWidths(int width, int[] widths, int[] minWidths) {
 		int availableWidth = width - horizontalSpacing * (cols - 1) - (marginLeft + marginRight);
 		int expandCount = 0;
 		boolean[] expandColumn = new boolean[cols];
@@ -491,13 +491,16 @@ public class GridLayout implements Layout {
 						}
 					}
 				}
+
 				if (c == 0) {
 					break;
 				}
+
 				totalWidth = 0;
 				for (int i = 0; i < cols; i++) {
 					totalWidth += widths[i];
 				}
+
 				delta = (availableWidth - totalWidth) / c;
 				remainder = (availableWidth - totalWidth) % c;
 				last = -1;
@@ -505,7 +508,7 @@ public class GridLayout implements Layout {
 		}
 	}
 
-	private void initGridDatas(boolean flushCache) {
+	private void initGrid(boolean flushCache) {
 		for (int i = 0; i < controlCount; i++) {
 			UiComponent child = grid.get(i);
 			if (child == null) {
@@ -563,7 +566,7 @@ public class GridLayout implements Layout {
 		}
 	}
 
-	private boolean isIncluded(GridData gridData) {
+	private static boolean isIncluded(GridData gridData) {
 		return gridData != null && !gridData.exclude && gridData.column >= 0 && gridData.row >= 0;
 	}
 
@@ -572,6 +575,7 @@ public class GridLayout implements Layout {
 	}
 
 	private GridData getGridData(int column, int row) {
-		return null;// TODO
+		UiComponent component = getComponent(column, row);
+		return component == null ? null : null;// TODO
 	}
 }

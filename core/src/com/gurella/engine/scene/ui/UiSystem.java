@@ -11,7 +11,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 public class UiSystem extends BuiltinSceneSystem implements ComponentActivityListener, ObjectsParentListener, Composite {
-	transient final UiFocusManager uiFocusManager;
+	transient final FocusManager focusManager;
 
 	transient final OrderedIdentitySet<UiComponent> _components = new OrderedIdentitySet<UiComponent>();
 	public transient final ImmutableArray<UiComponent> components = _components.orderedItems();
@@ -20,17 +20,17 @@ public class UiSystem extends BuiltinSceneSystem implements ComponentActivityLis
 
 	public UiSystem(Scene scene) {
 		super(scene);
-		uiFocusManager = new UiFocusManager(scene);
+		focusManager = new FocusManager(scene);
 	}
 
 	@Override
 	protected void serviceActivated() {
-		uiFocusManager.activate();
+		focusManager.activate();
 	}
 
 	@Override
 	protected void serviceDeactivated() {
-		uiFocusManager.deactivate();
+		focusManager.deactivate();
 	}
 
 	@Override
