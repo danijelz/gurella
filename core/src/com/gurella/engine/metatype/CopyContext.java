@@ -78,6 +78,7 @@ public class CopyContext implements Poolable {
 	}
 
 	private <T> boolean isExternalAsset(T original) {
+		//TODO check if this is noncloneable asset
 		AssetService.getAssetId(original, tempAssetId);
 		return !tempAssetId.isEmpty() && !tempAssetId.equalsFile(rootObjectAssetId);
 	}

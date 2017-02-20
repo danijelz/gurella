@@ -53,7 +53,7 @@ public class JsonInput implements Input, Poolable {
 		}
 
 		this.serializedObject = serializedObject;
-		copyContext.init(serializedObject);
+		// TODO is this needed copyContext.init(serializedObject);
 
 		try {
 			JsonValue rootReference = rootValue.get(0);
@@ -378,6 +378,10 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	public static class SimpleSerializedObject extends SerializedObject {
+		public SimpleSerializedObject(JsonValue rootValue) {
+			init(rootValue);
+		}
+
 		@Override
 		protected <T> T getExternalDependency(String dependencyPath, Class<?> dependencyType, String bundleId) {
 			Object asset = AssetService.load(dependencyPath, dependencyType);
