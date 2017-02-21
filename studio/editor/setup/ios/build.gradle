@@ -18,5 +18,6 @@ robovm {
 
 eclipse.project {
     name = appName + "-ios"
-    natures 'org.robovm.eclipse.RoboVMNature'
+    natures 'org.robovm.eclipse.RoboVMNature'%BUILD_NATURE_SEPARATOR%%GRADLE_BUILD_NATURE%
+    %GRADLE_BUILD_COMMAND%
 }

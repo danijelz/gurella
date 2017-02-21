@@ -8,4 +8,6 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 
 eclipse.project {
     name = appName + "-core"
+    %BUILD_NATURES%%GRADLE_BUILD_NATURE%
+    %GRADLE_BUILD_COMMAND%
 }

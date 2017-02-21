@@ -23,7 +23,7 @@ public class BitmapFontLoader extends BaseAssetLoader<BitmapFont, BitmapFontProp
 		FileType fileType = assetFile.type();
 		String[] imagePaths = bitmapFontData.getImagePaths();
 		for (int i = 0, n = imagePaths.length; i < n; i++) {
-			collector.addDependency(imagePaths[i], fileType, Texture.class);
+			collector.collectDependency(imagePaths[i], fileType, Texture.class);
 		}
 		put(assetFile, bitmapFontData);
 	}

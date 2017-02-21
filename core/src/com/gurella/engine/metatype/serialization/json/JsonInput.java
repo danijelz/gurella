@@ -53,7 +53,7 @@ public class JsonInput implements Input, Poolable {
 		}
 
 		this.serializedObject = serializedObject;
-		// TODO is this needed copyContext.init(serializedObject);
+		// TODO is this needed copyContext.init(assetId);
 
 		try {
 			JsonValue rootReference = rootValue.get(0);

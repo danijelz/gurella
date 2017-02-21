@@ -27,7 +27,7 @@ public class TextureAtlasLoader extends BaseAssetLoader<TextureAtlas, TextureAtl
 		Array<Page> pages = textureAtlasData.getPages();
 		for (int i = 0, n = pages.size; i < n; i++) {
 			Page page = pages.get(i);
-			collector.addDependency(page.textureFile.path(), fileType, Texture.class);
+			collector.collectDependency(page.textureFile.path(), fileType, Texture.class);
 		}
 		put(assetFile, textureAtlasData);
 	}

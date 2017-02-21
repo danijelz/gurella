@@ -61,7 +61,7 @@ public class SelializedJsonLoader<T> extends BaseAssetLoader<T, SelializedJsonPr
 			for (int i = 0, n = getExternalDependenciesCount(); i < n; i++) {
 				String fileName = getExternalDependencyPath(i);
 				Class<?> assetType = getExternalDependencyType(i);
-				collector.addDependency(fileName, fileType, assetType);
+				collector.collectDependency(fileName, fileType, assetType);
 			}
 		}
 

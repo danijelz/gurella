@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.Platform;
+
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.Try;
@@ -30,13 +32,22 @@ import com.gurella.studio.wizard.project.ProjectType;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 
 /**
- * Command line tool to generate libgdx projects
- * 
  * @author badlogic
  * @author Tomski
  */
 public class ProjectSetup {
 	private static final String resourceLoc = "setup/";
+
+	private static final String appNameReplacement = "%APP_NAME%";
+	private static final String appNameEscapedReplacement = "%APP_NAME_ESCAPED%";
+	private static final String packageReplacement = "%PACKAGE%";
+	private static final String packageDirReplacement = "%PACKAGE_DIR%";
+	private static final String mainClassReplacement = "%MAIN_CLASS%";
+	private static final String initialSceneReplacement = "%INITIAL_SCENE%";
+	private static final String buildNaturesPropertyReplacement = "%BUILD_NATURES%";
+	private static final String gradleBuildNatureReplacement = "%GRADLE_BUILD_NATURE%";
+	private static final String buildNatureSeparatorReplacement = "%BUILD_NATURE_SEPARATOR%";
+	private static final String gradleBuildCommandReplacement = "%GRADLE_BUILD_COMMAND%";
 
 	private final SetupInfo setupInfo;
 	private final LogCallback callback;
@@ -53,6 +64,8 @@ public class ProjectSetup {
 
 	private String outputDir;
 	private String packageDir;
+
+	private boolean gradleCorePluginInstalled;
 
 	public ProjectSetup(SetupInfo setupInfo, LogCallback callback) {
 		this.setupInfo = setupInfo;
@@ -73,6 +86,7 @@ public class ProjectSetup {
 	}
 
 	public void build() {
+		gradleCorePluginInstalled = Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) != null;
 		addDefaultReplacements();
 
 		addRootFiles();
@@ -88,12 +102,24 @@ public class ProjectSetup {
 	}
 
 	private void addDefaultReplacements() {
-		replacements.put("%APP_NAME%", appName);
-		replacements.put("%APP_NAME_ESCAPED%", appName.replace("'", "\\'"));
-		replacements.put("%PACKAGE%", packageName);
-		replacements.put("%PACKAGE_DIR%", packageDir);
-		replacements.put("%MAIN_CLASS%", mainClass);
-		replacements.put("%INITIAL_SCENE%", initialScene);
+		replacements.put(appNameReplacement, appName);
+		replacements.put(appNameEscapedReplacement, appName.replace("'", "\\'"));
+		replacements.put(packageReplacement, packageName);
+		replacements.put(packageDirReplacement, packageDir);
+		replacements.put(mainClassReplacement, mainClass);
+		replacements.put(initialSceneReplacement, initialScene);
+		
+		if(gradleCorePluginInstalled) {
+			replacements.put(buildNaturesPropertyReplacement, "natures ");
+			replacements.put(gradleBuildNatureReplacement, "'org.eclipse.buildship.core.gradleprojectnature'");
+			replacements.put(buildNatureSeparatorReplacement, ", ");
+			replacements.put(gradleBuildCommandReplacement, "buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
+		} else {
+			replacements.put(buildNaturesPropertyReplacement, "");
+			replacements.put(gradleBuildNatureReplacement, "");
+			replacements.put(buildNatureSeparatorReplacement, "");
+			replacements.put(gradleBuildCommandReplacement, "");
+		}
 	}
 
 	private void addRootFiles() {
@@ -106,6 +132,10 @@ public class ProjectSetup {
 		newProjectFile("gradle/wrapper/gradle-wrapper.jar", false);
 		newProjectFile("gradle/wrapper/gradle-wrapper.properties", false);
 		newProjectFile("gradle.properties");
+		
+		if(gradleCorePluginInstalled) {
+			newProjectFile(".settings/org.eclipse.buildship.core.prefs");
+		}
 	}
 
 	private void addCoreFiles() {
@@ -119,6 +149,12 @@ public class ProjectSetup {
 		if (setupInfo.projects.contains(HTML)) {
 			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
 		}
+		
+
+		
+		if(gradleCorePluginInstalled) {
+			newProjectFile("core/.settings/org.eclipse.buildship.core.prefs");
+		}
 	}
 
 	private void addDesktopFiles() {
@@ -129,6 +165,12 @@ public class ProjectSetup {
 		newProjectFile("desktop/build.gradle");
 		newProjectFile("desktop/src/DesktopLauncher", "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java",
 				true);
+		
+
+		
+		if(gradleCorePluginInstalled) {
+			newProjectFile("desktop/.settings/org.eclipse.buildship.core.prefs");
+		}
 	}
 
 	private void addAndroidFiles() {
@@ -155,6 +197,12 @@ public class ProjectSetup {
 		newProjectFile("android/proguard-project.txt", false);
 		newProjectFile("android/project.properties", false);
 		newProjectFile("local.properties", true);
+		
+
+		
+		if(gradleCorePluginInstalled) {
+			newProjectFile("android/.settings/org.eclipse.buildship.core.prefs");
+		}
 	}
 
 	private void addHtmlFiles() {
@@ -233,6 +281,12 @@ public class ProjectSetup {
 		newProjectFile("ios-moe/xcode/ios-moe/main.cpp", false);
 		newProjectFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj", true);
 		newProjectFile("ios-moe/build.gradle", true);
+		
+
+		
+		if(gradleCorePluginInstalled) {
+			newProjectFile("ios-moe/.settings/org.eclipse.buildship.core.prefs");
+		}
 	}
 
 	private void newProjectFile(String resourceName) {

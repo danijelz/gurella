@@ -31,6 +31,9 @@ public class SetupConstants {
 	public static final String roboVmPluginImport = "com.mobidevelop.robovm:robovm-gradle-plugin:"
 			+ roboVmPluginVersion;
 	public static final String moePluginImport = "org.multi-os-engine:moe-gradle:" + moePluginVersion;
+	
+	public static final String eclipseGradleCorePlugin = "org.eclipse.buildship.core";
+	
 
 	private SetupConstants() {
 	}

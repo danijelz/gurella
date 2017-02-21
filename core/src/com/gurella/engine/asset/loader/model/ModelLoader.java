@@ -25,7 +25,7 @@ public abstract class ModelLoader<PROPS extends ModelProperties> extends BaseAss
 		for (final ModelMaterial modelMaterial : modelData.materials) {
 			if (modelMaterial.textures != null) {
 				for (final ModelTexture modelTexture : modelMaterial.textures) {
-					collector.addDependency(modelTexture.fileName, fileType, Texture.class);
+					collector.collectDependency(modelTexture.fileName, fileType, Texture.class);
 				}
 			}
 		}

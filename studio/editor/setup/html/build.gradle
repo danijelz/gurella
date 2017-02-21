@@ -66,4 +66,6 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 
 eclipse.project {
     name = appName + "-html"
+    %BUILD_NATURES%%GRADLE_BUILD_NATURE%
+    %GRADLE_BUILD_COMMAND%
 }

@@ -235,7 +235,7 @@ class AssetLoadingTask<T> implements AsyncCallback<Object>, Dependency<T>, Depen
 	}
 
 	@Override
-	public <D> void addDependency(String fileName, FileType fileType, Class<D> assetType) {
+	public <D> void collectDependency(String fileName, FileType fileType, Class<D> assetType) {
 		tempAssetId.set(fileName, fileType, assetType);
 		@SuppressWarnings("unchecked")
 		Dependency<D> dependency = (Dependency<D>) dependencies.get(tempAssetId);

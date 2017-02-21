@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.Platform;
+
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.project.ProjectType;
@@ -57,11 +59,25 @@ public class GradleScriptBuilder {
 			this.writer = writer;
 			addBuildScript();
 			addAllProjects();
+			addGradleNatureToEclipseProject();
 			projects.forEach(p -> addProject(p));
 			return buildFile;
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
+		} finally {
+			writer = null;
 		}
+	}
+
+	private void addGradleNatureToEclipseProject() {
+		if(Platform.getBundle("org.eclipse.buildship.core") == null) {
+			return;
+		}
+
+		write("\n\neclipse.project {");
+		write("    natures 'org.eclipse.buildship.core.gradleprojectnature'");
+		write("    buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
+		write("}");
 	}
 
 	private void addBuildScript() {

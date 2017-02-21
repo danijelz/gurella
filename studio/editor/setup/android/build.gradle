@@ -96,12 +96,13 @@ eclipse {
 
     project {
         name = appName + "-android"
-        natures 'com.android.ide.eclipse.adt.AndroidNature'
+        natures 'com.android.ide.eclipse.adt.AndroidNature'%BUILD_NATURE_SEPARATOR%%GRADLE_BUILD_NATURE%
         buildCommands.clear();
         buildCommand "com.android.ide.eclipse.adt.ResourceManagerBuilder"
         buildCommand "com.android.ide.eclipse.adt.PreCompilerBuilder"
         buildCommand "org.eclipse.jdt.core.javabuilder"
         buildCommand "com.android.ide.eclipse.adt.ApkBuilder"
+        %GRADLE_BUILD_COMMAND%
     }
 }
 

@@ -60,7 +60,7 @@ public class PolygonRegionLoader extends BaseAssetLoader<PolygonRegion, PolygonR
 			throw new GdxRuntimeException("Error reading " + assetFile.path() + ". No vertices specified.");
 		}
 
-		collector.addDependency(imagePath, assetFile.type(), Texture.class);
+		collector.collectDependency(imagePath, assetFile.type(), Texture.class);
 		put(assetFile, new PolygonRegionData(imagePath, vertices));
 	}
 

@@ -25,7 +25,7 @@ public class ShaderTemplateLoader extends BaseAssetLoader<ShaderTemplate, AssetP
 		ImmutableArray<String> dependencies = shaderTemplate.dependencies;
 		for (int i = 0, n = dependencies.size(); i < n; i++) {
 			String dependency = dependencies.get(i);
-			collector.addDependency(dependency, fileType, ShaderTemplate.class);
+			collector.collectDependency(dependency, fileType, ShaderTemplate.class);
 		}
 		put(assetFile, shaderTemplate);
 	}
