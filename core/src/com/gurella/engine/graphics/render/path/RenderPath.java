@@ -11,13 +11,15 @@ import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
 
 public class RenderPath {
+	private final ObjectMap<String, RenderPathResource> globalResourcesByName = new ObjectMap<String, RenderPathResource>();
+	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
+	
 	private final RenderComandBuffer rootBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer comandBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer effectsBuffer = new RenderComandBuffer();
 	private final Array<Effect> effects = new Array<Effect>();
 
 	private final RenderContext context = new RenderContext();
-	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
 
 	public RenderPath() {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));

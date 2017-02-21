@@ -233,11 +233,17 @@ public class RenderContext {
 		if (type.clearColor) {
 			setClearColorValue(clearColorValue);
 		}
-		// TODO Auto-generated method stub
+		
+		if (type.clearDepth) {
+			setClearDepthValue(clearDepthValue);
+		}
+		
+		if (type.clearStencil) {
+			setClearStencilValue(clearStencilValue);
+		}
 	}
 
 	public interface RenderQueueKey extends Comparable<RenderQueueKey> {
-
 	}
 
 	public interface RenderQueueKeySupplier {
