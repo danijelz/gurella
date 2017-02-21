@@ -59,7 +59,7 @@ public class GraphicsService {
 
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer);
 		maxTextureImageUnits = buffer.get(0);
-		// TODO Auto-generated method stub
+		// TODO init other constants
 	}
 
 	public void render(RenderComandBuffer comandBuffer) {

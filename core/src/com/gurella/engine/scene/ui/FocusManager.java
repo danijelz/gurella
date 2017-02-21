@@ -5,19 +5,19 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
 import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
 
-public class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
+class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	private final Scene scene;
 	private UiComponent focusedComponent;
 
-	public FocusManager(Scene scene) {
+	FocusManager(Scene scene) {
 		this.scene = scene;
 	}
 
-	public void activate() {
+	void activate() {
 		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
-	public void deactivate() {
+	void deactivate() {
 		EventService.unsubscribe(scene.getInstanceId(), this);
 	}
 
@@ -45,7 +45,7 @@ public class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 		// TODO Auto-generated method stub
 	}
 
-	public void requestFocus(UiComponent uiComponent) {
+	void requestFocus(UiComponent uiComponent) {
 		if (uiComponent.isFocusable()) {
 			if (focusedComponent != null) {
 				focusedComponent.setFocused(false);

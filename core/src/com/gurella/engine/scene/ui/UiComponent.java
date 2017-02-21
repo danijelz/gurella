@@ -23,11 +23,7 @@ public abstract class UiComponent extends SceneNodeComponent {
 	}
 
 	public boolean hasFocus() {
-		if (isFocusable()) {
-			return uiSystem.focusManager.hasFocus(this);
-		} else {
-			return false;
-		}
+		return isFocusable() ? uiSystem.focusManager.hasFocus(this) : false;
 	}
 
 	public boolean isFocusable() {
