@@ -59,8 +59,8 @@ public class GradleScriptBuilder {
 			this.writer = writer;
 			addBuildScript();
 			addAllProjects();
-			addGradleNatureToEclipseProject();
 			projects.forEach(p -> addProject(p));
+			addGradleNatureToEclipseProject();
 			return buildFile;
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
@@ -70,13 +70,15 @@ public class GradleScriptBuilder {
 	}
 
 	private void addGradleNatureToEclipseProject() {
-		if(Platform.getBundle("org.eclipse.buildship.core") == null) {
+		if(Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) == null) {
 			return;
 		}
 
-		write("\n\neclipse.project {");
-		write("    natures 'org.eclipse.buildship.core.gradleprojectnature'");
-		write("    buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
+		write("\n\neclipse {");
+		write("\nproject {");
+		write("natures 'org.eclipse.buildship.core.gradleprojectnature'");
+		write("buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
+		write("}");
 		write("}");
 	}
 

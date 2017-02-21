@@ -1,6 +1,5 @@
 package com.gurella.engine.application;
 
-import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
@@ -52,7 +51,8 @@ public final class GurellaApplication implements ApplicationListener {
 	}
 
 	public static GurellaApplication current() {
-		return (GurellaApplication) AsyncService.getCurrentApplication().getApplicationListener();
+		ApplicationListener applicationListener = AsyncService.getCurrentApplication().getApplicationListener();
+		return applicationListener instanceof GurellaApplication ? (GurellaApplication) applicationListener : null;
 	}
 
 	@Override
@@ -84,10 +84,6 @@ public final class GurellaApplication implements ApplicationListener {
 	@Override
 	public final void resume() {
 		paused = false;
-		if (Gdx.app.getType() == ApplicationType.Android) {
-			// TODO implement in AssetManager 
-			//AssetService.reloadInvalidated();
-		}
 		EventService.post(resumeEvent);
 		EventService.post(cleanupEvent);
 	}

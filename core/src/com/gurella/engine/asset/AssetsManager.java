@@ -28,7 +28,7 @@ import com.gurella.engine.utils.factory.Factory;
 import com.gurella.engine.utils.priority.Priority;
 
 @Priority(value = Integer.MIN_VALUE, type = ApplicationCleanupListener.class)
-class AssetsManager implements ApplicationCleanupListener, AssetLocator, Disposable {
+class AssetsManager implements ApplicationCleanupListener, GlContextInvalidatedListener, AssetLocator, Disposable {
 	final Object mutex = new Object();
 	AssetLoadingExecutor executor = new AssetLoadingExecutor(this);
 	private final TaskPool taskPool = new TaskPool();
@@ -437,6 +437,12 @@ class AssetsManager implements ApplicationCleanupListener, AssetLocator, Disposa
 			executor.dispose();
 			registry.dispose();
 		}
+	}
+
+	@Override
+	public void onGlContextInvalidated() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	String getDiagnostics() {

@@ -3,8 +3,8 @@ package com.gurella.studio.wizard.project.setup;
 import com.gurella.engine.utils.Uuid;
 
 public class SampleMaterialFile extends GeneratedProjectFile {
-	public SampleMaterialFile(String outputName) {
-		super(outputName);
+	public SampleMaterialFile() {
+		super("core/assets/materials/sampleMaterial.gmat");
 	}
 
 	@Override
@@ -13,7 +13,7 @@ public class SampleMaterialFile extends GeneratedProjectFile {
 		return "{\n"
 				+ "0: {\n"
 				+ "		uuid: " + Uuid.randomUuidString() + "\n"
-				+ "		diffuseColor: -352264961\n"
+				+ "		diffuseColor: -1140915969\n"
 				+ "	  }\n"
 				+ "}";
 		//@formatter:on

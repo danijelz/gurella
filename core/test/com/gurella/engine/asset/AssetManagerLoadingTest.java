@@ -77,8 +77,8 @@ public class AssetManagerLoadingTest {
 
 		@Override
 		public void initDependencies(DependencyCollector collector, FileHandle assetFile) {
-			collector.addDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class);
-			collector.addDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class);
+			collector.collectDependency("TestAsset2/1.t2", FileType.Internal, TestAsset2.class);
+			collector.collectDependency("TestAsset2/2.t2", FileType.Internal, TestAsset2.class);
 		}
 
 		@Override

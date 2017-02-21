@@ -101,8 +101,7 @@ eclipse {
         buildCommand "com.android.ide.eclipse.adt.ResourceManagerBuilder"
         buildCommand "com.android.ide.eclipse.adt.PreCompilerBuilder"
         buildCommand "org.eclipse.jdt.core.javabuilder"
-        buildCommand "com.android.ide.eclipse.adt.ApkBuilder"
-        %GRADLE_BUILD_COMMAND%
+        buildCommand "com.android.ide.eclipse.adt.ApkBuilder"%GRADLE_BUILD_PROPERTY_PREFIX%%GRADLE_BUILD_COMMAND%
     }
 }
 

@@ -6,8 +6,8 @@ sourceCompatibility = 1.6
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 
-eclipse.project {
-    name = appName + "-core"
-    %BUILD_NATURES%%GRADLE_BUILD_NATURE%
-    %GRADLE_BUILD_COMMAND%
+eclipse {
+    project {
+        name = appName + "-core"%GRADLE_BUILD_PROPERTY_PREFIX%%BUILD_NATURES%%GRADLE_BUILD_NATURE%%GRADLE_BUILD_PROPERTY_PREFIX%%GRADLE_BUILD_COMMAND%
+    }
 }

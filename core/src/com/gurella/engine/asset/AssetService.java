@@ -43,6 +43,7 @@ public class AssetService {
 
 		synchronized (instances) {
 			if (!AsyncService.isMultiApplicationEnvironment()) {
+				DisposablesService.add(mockManager);
 				singleton = DisposablesService.add(new AssetsManager());
 				EventService.subscribe(singleton);
 				return singleton;

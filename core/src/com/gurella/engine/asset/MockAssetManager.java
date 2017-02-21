@@ -1,17 +1,31 @@
 package com.gurella.engine.asset;
 
+import static com.badlogic.gdx.graphics.Pixmap.Format.Alpha;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
+import com.gurella.engine.event.Event;
+import com.gurella.engine.event.EventService;
 
 class MockAssetManager extends AssetManager {
+	private static final GlContextInvalidatedEvent glContextInvalidatedEvent = new GlContextInvalidatedEvent();
+	private static final String listenerTextureFileName = MockAssetManager.class.getName()
+			+ "______listenerTexture______";
+
+	private Texture listenerTexture;
+
 	MockAssetManager() {
 		super(null, false);
+		listenerTexture = new Texture(new PixmapTextureData(new Pixmap(1, 1, Alpha), Alpha, false, true, true));
 	}
 
 	@Override
@@ -41,6 +55,9 @@ class MockAssetManager extends AssetManager {
 
 	@Override
 	public synchronized void unload(String fileName) {
+		if (listenerTextureFileName.equals(fileName)) {
+			EventService.post(glContextInvalidatedEvent);
+		}
 	}
 
 	@Override
@@ -50,7 +67,7 @@ class MockAssetManager extends AssetManager {
 
 	@Override
 	public synchronized <T> String getAssetFileName(T asset) {
-		return "dummy";
+		return asset == listenerTexture ? listenerTextureFileName : "dummy";
 	}
 
 	@Override
@@ -154,11 +171,6 @@ class MockAssetManager extends AssetManager {
 	}
 
 	@Override
-	public synchronized void dispose() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public synchronized void clear() {
 		throw new UnsupportedOperationException();
 	}
@@ -201,5 +213,23 @@ class MockAssetManager extends AssetManager {
 	@SuppressWarnings("rawtypes")
 	public synchronized Class getAssetType(String fileName) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public synchronized void dispose() {
+		listenerTexture.dispose();
+		listenerTexture = null;
+	}
+	
+	private static final class GlContextInvalidatedEvent implements Event<GlContextInvalidatedListener> {
+		@Override
+		public void dispatch(GlContextInvalidatedListener subscriber) {
+			subscriber.onGlContextInvalidated();
+		}
+
+		@Override
+		public Class<GlContextInvalidatedListener> getSubscriptionType() {
+			return GlContextInvalidatedListener.class;
+		}
 	}
 }

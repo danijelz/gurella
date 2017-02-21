@@ -58,7 +58,6 @@ eclipse {
     // Set MOE nature
     project {
         name = appName + "-ios-moe"
-        natures 'org.multi-os-engine.project'%BUILD_NATURE_SEPARATOR%%GRADLE_BUILD_NATURE%
-        %GRADLE_BUILD_COMMAND%
+        natures 'org.multi-os-engine.project'%BUILD_NATURE_SEPARATOR%%GRADLE_BUILD_NATURE%%GRADLE_BUILD_PROPERTY_PREFIX%%GRADLE_BUILD_COMMAND%
     }
 }
