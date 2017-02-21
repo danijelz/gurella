@@ -42,7 +42,7 @@ public class ProjectSetup {
 	private static final String appNameEscapedReplacement = "%APP_NAME_ESCAPED%";
 	private static final String packageReplacement = "%PACKAGE%";
 	private static final String packageDirReplacement = "%PACKAGE_DIR%";
-	private static final String mainClassReplacement = "%MAIN_CLASS%";//TODO remove
+	private static final String mainClassReplacement = "%MAIN_CLASS%";// TODO remove
 	private static final String initialSceneReplacement = "%INITIAL_SCENE%";
 	private static final String buildNaturesPropertyReplacement = "%BUILD_NATURES%";
 	private static final String gradleBuildNatureReplacement = "%GRADLE_BUILD_NATURE%";
@@ -166,8 +166,8 @@ public class ProjectSetup {
 		}
 
 		newProjectFile("desktop/build.gradle");
-		newProjectFile("desktop/src/DesktopLauncher", "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java",
-				true);
+		String launcherPath = "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java";
+		newProjectFile("desktop/src/DesktopLauncher", launcherPath, true);
 
 		if (gradleNature) {
 			newProjectFile("desktop/.settings/org.eclipse.buildship.core.prefs");
@@ -301,7 +301,7 @@ public class ProjectSetup {
 	private void newTemporaryProjectFile(File file, String outputString, boolean isTemplate) {
 		files.add(new TemporaryProjectFile(file, outputString, isTemplate));
 	}
-	
+
 	private void addProjectFile(ProjectFile projectFile) {
 		files.add(projectFile);
 	}
@@ -376,7 +376,7 @@ public class ProjectSetup {
 			if (file instanceof TemporaryProjectFile) {
 				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
 			} else if (file instanceof GeneratedProjectFile) {
-				writeFile(outFile, ((GeneratedProjectFile)file).generate());
+				writeFile(outFile, ((GeneratedProjectFile) file).generate());
 			} else {
 				writeFile(outFile, readResource(resourceLoc, file.resourceName));
 			}
