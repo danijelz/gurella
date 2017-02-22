@@ -46,7 +46,6 @@ public class ProjectSetup {
 	private final Map<String, String> replacements = new HashMap<String, String>();
 
 	private String appName;
-	private String mainClass;
 	private String initialScene;
 	private String packageName;
 	private String androidApiLevel;
@@ -61,11 +60,10 @@ public class ProjectSetup {
 		this.setupInfo = setupInfo;
 		this.callback = callback;
 
-		mainClass = setupInfo.mainClass;
+		appName = setupInfo.appName;
 		initialScene = setupInfo.initialScene;
 		androidApiLevel = setupInfo.androidApiLevel;
 		androidBuildToolsVersion = setupInfo.androidBuildToolsVersion;
-		appName = setupInfo.appName;
 		packageName = setupInfo.packageName;
 		outputDir = setupInfo.location;
 		packageDir = setupInfo.packageName.replace('.', '/');
@@ -135,7 +133,8 @@ public class ProjectSetup {
 		newResourceFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg");
 
 		if (setupInfo.isSelected(HTML)) {
-			newTemplateFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml");
+			String gwtAppName = Character.toUpperCase(appName.charAt(0)) + appName.substring(1);
+			newTemplateFile("core/CoreGdxDefinition", "core/src/" + gwtAppName + ".gwt.xml");
 		}
 
 		if (gradleNature) {

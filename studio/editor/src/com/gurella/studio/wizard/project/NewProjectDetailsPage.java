@@ -127,7 +127,6 @@ public class NewProjectDetailsPage extends WizardPage {
 
 	void updateSetupInfo(SetupInfo setupInfo) {
 		setupInfo.packageName = detailsGroup.getPackageName();
-		setupInfo.mainClass = detailsGroup.getMainClassName();
 		setupInfo.initialScene = detailsGroup.getInitialSceneName();
 		boolean androidProjectSelected = projectTypesGroup.isSelected(ProjectType.ANDROID);
 		setupInfo.androidSdkLocation = androidProjectSelected ? androidSdkGroup.getSdkLocation() : "";

@@ -346,7 +346,7 @@ public class NewProjectMainPage extends WizardPage {
 				setPageComplete(false);
 				return;
 			}
-			
+
 			String coreProjectName = name + "-" + ProjectType.CORE.getName();
 			handle = workspace.getRoot().getProject(coreProjectName);
 			if (handle.exists()) {
