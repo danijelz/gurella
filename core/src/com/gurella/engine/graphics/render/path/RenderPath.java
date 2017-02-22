@@ -20,6 +20,8 @@ public class RenderPath {
 	private final Array<Effect> effects = new Array<Effect>();
 
 	private final RenderContext context = new RenderContext();
+	
+	private final Array<RenderNode> rootNodes = new Array<RenderNode>();
 
 	public RenderPath() {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));
