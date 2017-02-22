@@ -43,12 +43,17 @@ class DetailsGroup implements Validator {
 		packageName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		packageName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(packageName);
+		requestFocus();
 
 		Label initialSceneNameLabel = new Label(detailsGroup, SWT.NONE);
 		initialSceneNameLabel.setText("Initial scene:");
 		initialSceneName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		initialSceneName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(initialSceneName);
+	}
+
+	void requestFocus() {
+		packageName.setFocus();
 	}
 
 	private void fireValidate() {
