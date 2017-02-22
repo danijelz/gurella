@@ -280,6 +280,5 @@ public class RenderState implements Poolable {
 
 	public void set(RenderState currentState) {
 		// TODO Auto-generated method stub
-
 	}
 }
