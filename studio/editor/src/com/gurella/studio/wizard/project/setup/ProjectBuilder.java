@@ -27,7 +27,7 @@ import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
  * @author badlogic
  * @author Tomski
  */
-public class ProjectSetup {
+public class ProjectBuilder {
 	private static final String appNameReplacement = "%APP_NAME%";
 	private static final String appNameEscapedReplacement = "%APP_NAME_ESCAPED%";
 	private static final String packageReplacement = "%PACKAGE%";
@@ -56,7 +56,11 @@ public class ProjectSetup {
 
 	private boolean gradleNature;
 
-	public ProjectSetup(SetupInfo setupInfo, LogCallback callback) {
+	public static void build(SetupInfo setupInfo, LogCallback callback) {
+		new ProjectBuilder(setupInfo, callback)._build();
+	}
+
+	private ProjectBuilder(SetupInfo setupInfo, LogCallback callback) {
 		this.setupInfo = setupInfo;
 		this.callback = callback;
 
@@ -67,10 +71,11 @@ public class ProjectSetup {
 		packageName = setupInfo.packageName;
 		outputDir = setupInfo.location;
 		packageDir = setupInfo.packageName.replace('.', '/');
+
+		gradleNature = Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) != null;
 	}
 
-	public void build() {
-		gradleNature = Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) != null;
+	private void _build() {
 		addDefaultReplacements();
 
 		addRootFiles();
