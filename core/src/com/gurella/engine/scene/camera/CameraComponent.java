@@ -79,7 +79,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	abstract T createCamera();
 
 	@Override
-	public void resize(int width, int height) {
+	public void onResize(int width, int height) {
 		if (renderTarget == null) {
 			viewport.update(width, height);
 		}
@@ -108,7 +108,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	public void onNodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 			updateTransform();
@@ -116,7 +116,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
+	public void onNodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = null;
 			updateDefaultTransform();

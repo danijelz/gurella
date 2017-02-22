@@ -19,7 +19,7 @@ public class AssetLoadedEvent implements Event<AssetActivityListener> {
 
 	@Override
 	public void dispatch(AssetActivityListener listener) {
-		listener.assetLoaded(assetId, asset);
+		listener.onAssetLoaded(assetId, asset);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ class TagAddedEvent implements Event<TagActivityListener>, Poolable {
 
 	@Override
 	public void dispatch(TagActivityListener listener) {
-		listener.tagAdded(component, tag);
+		listener.onTagAdded(component, tag);
 	}
 
 	@Override

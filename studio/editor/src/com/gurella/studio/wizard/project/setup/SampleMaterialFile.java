@@ -2,7 +2,7 @@ package com.gurella.studio.wizard.project.setup;
 
 import com.gurella.engine.utils.Uuid;
 
-public class SampleMaterialFile extends GeneratedProjectFile {
+public class SampleMaterialFile extends GeneratedFile {
 	public SampleMaterialFile() {
 		super("core/assets/materials/sampleMaterial.gmat");
 	}

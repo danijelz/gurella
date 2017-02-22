@@ -68,14 +68,14 @@ public abstract class RenderableComponent extends SceneNodeComponent implements 
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	public void onNodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			setTransformComponent((TransformComponent) component);
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
+	public void onNodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			setTransformComponent(null);
 		}

@@ -31,7 +31,7 @@ public class AudioSystem extends BuiltinSceneSystem implements ComponentActivity
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = AudioListenerData.getInstance();
 			audioListenerData.init((AudioListenerComponent) component);
@@ -57,7 +57,7 @@ public class AudioSystem extends BuiltinSceneSystem implements ComponentActivity
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = activeListeners.remove(component.getNodeId());
 			if (audioListenerData != null) {

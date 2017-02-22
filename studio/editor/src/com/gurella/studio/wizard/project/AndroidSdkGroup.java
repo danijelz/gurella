@@ -83,7 +83,7 @@ public class AndroidSdkGroup implements Validator {
 		apiLevel.addListener(SWT.Selection, e -> fireValidate());
 		apiLevelCombo.setContentProvider(ArrayContentProvider.getInstance());
 		apiLevelCombo.setLabelProvider(new LabelProvider());
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).hint(80, 20)
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).hint(80, SWT.DEFAULT)
 				.applyTo(apiLevelCombo.getCombo());
 
 		runAndroidManagerButton = new Button(androidGroup, SWT.PUSH);
@@ -100,8 +100,8 @@ public class AndroidSdkGroup implements Validator {
 		buildToolsVersion.addListener(SWT.Selection, e -> fireValidate());
 		buildToolsVersionCombo.setContentProvider(ArrayContentProvider.getInstance());
 		buildToolsVersionCombo.setLabelProvider(new LabelProvider());
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).span(2, 1).hint(80, 20)
-				.applyTo(buildToolsVersionCombo.getCombo());
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).span(2, 1)
+				.hint(80, SWT.DEFAULT).applyTo(buildToolsVersionCombo.getCombo());
 
 		String prevLocation = getPluginDialogSettings().get(DIALOGSTORE_LAST_ANDROIDSDK_LOC);
 		if (Values.isNotBlank(prevLocation) && new File(prevLocation).exists() && isSdkLocationValid(prevLocation)) {
@@ -215,8 +215,8 @@ public class AndroidSdkGroup implements Validator {
 	private static AndroidApiLevel toApiLevel(File parentFile) {
 		File properties = new File(parentFile, "source.properties");
 		try (FileReader reader = new FileReader(properties); BufferedReader buffer = new BufferedReader(reader)) {
-			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(AndroidApiLevel::parse).findFirst()
-					.orElse(null);
+			return buffer.lines().filter(l -> l.contains("AndroidVersion.ApiLevel")).map(AndroidApiLevel::parse)
+					.findFirst().orElse(null);
 		} catch (Exception e) {
 			GurellaStudioPlugin.log(e, "Error while parsing ApiLevel");
 		}

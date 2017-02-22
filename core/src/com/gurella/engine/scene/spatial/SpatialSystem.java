@@ -129,7 +129,7 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 	protected abstract T createSpatial(RenderableComponent drawableComponent);
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = createSpatial((RenderableComponent) component);
 			add(spatial);
@@ -137,7 +137,7 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = allSpatials.get(component.getNodeId());
 			if (spatial != null) {
@@ -147,14 +147,14 @@ public abstract class SpatialSystem<T extends Spatial> extends BuiltinSceneSyste
 	}
 
 	@Override
-	public final void sceneStarted() {
+	public final void onSceneStarted() {
 		synchronized (mutex) {
 			initSpatials();
 		}
 	}
 
 	@Override
-	public final void sceneStopped() {
+	public final void onSceneStopped() {
 		synchronized (mutex) {
 			Values<T> values = allSpatials.values();
 			while (values.hasNext) {

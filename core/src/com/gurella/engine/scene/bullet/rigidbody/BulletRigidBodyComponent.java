@@ -107,14 +107,14 @@ public class BulletRigidBodyComponent extends SceneNodeComponent
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	public void onNodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = (TransformComponent) component;
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
+	public void onNodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 			if (collisionObject != null && collisionObject.isActive()) {

@@ -34,6 +34,8 @@ public class SetupConstants {
 	
 	public static final String eclipseGradleCorePlugin = "org.eclipse.buildship.core";
 	
+	static final String setupFolderLocation = "setup/";
+	
 
 	private SetupConstants() {
 	}

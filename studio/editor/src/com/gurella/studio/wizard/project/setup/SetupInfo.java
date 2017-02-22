@@ -20,8 +20,7 @@ public class SetupInfo {
 	public String appName;
 	public String location;
 	public String packageName;
-	public String mainClass; //TODO remove
-	public String initialScene = "initial.gscn"; //TODO remove
+	public String initialScene;
 	public String androidSdkLocation;
 	public String androidApiLevel;
 	public String androidBuildToolsVersion;
@@ -34,7 +33,11 @@ public class SetupInfo {
 	public List<ProjectFile> files = new ArrayList<ProjectFile>();
 	public Map<String, String> replacements = new HashMap<String, String>();
 
-	//TODO unused
+	boolean isSelected(ProjectType projectType) {
+		return projects.contains(projectType);
+	}
+
+	// TODO unused
 	List<String> getIncompatibilities() {
 		return dependencies.stream().flatMap(d -> projects.stream().flatMap(p -> d.getIncompatibilities(p).stream()))
 				.collect(toList());

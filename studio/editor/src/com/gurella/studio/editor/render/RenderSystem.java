@@ -113,7 +113,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.add((CameraComponent<?>) component);
 			cameras.sort(OrdinalComparator.instance);
@@ -139,7 +139,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.removeValue((CameraComponent<?>) component, true);
 		} else if (component instanceof DebugRenderable) {

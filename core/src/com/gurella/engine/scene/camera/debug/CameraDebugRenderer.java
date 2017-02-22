@@ -142,7 +142,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener, Disposa
 	}
 
 	@Override
-	public void shutdown() {
+	public void onShutdown() {
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {

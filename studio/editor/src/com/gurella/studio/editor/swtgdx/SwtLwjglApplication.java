@@ -97,7 +97,7 @@ public class SwtLwjglApplication implements ContextAwareApplication {
 		}
 
 		GdxContext.post(editorId, editorId, EditorCloseListener.class, l -> l.onEditorClose());
-		GdxContext.post(editorId, ApplicationShutdownListener.class, l -> l.shutdown());
+		GdxContext.post(editorId, ApplicationShutdownListener.class, l -> l.onShutdown());
 		OpenAlAudioSingletone.dispose(audio);
 	}
 

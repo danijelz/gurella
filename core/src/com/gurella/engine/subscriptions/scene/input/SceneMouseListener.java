@@ -4,5 +4,5 @@ import com.gurella.engine.scene.input.MouseMoveInfo;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public interface SceneMouseListener extends SceneEventSubscription {
-	void mouseMoved(MouseMoveInfo mouseMoveInfo);
+	void onMouseMoved(MouseMoveInfo mouseMoveInfo);
 }

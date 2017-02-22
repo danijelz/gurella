@@ -250,7 +250,7 @@ public class AssetService {
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 			AssetsManager removed;
 

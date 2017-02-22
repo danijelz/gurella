@@ -39,7 +39,6 @@ public class NewProjectDetailsPage extends WizardPage {
 		validators.add(androidSdkGroup);
 
 		consoleGroup = new ConsoleGroup();
-
 	}
 
 	private void projectTypeSelectionChanged(ProjectType projectType, Boolean selected) {
@@ -65,6 +64,14 @@ public class NewProjectDetailsPage extends WizardPage {
 
 		setControl(composite);
 		validate();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			detailsGroup.requestFocus();
+		}
 	}
 
 	private GridLayout createGridLayout() {
@@ -127,7 +134,6 @@ public class NewProjectDetailsPage extends WizardPage {
 
 	void updateSetupInfo(SetupInfo setupInfo) {
 		setupInfo.packageName = detailsGroup.getPackageName();
-		setupInfo.mainClass = detailsGroup.getMainClassName();
 		setupInfo.initialScene = detailsGroup.getInitialSceneName();
 		boolean androidProjectSelected = projectTypesGroup.isSelected(ProjectType.ANDROID);
 		setupInfo.androidSdkLocation = androidProjectSelected ? androidSdkGroup.getSdkLocation() : "";

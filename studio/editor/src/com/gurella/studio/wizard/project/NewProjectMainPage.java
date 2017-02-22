@@ -2,7 +2,6 @@ package com.gurella.studio.wizard.project;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -21,7 +20,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
-import org.eclipse.jdt.internal.ui.workingsets.IWorkingSetIDs;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -63,9 +61,9 @@ public class NewProjectMainPage extends WizardPage {
 		nameGroup.addObserver(validator);
 		locationGroup.addObserver(validator);
 
-		setProjectName(""); //$NON-NLS-1$
-		setProjectLocationURI(null);
-		setWorkingSets(new IWorkingSet[0]);
+		nameGroup.setName("");
+		locationGroup.setLocation(null);
+		workingSetGroup.setWorkingSets(new IWorkingSet[0]);
 
 		JavaRuntime.getDefaultVMInstall();
 	}
@@ -108,16 +106,14 @@ public class NewProjectMainPage extends WizardPage {
 		}
 	}
 
-	public String getProjectName() {
-		return nameGroup.getName();
+	// TODO check if project folder is empty
+	private static boolean isEmptyDirectory(String destination) {
+		File file = new File(destination);
+		return file.exists() ? file.list().length == 0 : true;
 	}
 
-	public void setProjectName(String name) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
-
-		nameGroup.setName(name);
+	public String getProjectName() {
+		return nameGroup.getName();
 	}
 
 	public String getProjectLocation() {
@@ -127,30 +123,17 @@ public class NewProjectMainPage extends WizardPage {
 		return locationGroup.getLocation().toOSString();
 	}
 
-	public void setProjectLocationURI(URI uri) {
-		// TODO IPath path= uri != null ? URIUtil.toPath(uri) : null;
-		locationGroup.setLocation(null);
-	}
-
 	public IWorkingSet[] getWorkingSets() {
 		return workingSetGroup.getSelectedWorkingSets();
 	}
 
-	/**
-	 * Sets the working sets to which the new project should be added.
-	 *
-	 * @param workingSets
-	 *            the initial selected working sets
-	 */
-	public void setWorkingSets(IWorkingSet[] workingSets) {
-		if (workingSets == null) {
-			throw new IllegalArgumentException();
-		}
-		workingSetGroup.setWorkingSets(workingSets);
-	}
-
 	private static IDialogSettings getPluginDialogSettings() {
 		return GurellaStudioPlugin.getDefault().getDialogSettings();
+	}
+
+	public void updateSetupInfo(SetupInfo setupInfo) {
+		setupInfo.appName = getProjectName();
+		setupInfo.location = getProjectLocation();
 	}
 
 	private final class NameGroup extends Observable implements IDialogFieldListener {
@@ -346,7 +329,7 @@ public class NewProjectMainPage extends WizardPage {
 				setPageComplete(false);
 				return;
 			}
-			
+
 			String coreProjectName = name + "-" + ProjectType.CORE.getName();
 			handle = workspace.getRoot().getProject(coreProjectName);
 			if (handle.exists()) {
@@ -430,11 +413,14 @@ public class NewProjectMainPage extends WizardPage {
 	}
 
 	private final class WorkingSetGroup {
+		private static final String RESOURCE_WORKING_SET_ID = "org.eclipse.ui.resourceWorkingSetPage";
+		private static final String JAVA_WORKING_SET_ID = "org.eclipse.jdt.ui.JavaWorkingSetPage";
+
 		private WorkingSetConfigurationBlock workingSetBlock;
 
 		public WorkingSetGroup() {
-			workingSetBlock = new WorkingSetConfigurationBlock(getPluginDialogSettings(), IWorkingSetIDs.JAVA,
-					IWorkingSetIDs.RESOURCE);
+			workingSetBlock = new WorkingSetConfigurationBlock(getPluginDialogSettings(), JAVA_WORKING_SET_ID,
+					RESOURCE_WORKING_SET_ID);
 		}
 
 		public Control createControl(Composite composite) {
@@ -453,10 +439,5 @@ public class NewProjectMainPage extends WizardPage {
 		public IWorkingSet[] getSelectedWorkingSets() {
 			return workingSetBlock.getSelectedWorkingSets();
 		}
-	}
-
-	public void updateSetupInfo(SetupInfo setupInfo) {
-		setupInfo.appName = getProjectName();
-		setupInfo.location = getProjectLocation();
 	}
 }

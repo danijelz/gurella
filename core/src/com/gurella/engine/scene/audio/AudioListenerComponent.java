@@ -21,14 +21,24 @@ public class AudioListenerComponent extends SceneNodeComponent
 	transient final Vector3 velocity = new Vector3();
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	protected void componentActivated() {
+		transformComponent = getNode().getComponent(TransformComponent.class);
+	}
+
+	@Override
+	protected void componentDeactivated() {
+		transformComponent = null;
+	}
+
+	@Override
+	public void onNodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 		}
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
+	public void onNodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 		}

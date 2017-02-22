@@ -87,7 +87,7 @@ public class DisposablesService {
 	@Priority(value = Integer.MAX_VALUE, type = ApplicationShutdownListener.class)
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 			Array<Disposable> disposables;
 

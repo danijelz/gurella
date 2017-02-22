@@ -945,7 +945,7 @@ public class TransformComponent extends SceneNodeComponent implements PropertyCh
 
 	private class NodeParentChangedListener implements ObjectParentChangeListener {
 		@Override
-		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+		public void onParentChanged(ManagedObject oldParent, ManagedObject newParent) {
 			boolean notify = false;
 			boolean updateWorldTransform = false;
 
@@ -986,7 +986,7 @@ public class TransformComponent extends SceneNodeComponent implements PropertyCh
 
 	private class ParentComponentActivityListener implements NodeComponentActivityListener {
 		@Override
-		public void nodeComponentActivated(SceneNodeComponent component) {
+		public void onNodeComponentActivated(SceneNodeComponent component) {
 			if (component instanceof TransformComponent) {
 				parentTransform = (TransformComponent) component;
 				notifyChanged();
@@ -994,7 +994,7 @@ public class TransformComponent extends SceneNodeComponent implements PropertyCh
 		}
 
 		@Override
-		public void nodeComponentDeactivated(SceneNodeComponent component) {
+		public void onNodeComponentDeactivated(SceneNodeComponent component) {
 			if (parentTransform == component) {
 				parentTransform = null;
 				notifyChanged();

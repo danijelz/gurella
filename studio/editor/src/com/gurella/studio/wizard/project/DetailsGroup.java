@@ -25,7 +25,6 @@ class DetailsGroup implements Validator {
 
 	private Text packageName;
 	private Text initialSceneName;
-	private Text className;
 	private boolean needsStructuredPackage;
 
 	DetailsGroup(NewProjectDetailsPage detailsPage) {
@@ -44,18 +43,17 @@ class DetailsGroup implements Validator {
 		packageName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		packageName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(packageName);
+		requestFocus();
 
 		Label initialSceneNameLabel = new Label(detailsGroup, SWT.NONE);
 		initialSceneNameLabel.setText("Initial scene:");
 		initialSceneName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		initialSceneName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(initialSceneName);
+	}
 
-		Label classNameLabel = new Label(detailsGroup, SWT.NONE);
-		classNameLabel.setText("Main class:");
-		className = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
-		className.addModifyListener(e -> fireValidate());
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(className);
+	void requestFocus() {
+		packageName.setFocus();
 	}
 
 	private void fireValidate() {
@@ -83,20 +81,11 @@ class DetailsGroup implements Validator {
 			result.add(status);
 		}
 
-		status = JavaConventions.validateJavaTypeName(getMainClassName(), VERSION_1_6, VERSION_1_6);
-		if (status != null) {
-			result.add(status);
-		}
-
 		return result;
 	}
 
 	void setNeedsStructuredPackage(boolean needsStructuredPackage) {
 		this.needsStructuredPackage = needsStructuredPackage;
-	}
-
-	String getMainClassName() {
-		return className.getText().trim();
 	}
 
 	String getPackageName() {

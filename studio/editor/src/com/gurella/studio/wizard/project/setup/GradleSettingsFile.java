@@ -6,11 +6,11 @@ import java.util.List;
 
 import com.gurella.studio.wizard.project.ProjectType;
 
-public class GradleSettingsFile extends GeneratedProjectFile {
+public class GradleSettingsFile extends GeneratedFile {
 	private final List<ProjectType> projects;
 
-	public GradleSettingsFile(String outputName, List<ProjectType> projects) {
-		super(outputName);
+	public GradleSettingsFile(List<ProjectType> projects) {
+		super("settings.gradle");
 		this.projects = projects;
 	}
 

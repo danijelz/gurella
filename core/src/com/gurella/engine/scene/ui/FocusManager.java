@@ -22,7 +22,7 @@ class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	}
 
 	@Override
-	public void keyDown(int keycode) {
+	public void onKeyDown(int keycode) {
 		if (focusedComponent == null) {
 			return;
 		}
@@ -30,7 +30,7 @@ class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	}
 
 	@Override
-	public void keyUp(int keycode) {
+	public void onKeyUp(int keycode) {
 		if (focusedComponent == null) {
 			return;
 		}
@@ -38,7 +38,7 @@ class FocusManager implements SceneKeyListener, SceneKeyTypedListener {
 	}
 
 	@Override
-	public void keyTyped(char character) {
+	public void onKeyTyped(char character) {
 		if (focusedComponent == null) {
 			return;
 		}

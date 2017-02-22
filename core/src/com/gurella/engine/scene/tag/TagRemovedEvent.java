@@ -15,7 +15,7 @@ class TagRemovedEvent implements Event<TagActivityListener>, Poolable {
 
 	@Override
 	public void dispatch(TagActivityListener listener) {
-		listener.tagRemoved(component, tag);
+		listener.onTagRemoved(component, tag);
 	}
 
 	@Override

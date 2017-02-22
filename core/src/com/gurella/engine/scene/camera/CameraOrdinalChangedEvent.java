@@ -14,7 +14,7 @@ class CameraOrdinalChangedEvent implements Event<CameraOrdinalChangedListener>, 
 
 	@Override
 	public void dispatch(CameraOrdinalChangedListener subscriber) {
-		subscriber.ordinalChanged(cameraComponent);
+		subscriber.onOrdinalChanged(cameraComponent);
 	}
 
 	@Override

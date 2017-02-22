@@ -38,7 +38,7 @@ public class UiSystem extends BuiltinSceneSystem implements ComponentActivityLis
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof UiComponent) {
 			UiComponent uiComponent = (UiComponent) component;
 			uiComponent.uiSystem = this;
@@ -58,7 +58,7 @@ public class UiSystem extends BuiltinSceneSystem implements ComponentActivityLis
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof UiComponent) {
 			UiComponent uiComponent = (UiComponent) component;
 			uiComponent.uiSystem = null;
@@ -77,7 +77,7 @@ public class UiSystem extends BuiltinSceneSystem implements ComponentActivityLis
 	}
 
 	@Override
-	public void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
+	public void onParentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
 		if (!(object instanceof UiComponent)) {
 			return;
 		}

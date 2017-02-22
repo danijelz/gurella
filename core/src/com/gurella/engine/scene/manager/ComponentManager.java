@@ -31,14 +31,14 @@ public class ComponentManager extends BuiltinSceneSystem implements ComponentAct
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
 			familyComponents.handle(component);
 		}
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		for (Iterator<Entry<FamilyComponents<?>>> iter = families.iterator(); iter.hasNext();) {
 			Entry<FamilyComponents<?>> next = iter.next();
 			FamilyComponents<?> familyComponents = next.value;
