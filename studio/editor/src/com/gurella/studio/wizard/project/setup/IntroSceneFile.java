@@ -2,7 +2,7 @@ package com.gurella.studio.wizard.project.setup;
 
 import com.gurella.engine.utils.Uuid;
 
-public class IntroSceneFile  extends GeneratedProjectFile {
+public class IntroSceneFile  extends GeneratedFile {
 	public IntroSceneFile(String sceneName) {
 		super("core/assets/scenes/" + sceneName);
 	}

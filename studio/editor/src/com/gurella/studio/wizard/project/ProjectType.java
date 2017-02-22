@@ -24,7 +24,7 @@ public enum ProjectType {
 		return gradlePlugins;
 	}
 
-	public boolean needsNatives() {
+	public boolean hasNativeDependencies() {
 		return this == ProjectType.ANDROID || this == ProjectType.IOSMOE;
 	}
 }

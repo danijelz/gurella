@@ -7,28 +7,20 @@ import static com.gurella.studio.wizard.project.ProjectType.IOS;
 import static com.gurella.studio.wizard.project.ProjectType.IOSMOE;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.utils.Try;
-import com.gurella.studio.wizard.project.ProjectType;
 import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
 
 /**
@@ -36,8 +28,6 @@ import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
  * @author Tomski
  */
 public class ProjectSetup {
-	private static final String resourceLoc = "setup/";
-
 	private static final String appNameReplacement = "%APP_NAME%";
 	private static final String appNameEscapedReplacement = "%APP_NAME_ESCAPED%";
 	private static final String packageReplacement = "%PACKAGE%";
@@ -82,10 +72,6 @@ public class ProjectSetup {
 		packageDir = setupInfo.packageName.replace('.', '/');
 	}
 
-	private boolean containsProject(ProjectType projectType) {
-		return setupInfo.projects.contains(projectType);
-	}
-
 	public void build() {
 		gradleNature = Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) != null;
 		addDefaultReplacements();
@@ -127,55 +113,54 @@ public class ProjectSetup {
 	}
 
 	private void addRootFiles() {
-		GradleScriptBuilder scriptBuilder = new GradleScriptBuilder(setupInfo);
-		newProjectFile("gitignore", ".gitignore", false);
-		newTemporaryProjectFile(scriptBuilder.createSettingsScript(), "settings.gradle", false);
-		newTemporaryProjectFile(scriptBuilder.createBuildScript(), "build.gradle", false);
-		newProjectFile("gradlew", false);
-		newProjectFile("gradlew.bat", false);
-		newProjectFile("gradle/wrapper/gradle-wrapper.jar", false);
-		newProjectFile("gradle/wrapper/gradle-wrapper.properties", false);
-		newProjectFile("gradle.properties");
+		newResourceFile("gitignore", ".gitignore");
+		addProjectFile(new GradleSettingsFile(setupInfo.projects));
+		addProjectFile(new GradleBuildScriptFile(setupInfo));
+		newResourceFile("gradlew");
+		newResourceFile("gradlew.bat");
+		newResourceFile("gradle/wrapper/gradle-wrapper.jar");
+		newResourceFile("gradle/wrapper/gradle-wrapper.properties");
+		newResourceFile("gradle.properties");
 
 		if (gradleNature) {
-			newProjectFile(".settings/org.eclipse.buildship.core.prefs");
+			newResourceFile(".settings/org.eclipse.buildship.core.prefs");
 		}
 	}
 
 	private void addCoreFiles() {
-		newProjectFile("core/build.gradle");
-		newProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true);
+		newTemplateFile("core/build.gradle");
+		newTemplateFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java");
 
 		addProjectFile(new ApplicationConfigFile(initialScene));
 		addProjectFile(new IntroSceneFile(initialScene));
 		addProjectFile(new SampleMaterialFile());
-		newProjectFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg", false);
+		newResourceFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg");
 
-		if (setupInfo.projects.contains(HTML)) {
-			newProjectFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml", true);
+		if (setupInfo.isSelected(HTML)) {
+			newTemplateFile("core/CoreGdxDefinition", "core/src/" + mainClass + ".gwt.xml");
 		}
 
 		if (gradleNature) {
-			newProjectFile("core/.settings/org.eclipse.buildship.core.prefs");
+			newResourceFile("core/.settings/org.eclipse.buildship.core.prefs");
 		}
 	}
 
 	private void addDesktopFiles() {
-		if (!containsProject(DESKTOP)) {
+		if (!setupInfo.isSelected(DESKTOP)) {
 			return;
 		}
 
-		newProjectFile("desktop/build.gradle");
+		newTemplateFile("desktop/build.gradle");
 		String launcherPath = "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java";
-		newProjectFile("desktop/src/DesktopLauncher", launcherPath, true);
+		newTemplateFile("desktop/src/DesktopLauncher", launcherPath);
 
 		if (gradleNature) {
-			newProjectFile("desktop/.settings/org.eclipse.buildship.core.prefs");
+			newResourceFile("desktop/.settings/org.eclipse.buildship.core.prefs");
 		}
 	}
 
 	private void addAndroidFiles() {
-		if (!containsProject(ANDROID)) {
+		if (!setupInfo.isSelected(ANDROID)) {
 			return;
 		}
 
@@ -184,44 +169,44 @@ public class ProjectSetup {
 		replacements.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
 		replacements.put("%API_LEVEL%", androidApiLevel);
 
-		newProjectFile("android/res/values/strings.xml");
-		newProjectFile("android/res/values/styles.xml", false);
-		newProjectFile("android/res/drawable-hdpi/ic_launcher.png", false);
-		newProjectFile("android/res/drawable-mdpi/ic_launcher.png", false);
-		newProjectFile("android/res/drawable-xhdpi/ic_launcher.png", false);
-		newProjectFile("android/res/drawable-xxhdpi/ic_launcher.png", false);
-		newProjectFile("android/res/drawable-xxxhdpi/ic_launcher.png", false);
-		newProjectFile("android/src/AndroidLauncher", "android/src/" + packageDir + "/AndroidLauncher.java", true);
-		newProjectFile("android/AndroidManifest.xml");
-		newProjectFile("android/build.gradle", true);
-		newProjectFile("android/ic_launcher-web.png", false);
-		newProjectFile("android/proguard-project.txt", false);
-		newProjectFile("android/project.properties", false);
-		newProjectFile("local.properties", true);
+		newTemplateFile("android/res/values/strings.xml");
+		newResourceFile("android/res/values/styles.xml");
+		newResourceFile("android/res/drawable-hdpi/ic_launcher.png");
+		newResourceFile("android/res/drawable-mdpi/ic_launcher.png");
+		newResourceFile("android/res/drawable-xhdpi/ic_launcher.png");
+		newResourceFile("android/res/drawable-xxhdpi/ic_launcher.png");
+		newResourceFile("android/res/drawable-xxxhdpi/ic_launcher.png");
+		newTemplateFile("android/src/AndroidLauncher", "android/src/" + packageDir + "/AndroidLauncher.java");
+		newTemplateFile("android/AndroidManifest.xml");
+		newTemplateFile("android/build.gradle");
+		newResourceFile("android/ic_launcher-web.png");
+		newResourceFile("android/proguard-project.txt");
+		newResourceFile("android/project.properties");
+		newTemplateFile("local.properties");
 
 		if (gradleNature) {
-			newProjectFile("android/.settings/org.eclipse.buildship.core.prefs");
+			newResourceFile("android/.settings/org.eclipse.buildship.core.prefs");
 		}
 	}
 
 	private void addHtmlFiles() {
-		if (!containsProject(HTML)) {
+		if (!setupInfo.isSelected(HTML)) {
 			return;
 		}
 
 		replacements.put("%GWT_VERSION%", SetupConstants.gwtVersion);
 		replacements.put("%GWT_INHERITS%", parseGwtInherits());
 
-		newProjectFile("html/build.gradle");
-		newProjectFile("html/src/HtmlLauncher", "html/src/" + packageDir + "/client/HtmlLauncher.java", true);
-		newProjectFile("html/GdxDefinition", "html/src/" + packageDir + "/GdxDefinition.gwt.xml", true);
-		newProjectFile("html/GdxDefinitionSuperdev", "html/src/" + packageDir + "/GdxDefinitionSuperdev.gwt.xml", true);
-		newProjectFile("html/war/index", "html/webapp/index.html", true);
-		newProjectFile("html/war/styles.css", "html/webapp/styles.css", false);
-		newProjectFile("html/war/refresh.png", "html/webapp/refresh.png", false);
-		newProjectFile("html/war/soundmanager2-jsmin.js", "html/webapp/soundmanager2-jsmin.js", false);
-		newProjectFile("html/war/soundmanager2-setup.js", "html/webapp/soundmanager2-setup.js", false);
-		newProjectFile("html/war/WEB-INF/web.xml", "html/webapp/WEB-INF/web.xml", true);
+		newTemplateFile("html/build.gradle");
+		newTemplateFile("html/src/HtmlLauncher", "html/src/" + packageDir + "/client/HtmlLauncher.java");
+		newTemplateFile("html/GdxDefinition", "html/src/" + packageDir + "/GdxDefinition.gwt.xml");
+		newTemplateFile("html/GdxDefinitionSuperdev", "html/src/" + packageDir + "/GdxDefinitionSuperdev.gwt.xml");
+		newTemplateFile("html/war/index", "html/webapp/index.html");
+		newResourceFile("html/war/styles.css", "html/webapp/styles.css");
+		newResourceFile("html/war/refresh.png", "html/webapp/refresh.png");
+		newResourceFile("html/war/soundmanager2-jsmin.js", "html/webapp/soundmanager2-jsmin.js");
+		newResourceFile("html/war/soundmanager2-setup.js", "html/webapp/soundmanager2-setup.js");
+		newTemplateFile("html/war/WEB-INF/web.xml", "html/webapp/WEB-INF/web.xml");
 	}
 
 	private String parseGwtInherits() {
@@ -231,75 +216,75 @@ public class ProjectSetup {
 	}
 
 	private void addIosRobovmFiles() {
-		if (!containsProject(IOS)) {
+		if (!setupInfo.isSelected(IOS)) {
 			return;
 		}
 
-		newProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true);
-		newProjectFile("ios/data/Default.png", false);
-		newProjectFile("ios/data/Default@2x.png", false);
-		newProjectFile("ios/data/Default@2x~ipad.png", false);
-		newProjectFile("ios/data/Default-568h@2x.png", false);
-		newProjectFile("ios/data/Default~ipad.png", false);
-		newProjectFile("ios/data/Default-375w-667h@2x.png", false);
-		newProjectFile("ios/data/Default-414w-736h@3x.png", false);
-		newProjectFile("ios/data/Default-1024w-1366h@2x~ipad.png", false);
-		newProjectFile("ios/data/Icon.png", false);
-		newProjectFile("ios/data/Icon@2x.png", false);
-		newProjectFile("ios/data/Icon-72.png", false);
-		newProjectFile("ios/data/Icon-72@2x.png", false);
-		newProjectFile("ios/build.gradle", true);
-		newProjectFile("ios/Info.plist.xml", false);
-		newProjectFile("ios/robovm.properties");
-		newProjectFile("ios/robovm.xml", true);
+		newTemplateFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java");
+		newResourceFile("ios/data/Default.png");
+		newResourceFile("ios/data/Default@2x.png");
+		newResourceFile("ios/data/Default@2x~ipad.png");
+		newResourceFile("ios/data/Default-568h@2x.png");
+		newResourceFile("ios/data/Default~ipad.png");
+		newResourceFile("ios/data/Default-375w-667h@2x.png");
+		newResourceFile("ios/data/Default-414w-736h@3x.png");
+		newResourceFile("ios/data/Default-1024w-1366h@2x~ipad.png");
+		newResourceFile("ios/data/Icon.png");
+		newResourceFile("ios/data/Icon@2x.png");
+		newResourceFile("ios/data/Icon-72.png");
+		newResourceFile("ios/data/Icon-72@2x.png");
+		newTemplateFile("ios/build.gradle");
+		newResourceFile("ios/Info.plist.xml");
+		newResourceFile("ios/robovm.properties");
+		newTemplateFile("ios/robovm.xml");
 	}
 
 	private void addIosMoeFiles() {
-		if (!containsProject(IOSMOE)) {
+		if (!setupInfo.isSelected(IOSMOE)) {
 			return;
 		}
 
-		newProjectFile("ios-moe/resources/Default.png", false);
-		newProjectFile("ios-moe/resources/Default@2x.png", false);
-		newProjectFile("ios-moe/resources/Default@2x~ipad.png", false);
-		newProjectFile("ios-moe/resources/Default-568h@2x.png", false);
-		newProjectFile("ios-moe/resources/Default~ipad.png", false);
-		newProjectFile("ios-moe/resources/Default-375w-667h@2x.png", false);
-		newProjectFile("ios-moe/resources/Default-414w-736h@3x.png", false);
-		newProjectFile("ios-moe/resources/Default-1024w-1366h@2x~ipad.png", false);
-		newProjectFile("ios-moe/resources/Icon.png", false);
-		newProjectFile("ios-moe/resources/Icon@2x.png", false);
-		newProjectFile("ios-moe/resources/Icon-72.png", false);
-		newProjectFile("ios-moe/resources/Icon-72@2x.png", false);
-		newProjectFile("ios-moe/src/IOSMoeLauncher", "ios-moe/src/" + packageDir + "/IOSMoeLauncher.java", true);
-		newProjectFile("ios-moe/xcode/ios-moe/build.xcconfig", false);
-		newProjectFile("ios-moe/xcode/ios-moe/custom.xcconfig", false);
-		newProjectFile("ios-moe/xcode/ios-moe-Test/build.xcconfig", false);
-		newProjectFile("ios-moe/xcode/ios-moe-Test/Info-Test.plist", false);
-		newProjectFile("ios-moe/xcode/ios-moe/Info.plist", true);
-		newProjectFile("ios-moe/xcode/ios-moe/main.cpp", false);
-		newProjectFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj", true);
-		newProjectFile("ios-moe/build.gradle", true);
+		newResourceFile("ios-moe/resources/Default.png");
+		newResourceFile("ios-moe/resources/Default@2x.png");
+		newResourceFile("ios-moe/resources/Default@2x~ipad.png");
+		newResourceFile("ios-moe/resources/Default-568h@2x.png");
+		newResourceFile("ios-moe/resources/Default~ipad.png");
+		newResourceFile("ios-moe/resources/Default-375w-667h@2x.png");
+		newResourceFile("ios-moe/resources/Default-414w-736h@3x.png");
+		newResourceFile("ios-moe/resources/Default-1024w-1366h@2x~ipad.png");
+		newResourceFile("ios-moe/resources/Icon.png");
+		newResourceFile("ios-moe/resources/Icon@2x.png");
+		newResourceFile("ios-moe/resources/Icon-72.png");
+		newResourceFile("ios-moe/resources/Icon-72@2x.png");
+		newTemplateFile("ios-moe/src/IOSMoeLauncher", "ios-moe/src/" + packageDir + "/IOSMoeLauncher.java");
+		newResourceFile("ios-moe/xcode/ios-moe/build.xcconfig");
+		newResourceFile("ios-moe/xcode/ios-moe/custom.xcconfig");
+		newResourceFile("ios-moe/xcode/ios-moe-Test/build.xcconfig");
+		newResourceFile("ios-moe/xcode/ios-moe-Test/Info-Test.plist");
+		newTemplateFile("ios-moe/xcode/ios-moe/Info.plist");
+		newResourceFile("ios-moe/xcode/ios-moe/main.cpp");
+		newTemplateFile("ios-moe/xcode/ios-moe.xcodeproj/project.pbxproj");
+		newTemplateFile("ios-moe/build.gradle");
 
 		if (gradleNature) {
-			newProjectFile("ios-moe/.settings/org.eclipse.buildship.core.prefs");
+			newResourceFile("ios-moe/.settings/org.eclipse.buildship.core.prefs");
 		}
 	}
 
-	private void newProjectFile(String resourceName) {
-		files.add(new ProjectFile(resourceName));
+	private void newResourceFile(String resourceName) {
+		files.add(new ResourceFile(resourceName, resourceName));
 	}
 
-	private void newProjectFile(String resourceName, boolean isTemplate) {
-		files.add(new ProjectFile(resourceName, isTemplate));
+	private void newResourceFile(String resourceName, String outputName) {
+		files.add(new ResourceFile(resourceName, outputName));
 	}
 
-	private void newProjectFile(String resourceName, String outputName, boolean isTemplate) {
-		files.add(new ProjectFile(resourceName, outputName, isTemplate));
+	private void newTemplateFile(String resourceName) {
+		files.add(new TemplateFile(resourceName, resourceName, replacements));
 	}
 
-	private void newTemporaryProjectFile(File file, String outputString, boolean isTemplate) {
-		files.add(new TemporaryProjectFile(file, outputString, isTemplate));
+	private void newTemplateFile(String resourceName, String outputName) {
+		files.add(new TemplateFile(resourceName, outputName, replacements));
 	}
 
 	private void addProjectFile(ProjectFile projectFile) {
@@ -308,47 +293,15 @@ public class ProjectSetup {
 
 	private void copyFiles() {
 		File out = new File(outputDir);
-		Optional.of(out).filter(o -> o.exists() || o.mkdirs()).orElseThrow(
-				() -> new RuntimeException("Couldn't create output directory '" + out.getAbsolutePath() + "'"));
+		validateOutputFile(out, false);
 		files.forEach(f -> copyFile(out, f));
 	}
 
-	private static byte[] readResource(String path, String resource) {
-		String filePath = path + resource;
-		try (ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-				InputStream in = GurellaStudioPlugin.getFileInputStream(filePath)) {
-			return readBytes(bytes, in);
-		} catch (Throwable e) {
-			throw new RuntimeException("Couldn't read resource '" + filePath + "'", e);
-		}
-	}
+	private static void copyFile(File parent, ProjectFile file) {
+		File outFile = new File(parent, file.outputName);
+		validateOutputFile(outFile, true);
 
-	private static byte[] readBytes(ByteArrayOutputStream bytes, InputStream in) throws IOException {
-		int read = 0;
-		byte[] buffer = new byte[1024 * 10];
-		while ((read = in.read(buffer)) > 0) {
-			bytes.write(buffer, 0, read);
-		}
-		return bytes.toByteArray();
-	}
-
-	private static byte[] readResource(File file) {
-		try (ByteArrayOutputStream bytes = new ByteArrayOutputStream(); InputStream in = new FileInputStream(file)) {
-			return readBytes(bytes, in);
-		} catch (Throwable e) {
-			throw new RuntimeException("Couldn't read resource '" + file.getAbsoluteFile() + "'", e);
-		}
-	}
-
-	private static String readResourceAsString(String path, String resource) {
-		return Try.ofFailable(() -> new String(readResource(path, resource), "UTF-8")).getUnchecked();
-	}
-
-	private static String readResourceAsString(File file) {
-		return Try.ofFailable(() -> new String(readResource(file), "UTF-8")).getUnchecked();
-	}
-
-	private static void writeFile(File outFile, byte[] bytes) {
+		byte[] bytes = file.getContent();
 		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile))) {
 			out.write(bytes);
 		} catch (IOException e) {
@@ -356,39 +309,11 @@ public class ProjectSetup {
 		}
 	}
 
-	private static void writeFile(File outFile, String text) {
-		writeFile(outFile, Try.ofFailable(() -> text.getBytes("UTF-8")).getUnchecked());
-	}
-
-	private void copyFile(File parent, ProjectFile file) {
-		File outFile = new File(parent, file.outputName);
-		if (!outFile.getParentFile().exists() && !outFile.getParentFile().mkdirs()) {
-			throw new RuntimeException("Couldn't create dir '" + outFile.getAbsolutePath() + "'");
+	private static void validateOutputFile(File out, boolean validateParent) {
+		File testFile = validateParent ? out.getParentFile() : out;
+		if (!testFile.exists() && !testFile.mkdirs()) {
+			throw new RuntimeException("Couldn't create dir '" + out.getAbsolutePath() + "'");
 		}
-
-		if (file.isTemplate) {
-			if (file instanceof TemporaryProjectFile) {
-				writeFile(outFile, replace(readResourceAsString(((TemporaryProjectFile) file).file)));
-			} else {
-				writeFile(outFile, replace(readResourceAsString(resourceLoc, file.resourceName)));
-			}
-		} else {
-			if (file instanceof TemporaryProjectFile) {
-				writeFile(outFile, readResource(((TemporaryProjectFile) file).file));
-			} else if (file instanceof GeneratedProjectFile) {
-				writeFile(outFile, ((GeneratedProjectFile) file).generate());
-			} else {
-				writeFile(outFile, readResource(resourceLoc, file.resourceName));
-			}
-		}
-	}
-
-	private String replace(String txt) {
-		String result = txt;
-		for (Entry<String, String> entry : replacements.entrySet()) {
-			result = result.replace(entry.getKey(), entry.getValue());
-		}
-		return result;
 	}
 
 	private void executeGradle() {
@@ -402,7 +327,7 @@ public class ProjectSetup {
 
 		gradleArgs.add("clean");
 		gradleArgs.add("eclipse");
-		if (containsProject(DESKTOP)) {
+		if (setupInfo.isSelected(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
 		}
 

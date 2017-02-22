@@ -1,11 +1,7 @@
 package com.gurella.studio.wizard.project.setup;
 
-import static com.gurella.studio.editor.utils.Try.unchecked;
 import static java.util.stream.Collectors.joining;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -14,73 +10,31 @@ import java.util.stream.Stream;
 import org.eclipse.core.runtime.Platform;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.wizard.project.ProjectType;
 
-public class GradleScriptBuilder {
+public class GradleBuildScriptFile extends GeneratedFile {
+	private static final String nativeDependencyTxt = "native";
 	private final String appName;
 	private final List<ProjectType> projects;
 	private final List<Dependency> dependencies;
 
 	private int indent = 0;
-	private BufferedWriter writer;
+	private final StringBuilder writer = new StringBuilder(4096);
 
-	public GradleScriptBuilder(SetupInfo setupInfo) {
+	public GradleBuildScriptFile(SetupInfo setupInfo) {
+		super("build.gradle");
 		appName = setupInfo.appName;
 		projects = setupInfo.projects;
 		dependencies = setupInfo.dependencies;
 	}
 
-	private static File createTempFile(String prefix, String suffix) {
-		File file = unchecked(() -> File.createTempFile(prefix, suffix));
-		if (!file.exists()) {
-			unchecked(() -> Boolean.valueOf(file.createNewFile()));
-			file.deleteOnExit();
-		}
-		file.setWritable(true);
-		return file.getAbsoluteFile();
-	}
-
-	public File createSettingsScript() {
-		File settingsFile = createTempFile("gurella-setup-settings", ".gradle");
-		try (FileWriter settingsWriter = new FileWriter(settingsFile);
-				BufferedWriter settingsBw = new BufferedWriter(settingsWriter)) {
-			settingsBw.write(projects.stream().map(p -> p.getName()).collect(joining("', '", "include '", "'")));
-			return settingsFile;
-		} catch (Throwable t) {
-			throw new RuntimeException(t);
-		}
-	}
-
-	public File createBuildScript() {
-		File buildFile = createTempFile("gurella-setup-build", ".gradle");
-		try (FileWriter buildWriter = new FileWriter(buildFile);
-				BufferedWriter writer = new BufferedWriter(buildWriter)) {
-			this.writer = writer;
-			addBuildScript();
-			addAllProjects();
-			projects.forEach(p -> addProject(p));
-			addGradleNatureToEclipseProject();
-			return buildFile;
-		} catch (Throwable t) {
-			throw new RuntimeException(t);
-		} finally {
-			writer = null;
-		}
-	}
-
-	private void addGradleNatureToEclipseProject() {
-		if(Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) == null) {
-			return;
-		}
-
-		space();
-		write("eclipse {");
-		write("project {");
-		write("natures 'org.eclipse.buildship.core.gradleprojectnature'");
-		write("buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
-		write("}");
-		write("}");
+	@Override
+	protected String generate() {
+		addBuildScript();
+		addAllProjects();
+		projects.forEach(p -> addProject(p));
+		addGradleNatureToEclipseProject();
+		return writer.toString();
 	}
 
 	private void addBuildScript() {
@@ -88,7 +42,7 @@ public class GradleScriptBuilder {
 		addBuildScriptRepos();
 		addBuildScriptDependencies();
 		write("}");
-		space();
+		newLine();
 	}
 
 	private void addBuildScriptRepos() {
@@ -106,7 +60,7 @@ public class GradleScriptBuilder {
 			return;
 		}
 
-		space();
+		newLine();
 		write("dependencies {");
 
 		if (projects.contains(ProjectType.HTML)) {
@@ -129,9 +83,9 @@ public class GradleScriptBuilder {
 		write("allprojects {");
 		write("apply plugin: \"eclipse\"");
 		write("apply plugin: \"idea\"");
-		space();
+		newLine();
 		write("version = '1.0'");
-		space();
+		newLine();
 		write("ext {");
 		write("appName = \"" + appName + "\"");
 		write("gdxVersion = '" + SetupConstants.libgdxVersion + "'");
@@ -140,7 +94,7 @@ public class GradleScriptBuilder {
 		write("box2DLightsVersion = '" + SetupConstants.box2DLightsVersion + "'");
 		write("aiVersion = '" + SetupConstants.aiVersion + "'");
 		write("}");
-		space();
+		newLine();
 		write("repositories {");
 		write(SetupConstants.mavenLocal);
 		write(SetupConstants.mavenCentral);
@@ -151,14 +105,14 @@ public class GradleScriptBuilder {
 	}
 
 	private void addProject(ProjectType projectType) {
-		space();
+		newLine();
 		write("project(\":" + projectType.getName() + "\") {");
 		Arrays.stream(projectType.getGradlePlugins()).forEachOrdered(p -> write("apply plugin: \"" + p + "\""));
-		space();
+		newLine();
 
 		if (projectType.hasNativeDependencies()) {
 			write("configurations { natives }");
-			space();
+			newLine();
 		}
 
 		addProjectDependencies(projectType);
@@ -182,32 +136,34 @@ public class GradleScriptBuilder {
 	}
 
 	private void addDependency(ProjectType projectType, String dependency) {
-		if (projectType.hasNativeDependencies() && dependency.contains("native")) {
-			write("natives \"" + dependency + "\"");
-		} else {
-			write("compile \"" + dependency + "\"");
-		}
+		boolean nativeDep = projectType.hasNativeDependencies() && dependency.contains(nativeDependencyTxt);
+		write((nativeDep ? "natives \"" : "compile \"") + dependency + "\"");
 	}
 
-	private void write(String input) {
-		int delta = countMatches(input, '{') - countMatches(input, '}');
-		indent += delta *= 4;
+	private void addGradleNatureToEclipseProject() {
+		if (Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) == null) {
+			return;
+		}
+
+		newLine();
+		write("eclipse {");
+		write("project {");
+		write("natures 'org.eclipse.buildship.core.gradleprojectnature'");
+		write("buildCommand \"org.eclipse.buildship.core.gradleprojectbuilder\"");
+		write("}");
+		write("}");
+	}
+
+	private void write(String txt) {
+		int delta = countMatches(txt, '{') - countMatches(txt, '}');
+		indent += delta * 4;
 		indent = clamp(indent);
-
-		String txt;
-		if (delta > 0) {
-			txt = repeat(" ", clamp(indent - 4)) + input + "\n";
-		} else if (delta < 0) {
-			txt = repeat(" ", clamp(indent)) + input + "\n";
-		} else {
-			txt = repeat(" ", indent) + input + "\n";
-		}
-
-		Try.unchecked(() -> writer.write(txt));
+		int count = delta > 0 ? clamp(indent - 4) : delta < 0 ? clamp(indent) : indent;
+		writer.append(repeat(" ", count) + txt + "\n");
 	}
 
-	private void space() {
-		Try.unchecked(() -> writer.write("\n"));
+	private void newLine() {
+		writer.append("\n");
 	}
 
 	private static int clamp(int indent) {
