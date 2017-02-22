@@ -29,12 +29,12 @@ public class NodeManager extends BuiltinSceneSystem implements ComponentActivity
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		handleComponent(component);
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		handleComponent(component);
 	}
 

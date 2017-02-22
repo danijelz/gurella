@@ -19,7 +19,7 @@ public class AssetUnloadedEvent implements Event<AssetActivityListener> {
 
 	@Override
 	public void dispatch(AssetActivityListener listener) {
-		listener.assetUnloaded(assetId, asset);
+		listener.onAssetUnloaded(assetId, asset);
 	}
 
 	@Override

@@ -156,7 +156,7 @@ public final class PoolService {
 	@Priority(value = 1000, type = ApplicationShutdownListener.class)
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 			ApplicationPool pool;
 

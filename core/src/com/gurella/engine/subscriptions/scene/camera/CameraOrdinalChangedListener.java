@@ -4,5 +4,5 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public interface CameraOrdinalChangedListener extends SceneEventSubscription {
-	void ordinalChanged(CameraComponent<?> cameraComponent);
+	void onOrdinalChanged(CameraComponent<?> cameraComponent);
 }

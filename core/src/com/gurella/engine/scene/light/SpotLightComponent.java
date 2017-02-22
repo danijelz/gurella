@@ -74,7 +74,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	public void onNodeComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			this.transformComponent = (TransformComponent) component;
 			dirty = true;
@@ -82,7 +82,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
+	public void onNodeComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
 			dirty = true;

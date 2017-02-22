@@ -3,5 +3,5 @@ package com.gurella.engine.subscriptions.scene.input;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public interface SceneKeyTypedListener extends SceneEventSubscription {
-	void keyTyped(char character);
+	void onKeyTyped(char character);
 }

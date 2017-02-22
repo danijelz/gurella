@@ -89,7 +89,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	@Override
-	public void update() {
+	public void onUpdate() {
 		EventService.post(sceneId, ioUpdateEvent);
 		EventService.post(sceneId, inputUpdateEvent);
 		EventService.post(sceneId, logicUpdateEvent);
@@ -114,7 +114,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(SceneActivityListener listener) {
-			listener.sceneStarted();
+			listener.onSceneStarted();
 		}
 	}
 
@@ -126,7 +126,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(SceneActivityListener listener) {
-			listener.sceneStopped();
+			listener.onSceneStopped();
 		}
 	}
 
@@ -248,7 +248,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(ComponentActivityListener listener) {
-			listener.componentActivated(component);
+			listener.onComponentActivated(component);
 		}
 	}
 
@@ -262,7 +262,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(ComponentActivityListener listener) {
-			listener.componentDeactivated(component);
+			listener.onComponentDeactivated(component);
 		}
 	}
 
@@ -276,7 +276,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(NodeComponentActivityListener listener) {
-			listener.nodeComponentActivated(component);
+			listener.onNodeComponentActivated(component);
 		}
 	}
 
@@ -290,7 +290,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(NodeComponentActivityListener listener) {
-			listener.nodeComponentDeactivated(component);
+			listener.onNodeComponentDeactivated(component);
 		}
 	}
 
@@ -306,7 +306,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 		@Override
 		public void dispatch(NodeRenamedListener listener) {
-			listener.nodeRenamed(node, oldName, newName);
+			listener.onNodeRenamed(node, oldName, newName);
 		}
 
 		@Override

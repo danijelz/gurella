@@ -100,7 +100,7 @@ public class InputSystem extends BuiltinSceneSystem implements ComponentActivity
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.add((CameraComponent<?>) component);
 			cameras.sort(ReverseOrdinalComparator.instance);
@@ -108,7 +108,7 @@ public class InputSystem extends BuiltinSceneSystem implements ComponentActivity
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof CameraComponent) {
 			cameras.removeValue((CameraComponent<?>) component, true);
 		}

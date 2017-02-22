@@ -92,7 +92,7 @@ public class AudioDebugRenderer implements ApplicationShutdownListener, Disposab
 	}
 
 	@Override
-	public void shutdown() {
+	public void onShutdown() {
 		EventService.unsubscribe(this);
 		DisposablesService.dispose(this);
 		synchronized (instances) {

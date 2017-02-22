@@ -36,6 +36,4 @@ publishing {
 
 eclipse.project {
 	name = appName + "-core"
-    %BUILD_NATURES%%GRADLE_BUILD_NATURE%
-    %GRADLE_BUILD_COMMAND%
 }

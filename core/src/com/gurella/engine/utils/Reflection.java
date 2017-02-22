@@ -480,7 +480,7 @@ public class Reflection {
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 
 			synchronized (resolvers) {

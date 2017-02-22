@@ -89,7 +89,7 @@ public class InputService {
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 
 			synchronized (instances) {

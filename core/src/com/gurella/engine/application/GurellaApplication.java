@@ -119,7 +119,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationShutdownListener listener) {
-			listener.shutdown();
+			listener.onShutdown();
 		}
 	}
 
@@ -131,7 +131,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationActivityListener listener) {
-			listener.pause();
+			listener.onPause();
 		}
 	}
 
@@ -143,7 +143,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationActivityListener listener) {
-			listener.resume();
+			listener.onResume();
 		}
 	}
 
@@ -155,7 +155,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationUpdateListener listener) {
-			listener.update();
+			listener.onUpdate();
 		}
 	}
 
@@ -179,7 +179,7 @@ public final class GurellaApplication implements ApplicationListener {
 
 		@Override
 		public void dispatch(ApplicationResizeListener listener) {
-			listener.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			listener.onResize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 	}
 

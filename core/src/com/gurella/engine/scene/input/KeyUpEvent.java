@@ -20,7 +20,7 @@ class KeyUpEvent implements Event<SceneKeyListener> {
 
 	@Override
 	public void dispatch(SceneKeyListener listener) {
-		listener.keyUp(keycode);
+		listener.onKeyUp(keycode);
 	}
 
 	@Override

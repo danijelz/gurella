@@ -84,7 +84,7 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	}
 
 	@Override
-	public void update() {
+	public void onUpdate() {
 		if (currentTransition.process()) {
 			endTransition();
 			EventService.unsubscribe(this);

@@ -91,7 +91,7 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 		}
 
 		@Override
-		public void objectDestroyed() {
+		public void onObjectDestroyed() {
 			synchronized (mutex) {
 				objectDestroyed = true;
 			}

@@ -124,7 +124,7 @@ public class SceneManager {
 		 */
 
 		@Override
-		public void update() {
+		public void onUpdate() {
 			switch (transitionStateManager.getCurrentState()) {
 			case OUT:
 				onTransitionOut();

@@ -20,7 +20,7 @@ class KeyDownEvent implements Event<SceneKeyListener> {
 
 	@Override
 	public void dispatch(SceneKeyListener listener) {
-		listener.keyDown(keycode);
+		listener.onKeyDown(keycode);
 	}
 
 	@Override

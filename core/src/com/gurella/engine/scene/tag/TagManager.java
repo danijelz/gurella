@@ -42,14 +42,14 @@ public class TagManager extends BuiltinSceneSystem implements ComponentActivityL
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
 			updateFamilies(tagComponent);
 			Bits tags = tagComponent._tags;
 
 			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
-				tagAdded(tagComponent, Tag.valueOf(tagId));
+				onTagAdded(tagComponent, Tag.valueOf(tagId));
 			}
 		}
 	}
@@ -61,14 +61,14 @@ public class TagManager extends BuiltinSceneSystem implements ComponentActivityL
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
 			removeFromFamilies(tagComponent);
 			Bits tags = tagComponent._tags;
 
 			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
-				tagRemoved(tagComponent, Tag.valueOf(tagId));
+				onTagRemoved(tagComponent, Tag.valueOf(tagId));
 			}
 		}
 	}
@@ -119,13 +119,13 @@ public class TagManager extends BuiltinSceneSystem implements ComponentActivityL
 	}
 
 	@Override
-	public void tagAdded(TagComponent component, Tag tag) {
+	public void onTagAdded(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		getNodesByTag(tagId).add(component.getNode());
 	}
 
 	@Override
-	public void tagRemoved(TagComponent component, Tag tag) {
+	public void onTagRemoved(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		nodesByTag.get(tagId).remove(component.getNode());
 	}

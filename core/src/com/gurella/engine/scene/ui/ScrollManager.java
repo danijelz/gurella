@@ -24,7 +24,7 @@ public class ScrollManager implements SceneMouseListener, SceneScrollListener {
 	}
 
 	@Override
-	public void mouseMoved(MouseMoveInfo mouseMoveInfo) {
+	public void onMouseMoved(MouseMoveInfo mouseMoveInfo) {
 		// TODO Auto-generated method stub
 	}
 

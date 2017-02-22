@@ -159,7 +159,7 @@ public final class TagComponent extends SceneNodeComponent implements Equality, 
 			if (tagName != null) {
 				Tag tag = Tag.valueOf(tagName);
 				if (!_tags.getAndSet(tag.id) && active) {
-					getScene().tagManager.tagAdded(this, tag);
+					getScene().tagManager.onTagAdded(this, tag);
 				}
 			}
 		}

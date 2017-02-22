@@ -20,7 +20,7 @@ class KeyTypedEvent implements Event<SceneKeyTypedListener> {
 
 	@Override
 	public void dispatch(SceneKeyTypedListener listener) {
-		listener.keyTyped(character);
+		listener.onKeyTyped(character);
 	}
 
 	@Override

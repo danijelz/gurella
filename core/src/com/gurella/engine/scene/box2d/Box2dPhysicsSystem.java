@@ -66,20 +66,20 @@ public class Box2dPhysicsSystem extends BuiltinSceneSystem
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 	}
 
 	@Override
-	public void pause() {
+	public void onPause() {
 		paused = true;
 	}
 
 	@Override
-	public void resume() {
+	public void onResume() {
 		paused = false;
 	}
 }

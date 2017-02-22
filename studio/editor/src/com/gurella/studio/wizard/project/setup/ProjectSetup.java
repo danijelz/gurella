@@ -32,7 +32,6 @@ public class ProjectSetup {
 	private static final String appNameEscapedReplacement = "%APP_NAME_ESCAPED%";
 	private static final String packageReplacement = "%PACKAGE%";
 	private static final String packageDirReplacement = "%PACKAGE_DIR%";
-	private static final String mainClassReplacement = "%MAIN_CLASS%";// TODO remove
 	private static final String initialSceneReplacement = "%INITIAL_SCENE%";
 	private static final String buildNaturesPropertyReplacement = "%BUILD_NATURES%";
 	private static final String gradleBuildNatureReplacement = "%GRADLE_BUILD_NATURE%";
@@ -93,7 +92,6 @@ public class ProjectSetup {
 		replacements.put(appNameEscapedReplacement, appName.replace("'", "\\'"));
 		replacements.put(packageReplacement, packageName);
 		replacements.put(packageDirReplacement, packageDir);
-		replacements.put(mainClassReplacement, mainClass);
 		replacements.put(initialSceneReplacement, initialScene);
 
 		if (gradleNature) {
@@ -129,7 +127,7 @@ public class ProjectSetup {
 
 	private void addCoreFiles() {
 		newTemplateFile("core/build.gradle");
-		newTemplateFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java");
+		newTemplateFile("core/src/SampleComponent", "core/src/" + packageDir + "/SampleComponent.java");
 
 		addProjectFile(new ApplicationConfigFile(initialScene));
 		addProjectFile(new IntroSceneFile(initialScene));

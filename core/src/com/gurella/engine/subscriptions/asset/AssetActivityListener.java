@@ -4,9 +4,9 @@ import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 
 public interface AssetActivityListener extends ApplicationEventSubscription {
-	void assetLoaded(AssetId assetId, Object asset);
+	void onAssetLoaded(AssetId assetId, Object asset);
 
-	void assetUnloaded(AssetId assetId, Object asset);
+	void onAssetUnloaded(AssetId assetId, Object asset);
 
-	void assetReloaded(AssetId assetId, Object asset);
+	void onAssetReloaded(AssetId assetId, Object asset);
 }

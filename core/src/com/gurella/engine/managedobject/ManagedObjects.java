@@ -188,7 +188,7 @@ final class ManagedObjects {
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 			PendingOperations operations;
 
@@ -216,7 +216,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsActivityListener listener) {
-			listener.objectActivated(object);
+			listener.onObjectActivated(object);
 		}
 	}
 
@@ -230,7 +230,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsActivityListener listener) {
-			listener.objectDeactivated(object);
+			listener.onObjectDeactivated(object);
 		}
 	}
 
@@ -242,7 +242,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectActivityListener listener) {
-			listener.activated();
+			listener.onActivated();
 		}
 	}
 
@@ -254,7 +254,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectActivityListener listener) {
-			listener.deactivated();
+			listener.onDeactivated();
 		}
 	}
 
@@ -269,7 +269,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsCompositionListener listener) {
-			listener.childAdded(parent, child);
+			listener.onChildAdded(parent, child);
 		}
 	}
 
@@ -284,7 +284,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsCompositionListener listener) {
-			listener.childRemoved(parent, child);
+			listener.onChildRemoved(parent, child);
 		}
 	}
 
@@ -298,7 +298,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectCompositionListener listener) {
-			listener.childAdded(child);
+			listener.onChildAdded(child);
 		}
 	}
 
@@ -312,7 +312,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectCompositionListener listener) {
-			listener.childRemoved(child);
+			listener.onChildRemoved(child);
 		}
 	}
 
@@ -328,7 +328,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsParentListener listener) {
-			listener.parentChanged(child, oldParent, newParent);
+			listener.onParentChanged(child, oldParent, newParent);
 		}
 	}
 
@@ -343,7 +343,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectParentChangeListener listener) {
-			listener.parentChanged(oldParent, newParent);
+			listener.onParentChanged(oldParent, newParent);
 		}
 	}
 
@@ -357,7 +357,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectsDestroyedListener listener) {
-			listener.objectDestroyed(object);
+			listener.onObjectDestroyed(object);
 		}
 	}
 
@@ -369,7 +369,7 @@ final class ManagedObjects {
 
 		@Override
 		public void dispatch(ObjectDestroyedListener listener) {
-			listener.objectDestroyed();
+			listener.onObjectDestroyed();
 		}
 	}
 }

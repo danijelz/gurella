@@ -75,7 +75,7 @@ public final class AsyncService {
 
 	private static class Cleaner implements ApplicationShutdownListener {
 		@Override
-		public void shutdown() {
+		public void onShutdown() {
 			EventService.unsubscribe(this);
 			AsyncExecutor removed;
 

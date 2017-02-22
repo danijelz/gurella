@@ -67,7 +67,7 @@ class MouseMoveProcessor {
 
 		@Override
 		public void dispatch(SceneMouseListener subscriber) {
-			subscriber.mouseMoved(mouseMoveInfo);
+			subscriber.onMouseMoved(mouseMoveInfo);
 		}
 	}
 

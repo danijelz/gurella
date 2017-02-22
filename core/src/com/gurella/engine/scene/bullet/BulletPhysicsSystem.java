@@ -95,7 +95,7 @@ public class BulletPhysicsSystem extends BuiltinSceneSystem
 	}
 
 	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void onComponentActivated(SceneNodeComponent component) {
 		if (component instanceof BulletRigidBodyComponent) {
 			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
 			btCollisionObject collisionObject = rigidBodyComponent.collisionObject;
@@ -108,7 +108,7 @@ public class BulletPhysicsSystem extends BuiltinSceneSystem
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void onComponentDeactivated(SceneNodeComponent component) {
 		if (component instanceof BulletRigidBodyComponent) {
 			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
 			btCollisionObject collisionObject = rigidBodyComponent.collisionObject;
@@ -121,12 +121,12 @@ public class BulletPhysicsSystem extends BuiltinSceneSystem
 	}
 
 	@Override
-	public void pause() {
+	public void onPause() {
 		paused = true;
 	}
 
 	@Override
-	public void resume() {
+	public void onResume() {
 		paused = false;
 	}
 
