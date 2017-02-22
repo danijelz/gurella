@@ -17,6 +17,10 @@ public class RenderNode {
 	final ObjectMap<String, Connection> inputsByName = new ObjectMap<String, Connection>();
 	final Array<Connection> outputsByIndex = new Array<Connection>();
 	final ObjectMap<String, Connection> outputsByName = new ObjectMap<String, Connection>();
+	
+	void process() {
+		
+	}
 
 	private static class Connection {
 		String inName;
