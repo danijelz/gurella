@@ -2,6 +2,7 @@ package com.gurella.studio.wizard.project;
 
 import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
 import static org.eclipse.core.runtime.IStatus.ERROR;
+import static org.eclipse.core.runtime.IStatus.WARNING;
 import static org.eclipse.jdt.core.JavaCore.VERSION_1_6;
 
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ class DetailsGroup implements Validator {
 		packageName = new Text(detailsGroup, SWT.LEFT | SWT.BORDER);
 		packageName.addModifyListener(e -> fireValidate());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(packageName);
-		requestFocus();
 
 		Label initialSceneNameLabel = new Label(detailsGroup, SWT.NONE);
 		initialSceneNameLabel.setText("Initial scene:");
@@ -64,6 +64,13 @@ class DetailsGroup implements Validator {
 	public List<IStatus> validate() {
 		List<IStatus> result = new ArrayList<>();
 		String packageName = getPackageName();
+		if (Values.isBlank(packageName)) {
+			String message = "Enter package name.";
+			IStatus status = new Status(WARNING, PLUGIN_ID, message);
+			result.add(status);
+			return result;
+		}
+
 		IStatus status = JavaConventions.validatePackageName(packageName, VERSION_1_6, VERSION_1_6);
 		if (status != null) {
 			result.add(status);
@@ -77,7 +84,7 @@ class DetailsGroup implements Validator {
 
 		String initialSceneName = getInitialSceneName();
 		if (Values.isBlank(initialSceneName)) {
-			status = new Status(ERROR, PLUGIN_ID, "Enter initial scene name.");
+			status = new Status(WARNING, PLUGIN_ID, "Enter initial scene name.");
 			result.add(status);
 		}
 

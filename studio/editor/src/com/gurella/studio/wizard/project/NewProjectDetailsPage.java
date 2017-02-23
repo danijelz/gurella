@@ -1,26 +1,16 @@
 package com.gurella.studio.wizard.project;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.studio.wizard.project.setup.SetupInfo;
-
-public class NewProjectDetailsPage extends WizardPage {
+public class NewProjectDetailsPage extends ValidatedWizardPage {
 	private final DetailsGroup detailsGroup;
 	private final ProjectTypesGroup projectTypesGroup;
 	private final AndroidSdkGroup androidSdkGroup;
 	private final ConsoleGroup consoleGroup;
-
-	private List<Validator> validators = new ArrayList<>();
 
 	NewProjectDetailsPage() {
 		super("NewProjectDetailsPage");
@@ -29,14 +19,14 @@ public class NewProjectDetailsPage extends WizardPage {
 		setDescription("Create Gurella project in the workspace or in an external location.");
 
 		detailsGroup = new DetailsGroup(this);
-		validators.add(detailsGroup);
+		addValidator(detailsGroup);
 
 		projectTypesGroup = new ProjectTypesGroup(this);
 		projectTypesGroup.setProjectTypeListener(this::projectTypeSelectionChanged);
-		validators.add(projectTypesGroup);
+		addValidator(projectTypesGroup);
 
 		androidSdkGroup = new AndroidSdkGroup(this);
-		validators.add(androidSdkGroup);
+		addValidator(androidSdkGroup);
 
 		consoleGroup = new ConsoleGroup();
 	}
@@ -91,54 +81,13 @@ public class NewProjectDetailsPage extends WizardPage {
 		return consoleGroup.getLog();
 	}
 
-	void validate() {
-		IStatus status = validators.stream().flatMap(v -> v.validate().stream())
-				.sorted((s1, s2) -> Integer.compare(s2.getSeverity(), s1.getSeverity())).findFirst().orElse(null);
-
-		if (status == null) {
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(null);
-			return;
-		}
-
-		switch (status.getSeverity()) {
-		case IStatus.OK:
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(null);
-			break;
-		case IStatus.INFO:
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(status.getMessage(), IMessageProvider.INFORMATION);
-			break;
-		case IStatus.WARNING:
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(status.getMessage(), IMessageProvider.WARNING);
-			break;
-		case IStatus.ERROR:
-		case IStatus.CANCEL:
-			setPageComplete(false);
-			setMessage(null);
-			setErrorMessage(status.getMessage());
-			break;
-		default:
-			setPageComplete(true);
-			setErrorMessage(null);
-			setMessage(null);
-			break;
-		}
-	}
-
-	void updateSetupInfo(SetupInfo setupInfo) {
-		setupInfo.packageName = detailsGroup.getPackageName();
-		setupInfo.initialScene = detailsGroup.getInitialSceneName();
+	void updateProjectSetup(ProjectSetup projectSetup) {
+		projectSetup.packageName = detailsGroup.getPackageName();
+		projectSetup.initialScene = detailsGroup.getInitialSceneName();
 		boolean androidProjectSelected = projectTypesGroup.isSelected(ProjectType.ANDROID);
-		setupInfo.androidSdkLocation = androidProjectSelected ? androidSdkGroup.getSdkLocation() : "";
-		setupInfo.androidApiLevel = androidProjectSelected ? androidSdkGroup.getApiLevel() : "";
-		setupInfo.androidBuildToolsVersion = androidProjectSelected ? androidSdkGroup.getBuildToolsVersion() : "";
-		setupInfo.projects.addAll(projectTypesGroup.getSelectedProjectTypes());
+		projectSetup.androidSdkLocation = androidProjectSelected ? androidSdkGroup.getSdkLocation() : "";
+		projectSetup.androidApiLevel = androidProjectSelected ? androidSdkGroup.getApiLevel() : "";
+		projectSetup.androidBuildToolsVersion = androidProjectSelected ? androidSdkGroup.getBuildToolsVersion() : "";
+		projectSetup.projects.addAll(projectTypesGroup.getSelectedProjectTypes());
 	}
 }

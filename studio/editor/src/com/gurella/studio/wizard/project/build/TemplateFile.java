@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project.build;
 
 import java.util.Map;
 import java.util.Map.Entry;

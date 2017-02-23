@@ -1,6 +1,6 @@
 package com.gurella.studio.wizard.project;
 
-import com.gurella.studio.wizard.project.setup.SetupConstants;
+import com.gurella.studio.wizard.project.build.SetupConstants;
 
 class AndroidApiLevel implements Comparable<AndroidApiLevel> {
 	int level;

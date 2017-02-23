@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project.build;
 
 import com.gurella.studio.common.CommonConstants;
 

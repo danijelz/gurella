@@ -1,9 +1,9 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project;
 
-import static com.gurella.studio.wizard.project.setup.Dependency.BOX2D;
-import static com.gurella.studio.wizard.project.setup.Dependency.BULLET;
-import static com.gurella.studio.wizard.project.setup.Dependency.GDX;
-import static com.gurella.studio.wizard.project.setup.Dependency.GURELLA;
+import static com.gurella.studio.wizard.project.Dependency.BOX2D;
+import static com.gurella.studio.wizard.project.Dependency.BULLET;
+import static com.gurella.studio.wizard.project.Dependency.GDX;
+import static com.gurella.studio.wizard.project.Dependency.GURELLA;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gurella.studio.wizard.project.ProjectType;
+import com.gurella.studio.wizard.project.build.ProjectFile;
 
-public class SetupInfo {
+public class ProjectSetup {
 	public String appName;
 	public String location;
 	public String packageName;
@@ -33,7 +33,7 @@ public class SetupInfo {
 	public List<ProjectFile> files = new ArrayList<ProjectFile>();
 	public Map<String, String> replacements = new HashMap<String, String>();
 
-	boolean isSelected(ProjectType projectType) {
+	public boolean isSelected(ProjectType projectType) {
 		return projects.contains(projectType);
 	}
 

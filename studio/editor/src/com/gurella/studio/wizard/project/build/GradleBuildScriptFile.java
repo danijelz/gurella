@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project.build;
 
 import static java.util.stream.Collectors.joining;
 
@@ -11,6 +11,8 @@ import org.eclipse.core.runtime.Platform;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.wizard.project.ProjectType;
+import com.gurella.studio.wizard.project.Dependency;
+import com.gurella.studio.wizard.project.ProjectSetup;
 
 public class GradleBuildScriptFile extends GeneratedFile {
 	private static final String nativeDependencyTxt = "native";
@@ -21,11 +23,11 @@ public class GradleBuildScriptFile extends GeneratedFile {
 	private int indent = 0;
 	private final StringBuilder writer = new StringBuilder(4096);
 
-	public GradleBuildScriptFile(SetupInfo setupInfo) {
+	public GradleBuildScriptFile(ProjectSetup projectSetup) {
 		super("build.gradle");
-		appName = setupInfo.appName;
-		projects = setupInfo.projects;
-		dependencies = setupInfo.dependencies;
+		appName = projectSetup.appName;
+		projects = projectSetup.projects;
+		dependencies = projectSetup.dependencies;
 	}
 
 	@Override

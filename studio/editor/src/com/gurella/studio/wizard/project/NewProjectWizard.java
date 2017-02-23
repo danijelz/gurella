@@ -27,9 +27,8 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
-import com.gurella.studio.wizard.project.setup.ProjectBuilder;
-import com.gurella.studio.wizard.project.setup.SetupInfo;
+import com.gurella.studio.wizard.project.build.ProjectBuilder;
+import com.gurella.studio.wizard.project.build.Executor.LogCallback;
 
 public class NewProjectWizard extends Wizard implements INewWizard {
 	private NewProjectMainPage mainPage;
@@ -51,7 +50,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		try {
-			performFinishSafely();
+			buldProjects();
 			GurellaStudioPlugin.log(IStatus.INFO, detailsPage.getLog());
 			return true;
 		} catch (Exception e) {
@@ -61,18 +60,17 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-	private void performFinishSafely() throws Exception {
-		SetupInfo setupInfo = new SetupInfo();
-		mainPage.updateSetupInfo(setupInfo);
-		detailsPage.updateSetupInfo(setupInfo);
+	private void buldProjects() throws Exception {
+		ProjectSetup projectSetup = new ProjectSetup();
+		mainPage.updateProjectSetup(projectSetup);
+		detailsPage.updateProjectSetup(projectSetup);
 
-		IRunnableWithProgress runnable = new BuildProjectsRunnable(setupInfo);
-		getContainer().run(true, true, runnable);
+		getContainer().run(true, true, new BuildProjectsRunnable(projectSetup));
 
 		IWorkingSet[] workingSets = mainPage.getWorkingSets();
-		String location = setupInfo.location;
+		String location = projectSetup.location;
 		openProject(location, "", workingSets);
-		setupInfo.projects.stream().forEach(p -> unchecked(() -> openProject(location, p.getName(), workingSets)));
+		projectSetup.projects.stream().forEach(p -> unchecked(() -> openProject(location, p.getName(), workingSets)));
 	}
 
 	private static void openProject(String path, String name, IWorkingSet[] workingSets) throws CoreException {
@@ -89,13 +87,13 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private final class BuildProjectsRunnable implements IRunnableWithProgress, IThreadListener, LogCallback {
-		private final SetupInfo setupInfo;
+		private final ProjectSetup projectSetup;
 
 		private final ISchedulingRule rule;
 		private final boolean transferRule;
 
-		private BuildProjectsRunnable(SetupInfo setupInfo) {
-			this.setupInfo = setupInfo;
+		private BuildProjectsRunnable(ProjectSetup projectSetup) {
+			this.projectSetup = projectSetup;
 
 			Job job = Job.getJobManager().currentJob();
 			if (job == null) {
@@ -119,8 +117,8 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 		}
 
 		private void runBuilder(IProgressMonitor monitor) throws OperationCanceledException {
-			log("Generating app in " + setupInfo.location + "\n");
-			ProjectBuilder.build(setupInfo, this);
+			log("Generating app in " + projectSetup.location + "\n");
+			ProjectBuilder.build(projectSetup, this);
 			log("Done!\n");
 		}
 

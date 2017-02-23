@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project.build;
 
 import static com.gurella.studio.wizard.project.ProjectType.ANDROID;
 import static com.gurella.studio.wizard.project.ProjectType.DESKTOP;
@@ -21,7 +21,8 @@ import java.util.stream.Stream;
 import org.eclipse.core.runtime.Platform;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.wizard.project.setup.Executor.LogCallback;
+import com.gurella.studio.wizard.project.ProjectSetup;
+import com.gurella.studio.wizard.project.build.Executor.LogCallback;
 
 /**
  * @author badlogic
@@ -39,7 +40,7 @@ public class ProjectBuilder {
 	private static final String gradleBuildPropertyPrefixReplacement = "%GRADLE_BUILD_PROPERTY_PREFIX%";
 	private static final String gradleBuildCommandReplacement = "%GRADLE_BUILD_COMMAND%";
 
-	private final SetupInfo setupInfo;
+	private final ProjectSetup projectSetup;
 	private final LogCallback callback;
 
 	private final List<ProjectFile> files = new ArrayList<ProjectFile>();
@@ -56,21 +57,21 @@ public class ProjectBuilder {
 
 	private boolean gradleNature;
 
-	public static void build(SetupInfo setupInfo, LogCallback callback) {
-		new ProjectBuilder(setupInfo, callback)._build();
+	public static void build(ProjectSetup projectSetup, LogCallback callback) {
+		new ProjectBuilder(projectSetup, callback)._build();
 	}
 
-	private ProjectBuilder(SetupInfo setupInfo, LogCallback callback) {
-		this.setupInfo = setupInfo;
+	private ProjectBuilder(ProjectSetup projectSetup, LogCallback callback) {
+		this.projectSetup = projectSetup;
 		this.callback = callback;
 
-		appName = setupInfo.appName;
-		initialScene = setupInfo.initialScene;
-		androidApiLevel = setupInfo.androidApiLevel;
-		androidBuildToolsVersion = setupInfo.androidBuildToolsVersion;
-		packageName = setupInfo.packageName;
-		outputDir = setupInfo.location;
-		packageDir = setupInfo.packageName.replace('.', '/');
+		appName = projectSetup.appName;
+		initialScene = projectSetup.initialScene;
+		androidApiLevel = projectSetup.androidApiLevel;
+		androidBuildToolsVersion = projectSetup.androidBuildToolsVersion;
+		packageName = projectSetup.packageName;
+		outputDir = projectSetup.location;
+		packageDir = projectSetup.packageName.replace('.', '/');
 
 		gradleNature = Platform.getBundle(SetupConstants.eclipseGradleCorePlugin) != null;
 	}
@@ -82,7 +83,7 @@ public class ProjectBuilder {
 		addCoreFiles();
 		addDesktopFiles();
 		addAndroidFiles();
-		addHtmlFiles();
+		addGwtHtmlFiles();
 		addIosRobovmFiles();
 		addIosMoeFiles();
 
@@ -115,8 +116,8 @@ public class ProjectBuilder {
 
 	private void addRootFiles() {
 		newResourceFile("gitignore", ".gitignore");
-		addProjectFile(new GradleSettingsFile(setupInfo.projects));
-		addProjectFile(new GradleBuildScriptFile(setupInfo));
+		addProjectFile(new GradleSettingsFile(projectSetup.projects));
+		addProjectFile(new GradleBuildScriptFile(projectSetup));
 		newResourceFile("gradlew");
 		newResourceFile("gradlew.bat");
 		newResourceFile("gradle/wrapper/gradle-wrapper.jar");
@@ -137,7 +138,7 @@ public class ProjectBuilder {
 		addProjectFile(new SampleMaterialFile());
 		newResourceFile("core/assets/cloudySea.jpg", "core/assets/sky/cloudySea.jpg");
 
-		if (setupInfo.isSelected(HTML)) {
+		if (projectSetup.isSelected(HTML)) {
 			String gwtAppName = Character.toUpperCase(appName.charAt(0)) + appName.substring(1);
 			newTemplateFile("core/CoreGdxDefinition", "core/src/" + gwtAppName + ".gwt.xml");
 		}
@@ -148,7 +149,7 @@ public class ProjectBuilder {
 	}
 
 	private void addDesktopFiles() {
-		if (!setupInfo.isSelected(DESKTOP)) {
+		if (!projectSetup.isSelected(DESKTOP)) {
 			return;
 		}
 
@@ -162,11 +163,11 @@ public class ProjectBuilder {
 	}
 
 	private void addAndroidFiles() {
-		if (!setupInfo.isSelected(ANDROID)) {
+		if (!projectSetup.isSelected(ANDROID)) {
 			return;
 		}
 
-		String sdkPath = setupInfo.androidSdkLocation.replace('\\', '/');
+		String sdkPath = projectSetup.androidSdkLocation.replace('\\', '/');
 		replacements.put("%ANDROID_SDK%", sdkPath);
 		replacements.put("%BUILD_TOOLS_VERSION%", androidBuildToolsVersion);
 		replacements.put("%API_LEVEL%", androidApiLevel);
@@ -191,8 +192,8 @@ public class ProjectBuilder {
 		}
 	}
 
-	private void addHtmlFiles() {
-		if (!setupInfo.isSelected(HTML)) {
+	private void addGwtHtmlFiles() {
+		if (!projectSetup.isSelected(HTML)) {
 			return;
 		}
 
@@ -212,13 +213,13 @@ public class ProjectBuilder {
 	}
 
 	private String parseGwtInherits() {
-		return setupInfo.dependencies.stream().map(d -> d.getGwtInherits()).filter(Values::isNotEmpty)
+		return projectSetup.dependencies.stream().map(d -> d.getGwtInherits()).filter(Values::isNotEmpty)
 				.flatMap(d -> Stream.<String> of(d)).filter(Values::isNotBlank)
 				.map(d -> "\t<inherits name='" + d + "' />\n").collect(Collectors.joining());
 	}
 
 	private void addIosRobovmFiles() {
-		if (!setupInfo.isSelected(IOS)) {
+		if (!projectSetup.isSelected(IOS)) {
 			return;
 		}
 
@@ -242,7 +243,7 @@ public class ProjectBuilder {
 	}
 
 	private void addIosMoeFiles() {
-		if (!setupInfo.isSelected(IOSMOE)) {
+		if (!projectSetup.isSelected(IOSMOE)) {
 			return;
 		}
 
@@ -329,7 +330,7 @@ public class ProjectBuilder {
 
 		gradleArgs.add("clean");
 		gradleArgs.add("eclipse");
-		if (setupInfo.isSelected(DESKTOP)) {
+		if (projectSetup.isSelected(DESKTOP)) {
 			gradleArgs.add("afterEclipseImport");
 		}
 

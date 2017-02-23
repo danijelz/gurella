@@ -3,7 +3,7 @@ package com.gurella.studio.wizard.project;
 import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.core.runtime.IStatus.ERROR;
-import static org.eclipse.core.runtime.IStatus.WARNING;
+import static org.eclipse.core.runtime.IStatus.INFO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +74,7 @@ public class ProjectTypesGroup implements Validator {
 	@Override
 	public List<IStatus> validate() {
 		if (getSelectedProjectTypes().isEmpty()) {
-			Status status = new Status(WARNING, PLUGIN_ID, "No projects selected. Only core project will be created.");
+			Status status = new Status(INFO, PLUGIN_ID, "No projects selected. Only core project will be created.");
 			return Collections.singletonList(status);
 		} else {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();

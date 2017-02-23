@@ -1,4 +1,4 @@
-package com.gurella.studio.wizard.project.setup;
+package com.gurella.studio.wizard.project.build;
 
 public class ApplicationConfigFile extends GeneratedFile {
 	private final String initialScene;

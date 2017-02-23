@@ -238,6 +238,15 @@ public abstract class Try<T> {
 		}
 	}
 
+	public static <T> T ignored(TrySupplier<T> supplier, Consumer<Throwable> exceptionAction, T exceptionalValue) {
+		try {
+			return supplier.get();
+		} catch (Throwable ignored) {
+			exceptionAction.accept(ignored);
+			return exceptionalValue;
+		}
+	}
+
 	public static void run(TryRunnable action, Consumer<Throwable> exceptionAction) {
 		try {
 			action.run();

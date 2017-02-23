@@ -2,7 +2,7 @@ package com.gurella.studio.wizard.project;
 
 import java.util.Comparator;
 
-import com.gurella.studio.wizard.project.setup.SetupConstants;
+import com.gurella.studio.wizard.project.build.SetupConstants;
 
 class BuildToolsVersion implements Comparable<BuildToolsVersion> {
 	int maj;
