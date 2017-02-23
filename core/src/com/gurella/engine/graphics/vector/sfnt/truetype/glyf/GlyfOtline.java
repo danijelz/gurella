@@ -581,14 +581,15 @@ class GlyfOtline implements Poolable {
     //TODO test http://www.go4expert.com/articles/builtin-gcc-functions-builtinclz-t29238/
     private static int __builtin_clz(int x) {
       // This uses a binary search (counting down) algorithm from Hacker's Delight.
+       int temp = x;
        int y;
        int n = 32;
-       y = x >> 16;  if (y != 0) {n = n -16;  x = y;}
-       y = x >> 8;  if (y != 0) {n = n - 8;  x = y;}
-       y = x >> 4;  if (y != 0) {n = n - 4;  x = y;}
-       y = x >> 2;  if (y != 0) {n = n - 2;  x = y;}
-       y = x >> 1;  if (y != 0) return n - 2;
-       return n - x;
+       y = temp >> 16;  if (y != 0) {n = n -16;  temp = y;}
+       y = temp >> 8;  if (y != 0) {n = n - 8;  temp = y;}
+       y = temp >> 4;  if (y != 0) {n = n - 4;  temp = y;}
+       y = temp >> 2;  if (y != 0) {n = n - 2;  temp = y;}
+       y = temp >> 1;  if (y != 0) return n - 2;
+       return n - temp;
     }
 	
 	@Override

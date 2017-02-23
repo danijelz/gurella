@@ -1,7 +1,5 @@
 package com.gurella.studio.wizard.project;
 
-import java.io.File;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -69,12 +67,6 @@ public class NewProjectMainPage extends ValidatedWizardPage {
 		if (visible) {
 			nameGroup.requestFocus();
 		}
-	}
-
-	// TODO check if project folder is empty
-	private static boolean isEmptyDirectory(String destination) {
-		File file = new File(destination);
-		return file.exists() ? file.list().length == 0 : true;
 	}
 
 	public IWorkingSet[] getWorkingSets() {

@@ -1,6 +1,9 @@
 package com.gurella.studio.wizard.project;
 
 import static com.gurella.studio.GurellaStudioPlugin.PLUGIN_ID;
+import static org.eclipse.core.runtime.IStatus.ERROR;
+import static org.eclipse.core.runtime.IStatus.INFO;
+import static org.eclipse.core.runtime.IStatus.WARNING;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,14 +110,22 @@ class LocationGroup implements Validator {
 		final String location = getLocation();
 		if (location.length() == 0) {
 			String message = "Enter a location for the project.";
-			IStatus status = new Status(IStatus.WARNING, PLUGIN_ID, message);
+			IStatus status = new Status(WARNING, PLUGIN_ID, message);
 			result.add(status);
 			return result;
 		}
 
 		if (!Path.EMPTY.isValidPath(location)) {
 			String message = "Invalid project contents directory";
-			IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, message);
+			IStatus status = new Status(ERROR, PLUGIN_ID, message);
+			result.add(status);
+		}
+
+		IPath projectPath = Path.fromOSString(location);
+		File projectFile = projectPath.toFile();
+		if (projectFile.exists() && projectFile.list().length > 0) {
+			String message = "The destination is not empty, some files might be overwriten.";
+			IStatus status = new Status(INFO, PLUGIN_ID, message);
 			result.add(status);
 		}
 
@@ -122,10 +133,9 @@ class LocationGroup implements Validator {
 			return result;
 		}
 
-		IPath projectPath = Path.fromOSString(location);
-		if (isNonexistingLocation(projectPath.toFile())) {
+		if (isNonexistingLocation(projectFile)) {
 			String message = "Cannot create project content at the given external location.";
-			IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, message);
+			IStatus status = new Status(ERROR, PLUGIN_ID, message);
 			result.add(status);
 		}
 

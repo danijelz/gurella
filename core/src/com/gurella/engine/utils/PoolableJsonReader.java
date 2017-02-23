@@ -88,7 +88,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 		}
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	public JsonValue parse(char[] data, int offset, int length) {
 		int cs, p = offset, pe = length, eof = pe, top = 0;
 		int[] stack = new int[4];
