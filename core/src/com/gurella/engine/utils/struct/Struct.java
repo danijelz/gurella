@@ -16,4 +16,8 @@ public class Struct {
 	public float getFloat(FloatStructProperty p) {
 		return p.get(aos, index);
 	}
+
+	public Float getFloatObj(FloatStructProperty p) {
+		return p.getFloat(aos, index);
+	}
 }

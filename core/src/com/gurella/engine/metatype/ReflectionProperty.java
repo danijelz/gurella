@@ -1,14 +1,12 @@
 package com.gurella.engine.metatype;
 
 import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
-import static com.gurella.engine.metatype.MetaTypes.getPrefix;
-import static com.gurella.engine.metatype.MetaTypes.isPrefix;
-import static com.gurella.engine.metatype.MetaTypes.setPrefix;
 
 import java.lang.annotation.Annotation;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
@@ -37,47 +35,72 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Method getter;
 	private Method setter;
 
-	public static <T> ReflectionProperty<T> newInstance(Class<?> owner, String name, MetaType<?> metaType) {
-		Field field = Reflection.getDeclaredFieldSilently(owner, name);
+	public static <T> ReflectionProperty<T> newInstance(MetaType<?> metaType, String name) {
+		Class<?> type = metaType.getType();
+		Field field = Reflection.getDeclaredFieldSilently(type, name);
 		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
-		Class<?> fieldType = field == null ? null : field.getType();
+		BeanPropertyMethods beanPropertyMethods = BeanPropertyMethods.getInstance(type, upperCaseName);
 
-		if (fieldType == null) {
-			Method boolGetter = Reflection.getDeclaredMethodSilently(owner, isPrefix + upperCaseName);
-			boolGetter = boolGetter == null || !isValidBeanMethod(boolGetter)
-					|| boolGetter.getReturnType() != boolean.class ? null : boolGetter;
-			Method getter = Reflection.getDeclaredMethodSilently(owner, getPrefix + upperCaseName);
-			getter = getter == null || !isValidBeanMethod(getter) ? null : getter;
-			if (boolGetter == null && getter == null) {
-				throw new GdxRuntimeException(name + " is not a property of " + owner.getSimpleName());
+		if (field == null || isIgnoredProperty(type, field, beanPropertyMethods)) {
+			if (beanPropertyMethods == null) {
+				throw new GdxRuntimeException(name + " is not a property of " + type.getSimpleName());
 			}
 
-			// TODO not finished
-			Method boolSetter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, boolean.class);
-			Method setter = getter == null ? null
-					: Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, getter.getReturnType());
-			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
-			return new ReflectionProperty<T>(owner, name, field, getter, setter, metaType);
+			Method getter = beanPropertyMethods.getter;
+			Method setter = beanPropertyMethods.setter;
+			Field resolvedField = field == null || field.getType() != getter.getReturnType() ? null : field;
+			return new ReflectionProperty<T>(type, name, resolvedField, getter, setter, metaType);
 		} else {
-			String prefix = boolean.class.equals(fieldType) ? isPrefix : getPrefix;
-			Method getter = Reflection.getDeclaredMethodSilently(owner, prefix + upperCaseName);
-			getter = getter == null || !isValidBeanMethod(getter) ? null : getter;
-			if (getter == null) {
-				return new ReflectionProperty<T>(owner, field, metaType);
-			}
-
-			Method setter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, fieldType);
-			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
-			if (setter == null) {
-				return new ReflectionProperty<T>(owner, field, metaType);
-			} else {
-				return new ReflectionProperty<T>(owner, name, field, getter, setter, metaType);
-			}
+			return new ReflectionProperty<T>(type, field, metaType);
 		}
 	}
 
-	private static boolean isValidBeanMethod(Method method) {
-		return !method.isPrivate() || method.getDeclaredAnnotation(PropertyDescriptor.class) != null;
+	// TODO unify with ReflectionMetaType.isIgnoredProperty
+	private static boolean isIgnoredProperty(Class<?> type, Field field, BeanPropertyMethods beanPropertyMethods) {
+		if (field.isStatic() || field.isTransient() || field.isSynthetic()
+				|| field.getDeclaredAnnotation(TransientProperty.class) != null) {
+			return true;
+		}
+
+		boolean hasPropertyAnnotation = Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class) != null;
+		if (field.isPrivate() && !hasPropertyAnnotation && beanPropertyMethods == null) {
+			return true;
+		}
+
+		if (!field.isFinal() || hasPropertyAnnotation) {
+			return false;
+		}
+
+		Class<?> fieldType = field.getType();
+		if (fieldType.isPrimitive()) {
+			return true;
+		}
+
+		field.setAccessible(true);
+		Object defaultInstance = DefaultInstances.getDefault(type);
+		if (defaultInstance != null) {
+			Object fieldValue = Reflection.getFieldValue(field, defaultInstance);
+			if (fieldValue == null) {
+				return true;
+			}
+
+			fieldType = fieldValue.getClass();
+			if (fieldType.isArray()) {
+				return ArrayReflection.getLength(fieldValue) == 0;
+			}
+		}
+
+		if (ClassReflection.isAssignableFrom(type, fieldType)) {
+			return false;
+		}
+
+		if (AssetDescriptors.isAssetType(fieldType)) {
+			AssetProperty assetProperty = Reflection.getDeclaredAnnotation(field, AssetProperty.class);
+			return assetProperty != null && assetProperty.value();
+		}
+
+		ImmutableArray<Property<?>> properties = MetaTypes.getMetaType(fieldType).getProperties();
+		return properties == null || properties.size() == 0;
 	}
 
 	public ReflectionProperty(Class<?> declaringClass, Field field, MetaType<?> metaType) {

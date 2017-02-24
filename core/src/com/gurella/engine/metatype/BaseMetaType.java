@@ -9,13 +9,14 @@ import com.gurella.engine.utils.Values;
 
 //TODO unused
 public abstract class BaseMetaType<T> implements MetaType<T> {
+	// TODO private final MetaType<? super T> superType;
 	private final Class<T> type;
 	private final String name;
 
 	private final boolean innerClass;
 	private final Constructor constructor;
 
-	private final ArrayExt<Property<?>> properties;
+	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
 	public BaseMetaType(Class<T> type) {
@@ -30,11 +31,17 @@ public abstract class BaseMetaType<T> implements MetaType<T> {
 		}
 
 		innerClass = Reflection.isInnerClass(type);
-		constructor = null;
-		properties = resolveProperties();
+		constructor = null; // TODO resolve constructor
 	}
 
-	protected abstract ArrayExt<Property<?>> resolveProperties();
+	protected void registerReflectionProperty(String name) {
+		registerProperty(ReflectionProperty.newInstance(this, name));
+	}
+
+	protected void registerProperty(Property<?> property) {
+		properties.add(property);
+		propertiesByName.put(property.getName(), property);
+	}
 
 	@Override
 	public String getName() {
@@ -52,8 +59,9 @@ public abstract class BaseMetaType<T> implements MetaType<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <P> Property<P> getProperty(String name) {
-		return (Property<P>) propertiesByName.get(name);
+		@SuppressWarnings("unchecked")
+		Property<P> casted = (Property<P>) propertiesByName.get(name);
+		return casted;
 	}
 }

@@ -106,6 +106,7 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 			Arrays.sort(ignoredProperties);
 			this.ignoredProperties = ignoredProperties;
 		}
+
 		if (forcedProperties != null) {
 			Arrays.sort(forcedProperties);
 			this.forcedProperties = forcedProperties;
