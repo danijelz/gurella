@@ -987,7 +987,7 @@ public class ArrayOfStructs {
 		System.arraycopy(value.val, 0, buffer, offset, 9);
 	}
 
-	/////// Matri4
+	/////// Matrix4
 
 	public Matrix4 getMatrix4(Matrix4 out) {
 		System.arraycopy(buffer, offset, out.val, 0, 16);

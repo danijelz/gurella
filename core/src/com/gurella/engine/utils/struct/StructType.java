@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class StructType {
-	final boolean packed = false;
 	final Array<StructProperty> _properties = new Array<StructProperty>();
 	public final ImmutableArray<StructProperty> properties = new ImmutableArray<StructProperty>(_properties);
 
