@@ -1,5 +1,7 @@
 package com.gurella.engine.utils.struct;
 
+import com.gurella.engine.utils.Reflection;
+
 public abstract class StructProperty {
 	int offset = 0;
 	Alignment alignment = Alignment._0;
@@ -176,11 +178,14 @@ public abstract class StructProperty {
 	public static class ComplexArrayStructProperty<T extends Struct> extends StructProperty {
 		private StructType<T> structType;
 		private int capacity;
+		
+		private final T temp;
 
 		ComplexArrayStructProperty(StructType<T> structType, int capacity) {
 			super(structType.size * capacity);
 			this.structType = structType;
 			this.capacity = capacity;
+			temp = Reflection.newInstance(structType.type);
 		}
 
 		public int getCapacity() {
@@ -191,9 +196,15 @@ public abstract class StructProperty {
 			return structType;
 		}
 
+		public T get(Struct struct, int index) {
+			temp.buffer = struct.buffer;
+			temp.offset = offset + structType.size * index;
+			return temp;
+		}
+
 		public T get(Struct struct, int index, T out) {
 			out.buffer = struct.buffer;
-			out.offset = offset + size * index;
+			out.offset = offset + structType.size * index;
 			return out;
 		}
 
