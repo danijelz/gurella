@@ -188,11 +188,11 @@ public abstract class StructProperty {
 	}
 
 	public static class FloatArrayStructProperty extends StructProperty {
-		private int capacity;
+		public final int length;
 
-		public FloatArrayStructProperty(int capacity) {
-			super(4 * capacity);
-			this.capacity = capacity;
+		public FloatArrayStructProperty(int length) {
+			super(4 * length);
+			this.length = length;
 		}
 
 		public float get(Struct struct, int index) {
@@ -204,7 +204,7 @@ public abstract class StructProperty {
 		}
 
 		public float[] get(Struct struct, float[] out) {
-			return struct.buffer.getFloatArray(struct.offset + offset, out, 0, capacity);
+			return struct.buffer.getFloatArray(struct.offset + offset, out, 0, length);
 		}
 
 		public void set(Struct struct, float[] value) {

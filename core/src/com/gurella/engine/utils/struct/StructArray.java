@@ -11,6 +11,10 @@ public class StructArray<T extends Struct> {
 	private final T temp;
 	private final int structSize;
 
+	public StructArray(Class<T> type, int initialSize) {
+		this(StructType.get(type), initialSize);
+	}
+
 	public StructArray(StructType<T> structType, int initialSize) {
 		capacity = structType.size * initialSize;
 		buffer = new Buffer(capacity);
@@ -113,7 +117,7 @@ public class StructArray<T extends Struct> {
 		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + (structSize * count), length);
 		size += count;
 	}
-	
+
 	public void add() {
 		size++;
 	}
