@@ -16,8 +16,10 @@ public class StructType {
 	private static final Field propertyOffsetField;
 	private static final Sort sort = new Sort();
 	private static final ObjectMap<Class<? extends Struct>, StructType> types = new ObjectMap<Class<? extends Struct>, StructType>();
+
 	static {
 		propertyOffsetField = Reflection.getDeclaredField(StructProperty.class, "offset");
+		propertyOffsetField.setAccessible(true);
 	}
 
 	final int size;
@@ -42,6 +44,20 @@ public class StructType {
 		StructProperty last = _properties.peek();
 		int temp = last.offset + last.size;
 		size = temp + (temp % 4);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(type.getSimpleName());
+		buffer.append(" [");
+		for (int i = 0, n = _declaredProperties.size; i < n; i++) {
+			StructProperty property = _declaredProperties.get(i);
+			buffer.append("\n    ");
+			buffer.append(property.toString());
+		}
+		buffer.append("\n]");
+		return buffer.toString();
 	}
 
 	public static StructType get(Class<? extends Struct> type) {
