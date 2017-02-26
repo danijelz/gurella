@@ -135,11 +135,11 @@ public class Buffer {
 		buffer[offset] = intBitsToFloat(value);
 	}
 
-	public short getShort1(int offset) {
+	public short getShort0(int offset) {
 		return (short) (floatToRawIntBits(buffer[offset]) >> 16);
 	}
 
-	public void setShort1(int offset, short value) {
+	public void setShort0(int offset, short value) {
 		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 16));

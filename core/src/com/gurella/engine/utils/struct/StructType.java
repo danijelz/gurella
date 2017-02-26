@@ -11,19 +11,18 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.struct.StructProperty.Alignment;
+import com.gurella.engine.utils.struct.StructProperty.ByteStructProperty;
+import com.gurella.engine.utils.struct.StructProperty.FloatArrayStructProperty;
+import com.gurella.engine.utils.struct.StructProperty.IntStructProperty;
+import com.gurella.engine.utils.struct.StructProperty.ShortStructProperty;
 
-public class StructType {
-	private static final Field propertyOffsetField;
+public class StructType<T extends Struct> {
 	private static final Sort sort = new Sort();
-	private static final ObjectMap<Class<? extends Struct>, StructType> types = new ObjectMap<Class<? extends Struct>, StructType>();
-
-	static {
-		propertyOffsetField = Reflection.getDeclaredField(StructProperty.class, "offset");
-		propertyOffsetField.setAccessible(true);
-	}
+	private static final ObjectMap<Class<? extends Struct>, StructType<?>> types = new ObjectMap<Class<? extends Struct>, StructType<?>>();
 
 	final int size;
-	final Class<? extends Struct> type;
+	final Class<T> type;
 
 	final Array<StructProperty> _declaredProperties;
 	public final ImmutableArray<StructProperty> declaredProperties;
@@ -31,8 +30,7 @@ public class StructType {
 	final Array<StructProperty> _properties;
 	public final ImmutableArray<StructProperty> properties;
 
-	StructType(Class<? extends Struct> type, Array<StructProperty> declaredProperties,
-			Array<StructProperty> properties) {
+	StructType(Class<T> type, Array<StructProperty> declaredProperties, Array<StructProperty> properties) {
 		this.type = type;
 
 		_declaredProperties = declaredProperties;
@@ -50,6 +48,8 @@ public class StructType {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(type.getSimpleName());
+		buffer.append(" size: ");
+		buffer.append(size);
 		buffer.append(" [");
 		for (int i = 0, n = _declaredProperties.size; i < n; i++) {
 			StructProperty property = _declaredProperties.get(i);
@@ -60,9 +60,10 @@ public class StructType {
 		return buffer.toString();
 	}
 
-	public static StructType get(Class<? extends Struct> type) {
+	public static <T extends Struct> StructType<T> get(Class<T> type) {
 		synchronized (types) {
-			StructType structType = types.get(type);
+			@SuppressWarnings("unchecked")
+			StructType<T> structType = (StructType<T>) types.get(type);
 			if (structType == null) {
 				structType = create(type);
 				types.put(type, structType);
@@ -71,9 +72,9 @@ public class StructType {
 		}
 	}
 
-	private static StructType create(Class<? extends Struct> type) {
+	private static <T extends Struct> StructType<T> create(Class<T> type) {
 		Class<?> superclass = type.getSuperclass();
-		StructType supertype = isAssignableFrom(Struct.class, superclass)
+		StructType<?> supertype = isAssignableFrom(Struct.class, superclass) && Struct.class != superclass
 				? get(Values.<Class<? extends Struct>> cast(superclass)) : null;
 
 		int offset = 0;
@@ -95,12 +96,27 @@ public class StructType {
 		sort.sort(declaredProperties, StructPropertyComparator.instance);
 		for (int i = 0, n = declaredProperties.size; i < n; i++) {
 			StructProperty property = declaredProperties.get(i);
-			Reflection.setFieldValue(propertyOffsetField, property, Integer.valueOf(offset));
+			property.offset = offset;
+			property.alignment = getAlignment(offset);
 			offset += property.size;
 		}
 
 		properties.addAll(declaredProperties);
-		return new StructType(type, declaredProperties, properties);
+		return new StructType<T>(type, declaredProperties, properties);
+	}
+
+	private static Alignment getAlignment(int offset) {
+		int mod = offset % 4;
+		switch (mod) {
+		case 1:
+			return Alignment._1;
+		case 2:
+			return Alignment._2;
+		case 3:
+			return Alignment._3;
+		default:
+			return Alignment._0;
+		}
 	}
 
 	private static boolean isPropertyField(Field field) {
@@ -117,7 +133,8 @@ public class StructType {
 		}
 
 		private static int getComparing(StructProperty property) {
-			int mod = property.size % 4;
+			int size = property.size;
+			int mod = size % 4;
 			switch (mod) {
 			case 0:
 				return 0;
@@ -129,5 +146,18 @@ public class StructType {
 				throw new IllegalStateException("Invalid property size: " + property.size);
 			}
 		}
+	}
+
+	public static class TestStruct extends Struct {
+		public static final ShortStructProperty property1 = new ShortStructProperty();
+		public static final ByteStructProperty property2 = new ByteStructProperty();
+		public static final ShortStructProperty property3 = new ShortStructProperty();
+		public static final IntStructProperty property4 = new IntStructProperty();
+		public static final ByteStructProperty property5 = new ByteStructProperty();
+		public static final FloatArrayStructProperty property6 = new FloatArrayStructProperty(2);
+	}
+
+	public static void main(String[] args) {
+		System.out.println(get(TestStruct.class).toString());
 	}
 }
