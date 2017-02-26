@@ -18,7 +18,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Sphere;
 import com.gurella.engine.math.GridRectangle;
-import com.gurella.engine.utils.struct.StructType.FloatStructProperty;
+//import com.gurella.engine.utils.struct.StructType.FloatStructProperty;
 
 public class ArrayOfStructs {
 	private static final StructTimSort sort = new StructTimSort();
@@ -359,17 +359,17 @@ public class ArrayOfStructs {
 
 		// System.out.println(Arrays.toString(a.buffer));
 
-		StructType descriptor = new StructType();
-		FloatStructProperty prop = new FloatStructProperty(0);
-		descriptor._properties.add(prop);
-		descriptor._properties.add(new FloatStructProperty(1));
-
-		Struct s = new Struct(descriptor, a);
-		System.out.println(s.getFloat(prop));
-		s.index++;
-		System.out.println(s.getFloat(prop));
-
-		System.out.println("\n\n");
+//		StructType descriptor = new StructType();
+//		FloatStructProperty prop = new FloatStructProperty(0);
+//		descriptor._properties.add(prop);
+//		descriptor._properties.add(new FloatStructProperty(1));
+//
+//		Struct s = new Struct(descriptor, a);
+//		System.out.println(s.getFloat(prop));
+//		s.index++;
+//		System.out.println(s.getFloat(prop));
+//
+//		System.out.println("\n\n");
 
 		testSpeed();
 	}

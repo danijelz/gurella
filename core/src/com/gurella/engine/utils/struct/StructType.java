@@ -1,132 +1,117 @@
 package com.gurella.engine.utils.struct;
 
+import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
+
+import java.util.Comparator;
+
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Sort;
+import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class StructType {
-	final Array<StructProperty> _properties = new Array<StructProperty>();
-	public final ImmutableArray<StructProperty> properties = new ImmutableArray<StructProperty>(_properties);
-
-	public int byteSize() {
-		int size = 0;
-		StructProperty[] items = _properties.items;
-		for (int i = 0, n = _properties.size; i < n; i++) {
-			size += items[i].type.byteSize();
-		}
-		return size + (size % 4);
+	private static final Field propertyOffsetField;
+	private static final Sort sort = new Sort();
+	private static final ObjectMap<Class<? extends Struct>, StructType> types = new ObjectMap<Class<? extends Struct>, StructType>();
+	static {
+		propertyOffsetField = Reflection.getDeclaredField(StructProperty.class, "offset");
 	}
 
-	public static abstract class PropertyType {
-		public abstract int byteSize();
+	final int size;
+	final Class<? extends Struct> type;
 
-		public abstract int packedByteSize();
+	final Array<StructProperty> _declaredProperties;
+	public final ImmutableArray<StructProperty> declaredProperties;
+
+	final Array<StructProperty> _properties;
+	public final ImmutableArray<StructProperty> properties;
+
+	StructType(Class<? extends Struct> type, Array<StructProperty> declaredProperties,
+			Array<StructProperty> properties) {
+		this.type = type;
+
+		_declaredProperties = declaredProperties;
+		this.declaredProperties = new ImmutableArray<StructProperty>(_declaredProperties);
+
+		_properties = properties;
+		this.properties = new ImmutableArray<StructProperty>(_properties);
+
+		StructProperty last = _properties.peek();
+		int temp = last.offset + last.size;
+		size = temp + (temp % 4);
 	}
 
-	public static class PrimitivePropertyType extends PropertyType {
-		public static final PrimitivePropertyType floatType = new PrimitivePropertyType(PrimitiveType.floatType);
-
-		public final PrimitiveType primitiveType;
-
-		public PrimitivePropertyType(PrimitiveType primitiveType) {
-			this.primitiveType = primitiveType;
+	public static StructType get(Class<? extends Struct> type) {
+		synchronized (types) {
+			StructType structType = types.get(type);
+			if (structType == null) {
+				structType = create(type);
+				types.put(type, structType);
+			}
+			return structType;
 		}
+	}
+
+	private static StructType create(Class<? extends Struct> type) {
+		Class<?> superclass = type.getSuperclass();
+		StructType supertype = isAssignableFrom(Struct.class, superclass)
+				? get(Values.<Class<? extends Struct>> cast(superclass)) : null;
+
+		int offset = 0;
+		Array<StructProperty> properties = new Array<StructProperty>();
+		if (supertype != null) {
+			properties.addAll(supertype._properties);
+			offset = supertype.size;
+		}
+
+		Array<StructProperty> declaredProperties = new Array<StructProperty>();
+		Field[] fields = Reflection.getDeclaredFields(type);
+		for (int i = 0, n = fields.length; i < n; i++) {
+			Field field = fields[i];
+			if (isPropertyField(field)) {
+				declaredProperties.add(Reflection.<StructProperty> getFieldValue(field, null));
+			}
+		}
+
+		sort.sort(declaredProperties, StructPropertyComparator.instance);
+		for (int i = 0, n = declaredProperties.size; i < n; i++) {
+			StructProperty property = declaredProperties.get(i);
+			Reflection.setFieldValue(propertyOffsetField, property, Integer.valueOf(offset));
+			offset += property.size;
+		}
+
+		properties.addAll(declaredProperties);
+		return new StructType(type, declaredProperties, properties);
+	}
+
+	private static boolean isPropertyField(Field field) {
+		return field.isStatic() && field.isFinal() && !field.isSynthetic()
+				&& isAssignableFrom(StructProperty.class, field.getType());
+	}
+
+	private static final class StructPropertyComparator implements Comparator<StructProperty> {
+		private static final StructPropertyComparator instance = new StructPropertyComparator();
 
 		@Override
-		public int byteSize() {
-			return primitiveType.byteSize;
+		public int compare(StructProperty o1, StructProperty o2) {
+			return Values.compare(getComparing(o1), getComparing(o2));
 		}
 
-		@Override
-		public int packedByteSize() {
-			return primitiveType.packedByteSize;
-		}
-	}
-
-	public static class ArrayPropertyType extends PropertyType {
-		public final PropertyType componentType;
-		public final int arraySize;
-
-		public ArrayPropertyType(PropertyType componentType, int arraySize) {
-			this.componentType = componentType;
-			this.arraySize = arraySize;
-		}
-
-		@Override
-		public int byteSize() {
-			int size = arraySize * componentType.byteSize();
-			return size + (size % 4);
-		}
-
-		@Override
-		public int packedByteSize() {
-			return byteSize();
-		}
-	}
-
-	public static class CompositePropertyType extends PropertyType {
-		public final StructType structType;
-
-		public CompositePropertyType(StructType structType) {
-			this.structType = structType;
-		}
-
-		@Override
-		public int byteSize() {
-			return structType.byteSize();
-		}
-
-		@Override
-		public int packedByteSize() {
-			return structType.byteSize();
-		}
-	}
-
-	public enum PrimitiveType {
-		intType(4), floatType(4),;
-
-		public final byte byteSize;
-		public final byte packedByteSize;
-
-		private PrimitiveType(int byteSize) {
-			this.byteSize = (byte) byteSize;
-			this.packedByteSize = (byte) byteSize;
-		}
-
-		private PrimitiveType(int byteSize, int packedByteSize) {
-			this.byteSize = (byte) byteSize;
-			this.packedByteSize = (byte) packedByteSize;
-		}
-	}
-
-	public static abstract class StructProperty {
-		final int wordOffset;
-		final PropertyType type;
-
-		public StructProperty(int wordOffset, PropertyType type) {
-			this.wordOffset = wordOffset;
-			this.type = type;
-		}
-	}
-
-	public static class FloatStructProperty extends StructProperty {
-		public FloatStructProperty(int wordOffset) {
-			super(wordOffset, PrimitivePropertyType.floatType);
-		}
-
-		public float get(ArrayOfStructs aos, int index) {
-			return aos.getFloatByIndex(index, wordOffset);
-		}
-
-		public Float getFloat(ArrayOfStructs aos, int index) {
-			return Float.valueOf(aos.getFloatByIndex(index, wordOffset));
-		}
-
-		public void set(ArrayOfStructs aos, int index, float value) {
-			aos.setFloatByIndex(index, wordOffset, value);
-		}
-
-		public void set(ArrayOfStructs aos, int index, Float value) {
-			aos.setFloatByIndex(index, wordOffset, value.floatValue());
+		private static int getComparing(StructProperty property) {
+			int mod = property.size % 4;
+			switch (mod) {
+			case 0:
+				return 0;
+			case 2:
+				return 1;
+			case 1:
+				return 2;
+			default:
+				throw new IllegalStateException("Invalid property size: " + property.size);
+			}
 		}
 	}
 }
