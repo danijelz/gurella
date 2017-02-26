@@ -158,12 +158,49 @@ public abstract class StructProperty {
 		}
 	}
 
+	public static class ComplexStructProperty<T extends Struct> extends StructProperty {
+		private StructType<T> structType;
+		private final T temp;
+
+		public ComplexStructProperty(Class<T> type) {
+			this(StructType.get(type));
+		}
+
+		public ComplexStructProperty(StructType<T> structType) {
+			super(structType.size);
+			this.structType = structType;
+			temp = Reflection.newInstance(structType.type);
+		}
+
+		public StructType<T> getStructType() {
+			return structType;
+		}
+
+		public T get(Struct struct) {
+			temp.buffer = struct.buffer;
+			temp.offset = struct.offset + offset;
+			return temp;
+		}
+
+		public void set(Struct struct, T value) {
+			struct.buffer.setFloatArray(value.buffer.buffer, value.offset, struct.offset + offset, size);
+		}
+	}
+
 	public static class FloatArrayStructProperty extends StructProperty {
 		private int capacity;
 
-		FloatArrayStructProperty(int capacity) {
+		public FloatArrayStructProperty(int capacity) {
 			super(4 * capacity);
 			this.capacity = capacity;
+		}
+
+		public float get(Struct struct, int index) {
+			return struct.buffer.getFloat(struct.offset + offset + 4 * index);
+		}
+
+		public void set(Struct struct, int index, float value) {
+			struct.buffer.setFloat(struct.offset + offset + 4 * index, value);
 		}
 
 		public float[] get(Struct struct, float[] out) {
@@ -177,19 +214,23 @@ public abstract class StructProperty {
 
 	public static class ComplexArrayStructProperty<T extends Struct> extends StructProperty {
 		private StructType<T> structType;
-		private int capacity;
+		private int length;
 
 		private final T temp;
 
-		ComplexArrayStructProperty(StructType<T> structType, int capacity) {
-			super(structType.size * capacity);
+		public ComplexArrayStructProperty(Class<T> type, int length) {
+			this(StructType.get(type), length);
+		}
+
+		public ComplexArrayStructProperty(StructType<T> structType, int length) {
+			super(structType.size * length);
 			this.structType = structType;
-			this.capacity = capacity;
+			this.length = length;
 			temp = Reflection.newInstance(structType.type);
 		}
 
-		public int getCapacity() {
-			return capacity;
+		public int getLength() {
+			return length;
 		}
 
 		public StructType<T> getStructType() {
@@ -208,8 +249,9 @@ public abstract class StructProperty {
 			return out;
 		}
 
-		public void set(Struct struct, T value) {
-			//TODO struct.buffer.setFloatArray(struct.offset + offset, value);
+		public void set(Struct struct, int index, T value) {
+			struct.buffer.setFloatArray(value.buffer.buffer, value.offset,
+					struct.offset + offset + structType.size * index, size);
 		}
 	}
 }

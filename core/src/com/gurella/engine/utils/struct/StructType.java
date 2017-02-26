@@ -13,6 +13,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.engine.utils.struct.StructProperty.Alignment;
 import com.gurella.engine.utils.struct.StructProperty.ByteStructProperty;
+import com.gurella.engine.utils.struct.StructProperty.ComplexStructProperty;
 import com.gurella.engine.utils.struct.StructProperty.FloatArrayStructProperty;
 import com.gurella.engine.utils.struct.StructProperty.IntStructProperty;
 import com.gurella.engine.utils.struct.StructProperty.ShortStructProperty;
@@ -157,7 +158,20 @@ public class StructType<T extends Struct> {
 		public static final FloatArrayStructProperty property6 = new FloatArrayStructProperty(2);
 	}
 
+	public static class TestStruct2 extends Struct {
+		public static final ShortStructProperty property1 = new ShortStructProperty();
+		public static final ByteStructProperty property2 = new ByteStructProperty();
+		public static final ShortStructProperty property3 = new ShortStructProperty();
+		public static final IntStructProperty property4 = new IntStructProperty();
+		public static final ByteStructProperty property5 = new ByteStructProperty();
+		public static final FloatArrayStructProperty property6 = new FloatArrayStructProperty(2);
+		public static final ComplexStructProperty<TestStruct> property7 = new ComplexStructProperty<TestStruct>(
+				TestStruct.class);
+	}
+
 	public static void main(String[] args) {
 		System.out.println(get(TestStruct.class).toString());
+		System.out.println("\n\n");
+		System.out.println(get(TestStruct2.class).toString());
 	}
 }
