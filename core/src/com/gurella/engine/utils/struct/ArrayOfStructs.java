@@ -359,17 +359,17 @@ public class ArrayOfStructs {
 
 		// System.out.println(Arrays.toString(a.buffer));
 
-//		StructType descriptor = new StructType();
-//		FloatStructProperty prop = new FloatStructProperty(0);
-//		descriptor._properties.add(prop);
-//		descriptor._properties.add(new FloatStructProperty(1));
-//
-//		Struct s = new Struct(descriptor, a);
-//		System.out.println(s.getFloat(prop));
-//		s.index++;
-//		System.out.println(s.getFloat(prop));
-//
-//		System.out.println("\n\n");
+		//		StructType descriptor = new StructType();
+		//		FloatStructProperty prop = new FloatStructProperty(0);
+		//		descriptor._properties.add(prop);
+		//		descriptor._properties.add(new FloatStructProperty(1));
+		//
+		//		Struct s = new Struct(descriptor, a);
+		//		System.out.println(s.getFloat(prop));
+		//		s.index++;
+		//		System.out.println(s.getFloat(prop));
+		//
+		//		System.out.println("\n\n");
 
 		testSpeed();
 	}
@@ -1148,7 +1148,7 @@ public class ArrayOfStructs {
 				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(),
 				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat() });
 
-		int next = rand();
+		int next = randomIndex();
 
 		private static float randomFloat() {
 			return Double.valueOf(Math.random()).floatValue();
@@ -1156,6 +1156,10 @@ public class ArrayOfStructs {
 
 		private static int randomInt() {
 			return Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue();
+		}
+
+		private static int randomIndex() {
+			return (int) (Math.random() * (testSize - iterations - 1));
 		}
 	}
 
@@ -1333,9 +1337,5 @@ public class ArrayOfStructs {
 
 		sar += r;
 		saTime += System.currentTimeMillis() - millis;
-	}
-
-	private static int rand() {
-		return (int) (Math.random() * (testSize - iterations - 1));
 	}
 }
