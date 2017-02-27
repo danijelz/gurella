@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.utils.Reflection;
 
 public abstract class StructProperty {
 	String name;
@@ -299,7 +298,7 @@ public abstract class StructProperty {
 		public ComplexStructProperty(StructType<T> structType) {
 			super(structType.size);
 			this.structType = structType;
-			temp = Reflection.newInstance(structType.type);
+			temp = structType.newInstance(null, 0);
 		}
 
 		public StructType<T> getStructType() {
@@ -336,7 +335,7 @@ public abstract class StructProperty {
 			super(structType.size * length);
 			this.structType = structType;
 			this.length = length;
-			temp = Reflection.newInstance(structType.type);
+			temp = structType.newInstance(null, 0);
 		}
 
 		public int getLength() {

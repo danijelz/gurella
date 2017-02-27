@@ -189,6 +189,39 @@ public class Reflection {
 		}
 	}
 
+	public static Constructor findConstructor(Class<?> c, Class<?>... parameterTypes) {
+		Constructor constructor = getConstructorSilently(c, parameterTypes);
+		if (constructor == null) {
+			constructor = getDeclaredConstructor(c, parameterTypes);
+			constructor.setAccessible(true);
+		}
+		return constructor;
+	}
+
+	public static Constructor findConstructorSilently(Class<?> c, Class<?>... parameterTypes) {
+		try {
+			return findConstructor(c, parameterTypes);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static Constructor getConstructor(Class<?> c, Class<?>... parameterTypes) {
+		try {
+			return ClassReflection.getConstructor(c, parameterTypes);
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static Constructor getConstructorSilently(Class<?> c, Class<?>... parameterTypes) {
+		try {
+			return getConstructor(c, parameterTypes);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public static Constructor getDeclaredConstructor(Class<?> c, Class<?>... parameterTypes) {
 		try {
 			return ClassReflection.getDeclaredConstructor(c, parameterTypes);
@@ -405,7 +438,7 @@ public class Reflection {
 	public static <T> T invokeConstructor(Constructor constructor) {
 		try {
 			@SuppressWarnings("unchecked")
-			T casted = (T) constructor.newInstance((Object) null);
+			T casted = (T) constructor.newInstance((Object[]) null);
 			return casted;
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);

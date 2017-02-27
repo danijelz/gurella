@@ -35,7 +35,8 @@ public class StructType<T extends Struct> {
 
 	StructType(Class<T> type, Array<StructProperty> declaredProperties, Array<StructProperty> properties) {
 		this.type = type;
-		constructor = Reflection.getDeclaredConstructor(type);
+		constructor = Reflection.findConstructor(type, (Class<?>[]) null);
+		constructor.setAccessible(true);
 
 		_declaredProperties = declaredProperties;
 		this.declaredProperties = new ImmutableArray<StructProperty>(_declaredProperties);
@@ -275,10 +276,10 @@ public class StructType<T extends Struct> {
 		System.out.println(val.getProperty4());
 		System.out.println(val.getProperty5());
 		System.out.println(Arrays.toString(val.getProperty6()));
-		
+
 		System.out.println("\n\n");
 		System.out.println(val);
-		
+
 		System.out.println("\n\n");
 		System.out.println(arr2);
 	}

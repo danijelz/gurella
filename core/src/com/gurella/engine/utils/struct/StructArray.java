@@ -136,14 +136,30 @@ public class StructArray<T extends Struct> {
 		return insert(index);
 	}
 
+	public T insertSafely(int index, T value) {
+		resizeIfNeeded(length + 1);
+		return insert(index, value);
+	}
+
 	public T insertSafely(int index, int count) {
 		resizeIfNeeded(length + count);
 		return insert(index, count);
 	}
 
+	public T insertSafely(int index, StructArray<T> arr, int count) {
+		resizeIfNeeded(length + count);
+		return insert(index, arr, count);
+	}
+
 	public T add() {
 		length++;
 		return get(length - 1);
+	}
+
+	public T add(T value) {
+		int addedItemOffset = length * structSize;
+		buffer.setFloatArray(value.buffer.arr, value.offset, addedItemOffset, structSize);
+		return get(length++);
 	}
 
 	public T add(int count) {
@@ -157,10 +173,17 @@ public class StructArray<T extends Struct> {
 		return add();
 	}
 
+	public T addSafely(T value) {
+		resizeIfNeeded(length + 1);
+		return add(value);
+	}
+
 	public T addSafely(int count) {
 		resizeIfNeeded(length + count);
 		return add(count);
 	}
+
+	// TODO public T addSafely(int index, StructArray<T> arr, int count) {
 
 	public T pop() {
 		length = Math.max(0, length - 1);
