@@ -105,7 +105,7 @@ public abstract class Struct {
 		}
 	}
 
-	static int testSize = 500000;
+	static int testSize = 1000000;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
 
@@ -181,7 +181,7 @@ public abstract class Struct {
 
 			System.out.println(testClass.next);
 			System.out.println(testStruct.getNext());
-			
+
 			System.out.println("-\n");
 		}
 	}

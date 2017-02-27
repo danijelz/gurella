@@ -151,13 +151,13 @@ public class UnsafeBuffer implements IBuffer {
 	@Override
 	public float[] getFloatArray(int offset, float[] destination) {
 		// TODO Auto-generated method stub
-		return null;
+		return destination;
 	}
 
 	@Override
 	public float[] getFloatArray(int offset, float[] destination, int destinationOffset, int length) {
 		// TODO Auto-generated method stub
-		return null;
+		return destination;
 	}
 
 	@Override
