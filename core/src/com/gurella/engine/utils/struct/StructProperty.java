@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector3;
 public abstract class StructProperty {
 	String name;
 	int offset = 0;
-	byte alignment = 0;
 	final int size;
 
 	public abstract String toString(Struct struct);
@@ -28,7 +27,7 @@ public abstract class StructProperty {
 
 	@Override
 	public String toString() {
-		return name + " size: " + size + " offset: " + offset + " alignment: " + alignment;
+		return name + " size: " + size + " offset: " + offset;
 	}
 
 	public static class FloatStructProperty extends StructProperty {
@@ -147,27 +146,11 @@ public abstract class StructProperty {
 		}
 
 		public short get(Struct struct) {
-			switch (alignment) {
-			case 0:
-				return struct.buffer.getShort0(struct.offset + offset);
-			case 2:
-				return struct.buffer.getShort2(struct.offset + offset);
-			default:
-				throw new IllegalStateException();
-			}
+			return struct.buffer.getShort(struct.offset + offset);
 		}
 
 		public void set(Struct struct, short value) {
-			switch (alignment) {
-			case 0:
-				struct.buffer.setShort0(struct.offset + offset, value);
-				return;
-			case 2:
-				struct.buffer.setShort2(struct.offset + offset, value);
-				return;
-			default:
-				throw new IllegalStateException();
-			}
+			struct.buffer.setShort(struct.offset + offset, value);
 		}
 
 		@Override
@@ -182,27 +165,11 @@ public abstract class StructProperty {
 		}
 
 		public char get(Struct struct) {
-			switch (alignment) {
-			case 0:
-				return struct.buffer.getChar0(struct.offset + offset);
-			case 2:
-				return struct.buffer.getChar2(struct.offset + offset);
-			default:
-				throw new IllegalStateException();
-			}
+			return struct.buffer.getChar(struct.offset + offset);
 		}
 
 		public void set(Struct struct, char value) {
-			switch (alignment) {
-			case 0:
-				struct.buffer.setChar0(struct.offset + offset, value);
-				return;
-			case 2:
-				struct.buffer.setChar2(struct.offset + offset, value);
-				return;
-			default:
-				throw new IllegalStateException();
-			}
+			struct.buffer.setChar(struct.offset + offset, value);
 		}
 
 		@Override
@@ -217,37 +184,11 @@ public abstract class StructProperty {
 		}
 
 		public byte get(Struct struct) {
-			switch (alignment) {
-			case 0:
-				return struct.buffer.getByte0(struct.offset + offset);
-			case 1:
-				return struct.buffer.getByte1(struct.offset + offset);
-			case 2:
-				return struct.buffer.getByte2(struct.offset + offset);
-			case 3:
-				return struct.buffer.getByte3(struct.offset + offset);
-			default:
-				throw new IllegalStateException();
-			}
+			return struct.buffer.getByte(struct.offset + offset);
 		}
 
 		public void set(Struct struct, byte value) {
-			switch (alignment) {
-			case 0:
-				struct.buffer.setByte0(struct.offset + offset, value);
-				return;
-			case 1:
-				struct.buffer.setByte1(struct.offset + offset, value);
-				return;
-			case 2:
-				struct.buffer.setByte2(struct.offset + offset, value);
-				return;
-			case 3:
-				struct.buffer.setByte3(struct.offset + offset, value);
-				return;
-			default:
-				throw new IllegalStateException();
-			}
+			struct.buffer.setByte(struct.offset + offset, value);
 		}
 
 		@Override
@@ -388,24 +329,24 @@ public abstract class StructProperty {
 		public Vector2 get(Struct struct) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			temp.x = buffer.getFloat(tempOffset++);
-			temp.y = buffer.getFloat(tempOffset);
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
 			return temp;
 		}
 
 		public Vector2 get(Struct struct, Vector2 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			out.x = buffer.getFloat(tempOffset++);
-			out.y = buffer.getFloat(tempOffset);
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
 			return out;
 		}
 
 		public void set(Struct struct, Vector2 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			buffer.setFloat(tempOffset++, value.x);
-			buffer.setFloat(tempOffset, value.y);
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
 		}
 
 		@Override
@@ -430,24 +371,24 @@ public abstract class StructProperty {
 		public Vector2 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
-			temp.x = buffer.getFloat(tempOffset++);
-			temp.y = buffer.getFloat(tempOffset);
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
 			return temp;
 		}
 
 		public Vector2 get(Struct struct, int index, Vector2 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
-			out.x = buffer.getFloat(tempOffset++);
-			out.y = buffer.getFloat(tempOffset);
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
 			return out;
 		}
 
 		public void set(Struct struct, int index, Vector2 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
-			buffer.setFloat(tempOffset++, value.x);
-			buffer.setFloat(tempOffset, value.y);
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
 		}
 
 		@Override
@@ -475,27 +416,27 @@ public abstract class StructProperty {
 		public Vector3 get(Struct struct) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			temp.x = buffer.getFloat(tempOffset++);
-			temp.y = buffer.getFloat(tempOffset++);
-			temp.z = buffer.getFloat(tempOffset);
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
+			temp.z = buffer.getFloat(tempOffset + 8);
 			return temp;
 		}
 
 		public Vector3 get(Struct struct, Vector3 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			out.x = buffer.getFloat(tempOffset++);
-			out.y = buffer.getFloat(tempOffset++);
-			out.z = buffer.getFloat(tempOffset);
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
+			out.z = buffer.getFloat(tempOffset + 8);
 			return out;
 		}
 
 		public void set(Struct struct, Vector3 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			buffer.setFloat(tempOffset++, value.x);
-			buffer.setFloat(tempOffset++, value.y);
-			buffer.setFloat(tempOffset, value.z);
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
+			buffer.setFloat(tempOffset + 8, value.z);
 		}
 
 		@Override
@@ -520,27 +461,27 @@ public abstract class StructProperty {
 		public Vector3 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			temp.x = buffer.getFloat(tempOffset++);
-			temp.y = buffer.getFloat(tempOffset++);
-			temp.z = buffer.getFloat(tempOffset);
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
+			temp.z = buffer.getFloat(tempOffset + 8);
 			return temp;
 		}
 
 		public Vector3 get(Struct struct, int index, Vector3 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			out.x = buffer.getFloat(tempOffset++);
-			out.y = buffer.getFloat(tempOffset++);
-			out.z = buffer.getFloat(tempOffset);
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
+			out.z = buffer.getFloat(tempOffset + 8);
 			return out;
 		}
 
 		public void set(Struct struct, int index, Vector3 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			buffer.setFloat(tempOffset++, value.x);
-			buffer.setFloat(tempOffset++, value.y);
-			buffer.setFloat(tempOffset, value.z);
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
+			buffer.setFloat(tempOffset + 8, value.z);
 		}
 
 		@Override
@@ -568,27 +509,27 @@ public abstract class StructProperty {
 		public GridPoint3 get(Struct struct) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			temp.x = buffer.getInt(tempOffset++);
-			temp.y = buffer.getInt(tempOffset++);
-			temp.z = buffer.getInt(tempOffset);
+			temp.x = buffer.getInt(tempOffset);
+			temp.y = buffer.getInt(tempOffset + 4);
+			temp.z = buffer.getInt(tempOffset + 8);
 			return temp;
 		}
 
 		public GridPoint3 get(Struct struct, GridPoint3 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			out.x = buffer.getInt(tempOffset++);
-			out.y = buffer.getInt(tempOffset++);
-			out.z = buffer.getInt(tempOffset);
+			out.x = buffer.getInt(tempOffset);
+			out.y = buffer.getInt(tempOffset + 4);
+			out.z = buffer.getInt(tempOffset + 8);
 			return out;
 		}
 
 		public void set(Struct struct, GridPoint3 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
-			buffer.setInt(tempOffset++, value.x);
-			buffer.setInt(tempOffset++, value.y);
-			buffer.setInt(tempOffset, value.z);
+			buffer.setInt(tempOffset, value.x);
+			buffer.setInt(tempOffset + 4, value.y);
+			buffer.setInt(tempOffset + 8, value.z);
 		}
 
 		@Override
@@ -613,27 +554,27 @@ public abstract class StructProperty {
 		public GridPoint3 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			temp.x = buffer.getInt(tempOffset++);
-			temp.y = buffer.getInt(tempOffset++);
-			temp.z = buffer.getInt(tempOffset);
+			temp.x = buffer.getInt(tempOffset);
+			temp.y = buffer.getInt(tempOffset + 4);
+			temp.z = buffer.getInt(tempOffset + 8);
 			return temp;
 		}
 
 		public GridPoint3 get(Struct struct, int index, GridPoint3 out) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			out.x = buffer.getInt(tempOffset++);
-			out.y = buffer.getInt(tempOffset++);
-			out.z = buffer.getInt(tempOffset);
+			out.x = buffer.getInt(tempOffset);
+			out.y = buffer.getInt(tempOffset + 4);
+			out.z = buffer.getInt(tempOffset + 8);
 			return out;
 		}
 
 		public void set(Struct struct, int index, GridPoint3 value) {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
-			buffer.setInt(tempOffset++, value.x);
-			buffer.setInt(tempOffset++, value.y);
-			buffer.setInt(tempOffset, value.z);
+			buffer.setInt(tempOffset, value.x);
+			buffer.setInt(tempOffset + 4, value.y);
+			buffer.setInt(tempOffset + 8, value.z);
 		}
 
 		@Override

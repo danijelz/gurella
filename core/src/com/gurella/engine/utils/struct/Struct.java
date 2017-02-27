@@ -105,7 +105,7 @@ public abstract class Struct {
 		}
 	}
 
-	static int testSize = 5000000;
+	static int testSize = 500000;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
 
@@ -162,6 +162,28 @@ public abstract class Struct {
 		System.out.println("Vec:");
 		System.out.println(testVecTc);
 		System.out.println(testVecSa);
+
+		System.out.println("\n\n--------------------------------------------\\n");
+
+		for (int i = 0; i < 10; i++) {
+			TestClass testClass = tc[i];
+			TestStruct testStruct = sa.get(i);
+
+			System.out.println(testClass.vector);
+			System.out.println(testStruct.getVector());
+
+			System.out.println("");
+
+			System.out.println(testClass.point);
+			System.out.println(testStruct.getPoint());
+
+			System.out.println("");
+
+			System.out.println(testClass.next);
+			System.out.println(testStruct.getNext());
+			
+			System.out.println("-\n");
+		}
 	}
 
 	private static long tcTime;

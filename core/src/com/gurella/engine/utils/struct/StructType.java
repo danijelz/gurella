@@ -118,26 +118,11 @@ public class StructType<T extends Struct> {
 		for (int i = 0, n = declaredProperties.size; i < n; i++) {
 			StructProperty property = declaredProperties.get(i);
 			property.offset = offset;
-			property.alignment = getAlignment(offset);
 			offset += property.size;
 		}
 
 		properties.addAll(declaredProperties);
 		return new StructType<T>(type, declaredProperties, properties);
-	}
-
-	private static byte getAlignment(int offset) {
-		int mod = offset % 4;
-		switch (mod) {
-		case 1:
-			return 1;
-		case 2:
-			return 2;
-		case 3:
-			return 3;
-		default:
-			return 0;
-		}
 	}
 
 	private static boolean isPropertyField(Field field) {
