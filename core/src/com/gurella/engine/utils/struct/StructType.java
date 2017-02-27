@@ -8,6 +8,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Sort;
+import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
@@ -24,6 +25,7 @@ public class StructType<T extends Struct> {
 
 	final int size;
 	final Class<T> type;
+	final Constructor constructor;
 
 	final Array<StructProperty> _declaredProperties;
 	public final ImmutableArray<StructProperty> declaredProperties;
@@ -33,6 +35,7 @@ public class StructType<T extends Struct> {
 
 	StructType(Class<T> type, Array<StructProperty> declaredProperties, Array<StructProperty> properties) {
 		this.type = type;
+		constructor = Reflection.getDeclaredConstructor(type);
 
 		_declaredProperties = declaredProperties;
 		this.declaredProperties = new ImmutableArray<StructProperty>(_declaredProperties);
@@ -45,20 +48,33 @@ public class StructType<T extends Struct> {
 		size = temp + (temp % 4);
 	}
 
+	public T newInstance(Buffer buffer, int offset) {
+		T struct = Reflection.invokeConstructor(constructor);
+		struct.buffer = buffer;
+		struct.offset = offset;
+		return struct;
+	}
+
+	public <S extends T> void copy(S source, T destination) {
+		Buffer sourceBuffer = source.buffer;
+		Buffer destinationBuffer = destination.buffer;
+		destinationBuffer.setFloatArray(sourceBuffer.arr, source.offset, destination.offset, size);
+	}
+
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(type.getSimpleName());
-		buffer.append(" size: ");
-		buffer.append(size);
-		buffer.append(" [");
+		StringBuilder builder = new StringBuilder();
+		builder.append(type.getSimpleName());
+		builder.append(" size: ");
+		builder.append(size);
+		builder.append(" [");
 		for (int i = 0, n = _declaredProperties.size; i < n; i++) {
 			StructProperty property = _declaredProperties.get(i);
-			buffer.append("\n    ");
-			buffer.append(property.toString());
+			builder.append("\n    ");
+			builder.append(property.toString());
 		}
-		buffer.append("\n]");
-		return buffer.toString();
+		builder.append("\n]");
+		return builder.toString();
 	}
 
 	public static <T extends Struct> StructType<T> get(Class<T> type) {
@@ -90,6 +106,7 @@ public class StructType<T extends Struct> {
 		for (int i = 0, n = fields.length; i < n; i++) {
 			Field field = fields[i];
 			if (isPropertyField(field)) {
+				field.setAccessible(true);
 				StructProperty structProperty = Reflection.getFieldValue(field, null);
 				structProperty.name = field.getName();
 				declaredProperties.add(structProperty);
@@ -243,7 +260,7 @@ public class StructType<T extends Struct> {
 		System.out.println("\n\n");
 
 		StructArray<TestStruct2> arr2 = new StructArray<TestStruct2>(TestStruct2.class, 3);
-		TestStruct2 testStruct2 = arr2.get(0);
+		TestStruct2 testStruct2 = arr2.add();
 		TestStruct val = TestStruct2.property7.get(testStruct2);
 		val.setProperty1((short) 1);
 		val.setProperty2((byte) 2);
@@ -258,5 +275,11 @@ public class StructType<T extends Struct> {
 		System.out.println(val.getProperty4());
 		System.out.println(val.getProperty5());
 		System.out.println(Arrays.toString(val.getProperty6()));
+		
+		System.out.println("\n\n");
+		System.out.println(val);
+		
+		System.out.println("\n\n");
+		System.out.println(arr2);
 	}
 }

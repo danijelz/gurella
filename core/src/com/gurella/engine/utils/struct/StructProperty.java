@@ -1,5 +1,8 @@
 package com.gurella.engine.utils.struct;
 
+import java.util.Arrays;
+
+import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -11,6 +14,8 @@ public abstract class StructProperty {
 	int offset = 0;
 	byte alignment = 0;
 	final int size;
+
+	public abstract String toString(Struct struct);
 
 	public StructProperty(int size) {
 		if (size == 1 || size == 2) {
@@ -39,6 +44,11 @@ public abstract class StructProperty {
 		public void set(Struct struct, float value) {
 			struct.buffer.setFloat(struct.offset + offset, value);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
+		}
 	}
 
 	public static class FloatArrayStructProperty extends StructProperty {
@@ -49,6 +59,14 @@ public abstract class StructProperty {
 			this.length = length;
 		}
 
+		public float[] get(Struct struct) {
+			return struct.buffer.getFloatArray(struct.offset + offset, new float[length], 0, length);
+		}
+
+		public float[] get(Struct struct, float[] out) {
+			return struct.buffer.getFloatArray(struct.offset + offset, out, 0, length);
+		}
+
 		public float get(Struct struct, int index) {
 			return struct.buffer.getFloat(struct.offset + offset + 4 * index);
 		}
@@ -57,12 +75,13 @@ public abstract class StructProperty {
 			struct.buffer.setFloat(struct.offset + offset + 4 * index, value);
 		}
 
-		public float[] get(Struct struct, float[] out) {
-			return struct.buffer.getFloatArray(struct.offset + offset, out, 0, length);
-		}
-
 		public void set(Struct struct, float[] value) {
 			struct.buffer.setFloatArray(struct.offset + offset, value);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return Arrays.toString(get(struct));
 		}
 	}
 
@@ -78,6 +97,11 @@ public abstract class StructProperty {
 		public void set(Struct struct, int value) {
 			struct.buffer.setInt(struct.offset + offset, value);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
+		}
 	}
 
 	public static class DoubleStructProperty extends StructProperty {
@@ -92,6 +116,11 @@ public abstract class StructProperty {
 		public void set(Struct struct, double value) {
 			struct.buffer.setDouble(struct.offset + offset, value);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
+		}
 	}
 
 	public static class LongStructProperty extends StructProperty {
@@ -105,6 +134,11 @@ public abstract class StructProperty {
 
 		public void set(Struct struct, long value) {
 			struct.buffer.setLong(struct.offset + offset, value);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
 		}
 	}
 
@@ -136,6 +170,11 @@ public abstract class StructProperty {
 				throw new IllegalStateException();
 			}
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
+		}
 	}
 
 	public static class CharStructProperty extends StructProperty {
@@ -165,6 +204,11 @@ public abstract class StructProperty {
 			default:
 				throw new IllegalStateException();
 			}
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
 		}
 	}
 
@@ -206,6 +250,11 @@ public abstract class StructProperty {
 				throw new IllegalStateException();
 			}
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return String.valueOf(get(struct));
+		}
 	}
 
 	public static class FlagStructProperty extends StructProperty {
@@ -231,6 +280,11 @@ public abstract class StructProperty {
 
 		public void unsetFlag(Struct struct, int flag) {
 			struct.buffer.unsetFlag(struct.offset + offset, flag);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return Integer.toBinaryString(get(struct));
 		}
 	}
 
@@ -259,7 +313,12 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, T value) {
-			struct.buffer.setFloatArray(value.buffer.buffer, value.offset, struct.offset + offset, size);
+			struct.buffer.setFloatArray(value.buffer.arr, value.offset, struct.offset + offset, size);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
 		}
 	}
 
@@ -301,8 +360,22 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, int index, T value) {
-			struct.buffer.setFloatArray(value.buffer.buffer, value.offset,
+			struct.buffer.setFloatArray(value.buffer.arr, value.offset,
 					struct.offset + offset + structType.size * index, size);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
 		}
 	}
 
@@ -334,6 +407,11 @@ public abstract class StructProperty {
 			int tempOffset = struct.offset + offset;
 			buffer.setFloat(tempOffset++, value.x);
 			buffer.setFloat(tempOffset, value.y);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
 		}
 	}
 
@@ -372,6 +450,20 @@ public abstract class StructProperty {
 			buffer.setFloat(tempOffset++, value.x);
 			buffer.setFloat(tempOffset, value.y);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
 	}
 
 	public static class Vector3StructProperty extends StructProperty {
@@ -406,6 +498,11 @@ public abstract class StructProperty {
 			buffer.setFloat(tempOffset++, value.y);
 			buffer.setFloat(tempOffset, value.z);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
+		}
 	}
 
 	public static class Vector3ArrayStructProperty extends StructProperty {
@@ -425,8 +522,8 @@ public abstract class StructProperty {
 			Buffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			temp.x = buffer.getFloat(tempOffset++);
-			temp.y = buffer.getFloat(tempOffset);
-			temp.z = buffer.getFloat(tempOffset++);
+			temp.y = buffer.getFloat(tempOffset++);
+			temp.z = buffer.getFloat(tempOffset);
 			return temp;
 		}
 
@@ -445,6 +542,113 @@ public abstract class StructProperty {
 			buffer.setFloat(tempOffset++, value.x);
 			buffer.setFloat(tempOffset++, value.y);
 			buffer.setFloat(tempOffset, value.z);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+	}
+
+	public static class GridPoint3StructProperty extends StructProperty {
+		private final GridPoint3 temp = new GridPoint3();
+
+		public GridPoint3StructProperty() {
+			super(12);
+		}
+
+		public GridPoint3 get(Struct struct) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			temp.x = buffer.getInt(tempOffset++);
+			temp.y = buffer.getInt(tempOffset++);
+			temp.z = buffer.getInt(tempOffset);
+			return temp;
+		}
+
+		public GridPoint3 get(Struct struct, GridPoint3 out) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			out.x = buffer.getInt(tempOffset++);
+			out.y = buffer.getInt(tempOffset++);
+			out.z = buffer.getInt(tempOffset);
+			return out;
+		}
+
+		public void set(Struct struct, GridPoint3 value) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			buffer.setInt(tempOffset++, value.x);
+			buffer.setInt(tempOffset++, value.y);
+			buffer.setInt(tempOffset, value.z);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
+		}
+	}
+
+	public static class GridPoint3ArrayStructProperty extends StructProperty {
+		private int length;
+		private final GridPoint3 temp = new GridPoint3();
+
+		public GridPoint3ArrayStructProperty(int length) {
+			super(12 * length);
+			this.length = length;
+		}
+
+		public int getLength() {
+			return length;
+		}
+
+		public GridPoint3 get(Struct struct, int index) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 12 * index;
+			temp.x = buffer.getInt(tempOffset++);
+			temp.y = buffer.getInt(tempOffset++);
+			temp.z = buffer.getInt(tempOffset);
+			return temp;
+		}
+
+		public GridPoint3 get(Struct struct, int index, GridPoint3 out) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 12 * index;
+			out.x = buffer.getInt(tempOffset++);
+			out.y = buffer.getInt(tempOffset++);
+			out.z = buffer.getInt(tempOffset);
+			return out;
+		}
+
+		public void set(Struct struct, int index, GridPoint3 value) {
+			Buffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 12 * index;
+			buffer.setInt(tempOffset++, value.x);
+			buffer.setInt(tempOffset++, value.y);
+			buffer.setInt(tempOffset, value.z);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
 		}
 	}
 
@@ -470,6 +674,11 @@ public abstract class StructProperty {
 		public void set(Struct struct, Matrix3 value) {
 			Buffer buffer = struct.buffer;
 			buffer.setFloatArray(struct.offset + offset, value.val);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
 		}
 	}
 
@@ -502,6 +711,20 @@ public abstract class StructProperty {
 			Buffer buffer = struct.buffer;
 			buffer.setFloatArray(struct.offset + offset + 36 * index, value.val);
 		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
 	}
 
 	public static class Matrix4StructProperty extends StructProperty {
@@ -526,6 +749,11 @@ public abstract class StructProperty {
 		public void set(Struct struct, Matrix4 value) {
 			Buffer buffer = struct.buffer;
 			buffer.setFloatArray(struct.offset + offset, value.val);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
 		}
 	}
 
@@ -557,6 +785,20 @@ public abstract class StructProperty {
 		public void set(Struct struct, int index, Matrix4 value) {
 			Buffer buffer = struct.buffer;
 			buffer.setFloatArray(struct.offset + offset + 64 * index, value.val);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
 		}
 	}
 }

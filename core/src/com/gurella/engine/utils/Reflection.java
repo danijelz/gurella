@@ -402,6 +402,24 @@ public class Reflection {
 		}
 	}
 
+	public static <T> T invokeConstructor(Constructor constructor) {
+		try {
+			@SuppressWarnings("unchecked")
+			T casted = (T) constructor.newInstance((Object) null);
+			return casted;
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static <T> T invokeConstructorSilently(Constructor constructor) {
+		try {
+			return invokeConstructor(constructor);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public static <T> Class<T> getCommonClass(Object... objects) {
 		if (Values.isEmpty(objects)) {
 			return null;

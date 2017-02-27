@@ -41,6 +41,17 @@ public class StructArray<T extends Struct> {
 		return length;
 	}
 
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void ensureCapacity(int additionalCapacity) {
+		int newCapacity = capacity + additionalCapacity;
+		if (newCapacity > capacity) {
+			resize(Math.max(8, newCapacity));
+		}
+	}
+
 	private void resizeIfNeeded(int newCapacity) {
 		if (capacity < newCapacity) {
 			resize(Math.max(8, (int) (newCapacity * 1.75f)));
@@ -100,7 +111,7 @@ public class StructArray<T extends Struct> {
 
 	public T insert(int index, T value) {
 		int addedItemOffset = index * structSize;
-		buffer.setFloatArray(value.buffer.buffer, value.offset, addedItemOffset, structSize);
+		buffer.setFloatArray(value.buffer.arr, value.offset, addedItemOffset, structSize);
 		length++;
 		return get(index);
 	}
@@ -114,7 +125,7 @@ public class StructArray<T extends Struct> {
 
 	public T insert(int index, StructArray<T> arr, int count) {
 		int addedItemsOffset = index * structSize;
-		buffer.setFloatArray(arr.buffer.buffer, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
+		buffer.setFloatArray(arr.buffer.arr, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
 		length += count;
 		return get(index);
 	}
@@ -155,6 +166,30 @@ public class StructArray<T extends Struct> {
 		return get(length);
 	}
 
+	public T peek() {
+		return get(length - 1);
+	}
+
+	public void swap(int firstIndex, int secondIndex) {
+		buffer.swap(firstIndex * structSize, secondIndex * structSize, structSize);
+	}
+
+	public void set(int index, T value) {
+		buffer.setFloatArray(value.buffer.arr, value.offset, index * structSize, structSize);
+	}
+
+	public void set(StructArray<T> source, int sourceIndex, int destIndex, int count) {
+		buffer.setFloatArray(source.buffer.arr, sourceIndex * structSize, destIndex * structSize, count * structSize);
+	}
+
+	public void set(int sourceIndex, int destIndex) {
+		buffer.move(sourceIndex * structSize, destIndex * structSize, structSize);
+	}
+
+	public void set(int sourceIndex, int destIndex, int count) {
+		buffer.move(sourceIndex * structSize, destIndex * structSize, count * structSize);
+	}
+
 	public void clear() {
 		length = 0;
 	}
@@ -169,5 +204,19 @@ public class StructArray<T extends Struct> {
 		}
 	}
 
-	// TODO sort, sortRange
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[");
+		for (int i = 0; i < length; i++) {
+			builder.append(get(i).toString());
+			if (i < length - 1) {
+				builder.append(", ");
+			}
+		}
+		builder.append("]");
+		return builder.toString();
+	}
+
+	// TODO sort, sortRange Iterator
 }
