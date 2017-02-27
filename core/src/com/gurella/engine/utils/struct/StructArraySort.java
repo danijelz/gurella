@@ -26,7 +26,6 @@ import java.util.Comparator;
  * holds the state of an ongoing sort, assuming the input array is large enough to warrant the full-blown TimSort. Small
  * arrays are sorted in place, using a binary insertion sort.
  */
-//TODO c.comapre must be called with temp structs
 public class StructArraySort<T extends Struct> {
 	private static final int MIN_MERGE = 32;
 	private static final int MIN_GALLOP = 7;
@@ -37,6 +36,7 @@ public class StructArraySort<T extends Struct> {
 	private int minGallop = MIN_GALLOP;
 
 	private StructArray<T> tmpa;
+	private T tmp;
 	private int tmpCount;
 	private int stackSize = 0;
 
@@ -44,7 +44,9 @@ public class StructArraySort<T extends Struct> {
 	private final int[] runLen;
 
 	public StructArraySort(Class<T> type) {
-		tmpa = new StructArray<T>(type, INITIAL_TMP_STORAGE_LENGTH);
+		StructType<T> structType = StructType.get(type);
+		tmpa = new StructArray<T>(structType, INITIAL_TMP_STORAGE_LENGTH);
+		tmp = structType.newInstance(null, 0);
 		runBase = new int[40];
 		runLen = new int[40];
 	}
@@ -109,7 +111,7 @@ public class StructArraySort<T extends Struct> {
 
 			while (left < right) {
 				int mid = (left + right) >>> 1;
-				if (c.compare(a.get(pivot), a.get(mid)) < 0) {
+				if (c.compare(a.get(pivot, tmp), a.get(mid)) < 0) {
 					right = mid;
 				} else {
 					left = mid + 1;
@@ -137,13 +139,13 @@ public class StructArraySort<T extends Struct> {
 			return 1;
 		}
 
-		if (c.compare(a.get(runHi++), a.get(lo)) < 0) { // Descending
-			while (runHi < hi && c.compare(a.get(runHi), a.get(runHi - 1)) < 0) {
+		if (c.compare(a.get(runHi++, tmp), a.get(lo)) < 0) { // Descending
+			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1)) < 0) {
 				runHi++;
 			}
 			reverseRange(lo, runHi);
 		} else { // Ascending
-			while (runHi < hi && c.compare(a.get(runHi), a.get(runHi - 1)) >= 0) {
+			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1)) >= 0) {
 				runHi++;
 			}
 		}
@@ -237,10 +239,10 @@ public class StructArraySort<T extends Struct> {
 	private int gallopLeft(StructArray<T> k, int key, StructArray<T> a, int base, int len, int hint) {
 		int lastOfs = 0;
 		int ofs = 1;
-		if (c.compare(k.get(key), a.get(base + hint)) > 0) {
+		if (c.compare(k.get(key, tmp), a.get(base + hint)) > 0) {
 			int maxOfs = len - hint;
 
-			while (ofs < maxOfs && c.compare(k.get(key), a.get(base + hint + ofs)) > 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs)) > 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -257,7 +259,7 @@ public class StructArraySort<T extends Struct> {
 		} else {
 			final int maxOfs = hint + 1;
 
-			while (ofs < maxOfs && c.compare(k.get(key), a.get(base + hint - ofs)) <= 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs)) <= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -278,7 +280,7 @@ public class StructArraySort<T extends Struct> {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(k.get(key), a.get(base + m)) > 0) {
+			if (c.compare(k.get(key, tmp), a.get(base + m)) > 0) {
 				lastOfs = m + 1; // a[base + m] < key
 			} else {
 				ofs = m; // key <= a[base + m]
@@ -291,10 +293,10 @@ public class StructArraySort<T extends Struct> {
 	private int gallopRight(StructArray<T> k, int key, StructArray<T> a, int base, int len, int hint) {
 		int ofs = 1;
 		int lastOfs = 0;
-		if (c.compare(k.get(key), a.get(base + hint)) < 0) {
+		if (c.compare(k.get(key, tmp), a.get(base + hint)) < 0) {
 			int maxOfs = hint + 1;
 
-			while (ofs < maxOfs && c.compare(k.get(key), a.get(base + hint - ofs)) < 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs)) < 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -313,7 +315,7 @@ public class StructArraySort<T extends Struct> {
 		} else {
 			int maxOfs = len - hint;
 
-			while (ofs < maxOfs && c.compare(k.get(key), a.get(base + hint + ofs)) >= 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs)) >= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -333,7 +335,7 @@ public class StructArraySort<T extends Struct> {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(k.get(key), a.get(base + m)) < 0) {
+			if (c.compare(k.get(key, tmp), a.get(base + m)) < 0) {
 				ofs = m; // key < a[b + m]
 			} else {
 				lastOfs = m + 1; // a[b + m] <= key
@@ -372,7 +374,7 @@ public class StructArraySort<T extends Struct> {
 			int count2 = 0; // Number of times in a row that second run won
 
 			do {
-				if (c.compare(a.get(cursor2), tmpa.get(cursor1)) < 0) {
+				if (c.compare(a.get(cursor2, tmp), tmpa.get(cursor1)) < 0) {
 					a.set(dest++, a.get(cursor2++));
 					count2++;
 					count1 = 0;
@@ -471,7 +473,7 @@ public class StructArraySort<T extends Struct> {
 			 * Do the straightforward thing until (if ever) one run appears to win consistently.
 			 */
 			do {
-				if (c.compare(tmpa.get(cursor2), a.get(cursor1)) < 0) {
+				if (c.compare(tmpa.get(cursor2, tmp), a.get(cursor1)) < 0) {
 					a.set(dest--, a.get(cursor1--));
 					count1++;
 					count2 = 0;

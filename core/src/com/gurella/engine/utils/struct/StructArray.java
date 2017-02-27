@@ -69,10 +69,10 @@ public class StructArray<T extends Struct> {
 		return temp;
 	}
 
-	public T get(int index, T struct) {
-		struct.buffer = buffer;
-		struct.offset = structSize * index;
-		return temp;
+	public T get(int index, T out) {
+		out.buffer = buffer;
+		out.offset = structSize * index;
+		return out;
 	}
 
 	public void remove(int index) {
@@ -124,11 +124,11 @@ public class StructArray<T extends Struct> {
 		return get(index);
 	}
 
-	public T insert(int index, StructArray<T> arr, int count) {
-		int addedItemsOffset = index * structSize;
-		buffer.setFloatArray(arr.buffer.arr, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
+	public T insert(StructArray<T> source, int sourceIndex, int destinationIndex, int count) {
+		int addedItemsOffset = destinationIndex * structSize;
+		buffer.setFloatArray(source.buffer.arr, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
 		length += count;
-		return get(index);
+		return get(sourceIndex);
 	}
 
 	public T insertSafely(int index) {
@@ -146,9 +146,9 @@ public class StructArray<T extends Struct> {
 		return insert(index, count);
 	}
 
-	public T insertSafely(int index, StructArray<T> arr, int count) {
+	public T insertSafely(StructArray<T> source, int sourceIndex, int destinationIndex, int count) {
 		resizeIfNeeded(length + count);
-		return insert(index, arr, count);
+		return insert(source, sourceIndex, destinationIndex, count);
 	}
 
 	public T add() {
@@ -162,12 +162,6 @@ public class StructArray<T extends Struct> {
 		return get(length++);
 	}
 
-	public T add(int count) {
-		int index = length - 1;
-		length += count;
-		return get(index);
-	}
-
 	public T addSafely() {
 		resizeIfNeeded(length + 1);
 		return add();
@@ -178,9 +172,36 @@ public class StructArray<T extends Struct> {
 		return add(value);
 	}
 
+	public T add(int count) {
+		int index = length - 1;
+		length += count;
+		return get(index);
+	}
+
 	public T addSafely(int count) {
 		resizeIfNeeded(length + count);
 		return add(count);
+	}
+
+	public T add(StructArray<T> source, int sourceIndex, int count) {
+		int addedItemsOffset = length * structSize;
+		buffer.setFloatArray(source.buffer.arr, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
+		length += count;
+		return get(sourceIndex);
+	}
+
+	public T addSafely(StructArray<T> source, int sourceIndex, int count) {
+		resizeIfNeeded(length + count);
+		return add(source, sourceIndex, count);
+	}
+
+	public T addAll(StructArray<T> source) {
+		return add(source, 0, source.length);
+	}
+
+	public T addAllSafely(StructArray<T> source) {
+		resizeIfNeeded(length + source.length);
+		return addAll(source);
 	}
 
 	// TODO public T addSafely(int index, StructArray<T> arr, int count) {
