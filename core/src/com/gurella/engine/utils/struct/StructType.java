@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.engine.utils.struct.StructProperty.Alignment;
 import com.gurella.engine.utils.struct.StructProperty.ByteStructProperty;
 import com.gurella.engine.utils.struct.StructProperty.ComplexStructProperty;
 import com.gurella.engine.utils.struct.StructProperty.FloatArrayStructProperty;
@@ -91,7 +90,9 @@ public class StructType<T extends Struct> {
 		for (int i = 0, n = fields.length; i < n; i++) {
 			Field field = fields[i];
 			if (isPropertyField(field)) {
-				declaredProperties.add(Reflection.<StructProperty> getFieldValue(field, null));
+				StructProperty structProperty = Reflection.getFieldValue(field, null);
+				structProperty.name = field.getName();
+				declaredProperties.add(structProperty);
 			}
 		}
 
@@ -107,17 +108,17 @@ public class StructType<T extends Struct> {
 		return new StructType<T>(type, declaredProperties, properties);
 	}
 
-	private static Alignment getAlignment(int offset) {
+	private static byte getAlignment(int offset) {
 		int mod = offset % 4;
 		switch (mod) {
 		case 1:
-			return Alignment._1;
+			return 1;
 		case 2:
-			return Alignment._2;
+			return 2;
 		case 3:
-			return Alignment._3;
+			return 3;
 		default:
-			return Alignment._0;
+			return 0;
 		}
 	}
 
@@ -240,7 +241,7 @@ public class StructType<T extends Struct> {
 		System.out.println(testStruct.getProperty5());
 		System.out.println(Arrays.toString(testStruct.getProperty6()));
 		System.out.println("\n\n");
-		
+
 		StructArray<TestStruct2> arr2 = new StructArray<TestStruct2>(TestStruct2.class, 3);
 		TestStruct2 testStruct2 = arr2.get(0);
 		TestStruct val = TestStruct2.property7.get(testStruct2);
@@ -250,7 +251,7 @@ public class StructType<T extends Struct> {
 		val.setProperty4(4);
 		val.setProperty5((byte) 5);
 		val.setProperty6(new float[] { 6.0f, 7.0f });
-		
+
 		System.out.println(val.getProperty1());
 		System.out.println(val.getProperty2());
 		System.out.println(val.getProperty3());

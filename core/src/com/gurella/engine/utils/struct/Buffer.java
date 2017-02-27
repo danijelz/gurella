@@ -55,6 +55,17 @@ public class Buffer {
 		Arrays.fill(buffer, offset, offset + count, val);
 	}
 
+	public void move(int sourceOffset, int destOffset, int count) {
+		System.arraycopy(buffer, sourceOffset, buffer, destOffset, count);
+	}
+
+	public void set(Buffer other) {
+		int otherLength = other.buffer.length;
+		int length = buffer.length;
+		ensureCapacity(otherLength - length);
+		System.arraycopy(buffer, 0, other.buffer, 0, Math.min(otherLength, length));
+	}
+
 	//////// float
 
 	public float getFloat(int offset) {
@@ -66,6 +77,11 @@ public class Buffer {
 	}
 
 	//////// float[]
+
+	public float[] getFloatArray(int offset, float[] destination) {
+		System.arraycopy(buffer, offset, destination, 0, destination.length);
+		return destination;
+	}
 
 	public float[] getFloatArray(int offset, float[] destination, int destinationOffset, int length) {
 		System.arraycopy(buffer, offset, destination, destinationOffset, length);
@@ -152,7 +168,37 @@ public class Buffer {
 	public void setShort2(int offset, short value) {
 		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
-		buffer[offset + 1] = intBitsToFloat(i | value);
+		buffer[offset] = intBitsToFloat(i | value);
+	}
+
+	///////// char
+
+	public char getChar(int offset) {
+		return (char) floatToRawIntBits(buffer[offset]);
+	}
+
+	public void setChar(int offset, char value) {
+		buffer[offset] = intBitsToFloat(value);
+	}
+
+	public char getChar0(int offset) {
+		return (char) (floatToRawIntBits(buffer[offset]) >> 16);
+	}
+
+	public void setChar0(int offset, char value) {
+		float[] buffer = this.buffer;
+		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 16));
+	}
+
+	public char getChar2(int offset) {
+		return (char) floatToRawIntBits(buffer[offset]);
+	}
+
+	public void setChar2(int offset, char value) {
+		float[] buffer = this.buffer;
+		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
+		buffer[offset] = intBitsToFloat(i | value);
 	}
 
 	//////// byte
@@ -165,41 +211,41 @@ public class Buffer {
 		buffer[offset] = intBitsToFloat(value);
 	}
 
+	public byte getByte0(int offset) {
+		return (byte) (floatToRawIntBits(buffer[offset]) >> 24);
+	}
+
+	public void setByte0(int offset, byte value) {
+		float[] buffer = this.buffer;
+		int i = floatToRawIntBits(buffer[offset]) & 0x00FFFFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 24));
+	}
+
 	public byte getByte1(int offset) {
 		return (byte) (floatToRawIntBits(buffer[offset]) >> 24);
 	}
 
 	public void setByte1(int offset, byte value) {
 		float[] buffer = this.buffer;
-		int i = floatToRawIntBits(buffer[offset]) & 0x00FFFFFF;
-		buffer[offset] = intBitsToFloat(i | (value << 24));
-	}
-
-	public byte getByte2(int offset) {
-		return (byte) (floatToRawIntBits(buffer[offset]) >> 24);
-	}
-
-	public void setByte2(int offset, byte value) {
-		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFF00FFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
 
-	public byte getByte3(int offset) {
+	public byte getByte2(int offset) {
 		return (byte) (floatToRawIntBits(buffer[offset]) >> 16);
 	}
 
-	public void setByte3(int offset, byte value) {
+	public void setByte2(int offset, byte value) {
 		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF00FF;
 		buffer[offset] = intBitsToFloat(i | (value << 8));
 	}
 
-	public byte getByte4(int offset) {
+	public byte getByte3(int offset) {
 		return (byte) (floatToRawIntBits(buffer[offset]) >> 8);
 	}
 
-	public void setByte4(int offset, byte value) {
+	public void setByte3(int offset, byte value) {
 		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFFFF00;
 		buffer[offset] = intBitsToFloat(i | value);

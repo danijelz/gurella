@@ -5,27 +5,40 @@ import com.gurella.engine.utils.Reflection;
 public class StructArray<T extends Struct> {
 	private final Buffer buffer;
 
-	private int capacity;
-	private int size;
-
-	private final T temp;
+	private final StructType<T> structType;
 	private final int structSize;
 
-	public StructArray(Class<T> type, int initialSize) {
-		this(StructType.get(type), initialSize);
+	private int capacity;
+	private int length;
+
+	private final T temp;
+
+	public StructArray(Class<T> type, int initialCapacity) {
+		this(StructType.get(type), initialCapacity);
 	}
 
-	public StructArray(StructType<T> structType, int initialSize) {
-		capacity = structType.size * initialSize;
-		buffer = new Buffer(capacity);
+	public StructArray(StructType<T> structType, int initialCapacity) {
+		buffer = new Buffer(structType.size * initialCapacity);
+
+		this.structType = structType;
+		structSize = structType.size;
+
+		capacity = initialCapacity;
 
 		temp = Reflection.newInstance(structType.type);
 		temp.buffer = buffer;
-		structSize = structType.size;
 	}
 
-	public int size() {
-		return size;
+	public StructType<T> getStructType() {
+		return structType;
+	}
+
+	public int getStructSize() {
+		return structSize;
+	}
+
+	public int length() {
+		return length;
 	}
 
 	private void resizeIfNeeded(int newCapacity) {
@@ -51,88 +64,110 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void remove(int index) {
-		float[] buffer = this.buffer.buffer;
-		int lastItemOffset = size * structSize;
+		int lastItemOffset = length * structSize;
 		int removedItemOffset = index * structSize;
-		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, structSize);
-		size--;
+		buffer.move(lastItemOffset, removedItemOffset, structSize);
+		length--;
 	}
 
 	public void removeOrdered(int index) {
-		float[] buffer = this.buffer.buffer;
 		int removedItemOffset = index * structSize;
 		int nextItemOffset = removedItemOffset + structSize;
-		int length = (size - index) * structSize;
-		System.arraycopy(buffer, nextItemOffset, buffer, removedItemOffset, length);
-		size--;
+		buffer.move(nextItemOffset, removedItemOffset, (length - index) * structSize);
+		length--;
 	}
 
 	public void remove(int index, int count) {
-		float[] buffer = this.buffer.buffer;
-		int lastItemsOffset = (size - count) * structSize;
+		int lastItemsOffset = (length - count) * structSize;
 		int removedItemOffset = index * structSize;
-		System.arraycopy(buffer, lastItemsOffset, buffer, removedItemOffset, count * structSize);
-		size -= count;
+		buffer.move(lastItemsOffset, removedItemOffset, structSize);
+		length -= count;
 	}
 
 	public void removeOrdered(int index, int count) {
-		float[] buffer = this.buffer.buffer;
 		int removedItemOffset = index * structSize;
 		int nextItemsOffset = removedItemOffset + (count * structSize);
-		int length = (size - index - count) * structSize;
-		System.arraycopy(buffer, nextItemsOffset, buffer, removedItemOffset, length);
-		size -= count;
+		buffer.move(nextItemsOffset, removedItemOffset, (length - index - count) * structSize);
+		length -= count;
 	}
 
-	public void insert(int index) {
-		float[] buffer = this.buffer.buffer;
+	public T insert(int index) {
 		int addedItemOffset = index * structSize;
-		int length = (size - index) * structSize;
-		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + structSize, length);
-		size++;
+		buffer.move(addedItemOffset, addedItemOffset + structSize, (length - index) * structSize);
+		length++;
+		return get(index);
 	}
 
-	public void insert(int index, int count) {
-		float[] buffer = this.buffer.buffer;
+	public T insert(int index, T value) {
 		int addedItemOffset = index * structSize;
-		int length = (size - index) * structSize;
-		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + (structSize * count), length);
-		size += count;
+		buffer.setFloatArray(value.buffer.buffer, value.offset, addedItemOffset, structSize);
+		length++;
+		return get(index);
 	}
 
-	public void insertSafely(int index) {
-		resizeIfNeeded(size + 1);
-		float[] buffer = this.buffer.buffer;
-		int addedItemOffset = index * structSize;
-		int length = (size - index) * structSize;
-		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + structSize, length);
-		size++;
+	public T insert(int index, int count) {
+		int addedItemsOffset = index * structSize;
+		buffer.move(addedItemsOffset, addedItemsOffset + (structSize * count), (length - index) * structSize);
+		length += count;
+		return get(index);
 	}
 
-	public void insertSafely(int index, int count) {
-		resizeIfNeeded(size + count);
-		float[] buffer = this.buffer.buffer;
-		int addedItemOffset = index * structSize;
-		int length = (size - index) * structSize;
-		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + (structSize * count), length);
-		size += count;
+	public T insert(int index, StructArray<T> arr, int count) {
+		int addedItemsOffset = index * structSize;
+		buffer.setFloatArray(arr.buffer.buffer, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
+		length += count;
+		return get(index);
 	}
 
-	public void add() {
-		size++;
+	public T insertSafely(int index) {
+		resizeIfNeeded(length + 1);
+		return insert(index);
 	}
 
-	public void add(int count) {
-		size += count;
+	public T insertSafely(int index, int count) {
+		resizeIfNeeded(length + count);
+		return insert(index, count);
 	}
 
-	public void addSafely() {
-		resizeIfNeeded(size + 1);
-		size++;
+	public T add() {
+		length++;
+		return get(length - 1);
 	}
 
-	public void addSafely(int count) {
-		resizeIfNeeded(size + count);
-		size += count;
+	public T add(int count) {
+		int index = length - 1;
+		length += count;
+		return get(index);
 	}
+
+	public T addSafely() {
+		resizeIfNeeded(length + 1);
+		return add();
+	}
+
+	public T addSafely(int count) {
+		resizeIfNeeded(length + count);
+		return add(count);
+	}
+
+	public T pop() {
+		length = Math.max(0, length - 1);
+		return get(length);
+	}
+
+	public void clear() {
+		length = 0;
+	}
+
+	public void shrink() {
+		resize(length);
+	}
+
+	public void truncate(int newCapacity) {
+		if (capacity < newCapacity) {
+			resize(newCapacity);
+		}
+	}
+
+	// TODO sort, sortRange
 }
