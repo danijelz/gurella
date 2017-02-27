@@ -26,6 +26,7 @@ import java.util.Comparator;
  * holds the state of an ongoing sort, assuming the input array is large enough to warrant the full-blown TimSort. Small
  * arrays are sorted in place, using a binary insertion sort.
  */
+//TODO c.comapre must be called with temp structs
 public class StructArraySort<T extends Struct> {
 	private static final int MIN_MERGE = 32;
 	private static final int MIN_GALLOP = 7;

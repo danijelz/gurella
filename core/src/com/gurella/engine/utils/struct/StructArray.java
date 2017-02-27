@@ -1,6 +1,9 @@
 package com.gurella.engine.utils.struct;
 
-import com.gurella.engine.utils.Reflection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class StructArray<T extends Struct> {
 	private final Buffer buffer;
@@ -13,20 +16,18 @@ public class StructArray<T extends Struct> {
 
 	private final T temp;
 
+	private StructArrayIterator<T> iterator1, iterator2;
+
 	public StructArray(Class<T> type, int initialCapacity) {
 		this(StructType.get(type), initialCapacity);
 	}
 
 	public StructArray(StructType<T> structType, int initialCapacity) {
-		buffer = new Buffer(structType.size * initialCapacity);
-
 		this.structType = structType;
+		buffer = new Buffer(structType.size * initialCapacity);
 		structSize = structType.size;
-
 		capacity = initialCapacity;
-
-		temp = Reflection.newInstance(structType.type);
-		temp.buffer = buffer;
+		temp = structType.newInstance(buffer, 0);
 	}
 
 	public StructType<T> getStructType() {
@@ -204,6 +205,26 @@ public class StructArray<T extends Struct> {
 		}
 	}
 
+	public Iterator<T> iterator() {
+		if (iterator1 == null) {
+			iterator1 = new StructArrayIterator<T>(this, true);
+			iterator2 = new StructArrayIterator<T>(this, true);
+		}
+
+		if (!iterator1.valid) {
+			iterator1.index = 0;
+			iterator1.valid = true;
+			iterator2.valid = false;
+			return iterator1;
+		}
+
+		iterator2.index = 0;
+		iterator2.valid = true;
+		iterator1.valid = false;
+
+		return iterator2;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -218,5 +239,65 @@ public class StructArray<T extends Struct> {
 		return builder.toString();
 	}
 
-	// TODO sort, sortRange Iterator
+	// TODO sort, sortRange
+
+	public static class StructArrayIterator<T extends Struct> implements Iterator<T>, Iterable<T> {
+		private final StructArray<T> array;
+		private final boolean allowRemove;
+		private int index;
+		private boolean valid = true;
+
+		private final T temp;
+
+		public StructArrayIterator(StructArray<T> array) {
+			this(array, true);
+		}
+
+		public StructArrayIterator(StructArray<T> array, boolean allowRemove) {
+			this.array = array;
+			this.allowRemove = allowRemove;
+			temp = array.structType.newInstance(array.buffer, 0);
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (!valid) {
+				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
+
+			return index < array.length;
+		}
+
+		@Override
+		public T next() {
+			if (index >= array.length) {
+				throw new NoSuchElementException(String.valueOf(index));
+			}
+
+			if (!valid) {
+				throw new RuntimeException("#iterator() cannot be used nested.");
+			}
+
+			return array.get(index++, temp);
+		}
+
+		@Override
+		public void remove() {
+			if (!allowRemove) {
+				throw new RuntimeException("Remove not allowed.");
+			}
+
+			index--;
+			array.remove(index);
+		}
+
+		public void reset() {
+			index = 0;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return this;
+		}
+	}
 }
