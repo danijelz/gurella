@@ -239,5 +239,23 @@ public class StructType<T extends Struct> {
 		System.out.println(testStruct.getProperty4());
 		System.out.println(testStruct.getProperty5());
 		System.out.println(Arrays.toString(testStruct.getProperty6()));
+		System.out.println("\n\n");
+		
+		StructArray<TestStruct2> arr2 = new StructArray<TestStruct2>(TestStruct2.class, 3);
+		TestStruct2 testStruct2 = arr2.get(0);
+		TestStruct val = TestStruct2.property7.get(testStruct2);
+		val.setProperty1((short) 1);
+		val.setProperty2((byte) 2);
+		val.setProperty3((short) 3);
+		val.setProperty4(4);
+		val.setProperty5((byte) 5);
+		val.setProperty6(new float[] { 6.0f, 7.0f });
+		
+		System.out.println(val.getProperty1());
+		System.out.println(val.getProperty2());
+		System.out.println(val.getProperty3());
+		System.out.println(val.getProperty4());
+		System.out.println(val.getProperty5());
+		System.out.println(Arrays.toString(val.getProperty6()));
 	}
 }
