@@ -2,7 +2,7 @@ package com.gurella.engine.utils.struct;
 
 public interface IBuffer {
 	int getCapacity();
-	
+
 	void ensureCapacity(int additionalCapacity);
 
 	public void resize(int newBufferSize);
@@ -14,8 +14,6 @@ public interface IBuffer {
 	public void fill(int offset, int count, float val);
 
 	public void move(int sourceOffset, int destOffset, int count);
-
-	public void set(IBuffer other);
 
 	public float getFloat(int offset);
 
