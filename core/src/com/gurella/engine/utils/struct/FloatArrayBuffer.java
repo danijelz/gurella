@@ -5,63 +5,12 @@ import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 import static java.lang.Float.intBitsToFloat;
 
-public class Buffer {
-	public float[] arr;
-
-	public Buffer(int byteCapacity) {
-		this.arr = new float[byteCapacity / 4];
+public class FloatArrayBuffer extends BaseBuffer {
+	public FloatArrayBuffer(int byteCapacity) {
+		super(byteCapacity);
 	}
 
-	public int getCapacity() {
-		return arr.length * 4;
-	}
-
-	public void ensureCapacity(int additionalByteCapacity) {
-		int bufferSize = arr.length;
-		int newBufferSize = bufferSize + additionalByteCapacity / 4;
-		if (newBufferSize > bufferSize) {
-			_resize(Math.max(8, newBufferSize));
-		}
-	}
-
-	public void resize(int newByteCapacity) {
-		_resize(newByteCapacity / 4);
-	}
-
-	private void _resize(int newCapacity) {
-		float[] buffer = this.arr;
-		float[] newBuffer = new float[newCapacity];
-		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(buffer.length, newCapacity));
-		this.arr = newBuffer;
-	}
-
-	public void swap(int firstIndex, int secondIndex, int byteLength) {
-		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
-		float word;
-		for (int i = 0, n = byteLength / 4; i < n; i++) {
-			word = buffer[firstOffset];
-			buffer[firstOffset++] = buffer[secondOffset];
-			buffer[secondOffset++] = word;
-		}
-	}
-
-	public void swap(int firstIndex, int secondIndex, float[] temp) {
-		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
-		int length = temp.length;
-		getFloatArray(firstOffset, temp, 0, length);
-		System.arraycopy(buffer, secondOffset, buffer, firstOffset, length);
-		setFloatArray(secondOffset, temp, length);
-	}
-
-	public void move(int sourceOffset, int destOffset, int byteLength) {
-		System.arraycopy(arr, sourceOffset / 4, arr, destOffset / 4, byteLength / 4);
-	}
-
-	public void set(Buffer other) {
+	public void set(FloatArrayBuffer other) {
 		int otherLength = other.arr.length;
 		int length = arr.length;
 		ensureCapacity(otherLength - length);
@@ -70,32 +19,38 @@ public class Buffer {
 
 	//////// float
 
+	@Override
 	public float getFloat(int offset) {
 		return arr[offset / 4];
 	}
 
+	@Override
 	public void setFloat(int offset, float value) {
 		arr[offset / 4] = value;
 	}
 
 	/////////// int
 
+	@Override
 	public int getInt(int offset) {
 		return floatToRawIntBits(arr[offset / 4]);
 	}
 
+	@Override
 	public void setInt(int offset, int value) {
 		arr[offset / 4] = intBitsToFloat(value);
 	}
 
 	////////// long
 
+	@Override
 	public long getLong(int offset) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
 		return (long) floatToRawIntBits(buffer[temp++]) << 32 | floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
 	}
 
+	@Override
 	public void setLong(int offset, long value) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -105,6 +60,7 @@ public class Buffer {
 
 	///////// double
 
+	@Override
 	public double getDouble(int offset) {
 		float[] buffer = this.arr;
 		int temp = offset / 4;
@@ -113,6 +69,7 @@ public class Buffer {
 		return longBitsToDouble(hi | lo);
 	}
 
+	@Override
 	public void setDouble(int offset, double value) {
 		long l = doubleToRawLongBits(value);
 		float[] buffer = this.arr;
@@ -123,6 +80,7 @@ public class Buffer {
 
 	///////// short
 
+	@Override
 	public short getShort(int offset) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -137,6 +95,7 @@ public class Buffer {
 		}
 	}
 
+	@Override
 	public void setShort(int offset, short value) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -159,6 +118,7 @@ public class Buffer {
 
 	///////// char
 
+	@Override
 	public char getChar(int offset) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -173,6 +133,7 @@ public class Buffer {
 		}
 	}
 
+	@Override
 	public void setChar(int offset, char value) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -195,6 +156,7 @@ public class Buffer {
 
 	//////// byte
 
+	@Override
 	public byte getByte(int offset) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -213,6 +175,7 @@ public class Buffer {
 		}
 	}
 
+	@Override
 	public void setByte(int offset, byte value) {
 		int temp = offset / 4;
 		float[] buffer = this.arr;
@@ -245,10 +208,12 @@ public class Buffer {
 
 	//////// flag
 
+	@Override
 	public boolean getFlag(int offset, int flag) {
 		return (floatToRawIntBits(arr[offset / 4]) & (1 << flag)) != 0;
 	}
 
+	@Override
 	public void setFlag(int offset, int flag) {
 		float[] buffer = this.arr;
 		int temp = offset / 4;
@@ -256,34 +221,11 @@ public class Buffer {
 		buffer[temp] = intBitsToFloat(value | (1 << flag));
 	}
 
+	@Override
 	public void unsetFlag(int offset, int flag) {
 		float[] buffer = this.arr;
 		int temp = offset / 4;
 		int value = floatToRawIntBits(buffer[temp]);
 		buffer[temp] = intBitsToFloat(value & ~(1 << flag));
-	}
-
-	//////// float[]
-
-	public float[] getFloatArray(int offset, float[] destination) {
-		System.arraycopy(arr, offset / 4, destination, 0, destination.length);
-		return destination;
-	}
-
-	public float[] getFloatArray(int offset, float[] destination, int destOffset, int length) {
-		System.arraycopy(arr, offset / 4, destination, destOffset / 4, length);
-		return destination;
-	}
-
-	public void setFloatArray(int offset, float[] source) {
-		System.arraycopy(source, 0, arr, offset / 4, source.length);
-	}
-
-	public void setFloatArray(int offset, float[] source, int length) {
-		System.arraycopy(source, 0, arr, offset / 4, length);
-	}
-
-	public void setFloatArray(float[] source, int sourceOffset, int destOffset, int length) {
-		System.arraycopy(source, sourceOffset / 4, arr, destOffset / 4, length);
 	}
 }

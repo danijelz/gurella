@@ -10,13 +10,13 @@ import com.gurella.engine.utils.struct.StructProperty.Matrix4StructProperty;
 import com.gurella.engine.utils.struct.StructProperty.Vector3StructProperty;
 
 public abstract class Struct {
-	Buffer buffer;
+	UnsafeBuffer buffer;
 	int offset;
 
 	protected Struct() {
 	}
 
-	public Struct(Buffer buffer, int offset) {
+	public Struct(UnsafeBuffer buffer, int offset) {
 		this.offset = offset;
 		this.buffer = buffer;
 	}
@@ -165,7 +165,7 @@ public abstract class Struct {
 
 		System.out.println("\n\n--------------------------------------------\\n");
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 3; i++) {
 			TestClass testClass = tc[i];
 			TestStruct testStruct = sa.get(i);
 
