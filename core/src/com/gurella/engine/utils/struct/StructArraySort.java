@@ -42,6 +42,7 @@ public class StructArraySort<T extends Struct> {
 
 	private StructArray<T> tmpa;
 	private T tmp;
+	private T tmp1;
 	private int tmpCount;
 	private int stackSize = 0;
 
@@ -55,6 +56,7 @@ public class StructArraySort<T extends Struct> {
 	public StructArraySort(StructType<T> structType) {
 		tmpa = new StructArray<T>(structType, INITIAL_TMP_STORAGE_LENGTH);
 		tmp = structType.newInstance(new FloatArrayBuffer(structType.size), 0);
+		tmp1 = structType.newInstance(new FloatArrayBuffer(structType.size), 0);
 		runBase = new int[40];
 		runLen = new int[40];
 	}
@@ -116,14 +118,14 @@ public class StructArraySort<T extends Struct> {
 
 		for (; start < hi; start++) {
 			int pivot = start;
-			tmpa.set(0, a.get(pivot));
+			tmpa.set(0, a.get(pivot, tmp1));
 
 			int left = lo;
 			int right = start;
 
 			while (left < right) {
 				int mid = (left + right) >>> 1;
-				if (c.compare(a.get(pivot, tmp), a.get(mid)) < 0) {
+				if (c.compare(a.get(pivot, tmp), a.get(mid, tmp1)) < 0) {
 					right = mid;
 				} else {
 					left = mid + 1;
@@ -141,7 +143,7 @@ public class StructArraySort<T extends Struct> {
 				a.set(a, left, left + 1, n);
 			}
 
-			a.set(left, tmpa.get(0));
+			a.set(left, tmpa.get(0, tmp1));
 		}
 	}
 
@@ -151,13 +153,13 @@ public class StructArraySort<T extends Struct> {
 			return 1;
 		}
 
-		if (c.compare(a.get(runHi++, tmp), a.get(lo)) < 0) { // Descending
-			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1)) < 0) {
+		if (c.compare(a.get(runHi++, tmp), a.get(lo, tmp1)) < 0) { // Descending
+			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1, tmp1)) < 0) {
 				runHi++;
 			}
 			reverseRange(lo, runHi);
 		} else { // Ascending
-			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1)) >= 0) {
+			while (runHi < hi && c.compare(a.get(runHi, tmp), a.get(runHi - 1, tmp1)) >= 0) {
 				runHi++;
 			}
 		}
@@ -251,10 +253,10 @@ public class StructArraySort<T extends Struct> {
 	private int gallopLeft(StructArray<T> k, int key, StructArray<T> a, int base, int len, int hint) {
 		int lastOfs = 0;
 		int ofs = 1;
-		if (c.compare(k.get(key, tmp), a.get(base + hint)) > 0) {
+		if (c.compare(k.get(key, tmp), a.get(base + hint, tmp1)) > 0) {
 			int maxOfs = len - hint;
 
-			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs)) > 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs, tmp1)) > 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -271,7 +273,7 @@ public class StructArraySort<T extends Struct> {
 		} else {
 			final int maxOfs = hint + 1;
 
-			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs)) <= 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs, tmp1)) <= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -292,7 +294,7 @@ public class StructArraySort<T extends Struct> {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(k.get(key, tmp), a.get(base + m)) > 0) {
+			if (c.compare(k.get(key, tmp), a.get(base + m, tmp1)) > 0) {
 				lastOfs = m + 1; // a[base + m] < key
 			} else {
 				ofs = m; // key <= a[base + m]
@@ -305,10 +307,10 @@ public class StructArraySort<T extends Struct> {
 	private int gallopRight(StructArray<T> k, int key, StructArray<T> a, int base, int len, int hint) {
 		int ofs = 1;
 		int lastOfs = 0;
-		if (c.compare(k.get(key, tmp), a.get(base + hint)) < 0) {
+		if (c.compare(k.get(key, tmp), a.get(base + hint, tmp1)) < 0) {
 			int maxOfs = hint + 1;
 
-			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs)) < 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint - ofs, tmp1)) < 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -327,7 +329,7 @@ public class StructArraySort<T extends Struct> {
 		} else {
 			int maxOfs = len - hint;
 
-			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs)) >= 0) {
+			while (ofs < maxOfs && c.compare(k.get(key, tmp), a.get(base + hint + ofs, tmp1)) >= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -347,7 +349,7 @@ public class StructArraySort<T extends Struct> {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(k.get(key, tmp), a.get(base + m)) < 0) {
+			if (c.compare(k.get(key, tmp), a.get(base + m, tmp1)) < 0) {
 				ofs = m; // key < a[b + m]
 			} else {
 				lastOfs = m + 1; // a[b + m] <= key
@@ -376,7 +378,7 @@ public class StructArraySort<T extends Struct> {
 
 		if (tempLen1 == 1) {
 			a.set(a, cursor2, dest, tempLen2);
-			a.set(dest + tempLen2, tmpa.get(cursor1));
+			a.set(dest + tempLen2, tmpa.get(cursor1, tmp1));
 			return;
 		}
 
@@ -386,15 +388,15 @@ public class StructArraySort<T extends Struct> {
 			int count2 = 0; // Number of times in a row that second run won
 
 			do {
-				if (c.compare(a.get(cursor2, tmp), tmpa.get(cursor1)) < 0) {
-					a.set(dest++, a.get(cursor2++));
+				if (c.compare(a.get(cursor2, tmp), tmpa.get(cursor1, tmp1)) < 0) {
+					a.set(dest++, a.get(cursor2++, tmp1));
 					count2++;
 					count1 = 0;
 					if (--tempLen2 == 0) {
 						break outer;
 					}
 				} else {
-					a.set(dest++, tmpa.get(cursor1++));
+					a.set(dest++, tmpa.get(cursor1++, tmp1));
 					count1++;
 					count2 = 0;
 					if (--tempLen1 == 1) {
@@ -429,7 +431,7 @@ public class StructArraySort<T extends Struct> {
 						break outer;
 					}
 				}
-				a.set(dest++, tmpa.get(cursor1++));
+				a.set(dest++, tmpa.get(cursor1++, tmp1));
 				if (--tempLen1 == 1) {
 					break outer;
 				}
@@ -443,7 +445,7 @@ public class StructArraySort<T extends Struct> {
 
 		if (tempLen1 == 1) {
 			a.set(a, cursor2, dest, tempLen2);
-			a.set(dest + tempLen2, tmpa.get(cursor1));
+			a.set(dest + tempLen2, tmpa.get(cursor1, tmp1));
 		} else if (tempLen1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
@@ -472,7 +474,7 @@ public class StructArraySort<T extends Struct> {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
 			a.set(a, cursor1 + 1, dest + 1, tempLen1);
-			a.set(dest, tmpa.get(cursor2));
+			a.set(dest, tmpa.get(cursor2, tmp1));
 			return;
 		}
 
@@ -485,15 +487,15 @@ public class StructArraySort<T extends Struct> {
 			 * Do the straightforward thing until (if ever) one run appears to win consistently.
 			 */
 			do {
-				if (c.compare(tmpa.get(cursor2, tmp), a.get(cursor1)) < 0) {
-					a.set(dest--, a.get(cursor1--));
+				if (c.compare(tmpa.get(cursor2, tmp), a.get(cursor1, tmp1)) < 0) {
+					a.set(dest--, a.get(cursor1--, tmp1));
 					count1++;
 					count2 = 0;
 					if (--tempLen1 == 0) {
 						break outer;
 					}
 				} else {
-					a.set(dest--, tmpa.get(cursor2--));
+					a.set(dest--, tmpa.get(cursor2--, tmp1));
 					count2++;
 					count1 = 0;
 					if (--tempLen2 == 1) {
@@ -514,7 +516,7 @@ public class StructArraySort<T extends Struct> {
 					}
 				}
 
-				a.set(dest--, tmpa.get(cursor2--));
+				a.set(dest--, tmpa.get(cursor2--, tmp1));
 				if (--tempLen2 == 1) {
 					break outer;
 				}
@@ -549,7 +551,7 @@ public class StructArraySort<T extends Struct> {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
 			a.set(a, cursor1 + 1, dest + 1, tempLen1);
-			a.set(dest, tmpa.get(cursor2));
+			a.set(dest, tmpa.get(cursor2, tmp1));
 		} else if (tempLen2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {

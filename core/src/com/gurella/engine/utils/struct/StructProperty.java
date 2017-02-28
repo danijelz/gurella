@@ -254,6 +254,12 @@ public abstract class StructProperty {
 			return temp;
 		}
 
+		public T get(Struct struct, T out) {
+			int sourceOffset = struct.offset + offset;
+			out.buffer.set(struct.buffer, sourceOffset, out.offset, size);
+			return out;
+		}
+		
 		public void set(Struct struct, T value) {
 			struct.buffer.setFloatArray(value.buffer.arr, value.offset, struct.offset + offset, size);
 		}
@@ -296,8 +302,8 @@ public abstract class StructProperty {
 		}
 
 		public T get(Struct struct, int index, T out) {
-			out.buffer = struct.buffer;
-			out.offset = struct.offset + offset + structType.size * index;
+			int sourceOffset = struct.offset + offset + size * index;
+			out.buffer.set(struct.buffer, sourceOffset, out.offset, size);
 			return out;
 		}
 

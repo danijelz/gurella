@@ -70,8 +70,14 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T get(int index, T out) {
-		//TODO out.buffer = buffer;
-		out.offset = structSize * index;
+		if (out.buffer == null) {
+			out.buffer = buffer;
+			out.offset = structSize * index;
+		} else if (out.buffer == buffer) {
+			out.offset = structSize * index;
+		} else {
+			out.buffer.setFloatArray(buffer.arr, structSize * index, out.offset, structSize / 4);
+		}
 		return out;
 	}
 
@@ -185,7 +191,7 @@ public class StructArray<T extends Struct> {
 
 	public T add(StructArray<T> source, int sourceIndex, int count) {
 		int destOffset = length * structSize;
-		buffer.setFloatArray(source.buffer.arr, sourceIndex * structSize, destOffset , (structSize * count) / 4);
+		buffer.setFloatArray(source.buffer.arr, sourceIndex * structSize, destOffset, (structSize * count) / 4);
 		length += count;
 		return get(sourceIndex);
 	}
@@ -220,9 +226,6 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void set(int index, T value) {
-		if(value.buffer == null) {
-			System.out.println("value.buffer is null");
-		}
 		buffer.setFloatArray(value.buffer.arr, value.offset, index * structSize, structSize);
 	}
 
