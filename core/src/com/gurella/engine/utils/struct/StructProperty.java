@@ -327,7 +327,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector2 get(Struct struct) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			temp.x = buffer.getFloat(tempOffset);
 			temp.y = buffer.getFloat(tempOffset + 4);
@@ -335,7 +335,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector2 get(Struct struct, Vector2 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
@@ -343,7 +343,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, Vector2 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
@@ -369,7 +369,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector2 get(Struct struct, int index) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
 			temp.x = buffer.getFloat(tempOffset);
 			temp.y = buffer.getFloat(tempOffset + 4);
@@ -377,7 +377,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector2 get(Struct struct, int index, Vector2 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
@@ -385,7 +385,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, int index, Vector2 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 8 * index;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
@@ -414,7 +414,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector3 get(Struct struct) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			temp.x = buffer.getFloat(tempOffset);
 			temp.y = buffer.getFloat(tempOffset + 4);
@@ -423,7 +423,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector3 get(Struct struct, Vector3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
@@ -432,7 +432,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, Vector3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
@@ -459,7 +459,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector3 get(Struct struct, int index) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			temp.x = buffer.getFloat(tempOffset);
 			temp.y = buffer.getFloat(tempOffset + 4);
@@ -468,7 +468,7 @@ public abstract class StructProperty {
 		}
 
 		public Vector3 get(Struct struct, int index, Vector3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
@@ -477,7 +477,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, int index, Vector3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
@@ -507,7 +507,7 @@ public abstract class StructProperty {
 		}
 
 		public GridPoint3 get(Struct struct) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			temp.x = buffer.getInt(tempOffset);
 			temp.y = buffer.getInt(tempOffset + 4);
@@ -516,7 +516,7 @@ public abstract class StructProperty {
 		}
 
 		public GridPoint3 get(Struct struct, GridPoint3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			out.x = buffer.getInt(tempOffset);
 			out.y = buffer.getInt(tempOffset + 4);
@@ -525,7 +525,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, GridPoint3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset;
 			buffer.setInt(tempOffset, value.x);
 			buffer.setInt(tempOffset + 4, value.y);
@@ -552,7 +552,7 @@ public abstract class StructProperty {
 		}
 
 		public GridPoint3 get(Struct struct, int index) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			temp.x = buffer.getInt(tempOffset);
 			temp.y = buffer.getInt(tempOffset + 4);
@@ -561,7 +561,7 @@ public abstract class StructProperty {
 		}
 
 		public GridPoint3 get(Struct struct, int index, GridPoint3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			out.x = buffer.getInt(tempOffset);
 			out.y = buffer.getInt(tempOffset + 4);
@@ -570,7 +570,7 @@ public abstract class StructProperty {
 		}
 
 		public void set(Struct struct, int index, GridPoint3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			int tempOffset = struct.offset + offset + 12 * index;
 			buffer.setInt(tempOffset, value.x);
 			buffer.setInt(tempOffset + 4, value.y);
@@ -600,19 +600,19 @@ public abstract class StructProperty {
 		}
 
 		public Matrix3 get(Struct struct) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset, temp.val);
 			return temp;
 		}
 
 		public Matrix3 get(Struct struct, Matrix3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset, out.val);
 			return out;
 		}
 
 		public void set(Struct struct, Matrix3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.setFloatArray(value.val, struct.offset + offset);
 		}
 
@@ -636,19 +636,19 @@ public abstract class StructProperty {
 		}
 
 		public Matrix3 get(Struct struct, int index) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset + 36 * index, temp.val);
 			return temp;
 		}
 
 		public Matrix3 get(Struct struct, int index, Matrix3 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset + 36 * index, out.val);
 			return out;
 		}
 
 		public void set(Struct struct, int index, Matrix3 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.setFloatArray(value.val, struct.offset + offset + 36 * index);
 		}
 
@@ -675,19 +675,19 @@ public abstract class StructProperty {
 		}
 
 		public Matrix4 get(Struct struct) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset, temp.val);
 			return temp;
 		}
 
 		public Matrix4 get(Struct struct, Matrix4 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset, out.val);
 			return out;
 		}
 
 		public void set(Struct struct, Matrix4 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.setFloatArray(value.val, struct.offset + offset);
 		}
 
@@ -711,19 +711,19 @@ public abstract class StructProperty {
 		}
 
 		public Matrix4 get(Struct struct, int index) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset + 64 * index, temp.val);
 			return temp;
 		}
 
 		public Matrix4 get(Struct struct, int index, Matrix4 out) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.getFloatArray(struct.offset + offset + 64 * index, out.val);
 			return out;
 		}
 
 		public void set(Struct struct, int index, Matrix4 value) {
-			UnsafeBuffer buffer = struct.buffer;
+			BaseBuffer buffer = struct.buffer;
 			buffer.setFloatArray(value.val, struct.offset + offset + 64 * index);
 		}
 

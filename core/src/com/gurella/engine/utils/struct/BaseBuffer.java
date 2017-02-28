@@ -30,10 +30,10 @@ public abstract class BaseBuffer {
 		this.arr = newBuffer;
 	}
 
-	public void swap(int firstIndex, int secondIndex, int byteLength) {
+	public void swap(int fromIndex, int toIndex, int byteLength) {
 		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
+		int firstOffset = fromIndex / 4;
+		int secondOffset = toIndex / 4;
 		float word;
 		for (int i = 0, n = byteLength / 4; i < n; i++) {
 			word = buffer[firstOffset];
@@ -42,10 +42,10 @@ public abstract class BaseBuffer {
 		}
 	}
 
-	public void swap(int firstIndex, int secondIndex, float[] temp) {
+	public void swap(int fromIndex, int toIndex, float[] temp) {
 		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
+		int firstOffset = fromIndex / 4;
+		int secondOffset = toIndex / 4;
 		int length = temp.length;
 		getFloatArray(firstOffset, temp, 0, length);
 		System.arraycopy(buffer, secondOffset, buffer, firstOffset, length);
@@ -58,15 +58,15 @@ public abstract class BaseBuffer {
 
 	/////////// buffer
 
-	public void set(BaseBuffer other) {
-		int otherLength = other.arr.length;
+	public void set(BaseBuffer source) {
+		int otherLength = source.arr.length;
 		int length = arr.length;
 		ensureCapacity(otherLength - length);
-		System.arraycopy(arr, 0, other.arr, 0, Math.min(otherLength, length));
+		System.arraycopy(source.arr, 0, arr, 0, Math.min(otherLength, length));
 	}
 
-	public void set(BaseBuffer source, int sourceByteOffset, int destinationByteOffset, int byteLength) {
-		setFloatArray(source.arr, sourceByteOffset, destinationByteOffset, byteLength);
+	public void set(BaseBuffer source, int sourceOffset, int destinationOffset, int byteLength) {
+		System.arraycopy(source.arr, sourceOffset / 4, arr, destinationOffset / 4, byteLength / 4);
 	}
 
 	/////////// float

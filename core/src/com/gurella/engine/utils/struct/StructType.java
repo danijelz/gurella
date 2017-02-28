@@ -49,7 +49,7 @@ public class StructType<T extends Struct> {
 		size = temp + (temp % 4);
 	}
 
-	public T newInstance(UnsafeBuffer buffer, int offset) {
+	public T newInstance(BaseBuffer buffer, int offset) {
 		T struct = Reflection.invokeConstructor(constructor);
 		struct.buffer = buffer;
 		struct.offset = offset;
@@ -57,8 +57,8 @@ public class StructType<T extends Struct> {
 	}
 
 	public <S extends T> void copy(S source, T destination) {
-		UnsafeBuffer sourceBuffer = source.buffer;
-		UnsafeBuffer destinationBuffer = destination.buffer;
+		BaseBuffer sourceBuffer = source.buffer;
+		BaseBuffer destinationBuffer = destination.buffer;
 		destinationBuffer.setFloatArray(sourceBuffer.arr, source.offset, destination.offset, size);
 	}
 

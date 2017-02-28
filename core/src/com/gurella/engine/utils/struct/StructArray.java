@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class StructArray<T extends Struct> {
-	private final UnsafeBuffer buffer;
+	private final BaseBuffer buffer;
 
 	private final StructType<T> structType;
 	private final int structSize;
@@ -24,7 +24,7 @@ public class StructArray<T extends Struct> {
 
 	public StructArray(StructType<T> structType, int initialCapacity) {
 		this.structType = structType;
-		buffer = new UnsafeBuffer(structType.size * initialCapacity);
+		buffer = new FloatArrayBuffer(structType.size * initialCapacity);
 		structSize = structType.size;
 		capacity = initialCapacity;
 		temp = structType.newInstance(buffer, 0);

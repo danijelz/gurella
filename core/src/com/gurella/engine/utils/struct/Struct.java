@@ -10,13 +10,13 @@ import com.gurella.engine.utils.struct.StructProperty.Matrix4StructProperty;
 import com.gurella.engine.utils.struct.StructProperty.Vector3StructProperty;
 
 public abstract class Struct {
-	UnsafeBuffer buffer;
+	BaseBuffer buffer;
 	int offset;
 
 	protected Struct() {
 	}
 
-	public Struct(UnsafeBuffer buffer, int offset) {
+	public Struct(BaseBuffer buffer, int offset) {
 		this.offset = offset;
 		this.buffer = buffer;
 	}
@@ -106,7 +106,7 @@ public abstract class Struct {
 	}
 
 	static int testSize = 1000000;
-	static int iterations = 1000;
+	static int iterations = 10;
 	static int subIterations = testSize / iterations;
 
 	public static void main(String[] args) {
@@ -114,10 +114,20 @@ public abstract class Struct {
 		for (int i = 0; i < testSize; i++) {
 			tc[i] = new TestClass();
 		}
+
+		Vector3 testVecTc = new Vector3();
+		Vector3 testVecSa = new Vector3();
+
+		for (int i = 0; i < testSize; i++) {
+			int index = TestClass.randomIndex();
+			TestClass temp = tc[i];
+			tc[i] = tc[index];
+			tc[index] = temp;
+		}
+
 		System.out.println(1);
 
 		StructArray<TestStruct> sa = new StructArray<TestStruct>(TestStruct.class, testSize);
-
 		for (int i = 0; i < testSize; i++) {
 			TestClass testClass = tc[i];
 			TestStruct testStruct = sa.get(i);
@@ -130,13 +140,69 @@ public abstract class Struct {
 		System.out.println(2);
 		System.out.println();
 
-		Vector3 testVecTc = new Vector3();
-		Vector3 testVecSa = new Vector3();
+//		for (int j = 0; j < 20; j++) {
+//			for (int i = 0; i < subIterations; i++) {
+//				testTc(tc, i, testVecTc);
+//				testSa(sa, i, testVecSa);
+//			}
+//			System.out.println(tcTime);
+//			System.out.println(saTime);
+//			System.out.println("");
+//			tcTotalTime += tcTime;
+//			saTotalTime += saTime;
+//			tcTime = 0;
+//			saTime = 0;
+//		}
+//
+//		System.out.println("");
+//		System.out.println("SUM:");
+//		System.out.println("TestClass: " + tcTotalTime);
+//		System.out.println("TestStruct: " + saTotalTime);
+//		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
+//
+//		System.out.println("");
+//		System.out.println("R: ");
+//		System.out.println(tcr);
+//		System.out.println(sar);
+//
+//		System.out.println("");
+//		System.out.println("Vec:");
+//		System.out.println(testVecTc);
+//		System.out.println(testVecSa);
+//
+//		System.out.println("\n\n--------------------------------------------\\n");
+//
+//		for (int i = 0; i < 3; i++) {
+//			TestClass testClass = tc[i];
+//			TestStruct testStruct = sa.get(i);
+//
+//			System.out.println(testClass.vector);
+//			System.out.println(testStruct.getVector());
+//
+//			System.out.println("");
+//
+//			System.out.println(testClass.point);
+//			System.out.println(testStruct.getPoint());
+//
+//			System.out.println("");
+//
+//			System.out.println(testClass.next);
+//			System.out.println(testStruct.getNext());
+//
+//			System.out.println("-\n");
+//		}
+
+		testVecTc.setZero();
+		testVecSa.setZero();
+		tcTotalTime = 0;
+		saTotalTime = 0;
+		tcTime = 0;
+		saTime = 0;
 
 		for (int j = 0; j < 20; j++) {
-			for (int i = 0; i < subIterations; i++) {
-				testTc(tc, i, testVecTc);
-				testSa(sa, i, testVecSa);
+			for (int i = 0; i < 10; i++) {
+				testTcLinear(tc, testVecTc);
+				testSaLinear(sa, testVecSa);
 			}
 			System.out.println(tcTime);
 			System.out.println(saTime);
@@ -148,11 +214,11 @@ public abstract class Struct {
 		}
 
 		System.out.println("");
-		System.out.println("SUM:");
+		System.out.println("Linear SUM:");
 		System.out.println("TestClass: " + tcTotalTime);
 		System.out.println("TestStruct: " + saTotalTime);
 		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
-
+		
 		System.out.println("");
 		System.out.println("R: ");
 		System.out.println(tcr);
@@ -162,41 +228,46 @@ public abstract class Struct {
 		System.out.println("Vec:");
 		System.out.println(testVecTc);
 		System.out.println(testVecSa);
-
-		System.out.println("\n\n--------------------------------------------\\n");
-
-		for (int i = 0; i < 3; i++) {
-			TestClass testClass = tc[i];
-			TestStruct testStruct = sa.get(i);
-
-			System.out.println(testClass.vector);
-			System.out.println(testStruct.getVector());
-
-			System.out.println("");
-
-			System.out.println(testClass.point);
-			System.out.println(testStruct.getPoint());
-
-			System.out.println("");
-
-			System.out.println(testClass.next);
-			System.out.println(testStruct.getNext());
-
-			System.out.println("-\n");
-		}
 	}
 
 	private static long tcTime;
 	private static long tcTotalTime;
 	private static double tcr;
 
-	private static void testTc(TestClass[] tc, int index, Vector3 testVec) {
+//	private static void testTc(TestClass[] tc, int index, Vector3 testVec) {
+//		double r = 0;
+//		long millis = System.currentTimeMillis();
+//
+//		int next = index;
+//		for (int i = 0; i < iterations; i++) {
+//			TestClass testClass = tc[next];
+//			Vector3 vector = testClass.vector;
+//			r += vector.x;
+//			r += vector.y;
+//			r += vector.z;
+//
+//			testVec.add(vector);
+//
+//			GridPoint3 point = testClass.point;
+//			r += point.x;
+//			r += point.y;
+//			r += point.z;
+//
+//			testClass.matrix4.scl(2);
+//
+//			next = testClass.next;
+//		}
+//
+//		tcr += r;
+//		tcTime += System.currentTimeMillis() - millis;
+//	}
+
+	private static void testTcLinear(TestClass[] tc, Vector3 testVec) {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
-		int next = index;
-		for (int i = 0; i < iterations; i++) {
-			TestClass testClass = tc[next];
+		for (int i = 0; i < testSize; i++) {
+			TestClass testClass = tc[i];
 			Vector3 vector = testClass.vector;
 			r += vector.x;
 			r += vector.y;
@@ -211,7 +282,6 @@ public abstract class Struct {
 
 			testClass.matrix4.scl(2);
 
-			next = testClass.next;
 		}
 
 		tcr += r;
@@ -223,13 +293,40 @@ public abstract class Struct {
 	private static double sar;
 	private static Matrix4 tempMatrix = new Matrix4();
 
-	private static void testSa(StructArray<TestStruct> sa, int index, Vector3 testVec) {
+//	private static void testSa(StructArray<TestStruct> sa, int index, Vector3 testVec) {
+//		double r = 0;
+//		long millis = System.currentTimeMillis();
+//
+//		int next = index;
+//		for (int i = 0; i < iterations; i++) {
+//			TestStruct testStruct = sa.get(next);
+//			Vector3 vector = testStruct.getVector();
+//			r += vector.x;
+//			r += vector.y;
+//			r += vector.z;
+//
+//			testVec.add(vector);
+//
+//			GridPoint3 point = testStruct.getPoint();
+//			r += point.x;
+//			r += point.y;
+//			r += point.z;
+//
+//			testStruct.getMatrix4(tempMatrix).scl(2);
+//
+//			next = testStruct.getNext();
+//		}
+//
+//		sar += r;
+//		saTime += System.currentTimeMillis() - millis;
+//	}
+
+	private static void testSaLinear(StructArray<TestStruct> sa, Vector3 testVec) {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
-		int next = index;
-		for (int i = 0; i < iterations; i++) {
-			TestStruct testStruct = sa.get(next);
+		for (int i = 0; i < testSize; i++) {
+			TestStruct testStruct = sa.get(i);
 			Vector3 vector = testStruct.getVector();
 			r += vector.x;
 			r += vector.y;
@@ -243,8 +340,6 @@ public abstract class Struct {
 			r += point.z;
 
 			testStruct.getMatrix4(tempMatrix).scl(2);
-
-			next = testStruct.getNext();
 		}
 
 		sar += r;
