@@ -24,7 +24,7 @@ public class StructArray<T extends Struct> {
 
 	public StructArray(StructType<T> structType, int initialCapacity) {
 		this.structType = structType;
-		buffer = new FloatArrayBuffer(structType.size * initialCapacity);
+		buffer = new UnsafeBuffer(structType.size * initialCapacity);
 		structSize = structType.size;
 		capacity = initialCapacity;
 		temp = structType.newInstance(buffer, 0);
@@ -70,7 +70,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T get(int index, T out) {
-		out.buffer = buffer;
+		//TODO out.buffer = buffer;
 		out.offset = structSize * index;
 		return out;
 	}
@@ -184,8 +184,8 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T add(StructArray<T> source, int sourceIndex, int count) {
-		int addedItemsOffset = length * structSize;
-		buffer.setFloatArray(source.buffer.arr, 0, addedItemsOffset, addedItemsOffset + (structSize * count));
+		int destOffset = length * structSize;
+		buffer.setFloatArray(source.buffer.arr, sourceIndex * structSize, destOffset , (structSize * count) / 4);
 		length += count;
 		return get(sourceIndex);
 	}
@@ -220,6 +220,9 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void set(int index, T value) {
+		if(value.buffer == null) {
+			System.out.println("value.buffer is null");
+		}
 		buffer.setFloatArray(value.buffer.arr, value.offset, index * structSize, structSize);
 	}
 
@@ -276,7 +279,7 @@ public class StructArray<T extends Struct> {
 		for (int i = 0; i < length; i++) {
 			builder.append(get(i).toString());
 			if (i < length - 1) {
-				builder.append(", ");
+				builder.append("\n");
 			}
 		}
 		builder.append("]");

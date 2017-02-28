@@ -2,6 +2,11 @@ package com.gurella.engine.utils.struct;
 
 import java.util.Comparator;
 
+import com.badlogic.gdx.math.GridPoint3;
+import com.badlogic.gdx.utils.Sort;
+import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.struct.StructProperty.GridPoint3StructProperty;
+
 /**
  * A stable, adaptive, iterative mergesort that requires far fewer than n lg(n) comparisons when running on partially
  * sorted arrays, while offering performance comparable to a traditional mergesort when run on random arrays. Like all
@@ -44,11 +49,18 @@ public class StructArraySort<T extends Struct> {
 	private final int[] runLen;
 
 	public StructArraySort(Class<T> type) {
-		StructType<T> structType = StructType.get(type);
+		this(StructType.get(type));
+	}
+
+	public StructArraySort(StructType<T> structType) {
 		tmpa = new StructArray<T>(structType, INITIAL_TMP_STORAGE_LENGTH);
-		tmp = structType.newInstance(null, 0);
+		tmp = structType.newInstance(new FloatArrayBuffer(structType.size), 0);
 		runBase = new int[40];
 		runLen = new int[40];
+	}
+
+	public void sort(StructArray<T> a, Comparator<T> c) {
+		sort(a, c, 0, a.length());
 	}
 
 	public void sort(StructArray<T> a, Comparator<T> c, int lo, int hi) {
@@ -576,6 +588,89 @@ public class StructArraySort<T extends Struct> {
 		}
 		if (toIndex > arrayLen) {
 			throw new ArrayIndexOutOfBoundsException(toIndex);
+		}
+	}
+
+	public static class TestClass {
+		GridPoint3 point = new GridPoint3(randomInt(), randomInt(), randomInt());
+
+		private static int randomInt() {
+			return Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue();
+		}
+	}
+
+	public static class TestStruct extends Struct {
+		public static final GridPoint3StructProperty point = new GridPoint3StructProperty();
+
+		public GridPoint3 getPoint() {
+			return point.get(this);
+		}
+
+		public void setPoint(GridPoint3 value) {
+			point.set(this, value);
+		}
+	}
+
+	public static void main(String[] args) {
+		int testSize = 100;
+		TestClass[] tc = new TestClass[testSize];
+		StructArray<TestStruct> sa = new StructArray<TestStruct>(TestStruct.class, testSize);
+		for (int i = 0; i < testSize; i++) {
+			TestClass testClass = new TestClass();
+			tc[i] = testClass;
+			TestStruct testStruct = sa.add();
+			testStruct.setPoint(testClass.point);
+		}
+
+		for (int i = 0; i < testSize; i++) {
+			if (!tc[i].point.equals(sa.get(i).getPoint())) {
+				throw new IllegalStateException("Diff 1");
+			}
+		}
+
+		Sort sort = new Sort();
+		sort.sort(tc, new TestClassComparator());
+
+		StructArray<TestStruct> sa2 = new StructArray<TestStruct>(TestStruct.class, testSize);
+		sa2.addAll(sa);
+
+		StructArraySort<TestStruct> structSort = new StructArraySort<TestStruct>(TestStruct.class);
+		structSort.sort(sa, new TestStructComparator());
+
+		for (int i = 0; i < 10; i++) {
+			System.out.println(sa.get(i).getPoint());
+			System.out.println(sa2.get(i).getPoint());
+		}
+
+		for (int i = 0; i < testSize; i++) {
+			System.out.println(tc[i].point);
+			System.out.println(sa.get(i).getPoint());
+			System.out.println();
+
+			if (!tc[i].point.equals(sa.get(i).getPoint())) {
+				System.out.println("i = " + i);
+				throw new IllegalStateException("Diff 2");
+			}
+		}
+
+		for (int i = 0; i < testSize; i++) {
+			if (!tc[i].point.equals(sa.get(i).getPoint())) {
+				throw new IllegalStateException("Diff 2");
+			}
+		}
+	}
+
+	public static class TestClassComparator implements Comparator<TestClass> {
+		@Override
+		public int compare(TestClass o1, TestClass o2) {
+			return Values.compare(o1.point.x, o2.point.x);
+		}
+	}
+
+	public static class TestStructComparator implements Comparator<TestStruct> {
+		@Override
+		public int compare(TestStruct o1, TestStruct o2) {
+			return Values.compare(o1.getPoint().x, o2.getPoint().x);
 		}
 	}
 }
