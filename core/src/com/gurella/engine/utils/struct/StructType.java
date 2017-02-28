@@ -33,7 +33,11 @@ public class StructType<T extends Struct> {
 	final Array<StructProperty> _properties;
 	public final ImmutableArray<StructProperty> properties;
 
-	StructType(Class<T> type, Array<StructProperty> declaredProperties, Array<StructProperty> properties) {
+	final Array<StructProperty> _orderedProperties;
+	public final ImmutableArray<StructProperty> orderedProperties;
+
+	StructType(Class<T> type, Array<StructProperty> declaredProperties, Array<StructProperty> properties,
+			Array<StructProperty> orderedProperties) {
 		this.type = type;
 		constructor = Reflection.findConstructor(type, (Class<?>[]) null);
 		constructor.setAccessible(true);
@@ -43,6 +47,9 @@ public class StructType<T extends Struct> {
 
 		_properties = properties;
 		this.properties = new ImmutableArray<StructProperty>(_properties);
+
+		_orderedProperties = orderedProperties;
+		this.orderedProperties = new ImmutableArray<StructProperty>(_orderedProperties);
 
 		StructProperty last = _properties.peek();
 		int temp = last.offset + last.size;
@@ -69,8 +76,8 @@ public class StructType<T extends Struct> {
 		builder.append(" size: ");
 		builder.append(size);
 		builder.append(" [");
-		for (int i = 0, n = _declaredProperties.size; i < n; i++) {
-			StructProperty property = _declaredProperties.get(i);
+		for (int i = 0, n = _orderedProperties.size; i < n; i++) {
+			StructProperty property = _orderedProperties.get(i);
 			builder.append("\n    ");
 			builder.append(property.toString());
 		}
@@ -97,8 +104,10 @@ public class StructType<T extends Struct> {
 
 		int offset = 0;
 		Array<StructProperty> properties = new Array<StructProperty>();
+		Array<StructProperty> orderedProperties = new Array<StructProperty>();
 		if (supertype != null) {
 			properties.addAll(supertype._properties);
+			orderedProperties.addAll(supertype._orderedProperties);
 			offset = supertype.size;
 		}
 
@@ -111,6 +120,7 @@ public class StructType<T extends Struct> {
 				StructProperty structProperty = Reflection.getFieldValue(field, null);
 				structProperty.name = field.getName();
 				declaredProperties.add(structProperty);
+				orderedProperties.add(structProperty);
 			}
 		}
 
@@ -122,7 +132,7 @@ public class StructType<T extends Struct> {
 		}
 
 		properties.addAll(declaredProperties);
-		return new StructType<T>(type, declaredProperties, properties);
+		return new StructType<T>(type, declaredProperties, properties, orderedProperties);
 	}
 
 	private static boolean isPropertyField(Field field) {
@@ -222,10 +232,18 @@ public class StructType<T extends Struct> {
 				TestStruct.class);
 	}
 
+	public static class TestStruct3 extends TestStruct {
+		public static final ShortStructProperty property7 = new ShortStructProperty();
+		public static final ByteStructProperty property8 = new ByteStructProperty();
+		public static final ShortStructProperty property9 = new ShortStructProperty();
+	}
+
 	public static void main(String[] args) {
 		System.out.println(get(TestStruct.class).toString());
 		System.out.println("\n\n");
 		System.out.println(get(TestStruct2.class).toString());
+		System.out.println("\n\n");
+		System.out.println(get(TestStruct3.class).toString());
 		System.out.println("\n\n");
 
 		StructArray<TestStruct> arr = new StructArray<TestStruct>(TestStruct.class, 3);

@@ -2,9 +2,11 @@ package com.gurella.engine.utils.struct;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -499,6 +501,93 @@ public abstract class StructProperty {
 		}
 	}
 
+	public static class GridPoint2StructProperty extends StructProperty {
+		private final GridPoint2 temp = new GridPoint2();
+
+		public GridPoint2StructProperty() {
+			super(8);
+		}
+
+		public GridPoint2 get(Struct struct) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			temp.x = buffer.getInt(tempOffset);
+			temp.y = buffer.getInt(tempOffset + 4);
+			return temp;
+		}
+
+		public GridPoint2 get(Struct struct, GridPoint2 out) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			out.x = buffer.getInt(tempOffset);
+			out.y = buffer.getInt(tempOffset + 4);
+			return out;
+		}
+
+		public void set(Struct struct, GridPoint2 value) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			buffer.setInt(tempOffset, value.x);
+			buffer.setInt(tempOffset + 4, value.y);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
+		}
+	}
+
+	public static class GridPoint2ArrayStructProperty extends StructProperty {
+		private int length;
+		private final GridPoint2 temp = new GridPoint2();
+
+		public GridPoint2ArrayStructProperty(int length) {
+			super(8 * length);
+			this.length = length;
+		}
+
+		public int getLength() {
+			return length;
+		}
+
+		public GridPoint2 get(Struct struct, int index) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 8 * index;
+			temp.x = buffer.getInt(tempOffset);
+			temp.y = buffer.getInt(tempOffset + 4);
+			return temp;
+		}
+
+		public GridPoint2 get(Struct struct, int index, GridPoint2 out) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 8 * index;
+			out.x = buffer.getInt(tempOffset);
+			out.y = buffer.getInt(tempOffset + 4);
+			return out;
+		}
+
+		public void set(Struct struct, int index, GridPoint2 value) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 8 * index;
+			buffer.setInt(tempOffset, value.x);
+			buffer.setInt(tempOffset + 4, value.y);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+	}
+
 	public static class GridPoint3StructProperty extends StructProperty {
 		private final GridPoint3 temp = new GridPoint3();
 
@@ -575,6 +664,105 @@ public abstract class StructProperty {
 			buffer.setInt(tempOffset, value.x);
 			buffer.setInt(tempOffset + 4, value.y);
 			buffer.setInt(tempOffset + 8, value.z);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (int i = 0; i < length; i++) {
+				builder.append(get(struct, i).toString());
+				if (i < length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+	}
+
+	public static class QuaternionStructProperty extends StructProperty {
+		private final Quaternion temp = new Quaternion();
+
+		public QuaternionStructProperty() {
+			super(16);
+		}
+
+		public Quaternion get(Struct struct) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
+			temp.z = buffer.getFloat(tempOffset + 8);
+			temp.w = buffer.getFloat(tempOffset + 12);
+			return temp;
+		}
+
+		public Quaternion get(Struct struct, Quaternion out) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
+			out.z = buffer.getFloat(tempOffset + 8);
+			out.w = buffer.getFloat(tempOffset + 12);
+			return out;
+		}
+
+		public void set(Struct struct, Quaternion value) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset;
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
+			buffer.setFloat(tempOffset + 8, value.z);
+			buffer.setFloat(tempOffset + 12, value.w);
+		}
+
+		@Override
+		public String toString(Struct struct) {
+			return get(struct).toString();
+		}
+	}
+
+	public static class QuaternionArrayStructProperty extends StructProperty {
+		private int length;
+		private final Quaternion temp = new Quaternion();
+
+		public QuaternionArrayStructProperty(int length) {
+			super(16 * length);
+			this.length = length;
+		}
+
+		public int getLength() {
+			return length;
+		}
+
+		public Quaternion get(Struct struct, int index) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 16 * index;
+			temp.x = buffer.getFloat(tempOffset);
+			temp.y = buffer.getFloat(tempOffset + 4);
+			temp.z = buffer.getFloat(tempOffset + 8);
+			temp.w = buffer.getFloat(tempOffset + 12);
+			return temp;
+		}
+
+		public Quaternion get(Struct struct, int index, Quaternion out) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 16 * index;
+			out.x = buffer.getFloat(tempOffset);
+			out.y = buffer.getFloat(tempOffset + 4);
+			out.z = buffer.getFloat(tempOffset + 8);
+			out.w = buffer.getFloat(tempOffset + 12);
+			return out;
+		}
+
+		public void set(Struct struct, int index, Quaternion value) {
+			BaseBuffer buffer = struct.buffer;
+			int tempOffset = struct.offset + offset + 16 * index;
+			buffer.setFloat(tempOffset, value.x);
+			buffer.setFloat(tempOffset + 4, value.y);
+			buffer.setFloat(tempOffset + 8, value.z);
+			buffer.setFloat(tempOffset + 12, value.w);
 		}
 
 		@Override

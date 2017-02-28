@@ -27,7 +27,7 @@ public abstract class Struct {
 		StringBuilder builder = new StringBuilder();
 		builder.append(structType.type.getSimpleName());
 		builder.append("{");
-		Array<StructProperty> properties = structType._properties;
+		Array<StructProperty> properties = structType._orderedProperties;
 		for (int i = 0, n = properties.size; i < n; i++) {
 			StructProperty property = properties.get(i);
 			builder.append(property.name);
