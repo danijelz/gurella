@@ -232,6 +232,7 @@ public class StructArray<T extends Struct> {
 
 	public void set(int index, StructArray<T> source, int sourceIndex, int count) {
 		validateIndex(index - 1);
+		resizeIfNeeded(length + count);
 		buffer.set(source.buffer, sourceIndex * structSize, index * structSize, count * structSize);
 		length = Math.max(length, index + count);
 	}

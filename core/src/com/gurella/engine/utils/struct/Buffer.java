@@ -60,19 +60,11 @@ public abstract class Buffer {
 	/////////// buffer
 
 	public void set(Buffer source) {
-		int length = arr.length;
-		int otherLength = source.arr.length;
-		ensureCapacity((otherLength - length) * 4);
-		System.arraycopy(source.arr, 0, arr, 0, otherLength);
+		System.arraycopy(source.arr, 0, arr, 0, source.arr.length);
 	}
 
 	public void set(Buffer source, int sourceOffset, int destinationOffset, int byteLength) {
-		int sourceIndex = sourceOffset / 4;
-		int destinationIndex = destinationOffset / 4;
-		int length = byteLength / 4;
-		int neededLength = destinationIndex + length;
-		ensureCapacity((neededLength - arr.length) * 4);
-		System.arraycopy(source.arr, sourceIndex, arr, destinationOffset / 4, length);
+		System.arraycopy(source.arr, sourceOffset / 4, arr, destinationOffset / 4, byteLength / 4);
 	}
 
 	/////////// float

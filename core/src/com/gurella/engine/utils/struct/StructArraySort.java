@@ -616,7 +616,7 @@ public class StructArraySort<T extends Struct> {
 	}
 
 	public static void main(String[] args) {
-		int testSize = 1000000;
+		int testSize = 100000;
 		TestClass[] tc = new TestClass[testSize];
 		StructArray<TestStruct> sa = new StructArray<TestStruct>(TestStruct.class, testSize);
 		for (int i = 0; i < testSize; i++) {
@@ -633,14 +633,23 @@ public class StructArraySort<T extends Struct> {
 		}
 
 		Sort sort = new Sort();
+		StructArraySort<TestStruct> structSort = new StructArraySort<TestStruct>(TestStruct.class, testSize / 2);
+
+		System.out.println("SORT X -----------------------------------");
+
+		long tcTotalTime = 0;
+		long saTotalTime = 0;
+
 		long time = System.nanoTime();
-		sort.sort(tc, new TestClassComparator());
+		sort.sort(tc, new TestClassComparatorX());
 		long tcSortTime = System.nanoTime() - time;
 
-		StructArraySort<TestStruct> structSort = new StructArraySort<TestStruct>(TestStruct.class, testSize / 2);
 		time = System.nanoTime();
-		structSort.sort(sa, new TestStructComparator());
+		structSort.sort(sa, new TestStructComparatorX());
 		long saSortTime = System.nanoTime() - time;
+		
+		tcTotalTime += tcSortTime;
+		saTotalTime += saSortTime;
 
 		for (int i = 0; i < testSize; i++) {
 			if (!tc[i].point.equals(sa.get(i).getPoint())) {
@@ -656,20 +665,103 @@ public class StructArraySort<T extends Struct> {
 		System.out.println("TestStruct: " + saSortTime);
 		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
 
-		// System.out.println("OK");
+		System.out.println("\n\nSORT Y -----------------------------------");
+		time = System.nanoTime();
+		sort.sort(tc, new TestClassComparatorY());
+		tcSortTime = System.nanoTime() - time;
+
+		time = System.nanoTime();
+		structSort.sort(sa, new TestStructComparatorY());
+		saSortTime = System.nanoTime() - time;
+		
+		tcTotalTime += tcSortTime;
+		saTotalTime += saSortTime;
+
+		for (int i = 0; i < testSize; i++) {
+			if (!tc[i].point.equals(sa.get(i).getPoint())) {
+				System.out.println("Diff after sort. index = " + i);
+				System.out.println("\t" + tc[i].point);
+				System.out.println("\t" + sa.get(i).getPoint());
+				System.out.println(sa.get(i).getPoint());
+			}
+		}
+
+		System.out.println();
+		System.out.println("TestClass: " + tcSortTime);
+		System.out.println("TestStruct: " + saSortTime);
+		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
+
+		System.out.println("\n\nSORT Z -----------------------------------");
+		time = System.nanoTime();
+		sort.sort(tc, new TestClassComparatorZ());
+		tcSortTime = System.nanoTime() - time;
+
+		time = System.nanoTime();
+		structSort.sort(sa, new TestStructComparatorZ());
+		saSortTime = System.nanoTime() - time;
+		
+		tcTotalTime += tcSortTime;
+		saTotalTime += saSortTime;
+
+		for (int i = 0; i < testSize; i++) {
+			if (!tc[i].point.equals(sa.get(i).getPoint())) {
+				System.out.println("Diff after sort. index = " + i);
+				System.out.println("\t" + tc[i].point);
+				System.out.println("\t" + sa.get(i).getPoint());
+				System.out.println(sa.get(i).getPoint());
+			}
+		}
+
+		System.out.println();
+		System.out.println("TestClass: " + tcSortTime);
+		System.out.println("TestStruct: " + saSortTime);
+		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
+		
+		System.out.println("\n\nTotal -----------------------------------");
+		System.out.println("TestClass: " + tcTotalTime);
+		System.out.println("TestStruct: " + saTotalTime);
+		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 	}
 
-	public static class TestClassComparator implements Comparator<TestClass> {
+	private static class TestClassComparatorX implements Comparator<TestClass> {
 		@Override
 		public int compare(TestClass o1, TestClass o2) {
 			return Values.compare(o1.point.x, o2.point.x);
 		}
 	}
 
-	public static class TestStructComparator implements Comparator<TestStruct> {
+	private static class TestStructComparatorX implements Comparator<TestStruct> {
 		@Override
 		public int compare(TestStruct o1, TestStruct o2) {
 			return Values.compare(o1.getPoint().x, o2.getPoint().x);
+		}
+	}
+
+	private static class TestClassComparatorY implements Comparator<TestClass> {
+		@Override
+		public int compare(TestClass o1, TestClass o2) {
+			return Values.compare(o1.point.y, o2.point.y);
+		}
+	}
+
+	private static class TestStructComparatorY implements Comparator<TestStruct> {
+		@Override
+		public int compare(TestStruct o1, TestStruct o2) {
+			return Values.compare(o1.getPoint().y, o2.getPoint().y);
+		}
+	}
+
+	private static class TestClassComparatorZ implements Comparator<TestClass> {
+		@Override
+		public int compare(TestClass o1, TestClass o2) {
+			return Values.compare(o1.point.z, o2.point.z);
+		}
+	}
+
+	private static class TestStructComparatorZ implements Comparator<TestStruct> {
+		@Override
+		public int compare(TestStruct o1, TestStruct o2) {
+			return Values.compare(o1.getPoint().z, o2.getPoint().z);
 		}
 	}
 }

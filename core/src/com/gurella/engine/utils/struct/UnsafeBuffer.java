@@ -24,18 +24,12 @@ public class UnsafeBuffer extends Buffer {
 
 	@Override
 	public void set(Buffer source) {
-		int length = arr.length;
-		int otherLength = source.arr.length;
-		ensureCapacity((otherLength - length) * 4);
-		unsafe.copyMemory(source.arr, arrOffset(0), arr, arrOffset(0), length * 4);
+		long arrOffset = arrOffset(0);
+		unsafe.copyMemory(source.arr, arrOffset, arr, arrOffset, arr.length * 4);
 	}
 
 	@Override
 	public void set(Buffer source, int sourceOffset, int destinationOffset, int byteLength) {
-		int destinationIndex = destinationOffset / 4;
-		int length = byteLength / 4;
-		int neededLength = destinationIndex + length;
-		ensureCapacity((neededLength - arr.length) * 4);
 		unsafe.copyMemory(source.arr, arrOffset(sourceOffset), arr, arrOffset(destinationOffset), byteLength);
 	}
 
