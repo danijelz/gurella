@@ -349,7 +349,7 @@ public class StructArray<T extends Struct> {
 		}
 
 		StructArray<?> other = (StructArray<?>) obj;
-		return length != other.length && buffer.equals(0, other.buffer, 0, length * structSize);
+		return length == other.length && buffer.equals(0, other.buffer, 0, length * structSize);
 	}
 
 	@Override
