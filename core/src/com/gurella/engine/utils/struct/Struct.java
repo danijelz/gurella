@@ -156,7 +156,7 @@ public abstract class Struct {
 
 		System.out.println("");
 		System.out.println("Random SUM:");
-		System.out.println("TestClass: " + tcTotalTime);
+		System.out.println("TestClass:  " + tcTotalTime);
 		System.out.println("TestStruct: " + saTotalTime);
 		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 
@@ -193,7 +193,7 @@ public abstract class Struct {
 
 		System.out.println("");
 		System.out.println("Linear SUM:");
-		System.out.println("TestClass: " + tcTotalTime);
+		System.out.println("TestClass:  " + tcTotalTime);
 		System.out.println("TestStruct: " + saTotalTime);
 		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 

@@ -15,6 +15,7 @@ public class StructArray<T extends Struct> {
 	private int length;
 
 	private final T shared;
+	private float[] temp;
 
 	private StructArrayIterator<T> iterator1, iterator2;
 
@@ -222,7 +223,12 @@ public class StructArray<T extends Struct> {
 	public void swap(int fromIndex, int toIndex) {
 		validateIndex(fromIndex);
 		validateIndex(toIndex);
-		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize);
+
+		if (temp == null) {
+			temp = new float[structSize / 4];
+		}
+
+		buffer.swap(fromIndex * structSize, toIndex * structSize, temp);
 	}
 
 	public void set(int index, T value) {
@@ -257,9 +263,38 @@ public class StructArray<T extends Struct> {
 		resize(length);
 	}
 
-	public void truncate(int newCapacity) {
-		if (capacity < newCapacity) {
-			resize(newCapacity);
+	public void truncate(int newLength) {
+		if (length > newLength) {
+			length = newLength;
+		}
+	}
+
+	public void setLength(int newLength) {
+		resizeIfNeeded(newLength);
+		length = newLength;
+	}
+
+	public void reverse() {
+		reverse(0, length - 1);
+	}
+
+	public void reverse(int startIndex, int endIndex) {
+		int left = startIndex;
+		int right = endIndex;
+
+		int len = right - left;
+		if (len <= 0) {
+			return;
+		}
+
+		if (temp == null) {
+			temp = new float[structSize / 4];
+		}
+
+		while (left < right) {
+			buffer.swap(left * structSize, right * structSize, temp);
+			left++;
+			right--;
 		}
 	}
 

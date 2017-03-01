@@ -1,5 +1,7 @@
 package com.gurella.engine.utils.struct;
 
+import java.util.Arrays;
+
 public abstract class Buffer {
 	public float[] arr;
 
@@ -55,6 +57,10 @@ public abstract class Buffer {
 
 	public void move(int sourceOffset, int destOffset, int byteLength) {
 		System.arraycopy(arr, sourceOffset / 4, arr, destOffset / 4, byteLength / 4);
+	}
+
+	public void fill(int fromIndex, int toIndex, float value) {
+		Arrays.fill(arr, fromIndex, toIndex, value);
 	}
 
 	/////////// buffer

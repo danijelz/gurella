@@ -15,7 +15,7 @@ import com.gurella.engine.math.GridRectangle;
 
 public abstract class StructProperty {
 	String name;
-	int offset = 0;
+	int offset;
 	final int size;
 
 	public abstract String toString(Struct struct);

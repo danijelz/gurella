@@ -661,7 +661,7 @@ public class StructArraySort<T extends Struct> {
 		}
 
 		System.out.println();
-		System.out.println("TestClass: " + tcSortTime);
+		System.out.println("TestClass:  " + tcSortTime);
 		System.out.println("TestStruct: " + saSortTime);
 		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
 
@@ -687,7 +687,7 @@ public class StructArraySort<T extends Struct> {
 		}
 
 		System.out.println();
-		System.out.println("TestClass: " + tcSortTime);
+		System.out.println("TestClass:  " + tcSortTime);
 		System.out.println("TestStruct: " + saSortTime);
 		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
 
@@ -713,12 +713,12 @@ public class StructArraySort<T extends Struct> {
 		}
 
 		System.out.println();
-		System.out.println("TestClass: " + tcSortTime);
+		System.out.println("TestClass:  " + tcSortTime);
 		System.out.println("TestStruct: " + saSortTime);
 		System.out.println("ratio " + ((double) saSortTime / tcSortTime));
 		
 		System.out.println("\n\nTotal -----------------------------------");
-		System.out.println("TestClass: " + tcTotalTime);
+		System.out.println("TestClass:  " + tcTotalTime);
 		System.out.println("TestStruct: " + saTotalTime);
 		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 	}
