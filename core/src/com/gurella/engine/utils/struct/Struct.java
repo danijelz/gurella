@@ -22,6 +22,43 @@ public abstract class Struct {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Struct other = (Struct) obj;
+		Array<StructProperty> properties = StructType.get(getClass())._properties;
+		for (int i = 0, n = properties.size; i < n; i++) {
+			StructProperty property = properties.get(i);
+			if (!property.equals(this, other)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = getClass().hashCode();
+		Array<StructProperty> properties = StructType.get(getClass())._properties;
+		for (int i = 0, n = properties.size; i < n; i++) {
+			StructProperty property = properties.get(i);
+			result += property.hashCode(this);
+		}
+		return result;
+	}
+
+	@Override
 	public String toString() {
 		StructType<?> structType = StructType.get(getClass());
 		StringBuilder builder = new StringBuilder();
