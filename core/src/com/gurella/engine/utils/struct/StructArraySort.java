@@ -648,7 +648,6 @@ public class StructArraySort<T extends Struct> {
 				System.out.println("\t" + tc[i].point);
 				System.out.println("\t" + sa.get(i).getPoint());
 				System.out.println(sa.get(i).getPoint());
-				// throw new IllegalStateException("Diff 2");
 			}
 		}
 

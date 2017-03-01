@@ -10,13 +10,6 @@ public class FloatArrayBuffer extends Buffer {
 		super(byteCapacity);
 	}
 
-	public void set(FloatArrayBuffer other) {
-		int otherLength = other.arr.length;
-		int length = arr.length;
-		ensureCapacity(otherLength - length);
-		System.arraycopy(arr, 0, other.arr, 0, Math.min(otherLength, length));
-	}
-
 	//////// float
 
 	@Override

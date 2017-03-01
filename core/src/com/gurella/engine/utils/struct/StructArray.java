@@ -24,7 +24,7 @@ public class StructArray<T extends Struct> {
 
 	public StructArray(StructType<T> structType, int initialCapacity) {
 		this.structType = structType;
-		buffer = new FloatArrayBuffer(structType.size * initialCapacity);
+		buffer = new UnsafeBuffer(structType.size * initialCapacity);
 		structSize = structType.size;
 		capacity = initialCapacity;
 		shared = structType.newInstance(buffer, 0);
@@ -65,17 +65,26 @@ public class StructArray<T extends Struct> {
 	}
 
 	T get(int index) {
+		validateIndex(index);
 		shared.offset = structSize * index;
 		return shared;
 	}
 
+	private void validateIndex(int index) {
+		if (index >= length) {
+			throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + length);
+		}
+	}
+
 	public T get(int index, T out) {
+		validateIndex(index);
 		out.buffer = buffer;
 		out.offset = structSize * index;
 		return out;
 	}
 
 	public void remove(int index) {
+		validateIndex(index);
 		int lastItemOffset = length * structSize;
 		int removedItemOffset = index * structSize;
 		buffer.move(lastItemOffset, removedItemOffset, structSize);
@@ -83,6 +92,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void removeOrdered(int index) {
+		validateIndex(index);
 		int removedItemOffset = index * structSize;
 		int nextItemOffset = removedItemOffset + structSize;
 		buffer.move(nextItemOffset, removedItemOffset, (length - index) * structSize);
@@ -90,6 +100,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void remove(int index, int count) {
+		validateIndex(index + count - 1);
 		int removedItemsOffset = index * structSize;
 		int followingItemsOffset = (length - count) * structSize;
 		buffer.move(followingItemsOffset, removedItemsOffset, structSize);
@@ -97,6 +108,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void removeOrdered(int index, int count) {
+		validateIndex(index + count - 1);
 		int removedItemsOffset = index * structSize;
 		int followingItemsOffset = removedItemsOffset + (count * structSize);
 		buffer.move(followingItemsOffset, removedItemsOffset, (length - index - count) * structSize);
@@ -104,6 +116,8 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T insert(int index) {
+		validateIndex(index);
+		resizeIfNeeded(length + 1);
 		int addedItemOffset = index * structSize;
 		buffer.move(addedItemOffset, addedItemOffset + structSize, (length - index) * structSize);
 		length++;
@@ -111,19 +125,25 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T insert(int index, T value) {
+		validateIndex(index);
+		resizeIfNeeded(length + 1);
 		buffer.set(value.buffer, value.offset, index * structSize, structSize);
 		length++;
 		return get(index);
 	}
 
 	public T insert(int index, int count) {
+		validateIndex(index);
+		resizeIfNeeded(length + count);
 		int addedItemsOffset = index * structSize;
 		buffer.move(addedItemsOffset, addedItemsOffset + (structSize * count), (length - index) * structSize);
 		length += count;
 		return get(index);
 	}
 
-	private T insert(int index, StructArray<T> source, int fromItem, int count) {
+	public T insert(int index, StructArray<T> source, int fromItem, int count) {
+		validateIndex(index);
+		resizeIfNeeded(length + count);
 		int addedItemsOffset = index * structSize;
 		buffer.move(addedItemsOffset, addedItemsOffset + (structSize * count), (length - index) * structSize);
 		buffer.set(source.buffer, fromItem * structSize, index * structSize, count * structSize);
@@ -131,55 +151,22 @@ public class StructArray<T extends Struct> {
 		return get(index);
 	}
 
-	public T insertSafely(int index) {
-		resizeIfNeeded(length + 1);
-		return insert(index);
-	}
-
-	public T insertSafely(int index, T value) {
-		resizeIfNeeded(length + 1);
-		return insert(index, value);
-	}
-
-	public T insertSafely(int index, int count) {
-		resizeIfNeeded(length + count);
-		return insert(index, count);
-	}
-
-	public T insertSafely(int index, StructArray<T> source, int fromItem, int count) {
-		resizeIfNeeded(length + count);
-		return insert(index, source, fromItem, count);
-	}
-
 	public T add() {
-		length++;
-		return get(length - 1);
+		resizeIfNeeded(length + 1);
+		return get(length++);
 	}
 
 	public T add(T value) {
+		resizeIfNeeded(length + 1);
 		buffer.set(value.buffer, value.offset, length * structSize, structSize);
 		return get(length++);
 	}
 
 	public T add(int count) {
+		resizeIfNeeded(length + count);
 		int index = length - 1;
 		length += count;
 		return get(index);
-	}
-
-	public T addSafely() {
-		resizeIfNeeded(length + 1);
-		return add();
-	}
-
-	public T addSafely(T value) {
-		resizeIfNeeded(length + 1);
-		return add(value);
-	}
-
-	public T addSafely(int count) {
-		resizeIfNeeded(length + count);
-		return add(count);
 	}
 
 	public T addAll(StructArray<T> source) {
@@ -187,82 +174,77 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T addAll(StructArray<T> source, int startIndex, int count) {
-		buffer.set(source.buffer, startIndex * structSize, length * structSize, structSize * count);
+		int destinationOffset = length * structSize;
 		length += count;
+		resizeIfNeeded(length);
+		buffer.set(source.buffer, startIndex * structSize, destinationOffset, structSize * count);
 		return get(startIndex);
 	}
 
-	public T addAllSafely(StructArray<T> source) {
-		resizeIfNeeded(length + source.length);
-		return addAll(source);
-	}
-
-	public T addAllSafely(StructArray<T> source, int startIndex, int count) {
-		resizeIfNeeded(length + count);
-		return addAll(source, startIndex, count);
-	}
-
 	public T first() {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
+		validateNotEmpty();
 		return get(0);
 	}
 
-	public T first(T out) {
+	private void validateNotEmpty() {
 		if (length == 0) {
 			throw new IllegalStateException("Array is empty.");
 		}
+	}
+
+	public T first(T out) {
+		validateNotEmpty();
 		return get(0, out);
 	}
 
 	public T pop() {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
+		validateNotEmpty();
 		length = Math.max(0, length - 1);
 		return get(length);
 	}
 
 	public T pop(T out) {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
-		length = Math.max(0, length - 1);
+		validateNotEmpty();
+		length -= 1;
 		return get(length, out);
 	}
 
 	public T peek() {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
+		validateNotEmpty();
 		return get(length - 1);
 	}
 
 	public T peek(T out) {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
+		validateNotEmpty();
 		return get(length - 1, out);
 	}
 
 	public void swap(int fromIndex, int toIndex) {
+		validateIndex(fromIndex);
+		validateIndex(toIndex);
 		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize);
 	}
 
 	public void set(int index, T value) {
+		validateIndex(index);
 		buffer.set(value.buffer, value.offset, index * structSize, structSize);
 	}
 
 	public void set(int index, StructArray<T> source, int sourceIndex, int count) {
+		validateIndex(index - 1);
 		buffer.set(source.buffer, sourceIndex * structSize, index * structSize, count * structSize);
+		length = Math.max(length, index + count);
 	}
 
 	public void move(int fromIndex, int toIndex) {
+		validateIndex(fromIndex);
+		validateIndex(toIndex);
 		buffer.move(fromIndex * structSize, toIndex * structSize, structSize);
 	}
 
 	public void move(int fromIndex, int toIndex, int count) {
+		validateIndex(fromIndex);
+		validateIndex(toIndex);
 		buffer.move(fromIndex * structSize, toIndex * structSize, count * structSize);
 	}
 

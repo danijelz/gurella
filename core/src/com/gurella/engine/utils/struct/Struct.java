@@ -130,7 +130,7 @@ public abstract class Struct {
 		StructArray<TestStruct> sa = new StructArray<TestStruct>(TestStruct.class, testSize);
 		for (int i = 0; i < testSize; i++) {
 			TestClass testClass = tc[i];
-			TestStruct testStruct = sa.get(i);
+			TestStruct testStruct = sa.add();
 			testStruct.setVector(testClass.vector);
 			testStruct.setPoint(testClass.point);
 			testStruct.setMatrix4(testClass.matrix4);
