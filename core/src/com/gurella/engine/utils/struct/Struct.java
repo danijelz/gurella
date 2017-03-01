@@ -10,13 +10,13 @@ import com.gurella.engine.utils.struct.StructProperty.Matrix4StructProperty;
 import com.gurella.engine.utils.struct.StructProperty.Vector3StructProperty;
 
 public abstract class Struct {
-	BaseBuffer buffer;
+	Buffer buffer;
 	int offset;
 
 	protected Struct() {
 	}
 
-	public Struct(BaseBuffer buffer, int offset) {
+	public Struct(Buffer buffer, int offset) {
 		this.offset = offset;
 		this.buffer = buffer;
 	}

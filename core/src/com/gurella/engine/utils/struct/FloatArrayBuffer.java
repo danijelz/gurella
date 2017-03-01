@@ -5,7 +5,7 @@ import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 import static java.lang.Float.intBitsToFloat;
 
-public class FloatArrayBuffer extends BaseBuffer {
+public class FloatArrayBuffer extends Buffer {
 	public FloatArrayBuffer(int byteCapacity) {
 		super(byteCapacity);
 	}
@@ -204,28 +204,5 @@ public class FloatArrayBuffer extends BaseBuffer {
 		default:
 			throw new IllegalArgumentException("Invalid short offset: " + offset);
 		}
-	}
-
-	//////// flag
-
-	@Override
-	public boolean getFlag(int offset, int flag) {
-		return (floatToRawIntBits(arr[offset / 4]) & (1 << flag)) != 0;
-	}
-
-	@Override
-	public void setFlag(int offset, int flag) {
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		int value = floatToRawIntBits(buffer[temp]);
-		buffer[temp] = intBitsToFloat(value | (1 << flag));
-	}
-
-	@Override
-	public void unsetFlag(int offset, int flag) {
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		int value = floatToRawIntBits(buffer[temp]);
-		buffer[temp] = intBitsToFloat(value & ~(1 << flag));
 	}
 }

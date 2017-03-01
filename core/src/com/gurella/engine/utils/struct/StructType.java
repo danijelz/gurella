@@ -56,7 +56,7 @@ public class StructType<T extends Struct> {
 		size = temp + (temp % 4);
 	}
 
-	public T newInstance(BaseBuffer buffer, int offset) {
+	public T newInstance(Buffer buffer, int offset) {
 		T struct = Reflection.invokeConstructor(constructor);
 		struct.buffer = buffer;
 		struct.offset = offset;
@@ -64,9 +64,7 @@ public class StructType<T extends Struct> {
 	}
 
 	public <S extends T> void copy(S source, T destination) {
-		BaseBuffer sourceBuffer = source.buffer;
-		BaseBuffer destinationBuffer = destination.buffer;
-		destinationBuffer.setFloatArray(sourceBuffer.arr, source.offset, destination.offset, size);
+		destination.buffer.set(source.buffer, source.offset, destination.offset, size);
 	}
 
 	@Override
@@ -83,6 +81,10 @@ public class StructType<T extends Struct> {
 		}
 		builder.append("\n]");
 		return builder.toString();
+	}
+
+	public static <T extends Struct> T newInstance(Class<T> type, Buffer buffer, int offset) {
+		return get(type).newInstance(buffer, offset);
 	}
 
 	public static <T extends Struct> StructType<T> get(Class<T> type) {

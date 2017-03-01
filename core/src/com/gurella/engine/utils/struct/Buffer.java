@@ -1,11 +1,6 @@
 package com.gurella.engine.utils.struct;
 
-import static com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits;
-import static java.lang.Double.doubleToRawLongBits;
-import static java.lang.Double.longBitsToDouble;
-import static java.lang.Float.intBitsToFloat;
-
-public class Buffer {
+public abstract class Buffer {
 	public float[] arr;
 
 	public Buffer(int byteCapacity) {
@@ -35,232 +30,105 @@ public class Buffer {
 		this.arr = newBuffer;
 	}
 
-	public void swap(int firstIndex, int secondIndex, int byteLength) {
+	public void swap(int fromOffset, int toOffset, int byteLength) {
 		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
-		float word;
+		int fromIndex = fromOffset / 4;
+		int toIndex = toOffset / 4;
+		float temp;
 		for (int i = 0, n = byteLength / 4; i < n; i++) {
-			word = buffer[firstOffset];
-			buffer[firstOffset++] = buffer[secondOffset];
-			buffer[secondOffset++] = word;
+			temp = buffer[fromIndex];
+			buffer[fromIndex++] = buffer[toIndex];
+			buffer[toIndex++] = temp;
 		}
 	}
 
-	public void swap(int firstIndex, int secondIndex, float[] temp) {
+	public void swap(int fromOffset, int toOffset, float[] temp) {
 		float[] buffer = this.arr;
-		int firstOffset = firstIndex / 4;
-		int secondOffset = secondIndex / 4;
 		int length = temp.length;
-		getFloatArray(firstOffset, temp, 0, length);
-		System.arraycopy(buffer, secondOffset, buffer, firstOffset, length);
-		setFloatArray(secondOffset, temp, length);
+		int fromIndex = fromOffset / 4;
+		int toIndex = toOffset / 4;
+
+		System.arraycopy(buffer, toIndex, temp, 0, length);
+		System.arraycopy(buffer, fromIndex, buffer, toIndex, length);
+		System.arraycopy(temp, 0, buffer, fromIndex, length);
 	}
 
 	public void move(int sourceOffset, int destOffset, int byteLength) {
 		System.arraycopy(arr, sourceOffset / 4, arr, destOffset / 4, byteLength / 4);
 	}
 
-	public void set(Buffer other) {
-		int otherLength = other.arr.length;
+	/////////// buffer
+
+	public void set(Buffer source) {
 		int length = arr.length;
-		ensureCapacity(otherLength - length);
-		System.arraycopy(arr, 0, other.arr, 0, Math.min(otherLength, length));
+		int otherLength = source.arr.length;
+		ensureCapacity((otherLength - length) * 4);
+		System.arraycopy(source.arr, 0, arr, 0, otherLength);
 	}
 
-	//////// float
-
-	public float getFloat(int offset) {
-		return arr[offset / 4];
+	public void set(Buffer source, int sourceOffset, int destinationOffset, int byteLength) {
+		int sourceIndex = sourceOffset / 4;
+		int destinationIndex = destinationOffset / 4;
+		int length = byteLength / 4;
+		int neededLength = destinationIndex + length;
+		ensureCapacity((neededLength - arr.length) * 4);
+		System.arraycopy(source.arr, sourceIndex, arr, destinationOffset / 4, length);
 	}
 
-	public void setFloat(int offset, float value) {
-		arr[offset / 4] = value;
-	}
+	/////////// float
+
+	public abstract float getFloat(int offset);
+
+	public abstract void setFloat(int offset, float value);
 
 	/////////// int
 
-	public int getInt(int offset) {
-		return floatToRawIntBits(arr[offset / 4]);
-	}
+	public abstract int getInt(int offset);
 
-	public void setInt(int offset, int value) {
-		arr[offset / 4] = intBitsToFloat(value);
-	}
+	public abstract void setInt(int offset, int value);
 
 	////////// long
 
-	public long getLong(int offset) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
-		return (long) floatToRawIntBits(buffer[temp++]) << 32 | floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
-	}
+	public abstract long getLong(int offset);
 
-	public void setLong(int offset, long value) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
-		buffer[temp++] = intBitsToFloat((int) (value >> 32));
-		buffer[temp] = intBitsToFloat((int) value);
-	}
+	public abstract void setLong(int offset, long value);
 
 	///////// double
 
-	public double getDouble(int offset) {
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		long hi = (long) floatToRawIntBits(buffer[temp++]) << 32;
-		long lo = floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
-		return longBitsToDouble(hi | lo);
-	}
+	public abstract double getDouble(int offset);
 
-	public void setDouble(int offset, double value) {
-		long l = doubleToRawLongBits(value);
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		buffer[temp++] = intBitsToFloat((int) (l >> 32));
-		buffer[temp] = intBitsToFloat((int) l);
-	}
+	public abstract void setDouble(int offset, double value);
 
 	///////// short
 
-	public short getShort(int offset) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
+	public abstract short getShort(int offset);
 
-		switch (offset % 4) {
-		case 0:
-			return (short) (floatToRawIntBits(buffer[temp]) >> 16);
-		case 2:
-			return (short) floatToRawIntBits(buffer[temp]);
-		default:
-			throw new IllegalArgumentException("Invalid short offset: " + offset);
-		}
-	}
-
-	public void setShort(int offset, short value) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
-
-		switch (offset % 4) {
-		case 0: {
-			int i = floatToRawIntBits(buffer[temp]) & 0x0000FFFF;
-			buffer[temp] = intBitsToFloat(i | (value << 16));
-			break;
-		}
-		case 2: {
-			int i = floatToRawIntBits(buffer[temp]) & 0xFFFF0000;
-			buffer[temp] = intBitsToFloat(i | value);
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Invalid short offset: " + offset);
-		}
-	}
+	public abstract void setShort(int offset, short value);
 
 	///////// char
 
-	public char getChar(int offset) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
+	public abstract char getChar(int offset);
 
-		switch (offset % 4) {
-		case 0:
-			return (char) (floatToRawIntBits(buffer[temp]) >> 16);
-		case 2:
-			return (char) floatToRawIntBits(buffer[temp]);
-		default:
-			throw new IllegalArgumentException("Invalid char offset: " + offset);
-		}
-	}
-
-	public void setChar(int offset, char value) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
-
-		switch (offset % 4) {
-		case 0: {
-			int i = floatToRawIntBits(buffer[temp]) & 0x0000FFFF;
-			buffer[temp] = intBitsToFloat(i | (value << 16));
-			break;
-		}
-		case 2: {
-			int i = floatToRawIntBits(buffer[temp]) & 0xFFFF0000;
-			buffer[temp] = intBitsToFloat(i | value);
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Invalid short offset: " + offset);
-		}
-	}
+	public abstract void setChar(int offset, char value);
 
 	//////// byte
 
-	public byte getByte(int offset) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
+	public abstract byte getByte(int offset);
 
-		switch (offset % 4) {
-		case 0:
-			return (byte) (floatToRawIntBits(buffer[temp]) >> 24);
-		case 1:
-			return (byte) (floatToRawIntBits(buffer[temp]) >> 16);
-		case 2:
-			return (byte) (floatToRawIntBits(buffer[temp]) >> 8);
-		case 3:
-			return (byte) (floatToRawIntBits(buffer[temp]));
-		default:
-			throw new IllegalArgumentException("Invalid char offset: " + offset);
-		}
-	}
-
-	public void setByte(int offset, byte value) {
-		int temp = offset / 4;
-		float[] buffer = this.arr;
-
-		switch (offset % 4) {
-		case 0: {
-			int i = floatToRawIntBits(buffer[temp]) & 0x00FFFFFF;
-			buffer[temp] = intBitsToFloat(i | (value << 24));
-			break;
-		}
-		case 1: {
-			int i = floatToRawIntBits(buffer[temp]) & 0xFF00FFFF;
-			buffer[temp] = intBitsToFloat(i | (value << 16));
-			break;
-		}
-		case 2: {
-			int i = floatToRawIntBits(buffer[temp]) & 0xFFFF00FF;
-			buffer[temp] = intBitsToFloat(i | (value << 8));
-			break;
-		}
-		case 3: {
-			int i = floatToRawIntBits(buffer[temp]) & 0xFFFFFF00;
-			buffer[temp] = intBitsToFloat(i | value);
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("Invalid short offset: " + offset);
-		}
-	}
+	public abstract void setByte(int offset, byte value);
 
 	//////// flag
 
 	public boolean getFlag(int offset, int flag) {
-		return (floatToRawIntBits(arr[offset / 4]) & (1 << flag)) != 0;
+		return (getInt(offset) & (1 << flag)) != 0;
 	}
 
 	public void setFlag(int offset, int flag) {
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		int value = floatToRawIntBits(buffer[temp]);
-		buffer[temp] = intBitsToFloat(value | (1 << flag));
+		setInt(offset, getInt(offset) | (1 << flag));
 	}
 
 	public void unsetFlag(int offset, int flag) {
-		float[] buffer = this.arr;
-		int temp = offset / 4;
-		int value = floatToRawIntBits(buffer[temp]);
-		buffer[temp] = intBitsToFloat(value & ~(1 << flag));
+		setInt(offset, getInt(offset) & ~(1 << flag));
 	}
 
 	//////// float[]
@@ -270,8 +138,8 @@ public class Buffer {
 		return destination;
 	}
 
-	public float[] getFloatArray(int offset, float[] destination, int destOffset, int length) {
-		System.arraycopy(arr, offset / 4, destination, destOffset / 4, length);
+	public float[] getFloatArray(int offset, float[] destination, int destinationIndex, int floatLength) {
+		System.arraycopy(arr, offset / 4, destination, destinationIndex, floatLength);
 		return destination;
 	}
 
@@ -279,11 +147,11 @@ public class Buffer {
 		System.arraycopy(source, 0, arr, offset / 4, source.length);
 	}
 
-	public void setFloatArray(int offset, float[] source, int length) {
-		System.arraycopy(source, 0, arr, offset / 4, length);
+	public void setFloatArray(int offset, float[] source, int floatLength) {
+		System.arraycopy(source, 0, arr, offset / 4, floatLength);
 	}
 
-	public void setFloatArray(float[] source, int sourceOffset, int destOffset, int length) {
-		System.arraycopy(source, sourceOffset / 4, arr, destOffset / 4, length);
+	public void setFloatArray(int offset, float[] source, int sourceIndex, int floatLength) {
+		System.arraycopy(source, sourceIndex, arr, offset / 4, floatLength);
 	}
 }
