@@ -36,26 +36,12 @@ public abstract class Struct {
 		}
 
 		Struct other = (Struct) obj;
-		Array<StructProperty> properties = StructType.get(getClass())._properties;
-		for (int i = 0, n = properties.size; i < n; i++) {
-			StructProperty property = properties.get(i);
-			if (!property.equals(this, other)) {
-				return false;
-			}
-		}
-
-		return true;
+		return buffer.equals(offset, other.buffer, other.offset, StructType.get(getClass()).size);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = getClass().hashCode();
-		Array<StructProperty> properties = StructType.get(getClass())._properties;
-		for (int i = 0, n = properties.size; i < n; i++) {
-			StructProperty property = properties.get(i);
-			result += property.hashCode(this);
-		}
-		return result;
+		return getClass().hashCode() + buffer.hashCode(offset, StructType.get(getClass()).size);
 	}
 
 	@Override

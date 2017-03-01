@@ -334,6 +334,29 @@ public class StructArray<T extends Struct> {
 
 	// TODO sort, sortRange
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		StructArray<?> other = (StructArray<?>) obj;
+		return length != other.length && buffer.equals(0, other.buffer, 0, length * structSize);
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode() + buffer.hashCode(0, length * structSize) * 31;
+	}
+
 	public static class StructArrayIterator<T extends Struct> implements Iterator<T>, Iterable<T> {
 		private final StructArray<T> array;
 		private final boolean allowRemove;

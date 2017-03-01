@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.utils.NumberUtils;
 import com.gurella.engine.math.GridRectangle;
 
 public abstract class StructProperty {
@@ -22,28 +21,11 @@ public abstract class StructProperty {
 	public abstract String toString(Struct struct);
 
 	public boolean equals(Struct s1, Struct s2) {
-		float[] arr1 = s1.buffer.arr;
-		float[] arr2 = s2.buffer.arr;
-		int index1 = (s1.offset + offset) / 4;
-		int index2 = (s2.offset + offset) / 4;
-		int n = index1 + size / 4;
-		for (; index1 < n;) {
-			if (arr1[index1++] != arr2[index2++]) {
-				return false;
-			}
-		}
-		return true;
+		return s1.buffer.equals(s1.offset + offset, s2.buffer, s2.offset + offset, size);
 	}
 
 	public int hashCode(Struct struct) {
-		float[] arr = struct.buffer.arr;
-		int index = (struct.offset + offset) / 4;
-		int n = index + size / 4;
-		int result = 1;
-		for (; index < n; index++) {
-			result = 31 * result + NumberUtils.floatToRawIntBits(arr[index]);
-		}
-		return result;
+		return struct.buffer.hashCode(struct.offset + offset, size);
 	}
 
 	public StructProperty(int size) {

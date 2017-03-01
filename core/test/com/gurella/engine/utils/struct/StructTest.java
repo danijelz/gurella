@@ -60,13 +60,22 @@ public class StructTest {
 		sa.reverse();
 		System.out.println("testReverse: " + validateElementsEqual(arr.items, sa));
 	}
-	
+
+	public static void testEqualsAndHashCode() {
+		TestClass[] tc = createTestClassArray(100);
+		StructArray<TestStruct> sa1 = createTestStructArray(tc);
+		StructArray<TestStruct> sa2 = createTestStructArray(tc);
+		System.out.println("testEquals: " + sa1.equals(sa2));
+		System.out.println("testHashCode: " + (sa1.hashCode() == sa2.hashCode()));
+	}
+
 	public static void main(String[] args) {
 		testReverse(55);
 		testReverse(54);
 		testReverse(3);
 		testReverse(2);
 		testReverse(1);
+		testEqualsAndHashCode();
 	}
 
 	private static class TestClass {

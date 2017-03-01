@@ -2,6 +2,8 @@ package com.gurella.engine.utils.struct;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.NumberUtils;
+
 public abstract class Buffer {
 	public float[] arr;
 
@@ -61,6 +63,33 @@ public abstract class Buffer {
 
 	public void fill(int fromIndex, int toIndex, float value) {
 		Arrays.fill(arr, fromIndex, toIndex, value);
+	}
+
+	public boolean equals(int offset, Buffer other, int otherOffset, int byteLength) {
+		float[] arr1 = arr;
+		float[] arr2 = other.arr;
+		int index1 = offset / 4;
+		int index2 = otherOffset / 4;
+		int n = index1 + byteLength / 4;
+
+		for (; index1 < n;) {
+			if (arr1[index1++] != arr2[index2++]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public int hashCode(int offset, int byteLength) {
+		float[] arr = this.arr;
+		int index = offset / 4;
+		int n = index + byteLength / 4;
+		int result = 1;
+		for (; index < n; index++) {
+			result = 31 * result + NumberUtils.floatToRawIntBits(arr[index]);
+		}
+		return result;
 	}
 
 	/////////// buffer
