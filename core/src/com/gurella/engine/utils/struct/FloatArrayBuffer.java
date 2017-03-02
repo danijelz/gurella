@@ -14,38 +14,38 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public float getFloat(int offset) {
-		return arr[offset / 4];
+		return arr[offset >> 2];
 	}
 
 	@Override
 	public void setFloat(int offset, float value) {
-		arr[offset / 4] = value;
+		arr[offset >> 2] = value;
 	}
 
 	/////////// int
 
 	@Override
 	public int getInt(int offset) {
-		return floatToRawIntBits(arr[offset / 4]);
+		return floatToRawIntBits(arr[offset >> 2]);
 	}
 
 	@Override
 	public void setInt(int offset, int value) {
-		arr[offset / 4] = intBitsToFloat(value);
+		arr[offset >> 2] = intBitsToFloat(value);
 	}
 
 	////////// long
 
 	@Override
 	public long getLong(int offset) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 		return (long) floatToRawIntBits(buffer[temp++]) << 32 | floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
 	}
 
 	@Override
 	public void setLong(int offset, long value) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 		buffer[temp++] = intBitsToFloat((int) (value >> 32));
 		buffer[temp] = intBitsToFloat((int) value);
@@ -56,7 +56,7 @@ public class FloatArrayBuffer extends Buffer {
 	@Override
 	public double getDouble(int offset) {
 		float[] buffer = this.arr;
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		long hi = (long) floatToRawIntBits(buffer[temp++]) << 32;
 		long lo = floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
 		return longBitsToDouble(hi | lo);
@@ -66,7 +66,7 @@ public class FloatArrayBuffer extends Buffer {
 	public void setDouble(int offset, double value) {
 		long l = doubleToRawLongBits(value);
 		float[] buffer = this.arr;
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		buffer[temp++] = intBitsToFloat((int) (l >> 32));
 		buffer[temp] = intBitsToFloat((int) l);
 	}
@@ -75,10 +75,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public short getShort(int offset) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0:
 			return (short) (floatToRawIntBits(buffer[temp]) >> 16);
 		case 2:
@@ -90,10 +90,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public void setShort(int offset, short value) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0: {
 			int i = floatToRawIntBits(buffer[temp]) & 0x0000FFFF;
 			buffer[temp] = intBitsToFloat(i | (value << 16));
@@ -113,10 +113,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public char getChar(int offset) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0:
 			return (char) (floatToRawIntBits(buffer[temp]) >> 16);
 		case 2:
@@ -128,10 +128,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public void setChar(int offset, char value) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0: {
 			int i = floatToRawIntBits(buffer[temp]) & 0x0000FFFF;
 			buffer[temp] = intBitsToFloat(i | (value << 16));
@@ -151,10 +151,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public byte getByte(int offset) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0:
 			return (byte) (floatToRawIntBits(buffer[temp]) >> 24);
 		case 1:
@@ -170,10 +170,10 @@ public class FloatArrayBuffer extends Buffer {
 
 	@Override
 	public void setByte(int offset, byte value) {
-		int temp = offset / 4;
+		int temp = offset >> 2;
 		float[] buffer = this.arr;
 
-		switch (offset % 4) {
+		switch (offset % word) {
 		case 0: {
 			int i = floatToRawIntBits(buffer[temp]) & 0x00FFFFFF;
 			buffer[temp] = intBitsToFloat(i | (value << 24));

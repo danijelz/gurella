@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +23,7 @@ public class TerrainComponent extends RenderableComponent3d {
 	public static final int DEFAULT_SIZE = 1600;
 	public static final int DEFAULT_VERTEX_RESOLUTION = 180;
 
-	private static final MeshPartBuilder.VertexInfo tempVertexInfo = new MeshPartBuilder.VertexInfo();
+	private static final VertexInfo tempVertexInfo = new VertexInfo();
 	private static final Vector3 c00 = new Vector3();
 	private static final Vector3 c01 = new Vector3();
 	private static final Vector3 c10 = new Vector3();
@@ -40,8 +41,9 @@ public class TerrainComponent extends RenderableComponent3d {
 	private ModelInstance modelInstance;
 	private Mesh mesh;
 
-	private VertexAttributes attribs;
+	private final VertexAttributes attribs;
 	private final Vector2 uvScale = new Vector2(60, 60);
+	
 	private float vertices[];
 	private int stride;
 	private int posPos;
@@ -59,7 +61,6 @@ public class TerrainComponent extends RenderableComponent3d {
 		this.heightData = new float[vertexResolution * vertexResolution];
 
 		this.terrainTexture = new TerrainTexture();
-		this.terrainTexture.setTerrain(this);
 		material = new Material();
 		material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
 	}
@@ -202,7 +203,7 @@ public class TerrainComponent extends RenderableComponent3d {
 		}
 	}
 
-	private MeshPartBuilder.VertexInfo calculateVertexAt(MeshPartBuilder.VertexInfo out, int x, int z) {
+	private VertexInfo calculateVertexAt(MeshPartBuilder.VertexInfo out, int x, int z) {
 		final float dx = (float) x / (float) (vertexResolution - 1);
 		final float dz = (float) z / (float) (vertexResolution - 1);
 		final float height = heightData[z * vertexResolution + x];
@@ -288,9 +289,7 @@ public class TerrainComponent extends RenderableComponent3d {
 			return;
 		}
 
-		terrainTexture.setTerrain(this);
 		this.terrainTexture = terrainTexture;
-
 		material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
 	}
 

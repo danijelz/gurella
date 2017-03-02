@@ -1,6 +1,7 @@
 package com.gurella.engine.utils.struct;
 
 import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
+import static com.gurella.engine.utils.struct.Buffer.word;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -52,8 +53,8 @@ public class StructType<T extends Struct> {
 		this.orderedProperties = new ImmutableArray<StructProperty>(_orderedProperties);
 
 		StructProperty last = _properties.peek();
-		int temp = last.offset + last.size;
-		size = temp + (temp % 4);
+		int lastPropertyOffset = last.offset + last.size;
+		size = lastPropertyOffset + (word - lastPropertyOffset % word);
 	}
 
 	public T newInstance(Buffer buffer, int offset) {
@@ -152,7 +153,7 @@ public class StructType<T extends Struct> {
 
 		private static int getComparing(StructProperty property) {
 			int size = property.size;
-			int mod = size % 4;
+			int mod = size % word;
 			switch (mod) {
 			case 0:
 				return 0;
@@ -249,7 +250,7 @@ public class StructType<T extends Struct> {
 		System.out.println("\n\n");
 
 		StructArray<TestStruct> arr = new StructArray<TestStruct>(TestStruct.class, 3);
-		TestStruct testStruct = arr.get(0);
+		TestStruct testStruct = arr.add();
 		testStruct.setProperty1((short) 1);
 		testStruct.setProperty2((byte) 2);
 		testStruct.setProperty3((short) 3);

@@ -1,5 +1,10 @@
 package com.gurella.engine.utils.struct;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -41,7 +46,7 @@ public class StructTest {
 		return sa;
 	}
 
-	private static int validateElementsEqual(TestClass[] tc, StructArray<TestStruct> sa) {
+	private static int getDiffElementIndex(TestClass[] tc, StructArray<TestStruct> sa) {
 		for (int i = 0; i < tc.length; i++) {
 			if (!tc[i].point.equals(sa.get(i).getPoint())) {
 				return i;
@@ -58,24 +63,26 @@ public class StructTest {
 		Array<TestClass> arr = Array.with(tc);
 		arr.reverse();
 		sa.reverse();
-		System.out.println("testReverse: " + validateElementsEqual(arr.items, sa));
+		int diffElementIndex = getDiffElementIndex(arr.items, sa);
+		assertEquals("Element diff at index: " + diffElementIndex, -1, diffElementIndex);
 	}
 
-	public static void testEqualsAndHashCode() {
-		TestClass[] tc = createTestClassArray(100);
-		StructArray<TestStruct> sa1 = createTestStructArray(tc);
-		StructArray<TestStruct> sa2 = createTestStructArray(tc);
-		System.out.println("testEquals: " + sa1.equals(sa2));
-		System.out.println("testHashCode: " + (sa1.hashCode() == sa2.hashCode()));
-	}
-
-	public static void main(String[] args) {
+	@Test
+	public void restReverse() {
 		testReverse(55);
 		testReverse(54);
 		testReverse(3);
 		testReverse(2);
 		testReverse(1);
-		testEqualsAndHashCode();
+	}
+
+	@Test
+	public void testEqualsAndHashCode() {
+		TestClass[] tc = createTestClassArray(100);
+		StructArray<TestStruct> sa1 = createTestStructArray(tc);
+		StructArray<TestStruct> sa2 = createTestStructArray(tc);
+		assertTrue(sa1.equals(sa2));
+		assertTrue(sa1.hashCode() == sa2.hashCode());
 	}
 
 	private static class TestClass {

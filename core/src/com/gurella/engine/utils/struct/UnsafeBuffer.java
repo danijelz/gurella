@@ -7,131 +7,132 @@ import sun.misc.Unsafe;
 
 @SuppressWarnings("restriction")
 public class UnsafeBuffer extends Buffer {
-	final static Unsafe unsafe;
+	private static final Unsafe unsafe;
+	private static final long baseOffset;
 	static {
 		Field field = Reflection.getDeclaredField(Unsafe.class, "theUnsafe");
 		field.setAccessible(true);
 		unsafe = Reflection.getFieldValue(field, null);
+		baseOffset = Unsafe.ARRAY_FLOAT_BASE_OFFSET;
 	}
 
 	public UnsafeBuffer(int byteCapacity) {
 		super(byteCapacity);
 	}
 
-	private static long arrOffset(long offset) {
-		return Unsafe.ARRAY_FLOAT_BASE_OFFSET + offset;
+	private static long offset(long offset) {
+		return baseOffset + offset;
 	}
 
 	@Override
 	public void set(Buffer source) {
-		long arrOffset = arrOffset(0);
-		unsafe.copyMemory(source.arr, arrOffset, arr, arrOffset, arr.length * 4);
+		unsafe.copyMemory(source.arr, baseOffset, arr, baseOffset, arr.length << 2);
 	}
 
 	@Override
 	public void set(Buffer source, int sourceOffset, int destinationOffset, int byteLength) {
-		unsafe.copyMemory(source.arr, arrOffset(sourceOffset), arr, arrOffset(destinationOffset), byteLength);
+		unsafe.copyMemory(source.arr, offset(sourceOffset), arr, offset(destinationOffset), byteLength);
 	}
 
 	@Override
 	public void move(int sourceOffset, int destOffset, int byteLength) {
-		unsafe.copyMemory(arr, arrOffset(sourceOffset), arr, arrOffset(destOffset), byteLength);
+		unsafe.copyMemory(arr, offset(sourceOffset), arr, offset(destOffset), byteLength);
 	}
 
 	@Override
 	public float getFloat(int offset) {
-		return unsafe.getFloat(arr, arrOffset(offset));
+		return unsafe.getFloat(arr, offset(offset));
 	}
 
 	@Override
 	public void setFloat(int offset, float value) {
-		unsafe.putFloat(arr, arrOffset(offset), value);
+		unsafe.putFloat(arr, offset(offset), value);
 	}
 
 	@Override
 	public int getInt(int offset) {
-		return unsafe.getInt(arr, arrOffset(offset));
+		return unsafe.getInt(arr, offset(offset));
 	}
 
 	@Override
 	public void setInt(int offset, int value) {
-		unsafe.putInt(arr, arrOffset(offset), value);
+		unsafe.putInt(arr, offset(offset), value);
 	}
 
 	@Override
 	public long getLong(int offset) {
-		return unsafe.getLong(arr, arrOffset(offset));
+		return unsafe.getLong(arr, offset(offset));
 	}
 
 	@Override
 	public void setLong(int offset, long value) {
-		unsafe.putLong(arr, arrOffset(offset), value);
+		unsafe.putLong(arr, offset(offset), value);
 	}
 
 	@Override
 	public double getDouble(int offset) {
-		return unsafe.getDouble(arr, arrOffset(offset));
+		return unsafe.getDouble(arr, offset(offset));
 	}
 
 	@Override
 	public void setDouble(int offset, double value) {
-		unsafe.putDouble(arr, arrOffset(offset), value);
+		unsafe.putDouble(arr, offset(offset), value);
 	}
 
 	@Override
 	public short getShort(int offset) {
-		return unsafe.getShort(arr, arrOffset(offset));
+		return unsafe.getShort(arr, offset(offset));
 	}
 
 	@Override
 	public void setShort(int offset, short value) {
-		unsafe.putShort(arr, arrOffset(offset), value);
+		unsafe.putShort(arr, offset(offset), value);
 	}
 
 	@Override
 	public char getChar(int offset) {
-		return unsafe.getChar(arr, arrOffset(offset));
+		return unsafe.getChar(arr, offset(offset));
 	}
 
 	@Override
 	public void setChar(int offset, char value) {
-		unsafe.putChar(arr, arrOffset(offset), value);
+		unsafe.putChar(arr, offset(offset), value);
 	}
 
 	@Override
 	public byte getByte(int offset) {
-		return unsafe.getByte(arr, arrOffset(offset));
+		return unsafe.getByte(arr, offset(offset));
 	}
 
 	@Override
 	public void setByte(int offset, byte value) {
-		unsafe.putByte(arr, arrOffset(offset), value);
+		unsafe.putByte(arr, offset(offset), value);
 	}
 
 	@Override
 	public float[] getFloatArray(int offset, float[] destination) {
-		unsafe.copyMemory(arr, arrOffset(offset), destination, arrOffset(0), destination.length * 4);
+		unsafe.copyMemory(arr, offset(offset), destination, baseOffset, destination.length << 2);
 		return destination;
 	}
 
 	@Override
-	public float[] getFloatArray(int offset, float[] destination, int destinationIndex, int floatLength) {
-		unsafe.copyMemory(arr, arrOffset(offset), destination, arrOffset(destinationIndex * 4), floatLength * 4);
+	public float[] getFloatArray(int offset, float[] destination, int destinationIndex, int count) {
+		unsafe.copyMemory(arr, offset(offset), destination, offset(destinationIndex << 2), count << 2);
 		return destination;
 	}
 
 	@Override
 	public void setFloatArray(int offset, float[] source) {
-		unsafe.copyMemory(source, arrOffset(0), arr, arrOffset(offset), source.length * 4);
+		unsafe.copyMemory(source, baseOffset, arr, offset(offset), source.length << 2);
 	}
 
 	@Override
-	public void setFloatArray(int offset, float[] source, int floatLength) {
-		unsafe.copyMemory(source, arrOffset(0), arr, arrOffset(offset), floatLength * 4);
+	public void setFloatArray(int offset, float[] source, int count) {
+		unsafe.copyMemory(source, baseOffset, arr, offset(offset), count << 2);
 	}
 
 	@Override
-	public void setFloatArray(int offset, float[] source, int sourceIndex, int floatLength) {
-		unsafe.copyMemory(source, arrOffset(sourceIndex * 4), arr, arrOffset(offset), floatLength * 4);
+	public void setFloatArray(int offset, float[] source, int sourceIndex, int count) {
+		unsafe.copyMemory(source, offset(sourceIndex << 2), arr, offset(offset), count << 2);
 	}
 }

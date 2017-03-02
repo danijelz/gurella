@@ -7,7 +7,7 @@ public class ReflectionFactory<T> implements Factory<T> {
 	private final Constructor constructor;
 
 	public ReflectionFactory(Class<T> type) {
-		this.constructor = Reflection.getDeclaredConstructor(type, (Class[]) null);
+		this.constructor = Reflection.findConstructorSilently(type, (Class[]) null);
 		if (constructor == null) {
 			throw new RuntimeException("Missing no-arg constructor: " + type.getName());
 		}

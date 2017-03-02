@@ -84,6 +84,12 @@ public class StructArray<T extends Struct> {
 		return out;
 	}
 
+	public T getCopy(int index, T out) {
+		validateIndex(index);
+		out.buffer.set(buffer, structSize * index, out.offset, structSize);
+		return out;
+	}
+
 	public void remove(int index) {
 		validateIndex(index);
 		int lastItemOffset = length * structSize;
@@ -142,14 +148,22 @@ public class StructArray<T extends Struct> {
 		return get(index);
 	}
 
-	public T insert(int index, StructArray<T> source, int fromItem, int count) {
+	public T insert(int index, StructArray<T> source, int fromIndex, int count) {
 		validateIndex(index);
+		validateType(source.structType);
+		source.validateIndex(fromIndex + count - 1);
 		resizeIfNeeded(length + count);
 		int addedItemsOffset = index * structSize;
 		buffer.move(addedItemsOffset, addedItemsOffset + (structSize * count), (length - index) * structSize);
-		buffer.set(source.buffer, fromItem * structSize, index * structSize, count * structSize);
+		buffer.set(source.buffer, fromIndex * structSize, index * structSize, count * structSize);
 		length += count;
 		return get(index);
+	}
+
+	private void validateType(StructType<T> otherStructType) {
+		if(structType != otherStructType) {
+			throw new IllegalArgumentException("Invalid arrat type.");
+		}
 	}
 
 	public T add() {
@@ -174,12 +188,15 @@ public class StructArray<T extends Struct> {
 		return addAll(source, 0, source.length);
 	}
 
-	public T addAll(StructArray<T> source, int startIndex, int count) {
+	public T addAll(StructArray<T> source, int fromIndex, int count) {
+		validateType(source.structType);
+		source.validateIndex(fromIndex + count - 1);
 		int destinationOffset = length * structSize;
-		length += count;
+		int index = length - 1;
 		resizeIfNeeded(length);
-		buffer.set(source.buffer, startIndex * structSize, destinationOffset, structSize * count);
-		return get(startIndex);
+		buffer.set(source.buffer, fromIndex * structSize, destinationOffset, structSize * count);
+		length += count;
+		return get(index);
 	}
 
 	public T first() {
@@ -198,6 +215,11 @@ public class StructArray<T extends Struct> {
 		return get(0, out);
 	}
 
+	public T firstCopy(T out) {
+		validateNotEmpty();
+		return getCopy(0, out);
+	}
+
 	public T pop() {
 		validateNotEmpty();
 		length = Math.max(0, length - 1);
@@ -210,6 +232,12 @@ public class StructArray<T extends Struct> {
 		return get(length, out);
 	}
 
+	public T popCopy(T out) {
+		validateNotEmpty();
+		length -= 1;
+		return getCopy(length, out);
+	}
+
 	public T peek() {
 		validateNotEmpty();
 		return get(length - 1);
@@ -220,12 +248,17 @@ public class StructArray<T extends Struct> {
 		return get(length - 1, out);
 	}
 
+	public T peekCopy(T out) {
+		validateNotEmpty();
+		return getCopy(length - 1, out);
+	}
+
 	public void swap(int fromIndex, int toIndex) {
 		validateIndex(fromIndex);
 		validateIndex(toIndex);
 
 		if (temp == null) {
-			temp = new float[structSize / 4];
+			temp = new float[structSize >> 2];
 		}
 
 		buffer.swap(fromIndex * structSize, toIndex * structSize, temp);
@@ -236,10 +269,12 @@ public class StructArray<T extends Struct> {
 		buffer.set(value.buffer, value.offset, index * structSize, structSize);
 	}
 
-	public void set(int index, StructArray<T> source, int sourceIndex, int count) {
+	public void set(int index, StructArray<T> source, int fromIndex, int count) {
 		validateIndex(index - 1);
+		validateType(source.structType);
+		source.validateIndex(fromIndex + count - 1);
 		resizeIfNeeded(length + count);
-		buffer.set(source.buffer, sourceIndex * structSize, index * structSize, count * structSize);
+		buffer.set(source.buffer, fromIndex * structSize, index * structSize, count * structSize);
 		length = Math.max(length, index + count);
 	}
 
@@ -288,13 +323,11 @@ public class StructArray<T extends Struct> {
 		}
 
 		if (temp == null) {
-			temp = new float[structSize / 4];
+			temp = new float[structSize >> 2];
 		}
 
 		while (left < right) {
-			buffer.swap(left * structSize, right * structSize, temp);
-			left++;
-			right--;
+			buffer.swap(structSize * left++, structSize * right--, temp);
 		}
 	}
 
@@ -395,6 +428,30 @@ public class StructArray<T extends Struct> {
 			}
 
 			return array.get(index++, shared);
+		}
+
+		public T next(T out) {
+			if (index >= array.length) {
+				throw new NoSuchElementException(String.valueOf(index));
+			}
+
+			if (!valid) {
+				throw new RuntimeException("#iterator() cannot be used nested.");
+			}
+
+			return array.get(index++, out);
+		}
+
+		public T nextCopy(T out) {
+			if (index >= array.length) {
+				throw new NoSuchElementException(String.valueOf(index));
+			}
+
+			if (!valid) {
+				throw new RuntimeException("#iterator() cannot be used nested.");
+			}
+
+			return array.getCopy(index++, out);
 		}
 
 		@Override

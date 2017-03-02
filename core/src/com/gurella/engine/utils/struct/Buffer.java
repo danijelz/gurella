@@ -1,45 +1,47 @@
 package com.gurella.engine.utils.struct;
 
+import static com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits;
+
 import java.util.Arrays;
 
-import com.badlogic.gdx.utils.NumberUtils;
-
 public abstract class Buffer {
+	public static final int word = 4;
+
 	public float[] arr;
 
 	public Buffer(int byteCapacity) {
-		this.arr = new float[byteCapacity / 4];
+		this.arr = new float[byteCapacity >> 2];
 	}
 
 	public int getCapacity() {
-		return arr.length * 4;
+		return arr.length << 2;
 	}
 
 	public void ensureCapacity(int additionalByteCapacity) {
 		int bufferSize = arr.length;
-		int newBufferSize = bufferSize + additionalByteCapacity / 4;
+		int newBufferSize = bufferSize + additionalByteCapacity >> 2;
 		if (newBufferSize > bufferSize) {
 			_resize(Math.max(8, newBufferSize));
 		}
 	}
 
 	public void resize(int newByteCapacity) {
-		_resize(newByteCapacity / 4);
+		_resize(newByteCapacity >> 2);
 	}
 
-	private void _resize(int newCapacity) {
+	private void _resize(int newWordCapacity) {
 		float[] buffer = this.arr;
-		float[] newBuffer = new float[newCapacity];
-		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(buffer.length, newCapacity));
+		float[] newBuffer = new float[newWordCapacity];
+		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(buffer.length, newWordCapacity));
 		this.arr = newBuffer;
 	}
 
 	public void swap(int fromOffset, int toOffset, int byteLength) {
 		float[] buffer = this.arr;
-		int fromIndex = fromOffset / 4;
-		int toIndex = toOffset / 4;
+		int fromIndex = fromOffset >> 2;
+		int toIndex = toOffset >> 2;
 		float temp;
-		for (int i = 0, n = byteLength / 4; i < n; i++) {
+		for (int i = 0, n = byteLength >> 2; i < n; i++) {
 			temp = buffer[fromIndex];
 			buffer[fromIndex++] = buffer[toIndex];
 			buffer[toIndex++] = temp;
@@ -49,8 +51,8 @@ public abstract class Buffer {
 	public void swap(int fromOffset, int toOffset, float[] temp) {
 		float[] buffer = this.arr;
 		int length = temp.length;
-		int fromIndex = fromOffset / 4;
-		int toIndex = toOffset / 4;
+		int fromIndex = fromOffset >> 2;
+		int toIndex = toOffset >> 2;
 
 		System.arraycopy(buffer, toIndex, temp, 0, length);
 		System.arraycopy(buffer, fromIndex, buffer, toIndex, length);
@@ -58,7 +60,7 @@ public abstract class Buffer {
 	}
 
 	public void move(int sourceOffset, int destOffset, int byteLength) {
-		System.arraycopy(arr, sourceOffset / 4, arr, destOffset / 4, byteLength / 4);
+		System.arraycopy(arr, sourceOffset >> 2, arr, destOffset >> 2, byteLength >> 2);
 	}
 
 	public void fill(int fromIndex, int toIndex, float value) {
@@ -68,12 +70,12 @@ public abstract class Buffer {
 	public boolean equals(int offset, Buffer other, int otherOffset, int byteLength) {
 		float[] arr1 = arr;
 		float[] arr2 = other.arr;
-		int index1 = offset / 4;
-		int index2 = otherOffset / 4;
-		int n = index1 + byteLength / 4;
+		int index1 = offset >> 2;
+		int index2 = otherOffset >> 2;
+		int n = index1 + byteLength >> 2;
 
-		for (; index1 < n;) {
-			if (arr1[index1++] != arr2[index2++]) {
+		for (; index1 < n; index1++, index2++) {
+			if (floatToRawIntBits(arr1[index1]) != floatToRawIntBits(arr2[index2])) {
 				return false;
 			}
 		}
@@ -83,11 +85,11 @@ public abstract class Buffer {
 
 	public int hashCode(int offset, int byteLength) {
 		float[] arr = this.arr;
-		int index = offset / 4;
-		int n = index + byteLength / 4;
+		int index = offset >> 2;
+		int n = index + byteLength >> 2;
 		int result = 1;
 		for (; index < n; index++) {
-			result = 31 * result + NumberUtils.floatToRawIntBits(arr[index]);
+			result = 31 * result + floatToRawIntBits(arr[index]);
 		}
 		return result;
 	}
@@ -99,7 +101,7 @@ public abstract class Buffer {
 	}
 
 	public void set(Buffer source, int sourceOffset, int destinationOffset, int byteLength) {
-		System.arraycopy(source.arr, sourceOffset / 4, arr, destinationOffset / 4, byteLength / 4);
+		System.arraycopy(source.arr, sourceOffset >> 2, arr, destinationOffset >> 2, byteLength >> 2);
 	}
 
 	/////////// float
@@ -161,24 +163,24 @@ public abstract class Buffer {
 	//////// float[]
 
 	public float[] getFloatArray(int offset, float[] destination) {
-		System.arraycopy(arr, offset / 4, destination, 0, destination.length);
+		System.arraycopy(arr, offset >> 2, destination, 0, destination.length);
 		return destination;
 	}
 
-	public float[] getFloatArray(int offset, float[] destination, int destinationIndex, int floatLength) {
-		System.arraycopy(arr, offset / 4, destination, destinationIndex, floatLength);
+	public float[] getFloatArray(int offset, float[] destination, int destinationIndex, int count) {
+		System.arraycopy(arr, offset >> 2, destination, destinationIndex, count);
 		return destination;
 	}
 
 	public void setFloatArray(int offset, float[] source) {
-		System.arraycopy(source, 0, arr, offset / 4, source.length);
+		System.arraycopy(source, 0, arr, offset >> 2, source.length);
 	}
 
-	public void setFloatArray(int offset, float[] source, int floatLength) {
-		System.arraycopy(source, 0, arr, offset / 4, floatLength);
+	public void setFloatArray(int offset, float[] source, int count) {
+		System.arraycopy(source, 0, arr, offset >> 2, count);
 	}
 
-	public void setFloatArray(int offset, float[] source, int sourceIndex, int floatLength) {
-		System.arraycopy(source, sourceIndex, arr, offset / 4, floatLength);
+	public void setFloatArray(int offset, float[] source, int sourceIndex, int count) {
+		System.arraycopy(source, sourceIndex, arr, offset >> 2, count);
 	}
 }

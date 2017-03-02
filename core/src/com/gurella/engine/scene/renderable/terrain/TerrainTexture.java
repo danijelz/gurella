@@ -12,7 +12,6 @@ import com.gurella.engine.scene.renderable.terrain.SplatTexture.Channel;
 public class TerrainTexture {
 	private ObjectMap<Channel, SplatTexture> textures;
 	private SplatMap splatmap;
-	private TerrainComponent terrain;
 
 	public TerrainTexture() {
 		textures = new ObjectMap<Channel, SplatTexture>(5, 1);
@@ -37,24 +36,29 @@ public class TerrainTexture {
 	public Channel getNextFreeChannel() {
 		// base
 		SplatTexture st = textures.get(Channel.BASE);
-		if (st == null)
+		if (st == null) {
 			return Channel.BASE;
+		}
 		// r
 		st = textures.get(Channel.R);
-		if (st == null)
+		if (st == null) {
 			return Channel.R;
+		}
 		// g
 		st = textures.get(Channel.G);
-		if (st == null)
+		if (st == null) {
 			return Channel.G;
+		}
 		// b
 		st = textures.get(Channel.B);
-		if (st == null)
+		if (st == null) {
 			return Channel.B;
+		}
 		// a
 		st = textures.get(Channel.A);
-		if (st == null)
+		if (st == null) {
 			return Channel.A;
+		}
 
 		return null;
 	}
@@ -73,13 +77,5 @@ public class TerrainTexture {
 
 	public void setSplatmap(SplatMap splatmap) {
 		this.splatmap = splatmap;
-	}
-
-	public TerrainComponent getTerrain() {
-		return terrain;
-	}
-
-	public void setTerrain(TerrainComponent terrain) {
-		this.terrain = terrain;
 	}
 }

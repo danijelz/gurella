@@ -14,9 +14,11 @@ public abstract class Struct {
 	int offset;
 
 	protected Struct() {
+		StructType.get(getClass());
 	}
 
 	public Struct(Buffer buffer, int offset) {
+		StructType.get(getClass());
 		this.offset = offset;
 		this.buffer = buffer;
 	}
