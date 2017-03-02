@@ -11,6 +11,7 @@ public interface StateTransition<STATE> {
 			return true;
 		}
 
+		@SuppressWarnings("unchecked")
 		public static <STATE> SimpleStateTransition<STATE> getInstance() {
 			return (SimpleStateTransition<STATE>) instance;
 		}

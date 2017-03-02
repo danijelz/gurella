@@ -38,14 +38,14 @@ public class StateMachineConfig<STATE> {
 	}
 
 	public StateMachineConfig<STATE> parent(STATE parent) {
-		StateConfig parentConfig = getStateConfig(parent);
+		StateConfig<STATE> parentConfig = getStateConfig(parent);
 		stateConfig.parent = parentConfig;
 		parentConfig.children.add(stateConfig.state);
 		return this;
 	}
 
-	private StateConfig getStateConfig(STATE state) {
-		StateConfig config = states.get(state);
+	private StateConfig<STATE> getStateConfig(STATE state) {
+		StateConfig<STATE> config = states.get(state);
 		if (config == null) {
 			config = new StateConfig<STATE>(state);
 			states.put(state, config);
@@ -53,29 +53,29 @@ public class StateMachineConfig<STATE> {
 		return config;
 	}
 
-	public StateMachineConfig transition(STATE destination) {
-		StateConfig destinationConfig = getStateConfig(destination);
+	public StateMachineConfig<STATE> transition(STATE destination) {
+		StateConfig<STATE> destinationConfig = getStateConfig(destination);
 		transition = stateConfig.getTransitionConfig(destinationConfig);
 		return this;
 	}
 
-	public StateMachineConfig interruption(STATE destination) {
-		StateConfig destinationConfig = getStateConfig(destination);
+	public StateMachineConfig<STATE> interruption(STATE destination) {
+		StateConfig<STATE> destinationConfig = getStateConfig(destination);
 		transition = transition.getInterruptConfig(destinationConfig);
 		return this;
 	}
 
-	public StateMachineConfig enterAction(TransitionAction enterAction) {
+	public StateMachineConfig<STATE> enterAction(TransitionAction enterAction) {
 		transition.enterAction = enterAction;
 		return this;
 	}
 
-	public StateMachineConfig exitAction(TransitionAction exitAction) {
+	public StateMachineConfig<STATE> exitAction(TransitionAction exitAction) {
 		transition.exitAction = exitAction;
 		return this;
 	}
 
-	public StateMachineConfig guard(Predicate<ConfigurableStateMachineContext<STATE>> guard) {
+	public StateMachineConfig<STATE> guard(Predicate<ConfigurableStateMachineContext<STATE>> guard) {
 		transition.guard = guard;
 		return this;
 	}
@@ -91,9 +91,9 @@ public class StateMachineConfig<STATE> {
 
 	private static class StateConfig<STATE> {
 		private STATE state;
-		private StateConfig parent;
-		private Array<STATE> children = new Array<STATE>();//TODO remove
-		
+		private StateConfig<STATE> parent;
+		private Array<STATE> children = new Array<STATE>();// TODO remove
+
 		private TransitionConfig<STATE> reentrant;
 		private ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>> validTransitions = new ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>>();
 
@@ -120,7 +120,7 @@ public class StateMachineConfig<STATE> {
 		private Predicate<ConfigurableStateMachineContext<STATE>> guard;
 		private ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>> validInterrupts = new ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>>();
 
-		public TransitionConfig(StateConfig source, StateConfig destination) {
+		public TransitionConfig(StateConfig<STATE> source, StateConfig<STATE> destination) {
 			this.source = source;
 			this.destination = destination;
 		}
@@ -157,7 +157,6 @@ public class StateMachineConfig<STATE> {
 
 	private static class ConfigurableStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
 		private ObjectMap<STATE, StateConfig<STATE>> stateConfigs = new ObjectMap<STATE, StateConfig<STATE>>();
-		private ObjectMap<Object, Object> data;
 
 		public ConfigurableStateMachineContext(STATE initialState) {
 			super(initialState);
@@ -189,6 +188,7 @@ public class StateMachineConfig<STATE> {
 				if (transition != null) {
 					return transition;
 				}
+				temp = temp.parent;
 			}
 			return null;
 		}
@@ -198,31 +198,6 @@ public class StateMachineConfig<STATE> {
 				StateTransition<STATE> currentTransition, STATE newDestination) {
 			// TODO Auto-generated method stub
 			return null;
-		}
-
-		public <V> V put(Object key, V value) {
-			if (data == null) {
-				data = new ObjectMap<Object, Object>();
-			}
-			return (V) data.put(key, value);
-		}
-
-		public <V> V get(Object key) {
-			if (data == null) {
-				return null;
-			}
-			return (V) data.get(key);
-		}
-
-		public <V> V remove(Object key) {
-			if (data == null) {
-				return null;
-			}
-			return remove(key);
-		}
-
-		public boolean containsKey(Object key) {
-			return data != null && data.containsKey(key);
 		}
 	}
 }

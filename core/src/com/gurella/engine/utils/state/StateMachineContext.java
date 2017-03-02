@@ -11,4 +11,12 @@ public interface StateMachineContext<STATE> {
 	void stateChanged(STATE newState);
 
 	void reset();
+
+	<V> V put(Object key, V value);
+
+	<V> V get(Object key);
+
+	<V> V remove(Object key);
+
+	boolean containsKey(Object key);
 }

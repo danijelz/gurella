@@ -2,15 +2,16 @@ package com.gurella.engine.utils.state;
 
 import com.badlogic.gdx.utils.Array;
 
-public class StackStateMachineContext<STATE> implements StateMachineContext<STATE> {
+public class StackStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
 	private StateMachineContext<STATE> delegate;
 	private STATE popState;
 	private StateTransition<STATE> defaultPopTransition;
 
 	private Array<STATE> stateStack = new Array<STATE>();
 
-	public StackStateMachineContext(StateMachineContext<STATE> delegate, STATE popState,
+	public StackStateMachineContext(STATE initialState, StateMachineContext<STATE> delegate, STATE popState,
 			StateTransition<STATE> defaultPopTransition) {
+		super(initialState);
 		this.delegate = delegate;
 		this.popState = popState;
 		this.defaultPopTransition = defaultPopTransition;

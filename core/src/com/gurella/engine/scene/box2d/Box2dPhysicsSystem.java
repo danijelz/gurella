@@ -50,8 +50,8 @@ public class Box2dPhysicsSystem extends BuiltinSceneSystem
 		}
 
 		double newTime = TimeUtils.millis() / 1000.0;
-		double frameTime = Math.min(newTime - currentTime, 0.25);
-		float deltaTime = (float) frameTime;
+		//double frameTime = Math.min(newTime - currentTime, 0.25);
+		//float deltaTime = (float) frameTime;
 
 		currentTime = newTime;
 
