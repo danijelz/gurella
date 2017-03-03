@@ -105,6 +105,20 @@ public class StructArrayTest {
 		sa.swap(0, 1, new float[30]);
 		assertEquals(v2, sa.get(0).getVector());
 		assertEquals(v1, sa.get(1).getVector());
+		
+		sa = new StructArray<TestStruct>(TestStruct.class, 4);
+		sa.setLength(4);
+		sa.get(0).setVector(v1);
+		sa.get(1).setVector(v2);
+		sa.get(2).setVector(v2);
+		sa.get(3).setVector(v1);
+
+		sa.swap(0, 2, 2, new float[8]);
+		System.out.println(sa);
+		assertEquals(v2, sa.get(0).getVector());
+		assertEquals(v1, sa.get(1).getVector());
+		assertEquals(v1, sa.get(2).getVector());
+		assertEquals(v2, sa.get(3).getVector());
 	}
 
 	private static class TestClass {

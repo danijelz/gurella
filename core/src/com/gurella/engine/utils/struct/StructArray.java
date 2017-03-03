@@ -262,20 +262,25 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void swap(int fromIndex, int toIndex) {
-		validateIndex(fromIndex);
-		validateIndex(toIndex);
-
 		if (tempStorage == null) {
 			tempStorage = new float[structSize >> 2];
 		}
 
-		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize, tempStorage);
+		swap(fromIndex, toIndex, 1, tempStorage);
 	}
-	
+
 	public void swap(int fromIndex, int toIndex, float[] tempStorage) {
+		swap(fromIndex, toIndex, 1, tempStorage);
+	}
+
+	public void swap(int fromIndex, int toIndex, int count, float[] tempStorage) {
+		if (fromIndex == toIndex) {
+			return;
+		}
+
 		validateIndex(fromIndex);
-		validateIndex(toIndex);
-		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize, tempStorage);
+		validateIndex(toIndex + count - 1);
+		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize * count, tempStorage);
 	}
 
 	public void set(int index, T value) {
@@ -328,16 +333,22 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void reverse(int startIndex, int endIndex) {
+		if (tempStorage == null) {
+			tempStorage = new float[structSize >> 2];
+		}
+		reverse(startIndex, endIndex, tempStorage);
+	}
+
+	public void reverse(int startIndex, int endIndex, float[] tempStorage) {
+		validateIndex(startIndex);
+		validateIndex(endIndex);
+
 		int left = startIndex;
 		int right = endIndex;
 
 		int len = right - left;
 		if (len <= 0) {
 			return;
-		}
-
-		if (tempStorage == null) {
-			tempStorage = new float[structSize >> 2];
 		}
 
 		while (left < right) {
