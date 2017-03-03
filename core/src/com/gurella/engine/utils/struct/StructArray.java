@@ -31,6 +31,14 @@ public class StructArray<T extends Struct> {
 		shared = structType.newInstance(buffer, 0);
 	}
 
+	public StructArray(StructType<T> structType, Buffer buffer) {
+		this.structType = structType;
+		this.buffer = buffer;
+		structSize = structType.size;
+		capacity = buffer.getCapacity() / structType.size;
+		shared = structType.newInstance(buffer, 0);
+	}
+
 	public StructType<T> getStructType() {
 		return structType;
 	}
@@ -161,7 +169,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	private void validateType(StructType<T> otherStructType) {
-		if(structType != otherStructType) {
+		if (structType != otherStructType) {
 			throw new IllegalArgumentException("Invalid arrat type.");
 		}
 	}

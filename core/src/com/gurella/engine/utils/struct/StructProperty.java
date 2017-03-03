@@ -29,9 +29,11 @@ public abstract class StructProperty {
 	}
 
 	public StructProperty(int size) {
-		if (size == 1 || size == 2) {
+		if (size < 1) {
+			throw new IllegalArgumentException("Size must be > 0");
+		} else if (size < 3) {
 			this.size = size;
-		} else if (size == 3 || size == 4) {
+		} else if (size < 5) {
 			this.size = 4;
 		} else {
 			this.size = size + (word - size % word);
