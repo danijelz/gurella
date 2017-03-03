@@ -15,7 +15,7 @@ public class StructArray<T extends Struct> {
 	private int length;
 
 	private final T shared;
-	private float[] temp;
+	private float[] tempStorage;
 
 	private StructArrayIterator<T> iterator1, iterator2;
 
@@ -265,11 +265,17 @@ public class StructArray<T extends Struct> {
 		validateIndex(fromIndex);
 		validateIndex(toIndex);
 
-		if (temp == null) {
-			temp = new float[structSize >> 2];
+		if (tempStorage == null) {
+			tempStorage = new float[structSize >> 2];
 		}
 
-		buffer.swap(fromIndex * structSize, toIndex * structSize, temp);
+		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize, tempStorage);
+	}
+	
+	public void swap(int fromIndex, int toIndex, float[] tempStorage) {
+		validateIndex(fromIndex);
+		validateIndex(toIndex);
+		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize, tempStorage);
 	}
 
 	public void set(int index, T value) {
@@ -330,12 +336,12 @@ public class StructArray<T extends Struct> {
 			return;
 		}
 
-		if (temp == null) {
-			temp = new float[structSize >> 2];
+		if (tempStorage == null) {
+			tempStorage = new float[structSize >> 2];
 		}
 
 		while (left < right) {
-			buffer.swap(structSize * left++, structSize * right--, temp);
+			buffer.swap(structSize * left++, structSize * right--, structSize, tempStorage);
 		}
 	}
 

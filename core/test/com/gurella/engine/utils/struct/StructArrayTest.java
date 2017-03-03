@@ -13,7 +13,7 @@ import com.gurella.engine.utils.struct.StructProperty.GridPoint3StructProperty;
 import com.gurella.engine.utils.struct.StructProperty.Matrix4StructProperty;
 import com.gurella.engine.utils.struct.StructProperty.Vector3StructProperty;
 
-public class StructTest {
+public class StructArrayTest {
 	private static TestClass[] createTestClassArray(int size) {
 		TestClass[] tc = new TestClass[size];
 		for (int i = 0; i < size; i++) {
@@ -85,6 +85,28 @@ public class StructTest {
 		assertTrue(sa1.hashCode() == sa2.hashCode());
 	}
 
+	@Test
+	public void testSwap() {
+		Vector3 v1 = new Vector3(1, 1, 1);
+		Vector3 v2 = new Vector3(2, 2, 2);
+		StructArray<TestStruct> sa = new StructArray<TestStruct>(TestStruct.class, 4);
+		sa.setLength(2);
+		sa.get(0).setVector(v1);
+		sa.get(1).setVector(v2);
+
+		sa.swap(0, 1);
+		assertEquals(v2, sa.get(0).getVector());
+		assertEquals(v1, sa.get(1).getVector());
+
+		sa.swap(0, 1, new float[2]);
+		assertEquals(v1, sa.get(0).getVector());
+		assertEquals(v2, sa.get(1).getVector());
+		
+		sa.swap(0, 1, new float[30]);
+		assertEquals(v2, sa.get(0).getVector());
+		assertEquals(v1, sa.get(1).getVector());
+	}
+
 	private static class TestClass {
 		Vector3 vector = new Vector3(randomFloat(), randomFloat(), randomFloat());
 		GridPoint3 point = new GridPoint3(randomInt(), randomInt(), randomInt());
@@ -106,7 +128,6 @@ public class StructTest {
 		public static final GridPoint3StructProperty point = new GridPoint3StructProperty();
 		public static final Matrix4StructProperty matrix4 = new Matrix4StructProperty();
 
-		@SuppressWarnings("unused")
 		public Vector3 getVector() {
 			return vector.get(this);
 		}

@@ -48,15 +48,23 @@ public abstract class Buffer {
 		}
 	}
 
-	public void swap(int fromOffset, int toOffset, float[] temp) {
+	public void swap(int fromOffset, int toOffset, int byteLength, float[] tempStorage) {
 		float[] buffer = this.arr;
-		int length = temp.length;
+		int storageLength = tempStorage.length;
 		int fromIndex = fromOffset >> 2;
 		int toIndex = toOffset >> 2;
+		int count = byteLength >> 2;
 
-		System.arraycopy(buffer, toIndex, temp, 0, length);
-		System.arraycopy(buffer, fromIndex, buffer, toIndex, length);
-		System.arraycopy(temp, 0, buffer, fromIndex, length);
+		while (count > 0) {
+			int length = Math.min(storageLength, count);
+			System.arraycopy(buffer, toIndex, tempStorage, 0, length);
+			System.arraycopy(buffer, fromIndex, buffer, toIndex, length);
+			System.arraycopy(tempStorage, 0, buffer, fromIndex, length);
+
+			fromIndex += length;
+			toIndex += length;
+			count -= length;
+		}
 	}
 
 	public void move(int sourceOffset, int destOffset, int byteLength) {
