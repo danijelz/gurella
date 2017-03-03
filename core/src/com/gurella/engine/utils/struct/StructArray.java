@@ -269,6 +269,14 @@ public class StructArray<T extends Struct> {
 		swap(fromIndex, toIndex, 1, tempStorage);
 	}
 
+	public void swap(int fromIndex, int toIndex, int count) {
+		if (tempStorage == null) {
+			tempStorage = new float[structSize >> 2];
+		}
+
+		swap(fromIndex, toIndex, count, tempStorage);
+	}
+
 	public void swap(int fromIndex, int toIndex, float[] tempStorage) {
 		swap(fromIndex, toIndex, 1, tempStorage);
 	}
