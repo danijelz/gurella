@@ -6,16 +6,17 @@ import java.util.NoSuchElementException;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class StructArray<T extends Struct> {
-	private final Buffer buffer;
+	final Buffer buffer;
 
-	private final StructType<T> structType;
-	private final int structSize;
+	final StructType<T> structType;
+	final int structSize;
 
 	private int capacity;
 	private int length;
 
 	private final T shared;
-	private float[] tempStorage;
+	private float[] sharedStorage;
+	private StructArrayView<T> sharedView;
 
 	private StructArrayIterator<T> iterator1, iterator2;
 
@@ -73,14 +74,14 @@ public class StructArray<T extends Struct> {
 		capacity = newCapacity;
 	}
 
-	T get(int index) {
+	public T get(int index) {
 		validateIndex(index);
 		shared.offset = structSize * index;
 		return shared;
 	}
 
 	private void validateIndex(int index) {
-		if (index >= length) {
+		if (index < 0 || index >= length) {
 			throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + length);
 		}
 	}
@@ -208,73 +209,58 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T first() {
-		validateNotEmpty();
 		return get(0);
 	}
 
-	private void validateNotEmpty() {
-		if (length == 0) {
-			throw new IllegalStateException("Array is empty.");
-		}
-	}
-
 	public T first(T out) {
-		validateNotEmpty();
 		return get(0, out);
 	}
 
 	public T firstCopy(T out) {
-		validateNotEmpty();
 		return getCopy(0, out);
 	}
 
 	public T pop() {
-		validateNotEmpty();
 		length = Math.max(0, length - 1);
 		return get(length);
 	}
 
 	public T pop(T out) {
-		validateNotEmpty();
 		length -= 1;
 		return get(length, out);
 	}
 
 	public T popCopy(T out) {
-		validateNotEmpty();
 		length -= 1;
 		return getCopy(length, out);
 	}
 
 	public T peek() {
-		validateNotEmpty();
 		return get(length - 1);
 	}
 
 	public T peek(T out) {
-		validateNotEmpty();
 		return get(length - 1, out);
 	}
 
 	public T peekCopy(T out) {
-		validateNotEmpty();
 		return getCopy(length - 1, out);
 	}
 
 	public void swap(int fromIndex, int toIndex) {
-		if (tempStorage == null) {
-			tempStorage = new float[structSize >> 2];
+		if (sharedStorage == null) {
+			sharedStorage = new float[structSize >> 2];
 		}
 
-		swap(fromIndex, toIndex, 1, tempStorage);
+		swap(fromIndex, toIndex, 1, sharedStorage);
 	}
 
 	public void swap(int fromIndex, int toIndex, int count) {
-		if (tempStorage == null) {
-			tempStorage = new float[structSize >> 2];
+		if (sharedStorage == null) {
+			sharedStorage = new float[structSize >> 2];
 		}
 
-		swap(fromIndex, toIndex, count, tempStorage);
+		swap(fromIndex, toIndex, count, sharedStorage);
 	}
 
 	public void swap(int fromIndex, int toIndex, float[] tempStorage) {
@@ -348,10 +334,10 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void reverse(int startIndex, int endIndex) {
-		if (tempStorage == null) {
-			tempStorage = new float[structSize >> 2];
+		if (sharedStorage == null) {
+			sharedStorage = new float[structSize >> 2];
 		}
-		reverse(startIndex, endIndex, tempStorage);
+		reverse(startIndex, endIndex, sharedStorage);
 	}
 
 	public void reverse(int startIndex, int endIndex, float[] tempStorage) {
@@ -391,6 +377,38 @@ public class StructArray<T extends Struct> {
 		return iterator2;
 	}
 
+	public T newStruct(int index) {
+		return structType.newInstance(buffer, index * structSize);
+	}
+
+	public StructArrayView<T> getView(int startIndex, int length) {
+		validateIndex(startIndex);
+		validateIndex(startIndex + length - 1);
+		if (sharedView == null) {
+			sharedView = new StructArrayView<>(this, startIndex, length);
+		} else {
+			sharedView.array = this;
+			sharedView.offsetIndex = startIndex;
+			sharedView.length = length;
+		}
+		return sharedView;
+	}
+
+	public StructArrayView<T> newView(int startIndex, int length) {
+		validateIndex(startIndex);
+		validateIndex(startIndex + length - 1);
+		return new StructArrayView<T>(this, startIndex, length);
+	}
+
+	public StructArrayView<T> getView(int startIndex, int length, StructArrayView<T> out) {
+		validateIndex(startIndex);
+		validateIndex(startIndex + length - 1);
+		out.array = this;
+		out.offsetIndex = startIndex;
+		out.length = length;
+		return out;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -422,7 +440,8 @@ public class StructArray<T extends Struct> {
 		}
 
 		StructArray<?> other = (StructArray<?>) obj;
-		return length == other.length && buffer.equals(0, other.buffer, 0, length * structSize);
+		return length == other.length && structType == other.structType
+				&& buffer.equals(0, other.buffer, 0, length * structSize);
 	}
 
 	@Override

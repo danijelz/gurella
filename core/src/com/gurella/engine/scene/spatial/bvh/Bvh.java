@@ -47,6 +47,51 @@ public class Bvh {
 		}
 	}
 
+	public synchronized void optimize() {
+		if (maxLeafSpatials != 1) {
+			throw new IllegalStateException("In order to use optimize, you must set LEAF_OBJ_MAX=1");
+		}
+
+		while (refitNodes.size > 0) {
+			initSweepNodes();
+			for (int i = 0; i < sweepNodes.size; i++) {
+				BvhNode node = sweepNodes.get(i);
+				node.optimize();
+			}
+			sweepNodes.clear();
+		}
+	}
+
+	private void initSweepNodes() {
+		int maxDepth = 0;
+		ObjectSetIterator<BvhNode> iterator = refitNodes.iterator();
+		while (iterator.hasNext()) {
+			BvhNode node = iterator.next();
+			maxDepth = Math.max(maxDepth, node.depth);
+		}
+
+		iterator = refitNodes.iterator();
+		while (iterator.hasNext()) {
+			BvhNode node = iterator.next();
+			if (maxDepth == node.depth) {
+				iterator.remove();
+				sweepNodes.add(node);
+			}
+		}
+	}
+
+	public void addObject(BvhSpatial newSpatial) {
+		rootNode.addSpatial(newSpatial);
+	}
+
+	public void removeObject(BvhSpatial newSpatial) {
+		newSpatial.node.removeObject(newSpatial);
+	}
+
+	public void clear() {
+		rootNode = null;// TODO add to pool
+	}
+
 	public Array<Spatial> traverse(Ray ray, Array<Spatial> result) {
 		RayIntersectionTest intersectionTest = PoolService.obtain(RayIntersectionTest.class);
 		intersectionTest.ray.set(ray);
@@ -143,51 +188,6 @@ public class Bvh {
 		}
 
 		return result;
-	}
-
-	public synchronized void optimize() {
-		if (maxLeafSpatials != 1) {
-			throw new IllegalStateException("In order to use optimize, you must set LEAF_OBJ_MAX=1");
-		}
-
-		while (refitNodes.size > 0) {
-			initSweepNodes();
-			for (int i = 0; i < sweepNodes.size; i++) {
-				BvhNode node = sweepNodes.get(i);
-				node.optimize();
-			}
-			sweepNodes.clear();
-		}
-	}
-
-	private void initSweepNodes() {
-		int maxDepth = 0;
-		ObjectSetIterator<BvhNode> iterator = refitNodes.iterator();
-		while (iterator.hasNext()) {
-			BvhNode node = iterator.next();
-			maxDepth = Math.max(maxDepth, node.depth);
-		}
-
-		iterator = refitNodes.iterator();
-		while (iterator.hasNext()) {
-			BvhNode node = iterator.next();
-			if (maxDepth == node.depth) {
-				iterator.remove();
-				sweepNodes.add(node);
-			}
-		}
-	}
-
-	public void addObject(BvhSpatial newSpatial) {
-		rootNode.addSpatial(newSpatial);
-	}
-
-	public void removeObject(BvhSpatial newSpatial) {
-		newSpatial.node.removeObject(newSpatial);
-	}
-
-	public void clear() {
-		rootNode = null;// TODO add to pool
 	}
 
 	private interface NodeIntersectionTest {

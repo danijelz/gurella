@@ -1,4 +1,4 @@
-package com.gurella.engine.utils.struct;
+package com.gurella.engine;
 
 import org.junit.runner.RunWith;
 
