@@ -1,6 +1,8 @@
 package com.gurella.engine.graphics.render.material;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.gl.BlendEquation;
 import com.gurella.engine.graphics.render.gl.BlendFunction;
 import com.gurella.engine.graphics.render.gl.ColorMask;
@@ -10,9 +12,9 @@ import com.gurella.engine.graphics.render.gl.FrontFace;
 import com.gurella.engine.graphics.render.gl.StencilFunction;
 import com.gurella.engine.graphics.render.gl.StencilOp;
 
-public class Pass {
+public class Pass implements Disposable {
 	public final Technique technique;
-	
+
 	private ColorMask colorMask = ColorMask.rgba;
 
 	private boolean blendingEnabled;
@@ -44,10 +46,24 @@ public class Pass {
 
 	private CullFace cullFace = CullFace.back;
 	private FrontFace frontFace = FrontFace.ccw;
-	
+
 	private float lineWidth = 1;
+
+	transient ShaderProgram shaderProgram;
 
 	public Pass(Technique technique) {
 		this.technique = technique;
+	}
+
+	public void begin() {
+		// TODO Auto-generated method stub
+		shaderProgram.begin();
+	}
+
+	@Override
+	public void dispose() {
+		if (shaderProgram != null) {
+			shaderProgram.dispose();
+		}
 	}
 }

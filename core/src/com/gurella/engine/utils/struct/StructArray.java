@@ -317,6 +317,13 @@ public class StructArray<T extends Struct> {
 		buffer.move(fromIndex * structSize, toIndex * structSize, count * structSize);
 	}
 
+	public int indexOf(T value) {
+		if (value.buffer != buffer) {
+			return -1;
+		}
+		return value.offset / structSize;
+	}
+
 	public void clear() {
 		length = 0;
 	}

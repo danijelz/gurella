@@ -1,6 +1,5 @@
 package com.gurella.engine.graphics.render.material;
 
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.path.RenderPath.RenderPathMaterialProperties;
@@ -10,17 +9,19 @@ public class Material extends ManagedObject implements Disposable {
 	Array<Technique> techiques = new Array<Technique>();
 	RenderPathMaterialProperties renderPathOverrides;
 
-	transient ShaderProgram shaderProgram;
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+
+	}
 
 	public void begin() {
 		// TODO Auto-generated method stub
-		shaderProgram.begin();
+
 	}
 
-	@Override
-	public void dispose() {
-		if (shaderProgram != null) {
-			shaderProgram.dispose();
-		}
+	public void begin(String passName) {
+		// TODO Auto-generated method stub
+
 	}
 }

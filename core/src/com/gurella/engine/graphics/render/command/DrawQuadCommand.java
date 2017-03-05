@@ -15,6 +15,5 @@ public class DrawQuadCommand implements RenderCommand {
 		destination.bind();
 		material.begin();
 		// TODO Auto-generated method stub
-
 	}
 }

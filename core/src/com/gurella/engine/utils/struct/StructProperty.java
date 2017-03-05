@@ -390,21 +390,112 @@ public abstract class StructProperty {
 
 		@Override
 		public T get(Struct struct, int index, T out) {
-			int sourceOffset = struct.offset + offset + size * index;
+			int sourceOffset = struct.offset + offset + structType.size * index;
 			if (out.buffer == null) {
 				out.buffer = struct.buffer;
 				out.offset = sourceOffset;
 			} else if (out.buffer == struct.buffer) {
 				out.offset = sourceOffset;
 			} else {
-				out.buffer.set(struct.buffer, sourceOffset, out.offset, size);
+				out.buffer.set(struct.buffer, sourceOffset, out.offset, structType.size);
 			}
 			return out;
 		}
 
 		@Override
 		public void set(Struct struct, int index, T value) {
-			struct.buffer.set(value.buffer, value.offset, struct.offset + offset + structType.size * index, size);
+			int valueOffset = struct.offset + offset + structType.size * index;
+			struct.buffer.set(value.buffer, value.offset, valueOffset, structType.size);
+		}
+
+		@Override
+		protected String itemToString(Struct struct, int index) {
+			return get(struct, index).toString();
+		}
+	}
+
+	public static class ReferenceStructProperty<T extends Struct> extends ObjectStructProperty<T> {
+		private StructType<T> structType;
+		private final T shared;
+
+		public ReferenceStructProperty(Class<T> type) {
+			this(StructType.get(type));
+		}
+
+		public ReferenceStructProperty(StructType<T> structType) {
+			super(structType.size);
+			this.structType = structType;
+			shared = structType.newInstance(null, 0);
+		}
+
+		public StructType<T> getStructType() {
+			return structType;
+		}
+
+		@Override
+		public T get(Struct struct) {
+			Buffer buffer = struct.buffer;
+			shared.buffer = buffer;
+			shared.offset = buffer.getInt(struct.offset + offset);
+			return shared;
+		}
+
+		@Override
+		public T get(Struct struct, T out) {
+			out.buffer = struct.buffer;
+			out.offset = struct.buffer.getInt(struct.offset + offset);
+			return out;
+		}
+
+		@Override
+		public void set(Struct struct, T value) {
+			if (struct.buffer != value.buffer) {
+				throw new IllegalArgumentException("Value doesn't belong to struct.buffer.");
+			}
+			struct.buffer.setInt(struct.offset + offset, value.offset);
+		}
+	}
+
+	public static class ReferenceArrayStructProperty<T extends Struct> extends ObjectArrayStructProperty<T> {
+		private StructType<T> structType;
+		private final T shared;
+
+		public ReferenceArrayStructProperty(Class<T> type, int length) {
+			this(StructType.get(type), length);
+		}
+
+		public ReferenceArrayStructProperty(StructType<T> structType, int length) {
+			super(structType.size, length);
+			this.structType = structType;
+			shared = structType.newInstance(null, 0);
+		}
+
+		public StructType<T> getStructType() {
+			return structType;
+		}
+
+		@Override
+		public T get(Struct struct, int index) {
+			Buffer buffer = struct.buffer;
+			shared.buffer = buffer;
+			shared.offset = buffer.getInt(struct.offset + offset + structType.size * index);
+			return shared;
+		}
+
+		@Override
+		public T get(Struct struct, int index, T out) {
+			out.buffer = struct.buffer;
+			out.offset = struct.buffer.getInt(struct.offset + offset + structType.size * index);
+			return out;
+		}
+
+		@Override
+		public void set(Struct struct, int index, T value) {
+			if (struct.buffer != value.buffer) {
+				throw new IllegalArgumentException("Value doesn't belong to struct.buffer.");
+			}
+			int valueOffset = struct.offset + offset + structType.size * index;
+			struct.buffer.setInt(valueOffset, value.offset);
 		}
 
 		@Override
