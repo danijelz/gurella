@@ -441,6 +441,7 @@ public abstract class StructProperty {
 	}
 
 	public static class ReferenceStructProperty<T extends Struct> extends ObjectStructProperty<T> {
+		private static final int nullReference = -1;
 		public static final int referenceSize = word;
 
 		private StructType<T> structType;
@@ -477,10 +478,21 @@ public abstract class StructProperty {
 
 		@Override
 		public void set(Struct struct, T value) {
-			if (struct.buffer != value.buffer) {
+			if (value == null) {
+				struct.buffer.setInt(struct.offset + offset, nullReference);
+			} else if (struct.buffer != value.buffer) {
 				throw new IllegalArgumentException("Value doesn't belong to struct.buffer.");
+			} else {
+				struct.buffer.setInt(struct.offset + offset, value.offset);
 			}
-			struct.buffer.setInt(struct.offset + offset, value.offset);
+		}
+
+		public void unset(Struct struct) {
+			struct.buffer.setInt(struct.offset + offset, nullReference);
+		}
+
+		public boolean isSet(Struct struct) {
+			return struct.buffer.getInt(struct.offset + offset) > nullReference;
 		}
 	}
 

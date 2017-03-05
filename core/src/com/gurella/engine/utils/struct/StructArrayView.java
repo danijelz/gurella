@@ -272,6 +272,10 @@ public class StructArrayView<T extends Struct> {
 
 		int structSize = array.structSize;
 		StructArrayView<?> other = (StructArrayView<?>) obj;
+		if (array == other.array && offsetIndex == other.offsetIndex) {
+			return true;
+		}
+
 		return length == other.length && array.structType == other.array.structType && array.buffer.equals(
 				offsetIndex * structSize, other.array.buffer, other.offsetIndex * structSize, length * structSize);
 	}

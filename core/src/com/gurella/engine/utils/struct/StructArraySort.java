@@ -65,6 +65,14 @@ public class StructArraySort<T extends Struct> {
 		sort(a, c, 0, a.length());
 	}
 
+	public void sort(StructArrayView<T> v, Comparator<T> c) {
+		sort(a, c, 0 + v.offsetIndex, v.length());
+	}
+	
+	public void sort(StructArrayView<T> v, Comparator<T> c, int lo, int hi) {
+		sort(a, c, lo + v.offsetIndex, hi + v.offsetIndex);
+	}
+
 	public void sort(StructArray<T> a, Comparator<T> c, int lo, int hi) {
 		int l = lo;
 		stackSize = 0;
