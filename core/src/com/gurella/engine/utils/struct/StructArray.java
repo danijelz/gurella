@@ -283,7 +283,9 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void set(int index, StructArray<T> source, int fromIndex, int count) {
-		validateIndex(index - 1);
+		if (index < 0 || index > length) {
+			throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + length);
+		}
 		validateType(source.structType);
 		source.validateIndex(fromIndex + count - 1);
 		resizeIfNeeded(length + count);
