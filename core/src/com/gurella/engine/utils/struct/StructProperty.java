@@ -1,6 +1,16 @@
 package com.gurella.engine.utils.struct;
 
 import static com.gurella.engine.utils.struct.Buffer.word;
+import static com.gurella.engine.utils.struct.StructProperty.FloatStructProperty.floatSize;
+import static com.gurella.engine.utils.struct.StructProperty.GridPoint2StructProperty.gridPoint2Size;
+import static com.gurella.engine.utils.struct.StructProperty.GridPoint3StructProperty.gridPoint3Size;
+import static com.gurella.engine.utils.struct.StructProperty.IntStructProperty.intSize;
+import static com.gurella.engine.utils.struct.StructProperty.Matrix3StructProperty.matrix3Size;
+import static com.gurella.engine.utils.struct.StructProperty.Matrix4StructProperty.matrix4Size;
+import static com.gurella.engine.utils.struct.StructProperty.QuaternionStructProperty.quaternionSize;
+import static com.gurella.engine.utils.struct.StructProperty.ReferenceStructProperty.referenceSize;
+import static com.gurella.engine.utils.struct.StructProperty.Vector2StructProperty.vector2Size;
+import static com.gurella.engine.utils.struct.StructProperty.Vector3StructProperty.vector3Size;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
@@ -100,8 +110,10 @@ public abstract class StructProperty {
 	}
 
 	public static class FloatStructProperty extends StructProperty {
+		public static final int floatSize = word;
+
 		public FloatStructProperty() {
-			super(word);
+			super(floatSize);
 		}
 
 		public float get(Struct struct) {
@@ -120,7 +132,7 @@ public abstract class StructProperty {
 
 	public static class FloatArrayStructProperty extends ArrayStructProperty {
 		public FloatArrayStructProperty(int length) {
-			super(word, length);
+			super(floatSize, length);
 		}
 
 		public float[] get(Struct struct, float[] out) {
@@ -149,8 +161,10 @@ public abstract class StructProperty {
 	}
 
 	public static class IntStructProperty extends StructProperty {
+		public static final int intSize = word;
+
 		public IntStructProperty() {
-			super(word);
+			super(intSize);
 		}
 
 		public int get(Struct struct) {
@@ -168,8 +182,10 @@ public abstract class StructProperty {
 	}
 
 	public static class DoubleStructProperty extends StructProperty {
+		public static final int doubleSize = word << 2;
+
 		public DoubleStructProperty() {
-			super(2 * word);
+			super(doubleSize);
 		}
 
 		public double get(Struct struct) {
@@ -187,8 +203,10 @@ public abstract class StructProperty {
 	}
 
 	public static class LongStructProperty extends StructProperty {
+		public static final int longSize = word << 2;
+
 		public LongStructProperty() {
-			super(2 * word);
+			super(longSize);
 		}
 
 		public long get(Struct struct) {
@@ -206,8 +224,10 @@ public abstract class StructProperty {
 	}
 
 	public static class ShortStructProperty extends StructProperty {
+		public static final int shortSize = word >> 2;
+
 		public ShortStructProperty() {
-			super(2);
+			super(shortSize);
 		}
 
 		public short get(Struct struct) {
@@ -225,8 +245,10 @@ public abstract class StructProperty {
 	}
 
 	public static class CharStructProperty extends StructProperty {
+		public static final int charSize = word >> 2;
+
 		public CharStructProperty() {
-			super(2);
+			super(charSize);
 		}
 
 		public char get(Struct struct) {
@@ -244,8 +266,10 @@ public abstract class StructProperty {
 	}
 
 	public static class ByteStructProperty extends StructProperty {
+		public static final int byteSize = 1;
+
 		public ByteStructProperty() {
-			super(1);
+			super(byteSize);
 		}
 
 		public byte get(Struct struct) {
@@ -263,8 +287,10 @@ public abstract class StructProperty {
 	}
 
 	public static class FlagStructProperty extends StructProperty {
+		public static final int flagSize = word;
+
 		public FlagStructProperty() {
-			super(word);
+			super(flagSize);
 		}
 
 		public int getFlags(Struct struct) {
@@ -415,6 +441,8 @@ public abstract class StructProperty {
 	}
 
 	public static class ReferenceStructProperty<T extends Struct> extends ObjectStructProperty<T> {
+		public static final int referenceSize = word;
+
 		private StructType<T> structType;
 		private final T shared;
 
@@ -423,7 +451,7 @@ public abstract class StructProperty {
 		}
 
 		public ReferenceStructProperty(StructType<T> structType) {
-			super(structType.size);
+			super(referenceSize);
 			this.structType = structType;
 			shared = structType.newInstance(null, 0);
 		}
@@ -465,7 +493,7 @@ public abstract class StructProperty {
 		}
 
 		public ReferenceArrayStructProperty(StructType<T> structType, int length) {
-			super(structType.size, length);
+			super(referenceSize, length);
 			this.structType = structType;
 			shared = structType.newInstance(null, 0);
 		}
@@ -505,10 +533,12 @@ public abstract class StructProperty {
 	}
 
 	public static class Vector2StructProperty extends ObjectStructProperty<Vector2> {
+		public static final int vector2Size = 2 * floatSize;
+
 		private final Vector2 shared = new Vector2();
 
 		public Vector2StructProperty() {
-			super(2 * word);
+			super(vector2Size);
 		}
 
 		@Override
@@ -542,13 +572,13 @@ public abstract class StructProperty {
 		private final Vector2 shared = new Vector2();
 
 		public Vector2ArrayStructProperty(int length) {
-			super(2 * word, length);
+			super(vector2Size, length);
 		}
 
 		@Override
 		public Vector2 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + vector2Size * index;
 			shared.x = buffer.getFloat(tempOffset);
 			shared.y = buffer.getFloat(tempOffset + word);
 			return shared;
@@ -557,7 +587,7 @@ public abstract class StructProperty {
 		@Override
 		public Vector2 get(Struct struct, int index, Vector2 out) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + vector2Size * index;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + word);
 			return out;
@@ -566,7 +596,7 @@ public abstract class StructProperty {
 		@Override
 		public void set(Struct struct, int index, Vector2 value) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + vector2Size * index;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + word, value.y);
 		}
@@ -578,10 +608,12 @@ public abstract class StructProperty {
 	}
 
 	public static class Vector3StructProperty extends ObjectStructProperty<Vector3> {
+		public static final int vector3Size = 3 * floatSize;
+
 		private final Vector3 shared = new Vector3();
 
 		public Vector3StructProperty() {
-			super(3 * word);
+			super(vector3Size);
 		}
 
 		@Override
@@ -618,13 +650,13 @@ public abstract class StructProperty {
 		private final Vector3 shared = new Vector3();
 
 		public Vector3ArrayStructProperty(int length) {
-			super(3 * word, length);
+			super(vector3Size, length);
 		}
 
 		@Override
 		public Vector3 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + vector3Size * index;
 			shared.x = buffer.getFloat(tempOffset);
 			shared.y = buffer.getFloat(tempOffset + 4);
 			shared.z = buffer.getFloat(tempOffset + 8);
@@ -634,7 +666,7 @@ public abstract class StructProperty {
 		@Override
 		public Vector3 get(Struct struct, int index, Vector3 out) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + vector3Size * index;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
 			out.z = buffer.getFloat(tempOffset + 8);
@@ -644,7 +676,7 @@ public abstract class StructProperty {
 		@Override
 		public void set(Struct struct, int index, Vector3 value) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + vector3Size * index;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
 			buffer.setFloat(tempOffset + 8, value.z);
@@ -657,10 +689,12 @@ public abstract class StructProperty {
 	}
 
 	public static class GridPoint2StructProperty extends ObjectStructProperty<GridPoint2> {
+		public static final int gridPoint2Size = 2 * intSize;
+
 		private final GridPoint2 shared = new GridPoint2();
 
 		public GridPoint2StructProperty() {
-			super(2 * word);
+			super(gridPoint2Size);
 		}
 
 		@Override
@@ -694,13 +728,13 @@ public abstract class StructProperty {
 		private final GridPoint2 shared = new GridPoint2();
 
 		public GridPoint2ArrayStructProperty(int length) {
-			super(2 * word, length);
+			super(gridPoint2Size, length);
 		}
 
 		@Override
 		public GridPoint2 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + gridPoint2Size * index;
 			shared.x = buffer.getInt(tempOffset);
 			shared.y = buffer.getInt(tempOffset + word);
 			return shared;
@@ -709,7 +743,7 @@ public abstract class StructProperty {
 		@Override
 		public GridPoint2 get(Struct struct, int index, GridPoint2 out) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + gridPoint2Size * index;
 			out.x = buffer.getInt(tempOffset);
 			out.y = buffer.getInt(tempOffset + word);
 			return out;
@@ -718,7 +752,7 @@ public abstract class StructProperty {
 		@Override
 		public void set(Struct struct, int index, GridPoint2 value) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 8 * index;
+			int tempOffset = struct.offset + offset + gridPoint2Size * index;
 			buffer.setInt(tempOffset, value.x);
 			buffer.setInt(tempOffset + word, value.y);
 		}
@@ -730,10 +764,12 @@ public abstract class StructProperty {
 	}
 
 	public static class GridPoint3StructProperty extends ObjectStructProperty<GridPoint3> {
+		public static final int gridPoint3Size = 3 * intSize;
+
 		private final GridPoint3 shared = new GridPoint3();
 
 		public GridPoint3StructProperty() {
-			super(12);
+			super(gridPoint3Size);
 		}
 
 		@Override
@@ -770,13 +806,13 @@ public abstract class StructProperty {
 		private final GridPoint3 shared = new GridPoint3();
 
 		public GridPoint3ArrayStructProperty(int length) {
-			super(12, length);
+			super(gridPoint3Size, length);
 		}
 
 		@Override
 		public GridPoint3 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + gridPoint3Size * index;
 			shared.x = buffer.getInt(tempOffset);
 			shared.y = buffer.getInt(tempOffset + 4);
 			shared.z = buffer.getInt(tempOffset + 8);
@@ -786,7 +822,7 @@ public abstract class StructProperty {
 		@Override
 		public GridPoint3 get(Struct struct, int index, GridPoint3 out) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + gridPoint3Size * index;
 			out.x = buffer.getInt(tempOffset);
 			out.y = buffer.getInt(tempOffset + 4);
 			out.z = buffer.getInt(tempOffset + 8);
@@ -796,7 +832,7 @@ public abstract class StructProperty {
 		@Override
 		public void set(Struct struct, int index, GridPoint3 value) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 12 * index;
+			int tempOffset = struct.offset + offset + gridPoint3Size * index;
 			buffer.setInt(tempOffset, value.x);
 			buffer.setInt(tempOffset + 4, value.y);
 			buffer.setInt(tempOffset + 8, value.z);
@@ -809,10 +845,12 @@ public abstract class StructProperty {
 	}
 
 	public static class QuaternionStructProperty extends ObjectStructProperty<Quaternion> {
+		public static final int quaternionSize = 4 * floatSize;
+
 		private final Quaternion shared = new Quaternion();
 
 		public QuaternionStructProperty() {
-			super(16);
+			super(quaternionSize);
 		}
 
 		@Override
@@ -852,13 +890,13 @@ public abstract class StructProperty {
 		private final Quaternion shared = new Quaternion();
 
 		public QuaternionArrayStructProperty(int length) {
-			super(16, length);
+			super(quaternionSize, length);
 		}
 
 		@Override
 		public Quaternion get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 16 * index;
+			int tempOffset = struct.offset + offset + quaternionSize * index;
 			shared.x = buffer.getFloat(tempOffset);
 			shared.y = buffer.getFloat(tempOffset + 4);
 			shared.z = buffer.getFloat(tempOffset + 8);
@@ -869,7 +907,7 @@ public abstract class StructProperty {
 		@Override
 		public Quaternion get(Struct struct, int index, Quaternion out) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 16 * index;
+			int tempOffset = struct.offset + offset + quaternionSize * index;
 			out.x = buffer.getFloat(tempOffset);
 			out.y = buffer.getFloat(tempOffset + 4);
 			out.z = buffer.getFloat(tempOffset + 8);
@@ -880,7 +918,7 @@ public abstract class StructProperty {
 		@Override
 		public void set(Struct struct, int index, Quaternion value) {
 			Buffer buffer = struct.buffer;
-			int tempOffset = struct.offset + offset + 16 * index;
+			int tempOffset = struct.offset + offset + quaternionSize * index;
 			buffer.setFloat(tempOffset, value.x);
 			buffer.setFloat(tempOffset + 4, value.y);
 			buffer.setFloat(tempOffset + 8, value.z);
@@ -894,10 +932,12 @@ public abstract class StructProperty {
 	}
 
 	public static class Matrix3StructProperty extends ObjectStructProperty<Matrix3> {
+		public static final int matrix3Size = 9 * floatSize;
+
 		private final Matrix3 shared = new Matrix3();
 
 		public Matrix3StructProperty() {
-			super(36);
+			super(matrix3Size);
 		}
 
 		@Override
@@ -925,27 +965,27 @@ public abstract class StructProperty {
 		private final Matrix3 shared = new Matrix3();
 
 		public Matrix3ArrayStructProperty(int length) {
-			super(36, length);
+			super(matrix3Size, length);
 		}
 
 		@Override
 		public Matrix3 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			buffer.getFloatArray(struct.offset + offset + 36 * index, shared.val);
+			buffer.getFloatArray(struct.offset + offset + matrix3Size * index, shared.val);
 			return shared;
 		}
 
 		@Override
 		public Matrix3 get(Struct struct, int index, Matrix3 out) {
 			Buffer buffer = struct.buffer;
-			buffer.getFloatArray(struct.offset + offset + 36 * index, out.val);
+			buffer.getFloatArray(struct.offset + offset + matrix3Size * index, out.val);
 			return out;
 		}
 
 		@Override
 		public void set(Struct struct, int index, Matrix3 value) {
 			Buffer buffer = struct.buffer;
-			buffer.setFloatArray(struct.offset + offset + 36 * index, value.val);
+			buffer.setFloatArray(struct.offset + offset + matrix3Size * index, value.val);
 		}
 
 		@Override
@@ -955,10 +995,12 @@ public abstract class StructProperty {
 	}
 
 	public static class Matrix4StructProperty extends ObjectStructProperty<Matrix4> {
+		public static final int matrix4Size = 16 * floatSize;
+
 		private final Matrix4 shared = new Matrix4();
 
 		public Matrix4StructProperty() {
-			super(64);
+			super(matrix4Size);
 		}
 
 		@Override
@@ -986,27 +1028,27 @@ public abstract class StructProperty {
 		private final Matrix4 shared = new Matrix4();
 
 		public Matrix4ArrayStructProperty(int length) {
-			super(64, length);
+			super(matrix4Size, length);
 		}
 
 		@Override
 		public Matrix4 get(Struct struct, int index) {
 			Buffer buffer = struct.buffer;
-			buffer.getFloatArray(struct.offset + offset + 64 * index, shared.val);
+			buffer.getFloatArray(struct.offset + offset + matrix4Size * index, shared.val);
 			return shared;
 		}
 
 		@Override
 		public Matrix4 get(Struct struct, int index, Matrix4 out) {
 			Buffer buffer = struct.buffer;
-			buffer.getFloatArray(struct.offset + offset + 64 * index, out.val);
+			buffer.getFloatArray(struct.offset + offset + matrix4Size * index, out.val);
 			return out;
 		}
 
 		@Override
 		public void set(Struct struct, int index, Matrix4 value) {
 			Buffer buffer = struct.buffer;
-			buffer.setFloatArray(struct.offset + offset + 64 * index, value.val);
+			buffer.setFloatArray(struct.offset + offset + matrix4Size * index, value.val);
 		}
 
 		@Override
@@ -1016,10 +1058,12 @@ public abstract class StructProperty {
 	}
 
 	public static class BoundingBoxStructProperty extends ObjectStructProperty<BoundingBox> {
+		public static final int boundingBoxSize = 2 * vector3Size;
+
 		private final BoundingBox shared = new BoundingBox();
 
 		public BoundingBoxStructProperty() {
-			super(24);
+			super(boundingBoxSize);
 		}
 
 		@Override
@@ -1062,10 +1106,12 @@ public abstract class StructProperty {
 	}
 
 	public static class RectangleStructProperty extends ObjectStructProperty<Rectangle> {
+		public static final int rectangleSize = 4 * floatSize;
+
 		private final Rectangle shared = new Rectangle();
 
 		public RectangleStructProperty() {
-			super(16);
+			super(rectangleSize);
 		}
 
 		@Override
@@ -1102,10 +1148,12 @@ public abstract class StructProperty {
 	}
 
 	public static class GridRectangleStructProperty extends ObjectStructProperty<GridRectangle> {
+		public static final int gridRectangleSize = 4 * intSize;
+
 		private final GridRectangle shared = new GridRectangle();
 
 		public GridRectangleStructProperty() {
-			super(16);
+			super(gridRectangleSize);
 		}
 
 		@Override

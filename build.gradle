@@ -27,6 +27,7 @@ allprojects {
         ashleyVersion = '1.7.3'
         aiVersion = '1.8.0'
         junitVersion = '4.12'
+        junitToolboxVersion = '2.2'
     }
 
     repositories {
@@ -45,6 +46,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
         testCompile "junit:junit:$junitVersion"
+        testCompile "com.googlecode.junit-toolbox:junit-toolbox:$junitToolboxVersion"
     }
 }
 
