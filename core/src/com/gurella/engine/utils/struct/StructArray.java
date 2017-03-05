@@ -14,7 +14,7 @@ public class StructArray<T extends Struct> {
 	private int capacity;
 	private int length;
 
-	private final T shared;
+	private final T sharedStruct;
 	private float[] sharedStorage;
 	private StructArrayView<T> sharedView;
 
@@ -29,7 +29,7 @@ public class StructArray<T extends Struct> {
 		buffer = new UnsafeBuffer(structType.size * initialCapacity);
 		structSize = structType.size;
 		capacity = initialCapacity;
-		shared = structType.newInstance(buffer, 0);
+		sharedStruct = structType.newInstance(buffer, 0);
 	}
 
 	public StructArray(StructType<T> structType, Buffer buffer) {
@@ -37,7 +37,7 @@ public class StructArray<T extends Struct> {
 		this.buffer = buffer;
 		structSize = structType.size;
 		capacity = buffer.getCapacity() / structType.size;
-		shared = structType.newInstance(buffer, 0);
+		sharedStruct = structType.newInstance(buffer, 0);
 	}
 
 	public StructType<T> getStructType() {
@@ -76,8 +76,8 @@ public class StructArray<T extends Struct> {
 
 	public T get(int index) {
 		validateIndex(index);
-		shared.offset = structSize * index;
-		return shared;
+		sharedStruct.offset = structSize * index;
+		return sharedStruct;
 	}
 
 	private void validateIndex(int index) {
