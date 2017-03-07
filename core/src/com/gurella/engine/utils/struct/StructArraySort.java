@@ -147,7 +147,7 @@ public class StructArraySort<T extends Struct> {
 				a.move(left, left + 1);
 				break;
 			default:
-				a.setAll(left + 1, a, left, n);
+				a.move(left, left + 1, n);
 			}
 
 			a.setAll(left, tmpa, 0, 1);
