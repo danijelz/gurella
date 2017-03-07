@@ -1,16 +1,23 @@
 package com.gurella.studio.common;
 
+import static com.gurella.engine.scene.ComponentType.getBaseType;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.badlogic.gdx.utils.IntSet;
 import com.gurella.engine.scene.RequiresComponent;
 import com.gurella.engine.scene.RequiresComponents;
 import com.gurella.engine.scene.SceneNodeComponent;
 
 public class RequiredComponetsRegistry {
+	private static final IntSet tempBaseTypes = new IntSet();
 	private static final Map<Class<? extends SceneNodeComponent>, Set<Class<? extends SceneNodeComponent>>> values = new ConcurrentHashMap<>();
 
 	private RequiredComponetsRegistry() {
@@ -26,21 +33,20 @@ public class RequiredComponetsRegistry {
 	}
 
 	private static Set<Class<? extends SceneNodeComponent>> compute(Class<? extends SceneNodeComponent> type) {
-		Set<Class<? extends SceneNodeComponent>> components = new LinkedHashSet<Class<? extends SceneNodeComponent>>();
+		tempBaseTypes.clear();
+
 		RequiresComponents requiresComponents = type.getAnnotation(RequiresComponents.class);
+		List<RequiresComponent> values = new ArrayList<>();
 		if (requiresComponents != null) {
-			for (RequiresComponent requiresComponent : requiresComponents.value()) {
-				components.add(requiresComponent.value());
-			}
+			values.addAll(Arrays.asList(requiresComponents.value()));
 		}
 
 		RequiresComponent requiresComponent = type.getAnnotation(RequiresComponent.class);
 		if (requiresComponent != null) {
-			components.add(requiresComponent.value());
+			values.add(requiresComponent);
 		}
 
-		components.remove(type);
-
-		return Collections.unmodifiableSet(components);
+		return Collections.unmodifiableSet(values.stream().map(r -> r.value())
+				.filter(t -> t != type && tempBaseTypes.add(getBaseType(t))).collect(toSet()));
 	}
 }
