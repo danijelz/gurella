@@ -86,6 +86,12 @@ public class StructArray<T extends Struct> {
 		}
 	}
 
+	private static void validateCount(int count) {
+		if (count < 0) {
+			throw new IllegalArgumentException("count must be >= 0");
+		}
+	}
+
 	public T get(int index, T out) {
 		validateIndex(index);
 		out.buffer = buffer;
@@ -116,6 +122,8 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void remove(int index, int count) {
+		validateCount(count);
+		validateIndex(index);
 		validateIndex(index + count - 1);
 		int removedItemsOffset = index * structSize;
 		int followingItemsOffset = (length - count) * structSize;
@@ -124,6 +132,8 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void removeOrdered(int index, int count) {
+		validateCount(count);
+		validateIndex(index);
 		validateIndex(index + count - 1);
 		int removedItemsOffset = index * structSize;
 		int followingItemsOffset = removedItemsOffset + (count * structSize);
@@ -149,6 +159,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T insert(int index, int count) {
+		validateCount(count);
 		validateIndex(index);
 		resizeIfNeeded(length + count);
 		int addedItemsOffset = index * structSize;
@@ -158,6 +169,7 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T insert(int index, StructArray<T> source, int fromIndex, int count) {
+		validateCount(count);
 		validateIndex(index);
 		validateType(source.structType);
 		source.validateIndex(fromIndex + count - 1);
@@ -187,8 +199,9 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T add(int count) {
+		validateCount(count);
 		resizeIfNeeded(length + count);
-		int index = length - 1;
+		int index = length;
 		length += count;
 		return get(index);
 	}
@@ -198,10 +211,11 @@ public class StructArray<T extends Struct> {
 	}
 
 	public T addAll(StructArray<T> source, int fromIndex, int count) {
+		validateCount(count);
 		validateType(source.structType);
 		source.validateIndex(fromIndex + count - 1);
 		int destinationOffset = length * structSize;
-		int index = length - 1;
+		int index = length;
 		resizeIfNeeded(length);
 		buffer.set(source.buffer, fromIndex * structSize, destinationOffset, structSize * count);
 		length += count;
@@ -272,8 +286,9 @@ public class StructArray<T extends Struct> {
 			return;
 		}
 
-		validateIndex(fromIndex);
-		validateIndex(toIndex + count - 1);
+		validateCount(count);
+		validateIndex(Math.min(fromIndex, toIndex));
+		validateIndex(Math.max(fromIndex + count - 1, toIndex + count - 1));
 		buffer.swap(fromIndex * structSize, toIndex * structSize, structSize * count, tempStorage);
 	}
 
@@ -282,10 +297,14 @@ public class StructArray<T extends Struct> {
 		buffer.set(value.buffer, value.offset, index * structSize, structSize);
 	}
 
-	public void set(int index, StructArray<T> source, int fromIndex, int count) {
-		if (index < 0 || index > length) {
-			throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + length);
-		}
+	public void setAll(int index, StructArray<T> source) {
+		setAll(index, source, 0, source.length);
+	}
+
+	public void setAll(int index, StructArray<T> source, int fromIndex, int count) {
+		validateCount(count);
+		validateIndex(index);
+		validateIndex(index + count - 1);
 		validateType(source.structType);
 		source.validateIndex(fromIndex + count - 1);
 		resizeIfNeeded(length + count);
@@ -300,8 +319,8 @@ public class StructArray<T extends Struct> {
 	}
 
 	public void move(int fromIndex, int toIndex, int count) {
-		validateIndex(fromIndex);
-		validateIndex(toIndex);
+		validateIndex(Math.min(fromIndex, toIndex));
+		validateIndex(Math.max(fromIndex + count - 1, toIndex + count - 1));
 		buffer.move(fromIndex * structSize, toIndex * structSize, count * structSize);
 	}
 
@@ -387,7 +406,7 @@ public class StructArray<T extends Struct> {
 		validateIndex(startIndex);
 		validateIndex(startIndex + length - 1);
 		if (sharedView == null) {
-			sharedView = new StructArrayView<>(this, startIndex, length);
+			sharedView = new StructArrayView<T>(this, startIndex, length);
 		} else {
 			sharedView.array = this;
 			sharedView.offsetIndex = startIndex;

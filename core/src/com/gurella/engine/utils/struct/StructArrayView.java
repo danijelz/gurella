@@ -184,7 +184,7 @@ public class StructArrayView<T extends Struct> {
 
 	public void set(int index, StructArray<T> source, int fromIndex, int count) {
 		validateIndex(index - 1);
-		array.set(index + offsetIndex, source, fromIndex, count);
+		array.setAll(index + offsetIndex, source, fromIndex, count);
 		length = Math.max(length, index + count);
 	}
 

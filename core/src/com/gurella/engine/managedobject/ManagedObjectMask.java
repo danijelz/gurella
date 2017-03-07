@@ -4,27 +4,27 @@ import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 
-public class ObjectInstanceMask<T extends ManagedObject> implements Predicate<T>, Poolable {
+public class ManagedObjectMask<T extends ManagedObject> implements Predicate<T>, Poolable {
 	private boolean allAlowed = true;
 	private final IntSet allowed = new IntSet();
 	private final IntSet ignored = new IntSet();
 
-	public ObjectInstanceMask<T> allowed(T managedObject) {
+	public ManagedObjectMask<T> allowed(T managedObject) {
 		return allowed(managedObject.instanceId);
 	}
 
-	public ObjectInstanceMask<T> allowed(int instanceId) {
+	public ManagedObjectMask<T> allowed(int instanceId) {
 		ignored.remove(instanceId);
 		allowed.add(instanceId);
 		allAlowed = false;
 		return this;
 	}
 
-	public ObjectInstanceMask<T> ignored(T managedObject) {
+	public ManagedObjectMask<T> ignored(T managedObject) {
 		return ignored(managedObject.instanceId);
 	}
 
-	public ObjectInstanceMask<T> ignored(int instanceId) {
+	public ManagedObjectMask<T> ignored(int instanceId) {
 		allowed.remove(instanceId);
 		ignored.add(instanceId);
 		allAlowed = allowed.size < 1;

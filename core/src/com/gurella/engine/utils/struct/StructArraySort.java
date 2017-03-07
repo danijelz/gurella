@@ -68,7 +68,7 @@ public class StructArraySort<T extends Struct> {
 	public void sort(StructArrayView<T> v, Comparator<T> c) {
 		sort(a, c, 0 + v.offsetIndex, v.length());
 	}
-	
+
 	public void sort(StructArrayView<T> v, Comparator<T> c, int lo, int hi) {
 		sort(a, c, lo + v.offsetIndex, hi + v.offsetIndex);
 	}
@@ -124,7 +124,8 @@ public class StructArraySort<T extends Struct> {
 
 		for (; start < hi; start++) {
 			int pivot = start;
-			tmpa.set(0, a, pivot, 1);
+			tmpa.clear();
+			tmpa.addAll(a, pivot, 1);
 
 			int left = lo;
 			int right = start;
@@ -146,10 +147,10 @@ public class StructArraySort<T extends Struct> {
 				a.move(left, left + 1);
 				break;
 			default:
-				a.set(left + 1, a, left, n);
+				a.setAll(left + 1, a, left, n);
 			}
 
-			a.set(left, tmpa, 0, 1);
+			a.setAll(left, tmpa, 0, 1);
 		}
 	}
 
@@ -370,7 +371,8 @@ public class StructArraySort<T extends Struct> {
 		int tempLen2 = len2;
 
 		ensureCapacity(tempLen1);
-		tmpa.set(0, a, base1, tempLen1);
+		tmpa.clear();
+		tmpa.addAll(a, base1, tempLen1);
 
 		int cursor1 = 0; // Indexes into tmp array
 		int cursor2 = base2; // Indexes int a
@@ -378,13 +380,13 @@ public class StructArraySort<T extends Struct> {
 
 		a.move(cursor2++, dest++);
 		if (--tempLen2 == 0) {
-			a.set(dest, tmpa, cursor1, tempLen1);
+			a.setAll(dest, tmpa, cursor1, tempLen1);
 			return;
 		}
 
 		if (tempLen1 == 1) {
-			a.set(dest, a, cursor2, tempLen2);
-			a.set(dest + tempLen2, tmpa, cursor1, 1);
+			a.setAll(dest, a, cursor2, tempLen2);
+			a.setAll(dest + tempLen2, tmpa, cursor1, 1);
 			return;
 		}
 
@@ -395,14 +397,14 @@ public class StructArraySort<T extends Struct> {
 
 			do {
 				if (c.compare(a.get(cursor2), tmpa.get(cursor1)) < 0) {
-					a.set(dest++, a, cursor2++, 1);
+					a.setAll(dest++, a, cursor2++, 1);
 					count2++;
 					count1 = 0;
 					if (--tempLen2 == 0) {
 						break outer;
 					}
 				} else {
-					a.set(dest++, tmpa, cursor1++, 1);
+					a.setAll(dest++, tmpa, cursor1++, 1);
 					count1++;
 					count2 = 0;
 					if (--tempLen1 == 1) {
@@ -414,7 +416,7 @@ public class StructArraySort<T extends Struct> {
 			do {
 				count1 = gallopRight(a, cursor2, tmpa, cursor1, tempLen1, 0);
 				if (count1 != 0) {
-					a.set(dest, tmpa, cursor1, count1);
+					a.setAll(dest, tmpa, cursor1, count1);
 					dest += count1;
 					cursor1 += count1;
 					tempLen1 -= count1;
@@ -429,7 +431,7 @@ public class StructArraySort<T extends Struct> {
 
 				count2 = gallopLeft(tmpa, cursor1, a, cursor2, tempLen2, 0);
 				if (count2 != 0) {
-					a.set(dest, a, cursor2, count2);
+					a.setAll(dest, a, cursor2, count2);
 					dest += count2;
 					cursor2 += count2;
 					tempLen2 -= count2;
@@ -437,7 +439,7 @@ public class StructArraySort<T extends Struct> {
 						break outer;
 					}
 				}
-				a.set(dest++, tmpa, cursor1++, 1);
+				a.setAll(dest++, tmpa, cursor1++, 1);
 				if (--tempLen1 == 1) {
 					break outer;
 				}
@@ -450,12 +452,12 @@ public class StructArraySort<T extends Struct> {
 		this.minGallop = minGallop < 1 ? 1 : minGallop; // Write back to field
 
 		if (tempLen1 == 1) {
-			a.set(dest, a, cursor2, tempLen2);
-			a.set(dest + tempLen2, tmpa, cursor1, 1);
+			a.setAll(dest, a, cursor2, tempLen2);
+			a.setAll(dest + tempLen2, tmpa, cursor1, 1);
 		} else if (tempLen1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			a.set(dest, tmpa, cursor1, tempLen1);
+			a.setAll(dest, tmpa, cursor1, tempLen1);
 		}
 	}
 
@@ -464,7 +466,8 @@ public class StructArraySort<T extends Struct> {
 		int tempLen2 = len2;
 
 		ensureCapacity(tempLen2);
-		tmpa.set(0, a, base2, tempLen2);
+		tmpa.clear();
+		tmpa.addAll(a, base2, tempLen2);
 
 		int cursor1 = base1 + tempLen1 - 1; // Indexes into a
 		int cursor2 = tempLen2 - 1; // Indexes into tmp array
@@ -472,15 +475,15 @@ public class StructArraySort<T extends Struct> {
 
 		a.move(cursor1--, dest--);
 		if (--tempLen1 == 0) {
-			a.set(dest - (tempLen2 - 1), tmpa, 0, tempLen2);
+			a.setAll(dest - (tempLen2 - 1), tmpa, 0, tempLen2);
 			return;
 		}
 
 		if (tempLen2 == 1) {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
-			a.set(dest + 1, a, cursor1 + 1, tempLen1);
-			a.set(dest, tmpa, cursor2, 1);
+			a.setAll(dest + 1, a, cursor1 + 1, tempLen1);
+			a.setAll(dest, tmpa, cursor2, 1);
 			return;
 		}
 
@@ -494,14 +497,14 @@ public class StructArraySort<T extends Struct> {
 			 */
 			do {
 				if (c.compare(tmpa.get(cursor2), a.get(cursor1)) < 0) {
-					a.set(dest--, a, cursor1--, 1);
+					a.setAll(dest--, a, cursor1--, 1);
 					count1++;
 					count2 = 0;
 					if (--tempLen1 == 0) {
 						break outer;
 					}
 				} else {
-					a.set(dest--, tmpa, cursor2--, 1);
+					a.setAll(dest--, tmpa, cursor2--, 1);
 					count2++;
 					count1 = 0;
 					if (--tempLen2 == 1) {
@@ -516,13 +519,13 @@ public class StructArraySort<T extends Struct> {
 					dest -= count1;
 					cursor1 -= count1;
 					tempLen1 -= count1;
-					a.set(dest + 1, a, cursor1 + 1, count1);
+					a.setAll(dest + 1, a, cursor1 + 1, count1);
 					if (tempLen1 == 0) {
 						break outer;
 					}
 				}
 
-				a.set(dest--, tmpa, cursor2--, 1);
+				a.setAll(dest--, tmpa, cursor2--, 1);
 				if (--tempLen2 == 1) {
 					break outer;
 				}
@@ -532,7 +535,7 @@ public class StructArraySort<T extends Struct> {
 					dest -= count2;
 					cursor2 -= count2;
 					tempLen2 -= count2;
-					a.set(dest + 1, tmpa, cursor2 + 1, count2);
+					a.setAll(dest + 1, tmpa, cursor2 + 1, count2);
 					if (tempLen2 <= 1) {
 						break outer;
 					}
@@ -556,12 +559,12 @@ public class StructArraySort<T extends Struct> {
 		if (tempLen2 == 1) {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
-			a.set(dest + 1, a, cursor1 + 1, tempLen1);
-			a.set(dest, tmpa, cursor2, 1);
+			a.setAll(dest + 1, a, cursor1 + 1, tempLen1);
+			a.setAll(dest, tmpa, cursor2, 1);
 		} else if (tempLen2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			a.set(dest - (tempLen2 - 1), tmpa, 0, tempLen2);
+			a.setAll(dest - (tempLen2 - 1), tmpa, 0, tempLen2);
 		}
 	}
 

@@ -1,8 +1,9 @@
 package com.gurella.engine.graphics.render.command;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graphics.render.RenderContext;
-import com.gurella.engine.managedobject.ObjectInstanceMask;
+import com.gurella.engine.managedobject.ManagedObjectMask;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.renderable.LayerMask;
@@ -14,13 +15,14 @@ public class RenderSceneCommand implements RenderCommand {
 	Scene scene;
 	LayerMask layerMask;
 	TagMask tagMask;
-	ObjectInstanceMask<CameraComponent<?>> cameraMask;
+	ManagedObjectMask<CameraComponent<?>> cameraMask;
+	Array<String> passes;
 	boolean renderGui;
 	
 	Predicate<RenderableComponent> filter;
 	
 	@Override
-	public void render(RenderContext context) {
+	public void process(RenderContext context) {
 		RenderSystem renderSystem = scene.renderSystem;
 		// TODO Auto-generated method stub
 		

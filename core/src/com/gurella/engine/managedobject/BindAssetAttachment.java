@@ -7,10 +7,10 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.managedobject.ObjectDestroyedListener;
 
 //TODO maybe not needed
-public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable {
-	static <T> ManageAssetAttachment<T> obtain(T asset) {
+public class BindAssetAttachment<T> extends Attachment<T> implements Poolable {
+	static <T> BindAssetAttachment<T> obtain(T asset) {
 		@SuppressWarnings("unchecked")
-		ManageAssetAttachment<T> attachment = PoolService.obtain(ManageAssetAttachment.class);
+		BindAssetAttachment<T> attachment = PoolService.obtain(BindAssetAttachment.class);
 		attachment.value = asset;
 		return attachment;
 	}

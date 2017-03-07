@@ -10,7 +10,7 @@ public class ClearRenderTargetCommand implements RenderCommand {
 	public int clearStencilValue;
 
 	@Override
-	public void render(RenderContext context) {
+	public void process(RenderContext context) {
 		context.clear(type, clearColorValue, clearDepthValue, clearStencilValue);
 	}
 

@@ -10,7 +10,7 @@ public class CompositeRenderCommand implements RenderCommand {
 	}
 
 	@Override
-	public void render(RenderContext context) {
+	public void process(RenderContext context) {
 		composition.render(context);
 	}
 }

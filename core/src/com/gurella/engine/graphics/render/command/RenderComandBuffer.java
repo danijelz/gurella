@@ -20,7 +20,7 @@ public class RenderComandBuffer {
 
 	public void render(RenderContext context) {
 		for (int i = 0, n = commands.size; i < n; i++) {
-			commands.get(i).render(context);
+			commands.get(i).process(context);
 		}
 	}
 }

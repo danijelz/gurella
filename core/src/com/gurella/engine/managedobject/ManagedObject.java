@@ -430,7 +430,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 		if (callback == null) {
 			throw new NullPointerException("callback is null.");
 		}
-		ManageAssetAttachment.loadAsync(this, fileName, assetType, callback);
+		BindAssetAttachment.loadAsync(this, fileName, assetType, callback);
 	}
 
 	public <T> boolean unload(T asset) {
@@ -438,7 +438,7 @@ public abstract class ManagedObject implements Bundle, BundleAware, Comparable<M
 	}
 
 	public <T> void bindAsset(T asset) {
-		attach(ManageAssetAttachment.obtain(asset));
+		attach(BindAssetAttachment.obtain(asset));
 	}
 
 	@Override

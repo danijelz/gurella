@@ -27,6 +27,10 @@ public final class ComponentType {
 	private ComponentType() {
 	}
 
+	public static int findBaseType(SceneNodeComponent component) {
+		return findBaseType(component.getClass());
+	}
+
 	static int findBaseType(Class<? extends SceneNodeComponent> type) {
 		return baseComponentTypes.get(registry.findId(type), invalidId);
 	}
@@ -37,6 +41,10 @@ public final class ComponentType {
 
 	static int findType(Class<? extends SceneNodeComponent> type) {
 		return registry.findId(type);
+	}
+
+	public static int getBaseType(SceneNodeComponent component) {
+		return getBaseType(component.getClass());
 	}
 
 	public static int getBaseType(Class<? extends SceneNodeComponent> type) {

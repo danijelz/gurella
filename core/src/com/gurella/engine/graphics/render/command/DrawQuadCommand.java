@@ -11,7 +11,7 @@ public class DrawQuadCommand implements RenderCommand {
 	private Material material;
 
 	@Override
-	public void render(RenderContext context) {
+	public void process(RenderContext context) {
 		destination.bind();
 		material.begin();
 		// TODO Auto-generated method stub
