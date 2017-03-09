@@ -2,9 +2,12 @@ package com.gurella.engine.graphics.render.material;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectMap;
 
 public class Pass implements Disposable {
 	public final Technique technique;
+
+	private ObjectMap<String, String> defines;
 
 	transient ShaderProgram shaderProgram;
 

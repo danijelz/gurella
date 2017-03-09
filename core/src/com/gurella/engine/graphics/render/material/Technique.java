@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.material;
 
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.gl.GlCompliance;
 
 public class Technique {
@@ -9,7 +10,8 @@ public class Technique {
 
 	GlCompliance glCompliance;
 	Array<String> requiredExtensions;
-	Array<String> defines;
+	
+	ObjectMap<String, String> defines;
 
 	private Array<Pass> passes = new Array<Pass>();
 

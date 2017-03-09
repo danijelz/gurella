@@ -1,16 +1,19 @@
 package com.gurella.engine.graphics.render.shader;
 
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.RenderContext;
 
 public class ShaderUnifrom {
 	private String name;
-	private ShaderVariableType type;
-	private UniformScope scope;
-	private String defineProperty;
 	
+	private ShaderVariableType type;
+	private int cardinality = 1;
+	
+	private UniformScope scope;
+	private ObjectMap<String, String> defines;
+
 	private boolean editable;
 	private boolean required;
-	private int cardinality = 1;
 
 	public void setValue(Object value) {
 
@@ -31,6 +34,6 @@ public class ShaderUnifrom {
 	}
 
 	public enum ShaderVariableType {
-		booleanType, floatType, integerType, vectorType, vector3Type, vector2Type;
+		booleanType, floatType, integerType, vectorType, vector2Type, vector3Type;
 	}
 }
