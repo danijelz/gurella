@@ -6,9 +6,7 @@ import java.util.Arrays;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.Pools;
 
 class GlUniforms implements Poolable {
 	public static final int UNIFORMARRAY_SIZE = 15;
@@ -43,13 +41,7 @@ class GlUniforms implements Poolable {
 
 	UniformType uniformType = UniformType.fill;
 
-	private FloatBuffer uniformArray = BufferUtils.newFloatBuffer(UNIFORMARRAY_SIZE * 4);
-
 	private AffineTransform tempXform = new AffineTransform();
-
-	static GlUniforms newInstance() {
-		return Pools.obtain(GlUniforms.class);
-	}
 
 	void setScissorMatrix(AffineTransform transform) {
 		xformToMat3x4(scissorMatrix, transform);
@@ -78,7 +70,8 @@ class GlUniforms implements Poolable {
 		matrix3[11] = 0.0f;
 	}
 
-	GlUniforms init(AffineTransform globalXform, float globalAlpha, Paint paint, Scissor scissor, float width, float fringe, float strokeThr, boolean texturedVertices) {
+	GlUniforms init(AffineTransform globalXform, float globalAlpha, Paint paint, Scissor scissor, float width,
+			float fringe, float strokeThr, boolean texturedVertices) {
 		uniformType = UniformType.fill;
 		strokeMult = (width * 0.5f + fringe * 0.5f) / fringe;
 		this.strokeThr = strokeThr;
@@ -179,7 +172,7 @@ class GlUniforms implements Poolable {
 		return this;
 	}
 
-	public FloatBuffer getUniformArray() {
+	public FloatBuffer getUniformArray(FloatBuffer uniformArray) {
 		uniformArray.clear();
 
 		uniformArray.put(scissorMatrix);
@@ -236,10 +229,6 @@ class GlUniforms implements Poolable {
 		solidColor.set(0, 0, 0, 0);
 
 		uniformType = UniformType.fill;
-	}
-
-	public void free() {
-		Pools.free(this);
 	}
 
 	public enum UniformType {

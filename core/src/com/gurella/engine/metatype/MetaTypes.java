@@ -38,6 +38,7 @@ import com.gurella.engine.metatype.DefaultMetaType.FloatPrimitiveMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.IntegerMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.IntegerPrimitiveMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.LayerMetaType;
+import com.gurella.engine.metatype.DefaultMetaType.LocaleMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.LongMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.LongPrimitiveMetaType;
 import com.gurella.engine.metatype.DefaultMetaType.ShortMetaType;

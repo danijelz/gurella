@@ -63,7 +63,7 @@ public class GdxCanvasTestApp {
 			};
 
 			Gdx.input.setInputProcessor(stage);
-			skin = new Skin(Gdx.files.internal("uiskin.json"));
+			skin = new Skin(Gdx.files.internal("editorui/uiskin.json"));
 
 			testItems = new SelectBox<TestItem>(skin);
 			testItems.setBounds(30, screenViewport.getScreenHeight() - 50, 350, 30);
@@ -152,13 +152,7 @@ public class GdxCanvasTestApp {
 
 		protected void testItemSelected() {
 			TestItem selected = testItems.getSelected();
-			try {
-				selectedTestCase = selected == null ? null : selected.testClass.newInstance();
-			} catch (InstantiationException e) {
-				selectedTestCase = null;
-			} catch (IllegalAccessException e) {
-				selectedTestCase = null;
-			}
+			selectedTestCase = selected == null ? null : Reflection.newInstanceSilently(selected.testClass);
 		}
 	}
 

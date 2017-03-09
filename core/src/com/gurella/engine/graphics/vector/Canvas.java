@@ -38,6 +38,7 @@ public class Canvas implements Disposable, Poolable {
 
 	CanvasFlags flags = new CanvasFlags();
 	GlContext glContext = new GlContext();
+	final Dasher dasher = new Dasher();
 
 	CanvasState currentState;
 	private final Array<CanvasState> states = new Array<CanvasState>(32);
@@ -56,6 +57,7 @@ public class Canvas implements Disposable, Poolable {
 
 	private final Path path = Path.obtain();
 	private final PathBuilder pathBuilder = new PathBuilder();
+	
 
 	private final FloatBuffer tempFloatBuffer = BufferUtils.newFloatBuffer(16);
 	private final IntBuffer tempIntBuffer = BufferUtils.newIntBuffer(16);
@@ -1679,7 +1681,7 @@ public class Canvas implements Disposable, Poolable {
 		return devicePixelRatio;
 	}
 
-	// TODO handling of modified flags
+	// TODO handling flags changes
 	/*
 	 * public void setFlags(CanvasFlag... flags) { this.flags.set(flags); }
 	 * 

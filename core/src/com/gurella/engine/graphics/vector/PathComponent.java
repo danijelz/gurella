@@ -186,9 +186,7 @@ class PathComponent implements PathConstants, Poolable {
 		
 		if (dmr2 > 0.000001f) {
 			float scale = 1.0f / dmr2;
-			if (scale > 600.0f) {
-				scale = 600.0f;
-			}
+			scale = scale > 600.0f ? 600.0f : scale;
 			p1.dmx *= scale;
 			p1.dmy *= scale;
 		}

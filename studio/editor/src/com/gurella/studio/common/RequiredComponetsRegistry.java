@@ -17,7 +17,6 @@ import com.gurella.engine.scene.RequiresComponents;
 import com.gurella.engine.scene.SceneNodeComponent;
 
 public class RequiredComponetsRegistry {
-	private static final IntSet tempBaseTypes = new IntSet();
 	private static final Map<Class<? extends SceneNodeComponent>, Set<Class<? extends SceneNodeComponent>>> values = new ConcurrentHashMap<>();
 
 	private RequiredComponetsRegistry() {
@@ -33,7 +32,7 @@ public class RequiredComponetsRegistry {
 	}
 
 	private static Set<Class<? extends SceneNodeComponent>> compute(Class<? extends SceneNodeComponent> type) {
-		tempBaseTypes.clear();
+		final IntSet baseTypes = new IntSet();
 
 		RequiresComponents requiresComponents = type.getAnnotation(RequiresComponents.class);
 		List<RequiresComponent> values = new ArrayList<>();
@@ -47,6 +46,6 @@ public class RequiredComponetsRegistry {
 		}
 
 		return Collections.unmodifiableSet(values.stream().map(r -> r.value())
-				.filter(t -> t != type && tempBaseTypes.add(getBaseType(t))).collect(toSet()));
+				.filter(t -> t != type && baseTypes.add(getBaseType(t))).collect(toSet()));
 	}
 }

@@ -148,7 +148,7 @@ class TrianglesMesh implements Poolable {
 		call.clips.addAll(currentState.clips);
 		call.vertexMode = mode;
 		CanvasState state = currentState;
-		call.newUniform(state.xform, state.globalAlpha, state.scissor, state.fillPaint, canvas.fringeWidth, canvas.fringeWidth, -1.0f, textured);
+		call.initUniform(state.xform, state.globalAlpha, state.scissor, state.fillPaint, canvas.fringeWidth, canvas.fringeWidth, -1.0f, textured);
 		call.triangleVertices.addAll(triangleVertices);
 		triangleVertices.clear();
 		return call;

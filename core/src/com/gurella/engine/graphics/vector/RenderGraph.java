@@ -263,7 +263,7 @@ class RenderGraph implements Poolable {
 		
 		GlCall getCall() {
 			initVertices();
-			call.getUniforms(0).imageHandle = frameBuffer.texture.getTextureObjectHandle();
+			call.uniform.imageHandle = frameBuffer.texture.getTextureObjectHandle();
 			return call;
 		}
 		

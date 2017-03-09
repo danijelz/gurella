@@ -123,7 +123,7 @@ public abstract class CallRecord {
 					fillCall.free();
 					fillCall = null;
 				} else if(!lastState.fillPaint.equals(newState.fillPaint) || !lastState.scissor.equals(newState.scissor)) {
-					fillCall.getUniforms(0).init(newState.xform, newState.globalAlpha, newState.fillPaint, newState.scissor, canvas.fringeWidth, canvas.fringeWidth, -1.0f, false);
+					fillCall.uniform.init(newState.xform, newState.globalAlpha, newState.fillPaint, newState.scissor, canvas.fringeWidth, canvas.fringeWidth, -1.0f, false);
 				}
 			}
 			
@@ -138,9 +138,9 @@ public abstract class CallRecord {
 					strokeCall.free();
 					strokeCall = null;
 				} else if(!lastState.strokePaint.equals(newState.strokePaint) || !lastState.scissor.equals(newState.scissor)) {
-					strokeCall.getUniforms(0).init(newState.xform, newState.globalAlpha, newState.strokePaint, newState.scissor, newState.strokeWidth, canvas.fringeWidth, -1.0f, false);
+					strokeCall.uniform.init(newState.xform, newState.globalAlpha, newState.strokePaint, newState.scissor, newState.strokeWidth, canvas.fringeWidth, -1.0f, false);
 					if (canvas.isStencilStrokes()) {
-						strokeCall.getUniforms(0).init(newState.xform, newState.globalAlpha, newState.strokePaint, newState.scissor, newState.strokeWidth, canvas.fringeWidth, 1.0f - 0.5f / 255.0f, false);
+						strokeCall.stencilStrokesUniform.init(newState.xform, newState.globalAlpha, newState.strokePaint, newState.scissor, newState.strokeWidth, canvas.fringeWidth, 1.0f - 0.5f / 255.0f, false);
 					}
 				}
 			}
@@ -179,7 +179,7 @@ public abstract class CallRecord {
 		public void setTextured(boolean textured) {
 			this.textured = textured;
 			if(fillCall != null) {
-				fillCall.getUniforms(0).texturedVertices = textured;
+				fillCall.uniform.texturedVertices = textured;
 			}
 		}
 
@@ -200,7 +200,7 @@ public abstract class CallRecord {
 					fillCall.free();
 					fillCall = null;
 				} else if(!lastState.fillPaint.equals(newState.fillPaint) || !lastState.scissor.equals(newState.scissor)) {
-					fillCall.getUniforms(0).init(newState.xform, newState.globalAlpha, newState.fillPaint, newState.scissor, canvas.fringeWidth, canvas.fringeWidth, -1.0f, textured);
+					fillCall.uniform.init(newState.xform, newState.globalAlpha, newState.fillPaint, newState.scissor, canvas.fringeWidth, canvas.fringeWidth, -1.0f, textured);
 				}
 			}
 		}

@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.graphics.vector.GlCall.CallType;
 import com.badlogic.gdx.utils.Pools;
+import com.gurella.engine.graphics.vector.GlCall.CallType;
 
 class PathMesh implements PathConstants, Poolable {
 	Canvas canvas;
@@ -15,8 +15,6 @@ class PathMesh implements PathConstants, Poolable {
 	private Array<PathComponent> strokeComponents;
 
 	private final float[] bounds = new float[] { 1e6f, 1e6f, -1e6f, -1e6f };
-
-	private final Dasher dasher = new Dasher();
 
 	private PathComponent lastComponent;
 	private Point lastPoint;
@@ -201,7 +199,7 @@ class PathMesh implements PathConstants, Poolable {
 
 	private void setupFillUniforms(GlCall fillCall) {
 		CanvasState state = canvas.currentState;
-		fillCall.newUniform(state.xform, state.globalAlpha, state.scissor, state.fillPaint, canvas.fringeWidth,
+		fillCall.initUniform(state.xform, state.globalAlpha, state.scissor, state.fillPaint, canvas.fringeWidth,
 				canvas.fringeWidth, -1.0f);
 	}
 
@@ -231,6 +229,7 @@ class PathMesh implements PathConstants, Poolable {
 	}
 
 	private void createDashedStrokeComponents() {
+		Dasher dasher = canvas.dasher;
 		// TODO check if needs component reset
 		CanvasUtils.resetArray(dashedStrokeComponents);
 		CanvasState currentState = canvas.currentState;
@@ -260,9 +259,11 @@ class PathMesh implements PathConstants, Poolable {
 			strokeWidth = fringeWidth;
 		}
 
-		strokeCall.newUniform(state.xform, globalAlpha, state.scissor, state.strokePaint, strokeWidth, fringeWidth, -1.0f);
+		strokeCall.initUniform(state.xform, globalAlpha, state.scissor, state.strokePaint, strokeWidth, fringeWidth,
+				-1.0f);
 		if (canvas.isStencilStrokes()) {
-			strokeCall.newUniform(state.xform, globalAlpha, state.scissor, state.strokePaint, strokeWidth, fringeWidth, 1.0f - 0.5f / 255.0f);
+			strokeCall.initStrokesUniform(state.xform, globalAlpha, state.scissor, state.strokePaint, strokeWidth,
+					fringeWidth, 1.0f - 0.5f / 255.0f);
 		}
 	}
 
@@ -280,32 +281,3 @@ class PathMesh implements PathConstants, Poolable {
 		Pools.free(this);
 	}
 }
-/*
- * Point[x= 104.488, y=270.0, dx=-0.077909544, dy=-0.9969604, len=4.1586366, dmx=-1.081196, dmy=-1.0, flags=43],
- * Point[x= 104.164, y=265.854, dx=-1.0, dy=0.0, len=1.0319977, dmx=-0.9249017, dmy=1.0, flags=43], Point[x= 103.132,
- * y=265.854, dx=-0.24300909, dy=0.97002405, len=2.9875655, dmx=0.7803837, dmy=1.0, flags=43], Point[x= 102.406,
- * y=268.752, dx=-0.25990054, dy=-0.96563536, len=3.0011435, dmx=0.03470179, dmy=3.9765546, flags=57], Point[x= 101.626,
- * y=265.854, dx=-1.0, dy=0.0, len=1.0199966, dmx=-0.76643777, dmy=1.0, flags=43], Point[x= 100.606, y=265.854,
- * dx=-0.07934436, dy=0.9968473, len=4.1591086, dmx=0.92356735, dmy=1.0, flags=43], Point[x= 100.276, y=270.0, dx=1.0,
- * dy=0.0, len=0.76799774, dmx=1.0827581, dmy=-1.0, flags=43], Point[x= 101.044, y=270.0, dx=0.059596453, dy=-0.9982226,
- * len=2.0135887, dmx=-0.9420781, dmy=-1.0, flags=43], Point[x= 101.164, y=267.99, dx=0.0044223457, dy=-0.9999902,
- * len=1.3560008, dmx=-0.9998681, dmy=-0.0320338, flags=3], Point[x= 101.17, y=266.634, dx=0.2716021, dy=0.9624096,
- * len=3.048588, dmx=-0.9685501, dmy=-7.1138678, flags=57], Point[x= 101.998, y=269.568, dx=1.0, dy=0.0, len=0.76200104,
- * dmx=0.75684804, dmy=-1.0, flags=43], Point[x= 102.76, y=269.568, dx=0.2532272, dy=-0.96740675, len=3.0328405,
- * dmx=-0.7719325, dmy=-1.0000001, flags=43], Point[x= 103.528, y=266.634, dx=0.04201971, dy=0.99911684, len=1.2851316,
- * dmx=0.71924317, dmy=-6.696743, flags=57], Point[x= 103.582, y=267.918, dx=0.06327167, dy=0.9979963, len=2.086181,
- * dmx=0.9986696, dmy=-0.05265165, flags=3], Point[x= 103.714, y=270.0, dx=1.0, dy=0.0, len=0.7740021, dmx=0.938609,
- * dmy=-1.0000001, flags=43]]
- * 
- * 
- * 2.168986 1.8554422 1.6089993 15.814161 1.5874257 1.8529779 2.1723635 1.887515 1.0007623 51.54453 1.5728208 1.5958792
- * 45.363754 1.0001134 1.8809851
- * 
- * 
- * Commands: moveTo: 104.488, 270.0 lineTo: 104.164, 265.854 lineTo: 103.132, 265.854 lineTo: 102.406, 268.752 lineTo:
- * 102.382, 268.752 lineTo: 101.626, 265.854 lineTo: 100.606, 265.854 lineTo: 100.276, 270.0 lineTo: 101.044, 270.0
- * lineTo: 101.164, 267.99 cubicTo: 101.194, 267.486,101.194, 266.874,101.17, 266.634 lineTo: 101.194, 266.634 lineTo:
- * 101.998, 269.568 lineTo: 102.76, 269.568 lineTo: 103.528, 266.634 lineTo: 103.552, 266.634 cubicTo: 103.54,
- * 266.85,103.552, 267.414,103.582, 267.918 lineTo: 103.714, 270.0 close
- * 
- */

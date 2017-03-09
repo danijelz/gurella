@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.vector;
 
+import static com.gurella.engine.graphics.vector.Canvas.distanceTolerance;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -363,7 +365,6 @@ public class Path implements PathConstants, Poolable {
 	}
 
 	private static boolean canConvertArcToLine(float startX, float startY, float endX, float endY, float radius, float x0, float y0) {
-		float distanceTolerance = Canvas.distanceTolerance;
 		return radius < distanceTolerance
 				|| Point.pointEquals(x0, y0, startX, startY, distanceTolerance)
 				|| Point.pointEquals(startX, startY, endX, endY, distanceTolerance)
@@ -1374,7 +1375,7 @@ public class Path implements PathConstants, Poolable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		for(int i = 0; i < commands.size; i++) {
+		for(int i = 0, n = commands.size; i < n; i++) {
 			result = prime * result + NumberUtils.floatToIntBits(commands.get(i));
 		}
 		return result;
@@ -1385,7 +1386,8 @@ public class Path implements PathConstants, Poolable {
 		StringBuilder builder = new StringBuilder("Commands:\n");
 		
 		int i = 0;
-		while (i < commands.size) {
+		int size = commands.size;
+		while (i < size) {
 			int cmd = (int) commands.get(i);
 			
 			switch (cmd) {

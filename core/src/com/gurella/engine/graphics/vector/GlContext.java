@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.vector;
 
 import static com.badlogic.gdx.Gdx.gl;
+import static com.gurella.engine.graphics.vector.GlUniforms.UNIFORMARRAY_SIZE;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
@@ -32,6 +33,7 @@ public class GlContext implements Poolable {
 	BlendMode blendMode = BlendMode.over;
 
 	private final IntBuffer tmpHandle = BufferUtils.newIntBuffer(1);
+	private final FloatBuffer uniformArray = BufferUtils.newFloatBuffer(UNIFORMARRAY_SIZE * 4);
 
 	FloatBuffer vertsBuffer;
 
@@ -311,7 +313,7 @@ public class GlContext implements Poolable {
 	}
 
 	public void setUniforms(GlUniforms uniforms) {
-		gl.glUniform4fv(shader.fragUniformLocation, GlUniforms.UNIFORMARRAY_SIZE, uniforms.getUniformArray());
+		gl.glUniform4fv(shader.fragUniformLocation, UNIFORMARRAY_SIZE, uniforms.getUniformArray(uniformArray));
 
 		if (uniforms.imageType != ImageType.none) {
 			bindTexture(uniforms.imageHandle);
@@ -329,7 +331,7 @@ public class GlContext implements Poolable {
 	}
 
 	private void convexFill(GlCall call) {
-		setUniforms(call.getUniforms(0));
+		setUniforms(call.uniform);
 		checkError("convex fill");
 
 		Array<GlPathComponent> components = call.components;
@@ -377,7 +379,7 @@ public class GlContext implements Poolable {
 
 		// Draw anti-aliased pixels
 		gl.glColorMask(true, true, true, true);
-		setUniforms(call.getUniforms(0));
+		setUniforms(call.uniform);
 		checkError("fill fill");
 
 		if (antiAlias) {
@@ -411,7 +413,7 @@ public class GlContext implements Poolable {
 			// Fill the stroke base without overlap
 			stencilFunction(GL20.GL_EQUAL, 0x0, 0xff);
 			gl.glStencilOp(GL20.GL_KEEP, GL20.GL_KEEP, GL20.GL_INCR);
-			setUniforms(call.getUniforms(1));
+			setUniforms(call.stencilStrokesUniform);
 			checkError("stroke fill 0");
 
 			for (i = 0; i < components.size; i++) {
@@ -421,7 +423,7 @@ public class GlContext implements Poolable {
 			}
 
 			// Draw anti-aliased pixels.
-			setUniforms(call.getUniforms(0));
+			setUniforms(call.uniform);
 			stencilFunction(GL20.GL_EQUAL, 0x00, 0xff);
 			gl.glStencilOp(GL20.GL_KEEP, GL20.GL_KEEP, GL20.GL_KEEP);
 
@@ -448,7 +450,7 @@ public class GlContext implements Poolable {
 			gl.glDisable(GL20.GL_STENCIL_TEST);
 
 		} else {
-			setUniforms(call.getUniforms(0));
+			setUniforms(call.uniform);
 			checkError("stroke fill");
 			// Draw Strokes
 			for (i = 0; i < components.size; i++) {
@@ -460,7 +462,7 @@ public class GlContext implements Poolable {
 	}
 
 	private void triangles(GlCall call) {
-		setUniforms(call.getUniforms(0));
+		setUniforms(call.uniform);
 		checkError("triangles fill");
 		gl.glDrawArrays(call.vertexMode.glMode, call.triangleVerticesOffset, call.triangleVertices.size);
 	}
