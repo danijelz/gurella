@@ -123,7 +123,7 @@ class Dasher implements Poolable {
 	
 	private void appendPoint(Point point) {
 		Point cloned = Point.obtain(point);
-		points.add(cloned);
+		points.add(cloned);//TODO ???? points.add(point);
 		unusedPoints.add(cloned);
 	}
 	
@@ -165,8 +165,9 @@ class Dasher implements Poolable {
 		float currentLength = 0;
 
 		while (true) {
-			if (currentLength + p1.length <= dashLength) {
-				currentLength += p1.length;
+			float length = currentLength + p1.length;
+			if (length <= dashLength) {
+				currentLength = length;
 				if (pointIndex < points.size) {
 					p0 = p1;
 					p1 = points.get(pointIndex++);
