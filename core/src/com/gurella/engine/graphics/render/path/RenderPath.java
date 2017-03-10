@@ -27,6 +27,10 @@ public class RenderPath {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));
 		rootBuffer.add(new CompositeRenderCommand(effectsBuffer));
 	}
+	
+	public void init() {
+		
+	}
 
 	public void render(Scene scene) {
 
