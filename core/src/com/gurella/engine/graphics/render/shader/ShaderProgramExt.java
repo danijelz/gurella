@@ -10,7 +10,6 @@ public class ShaderProgramExt extends ShaderProgram {
 
 	public ShaderProgramExt(String vertexShader, String fragmentShader) {
 		super(vertexShader, fragmentShader);
-		// Gdx.gl20.glUniform
 	}
 
 	public static class ProgramUniform {
