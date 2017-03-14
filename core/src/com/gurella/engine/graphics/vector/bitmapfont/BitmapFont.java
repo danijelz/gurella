@@ -6,13 +6,13 @@ import com.gurella.engine.graphics.vector.Font;
 import com.gurella.engine.graphics.vector.Path;
 
 public class BitmapFont extends Font {
-	private com.badlogic.gdx.graphics.g2d.BitmapFont rawFont;
+	private com.badlogic.gdx.graphics.g2d.BitmapFont gdxFont;
 	private BitmapFontData data;
 	
 	private final IntMap<Glyph> glyphs = new IntMap<Glyph>();
 	
 	public BitmapFont(com.badlogic.gdx.graphics.g2d.BitmapFont rawFont) {
-		this.rawFont = rawFont;
+		this.gdxFont = rawFont;
 		data = rawFont.getData();
 	}
 
@@ -60,11 +60,11 @@ public class BitmapFont extends Font {
 	}
 	
 	public static final class BitmapGlyph extends Glyph {
-		private com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph rawGlyph;
+		private com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph gdxGlyph;
 		
 		public BitmapGlyph(int id, com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph rawGlyph) {
 			super(id);
-			this.rawGlyph = rawGlyph;
+			this.gdxGlyph = rawGlyph;
 		}
 
 		@Override
