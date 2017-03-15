@@ -21,10 +21,10 @@ public class CameraViewport {
 	private CameraViewportType type = CameraViewportType.screen;
 
 	////////////// scale
-	@PropertyEditorDescriptor(group = "scale")
-	private float worldWidth;
-	@PropertyEditorDescriptor(group = "scale")
-	private float worldHeight;
+	@PropertyEditorDescriptor(group = "scale", descriptiveName = "worldWidth")
+	private float scaleWorldWidth;
+	@PropertyEditorDescriptor(group = "scale", descriptiveName = "worldHeight")
+	private float scaleWorldHeight;
 
 	////////////// screen
 	@PropertyEditorDescriptor(group = "screen")
@@ -63,6 +63,10 @@ public class CameraViewport {
 	private transient int viewportScreenY;
 	private transient int viewportScreenWidth;
 	private transient int viewportScreenHeight;
+
+	private transient float worldWidth;
+	private transient float worldHeight;
+
 	private transient final Vector3 tmp = new Vector3();
 
 	public CameraViewport() {
@@ -77,8 +81,8 @@ public class CameraViewport {
 
 		type = other.type;
 
-		worldWidth = other.worldWidth;
-		worldHeight = other.worldHeight;
+		scaleWorldWidth = other.scaleWorldWidth;
+		scaleWorldHeight = other.scaleWorldHeight;
 
 		screenX = other.screenX;
 		screenY = other.screenY;
@@ -198,8 +202,6 @@ public class CameraViewport {
 		}
 
 		setWorldSize(tempWorldWidth, tempWorldHeight);
-
-		// Center.
 		setScreenBounds((viewportScreenWidth - tempViewportWidth) / 2 + viewportScreenX,
 				(viewportScreenHeight - tempViewportHeight) / 2 + viewportScreenY, tempViewportWidth,
 				tempViewportHeight);
@@ -222,11 +224,11 @@ public class CameraViewport {
 	}
 
 	public void updateToScaling(Scaling scaling) {
-		Vector2 scaled = scaling.apply(getWorldWidth(), getWorldHeight(), viewportScreenWidth, viewportScreenHeight);
+		Vector2 scaled = scaling.apply(scaleWorldWidth, scaleWorldHeight, viewportScreenWidth, viewportScreenHeight);
 		int tempViewportWidth = Math.round(scaled.x);
 		int tempViewportHeight = Math.round(scaled.y);
 
-		// Center.
+		setWorldSize(scaleWorldWidth, scaleWorldHeight);
 		setScreenBounds((viewportScreenWidth - tempViewportWidth) / 2 + viewportScreenX,
 				(viewportScreenHeight - tempViewportHeight) / 2 + viewportScreenY, tempViewportWidth,
 				tempViewportHeight);
@@ -308,29 +310,7 @@ public class CameraViewport {
 		this.camera = camera;
 	}
 
-	public float getWorldWidth() {
-		return worldWidth;
-	}
-
-	/**
-	 * The virtual width of this viewport in world coordinates. This width is scaled to the viewport's screen width.
-	 */
-	public void setWorldWidth(float worldWidth) {
-		this.worldWidth = worldWidth;
-	}
-
-	public float getWorldHeight() {
-		return worldHeight;
-	}
-
-	/**
-	 * The virtual height of this viewport in world coordinates. This height is scaled to the viewport's screen height.
-	 */
-	public void setWorldHeight(float worldHeight) {
-		this.worldHeight = worldHeight;
-	}
-
-	public void setWorldSize(float worldWidth, float worldHeight) {
+	private void setWorldSize(float worldWidth, float worldHeight) {
 		this.worldWidth = worldWidth;
 		this.worldHeight = worldHeight;
 	}
@@ -445,6 +425,22 @@ public class CameraViewport {
 		return Gdx.graphics.getHeight() - (screenY + screenHeight);
 	}
 
+	public float getScaleWorldWidth() {
+		return scaleWorldWidth;
+	}
+
+	public void setScaleWorldWidth(float scaleWorldWidth) {
+		this.scaleWorldWidth = scaleWorldWidth;
+	}
+
+	public float getScaleWorldHeight() {
+		return scaleWorldHeight;
+	}
+
+	public void setScaleWorldHeight(float scaleWorldHeight) {
+		this.scaleWorldHeight = scaleWorldHeight;
+	}
+
 	public float getMinWorldWidth() {
 		return minWorldWidth;
 	}
@@ -531,8 +527,8 @@ public class CameraViewport {
 
 	void reset() {
 		type = CameraViewportType.screen;
-		worldWidth = 0;
-		worldHeight = 0;
+		scaleWorldWidth = 0;
+		scaleWorldHeight = 0;
 		screenX = 0;
 		screenY = 0;
 		screenWidth = 0;

@@ -544,7 +544,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class Vector2StructProperty extends ObjectStructProperty<Vector2> {
+	public static class Vector2StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.Vector2> {
 		public static final int vector2Size = 2 * floatSize;
 
 		private final Vector2 shared = new Vector2();
@@ -619,7 +619,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class Vector3StructProperty extends ObjectStructProperty<Vector3> {
+	public static class Vector3StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.Vector3> {
 		public static final int vector3Size = 3 * floatSize;
 
 		private final Vector3 shared = new Vector3();
@@ -700,7 +700,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class GridPoint2StructProperty extends ObjectStructProperty<GridPoint2> {
+	public static class GridPoint2StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.GridPoint2> {
 		public static final int gridPoint2Size = 2 * intSize;
 
 		private final GridPoint2 shared = new GridPoint2();
@@ -775,7 +775,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class GridPoint3StructProperty extends ObjectStructProperty<GridPoint3> {
+	public static class GridPoint3StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.GridPoint3> {
 		public static final int gridPoint3Size = 3 * intSize;
 
 		private final GridPoint3 shared = new GridPoint3();
@@ -856,7 +856,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class QuaternionStructProperty extends ObjectStructProperty<Quaternion> {
+	public static class QuaternionStructProperty extends ObjectStructProperty<com.badlogic.gdx.math.Quaternion> {
 		public static final int quaternionSize = 4 * floatSize;
 
 		private final Quaternion shared = new Quaternion();
@@ -943,7 +943,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class Matrix3StructProperty extends ObjectStructProperty<Matrix3> {
+	public static class Matrix3StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.Matrix3> {
 		public static final int matrix3Size = 9 * floatSize;
 
 		private final Matrix3 shared = new Matrix3();
@@ -1006,7 +1006,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class Matrix4StructProperty extends ObjectStructProperty<Matrix4> {
+	public static class Matrix4StructProperty extends ObjectStructProperty<com.badlogic.gdx.math.Matrix4> {
 		public static final int matrix4Size = 16 * floatSize;
 
 		private final Matrix4 shared = new Matrix4();
@@ -1069,7 +1069,7 @@ public abstract class StructProperty {
 		}
 	}
 
-	public static class BoundingBoxStructProperty extends ObjectStructProperty<BoundingBox> {
+	public static class BoundingBoxStructProperty extends ObjectStructProperty<com.badlogic.gdx.math.collision.BoundingBox> {
 		public static final int boundingBoxSize = 2 * vector3Size;
 
 		private final BoundingBox shared = new BoundingBox();
