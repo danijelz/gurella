@@ -14,12 +14,13 @@ import com.gurella.engine.graphics.render.material.Pass;
 import com.gurella.engine.graphics.render.material.Technique;
 import com.gurella.engine.graphics.render.renderable.Renderable;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.camera.CameraViewport;
 
 public class RenderContext {
 	private Scene scene;
 
 	private Camera camera;
-	private Viewport viewport;
+	private CameraViewport viewport;
 
 	private Technique technique;
 	private Pass pass;
