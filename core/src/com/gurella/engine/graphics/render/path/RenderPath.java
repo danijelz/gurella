@@ -13,23 +13,25 @@ import com.gurella.engine.scene.Scene;
 public class RenderPath {
 	private final ObjectMap<String, RenderPathResource> globalResourcesByName = new ObjectMap<String, RenderPathResource>();
 	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
-	
+
 	private final RenderComandBuffer rootBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer comandBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer effectsBuffer = new RenderComandBuffer();
 	private final Array<Effect> effects = new Array<Effect>();
 
 	private final RenderContext context = new RenderContext();
-	
 	private final Array<RenderNode> rootNodes = new Array<RenderNode>();
+
+	//passes defined by path
+	private final Array<String> pathPasses = new Array<String>();
 
 	public RenderPath() {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));
 		rootBuffer.add(new CompositeRenderCommand(effectsBuffer));
 	}
-	
+
 	public void init() {
-		
+
 	}
 
 	public void render(Scene scene) {
