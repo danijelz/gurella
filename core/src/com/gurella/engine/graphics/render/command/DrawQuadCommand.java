@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.command;
 
 import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.RenderTarget;
+import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.graphics.render.material.Material;
 
 public class DrawQuadCommand implements RenderCommand {
@@ -11,7 +12,7 @@ public class DrawQuadCommand implements RenderCommand {
 	private Material material;
 
 	@Override
-	public void process(RenderContext context) {
+	public void process(RenderContext renderContext, GlContext glContext) {
 		destination.bind();
 		material.begin();
 		// TODO Auto-generated method stub

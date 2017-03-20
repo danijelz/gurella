@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render.command;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.managedobject.ManagedObjectMask;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraComponent;
@@ -22,7 +23,7 @@ public class RenderSceneCommand implements RenderCommand {
 	Predicate<RenderableComponent> filter;
 	
 	@Override
-	public void process(RenderContext context) {
+	public void process(RenderContext renderContext, GlContext glContext) {
 		RenderSystem renderSystem = scene.renderSystem;
 		// TODO Auto-generated method stub
 		

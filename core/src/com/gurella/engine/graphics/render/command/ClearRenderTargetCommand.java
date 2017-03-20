@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class ClearRenderTargetCommand implements RenderCommand {
 	public ClearType type;
@@ -10,8 +11,20 @@ public class ClearRenderTargetCommand implements RenderCommand {
 	public int clearStencilValue;
 
 	@Override
-	public void process(RenderContext context) {
-		context.clear(type, clearColorValue, clearDepthValue, clearStencilValue);
+	public void process(RenderContext renderContext, GlContext glContext) {
+		if (type.clearColor) {
+			glContext.setClearColorValue(clearColorValue);
+		}
+
+		if (type.clearDepth) {
+			glContext.setClearDepthValue(clearDepthValue);
+		}
+
+		if (type.clearStencil) {
+			glContext.setClearStencilValue(clearStencilValue);
+		}
+
+		glContext.clear(type.clearColor, type.clearDepth, type.clearStencil);
 	}
 
 	public enum ClearType {
