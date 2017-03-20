@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 
 public class Pass implements Disposable {
-	public final Technique technique;
-
-	private ObjectMap<String, String> defines;
+	String name;
+	final Technique technique;
+	ObjectMap<String, String> defines;
 
 	transient ShaderProgram shaderProgram;
 
