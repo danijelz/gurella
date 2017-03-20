@@ -1,18 +1,23 @@
 package com.gurella.engine.graphics.render.gl;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.g3d.utils.TextureBinder;
+import com.badlogic.gdx.graphics.GLTexture;
+import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.shader.ShaderProgramExt;
 import com.gurella.engine.math.GridRectangle;
 
-//TODO unused
 public class GlContext {
+	private static final int defaultStencilRef = 0x0;
+	private static final int defaultStencilMask = 0xffffffff;
 	private static final Color defaultColor = new Color(0, 0, 0, 0);
 	private static final GridRectangle defaultScissorRect = new GridRectangle(-1, -1, -1, -1);
+	private static final int textureReuseWeight = 3;
 
 	public final GL20 gl20;
 	public final GL30 gl30;
@@ -38,14 +43,14 @@ public class GlContext {
 
 	private boolean stencilEnabled;
 	private StencilFunction frontStencilFunction = StencilFunction.defaultValue;
-	private int frontStencilRef = 0x0;
-	private int frontStencilMask = 0xffffffff;
+	private int frontStencilRef = defaultStencilRef;
+	private int frontStencilMask = defaultStencilMask;
 	private StencilOp frontStencilFailOp = StencilOp.defaultValue;
 	private StencilOp frontDepthFailOp = StencilOp.defaultValue;
 	private StencilOp frontPassOp = StencilOp.defaultValue;
 	private StencilFunction backStencilFunction = StencilFunction.defaultValue;
-	private int backStencilRef = 0x0;
-	private int backStencilMask = 0xffffffff;
+	private int backStencilRef = defaultStencilRef;
+	private int backStencilMask = defaultStencilMask;
 	private StencilOp backStencilFailOp = StencilOp.defaultValue;
 	private StencilOp backDepthFailOp = StencilOp.defaultValue;
 	private StencilOp backPassOp = StencilOp.defaultValue;
@@ -66,13 +71,21 @@ public class GlContext {
 	//////////////////////////////
 	private RenderTarget activeRenderTarget;
 	private ShaderProgramExt activeShaderProgram;
-	private int[] activeTextures;
 
-	private TextureBinder textureBinder;
+	private final GLTexture[] textures;
+	private final int[] textureWeights;
+	private final int[] textureIds;
+	private int textureSequence = Integer.MIN_VALUE + 1;
+	private int activeTexture;
 
 	public GlContext() {
 		gl20 = Gdx.gl20;
 		gl30 = Gdx.gl30;
+
+		int textureUnits = GraphicsService.getTextureImageUnits();
+		this.textures = new GLTexture[textureUnits];
+		this.textureWeights = new int[textureUnits];
+		this.textureIds = new int[textureUnits];
 	}
 
 	public void activate() {
@@ -104,11 +117,63 @@ public class GlContext {
 		updateClearColor();
 		updateClearDepth();
 		updateClearStencil();
+
+		activateTexture();
 	}
 
 	public void deactivate() {
 		active = false;
-		reset();
+		colorMask = ColorMask.defaultValue;
+
+		blendingEnabled = false;
+		blendColor.set(defaultColor);
+		rgbBlendEquation = BlendEquation.defaultValue;
+		alphaBlendEquation = BlendEquation.defaultValue;
+		srcRgbBlendFunction = BlendFunction.defaultSource;
+		srcAlphaBlendFunction = BlendFunction.defaultSource;
+		dstRgbBlendFunction = BlendFunction.defaultDestination;
+		dstAlphaBlendFunction = BlendFunction.defaultDestination;
+
+		depthMask = true;
+		depthTestEnabled = false;
+		depthFunction = DepthTestFunction.defaultValue;
+		depthRangeNear = 0;
+		depthRangeFar = 1;
+
+		stencilEnabled = false;
+		frontStencilMask = defaultStencilMask;
+		frontStencilRef = defaultStencilRef;
+		frontStencilFunction = StencilFunction.defaultValue;
+		frontStencilFailOp = StencilOp.defaultValue;
+		frontDepthFailOp = StencilOp.defaultValue;
+		frontPassOp = StencilOp.defaultValue;
+		backStencilMask = defaultStencilMask;
+		backStencilRef = defaultStencilRef;
+		backStencilFunction = StencilFunction.defaultValue;
+		backStencilFailOp = StencilOp.defaultValue;
+		backDepthFailOp = StencilOp.defaultValue;
+		backPassOp = StencilOp.defaultValue;
+
+		cullFace = CullFace.defaultValue;
+		frontFace = FrontFace.defaultValue;
+
+		lineWidth = 1;
+
+		scissorEnabled = false;
+		scissorRect.set(defaultScissorRect);
+
+		clearColorValue.set(defaultColor);
+		clearDepthValue = 0;
+		clearStencilValue = 0;
+
+		activeRenderTarget = null;
+		activeShaderProgram = null;
+
+		Arrays.fill(textures, null);
+		Arrays.fill(textureWeights, 0);
+		Arrays.fill(textureIds, 0);
+		activeTexture = GL20.GL_TEXTURE0;
+		activateTexture();
 	}
 
 	public ColorMask getColorMask() {
@@ -1076,59 +1141,58 @@ public class GlContext {
 		this.activeRenderTarget = renderTarget;
 	}
 
-	public TextureBinder getTextureBinder() {
-		return textureBinder;
+	public final int bind(final GLTexture texture) {
+		int boundUnit = -1;
+		int weightUnit = -1;
+
+		for (int i = 0; i < textures.length; i++) {
+			if (textures[i] == texture && (boundUnit < 0 || replace(boundUnit, i))) {
+				boundUnit = i;
+			} else if (boundUnit < 0 && (weightUnit < 0 || replace(weightUnit, i))) {
+				weightUnit = i;
+			}
+		}
+
+		int unit = boundUnit < 0 ? weightUnit : boundUnit;
+		bind(texture, unit);
+		return unit;
 	}
 
-	public void setTextureBinder(TextureBinder textureBinder) {
-		this.textureBinder = textureBinder;
+	private boolean replace(int oldUnit, int newUnit) {
+		int oldWeight = textureWeights[oldUnit];
+		int newWeight = textureWeights[newUnit];
+
+		if (oldWeight > newWeight) {
+			return true;
+		} else if (oldWeight == newWeight) {
+			return textureIds[oldUnit] > textureIds[newUnit];
+		} else {
+			return false;
+		}
 	}
 
-	private void reset() {
-		colorMask = ColorMask.defaultValue;
+	public final void bind(final GLTexture texture, int unit) {
+		if (textures[unit] == texture) {
+			textureWeights[unit] += textureReuseWeight;
+			activateTexture(unit);
+		} else {
+			textures[unit] = texture;
+			textureWeights[unit] = 100;
+			textureIds[unit] = textureSequence++;
+			activeTexture = GL20.GL_TEXTURE0 + unit;
+			texture.bind(unit);
+		}
+	}
 
-		blendingEnabled = false;
-		blendColor.set(0, 0, 0, 0);
-		rgbBlendEquation = BlendEquation.defaultValue;
-		alphaBlendEquation = BlendEquation.defaultValue;
-		srcRgbBlendFunction = BlendFunction.defaultSource;
-		srcAlphaBlendFunction = BlendFunction.defaultSource;
-		dstRgbBlendFunction = BlendFunction.defaultDestination;
-		dstAlphaBlendFunction = BlendFunction.defaultDestination;
+	private void activateTexture() {
+		Gdx.gl.glActiveTexture(activeTexture);
+	}
 
-		depthMask = true;
-		depthTestEnabled = false;
-		depthFunction = DepthTestFunction.defaultValue;
-		depthRangeNear = 0;
-		depthRangeFar = 1;
-
-		stencilEnabled = false;
-		frontStencilMask = 0xffffffff;
-		frontStencilRef = 0x0;
-		frontStencilFunction = StencilFunction.defaultValue;
-		frontStencilFailOp = StencilOp.defaultValue;
-		frontDepthFailOp = StencilOp.defaultValue;
-		frontPassOp = StencilOp.defaultValue;
-		backStencilMask = 0xffffffff;
-		backStencilRef = 0x0;
-		backStencilFunction = StencilFunction.defaultValue;
-		backStencilFailOp = StencilOp.defaultValue;
-		backDepthFailOp = StencilOp.defaultValue;
-		backPassOp = StencilOp.defaultValue;
-
-		cullFace = CullFace.defaultValue;
-		frontFace = FrontFace.defaultValue;
-
-		lineWidth = 1;
-
-		scissorEnabled = false;
-		scissorRect.set(-1, -1, -1, -1);
-
-		clearColorValue.set(0, 0, 0, 0);
-		clearDepthValue = 0;
-		clearStencilValue = 0;
-
-		activeRenderTarget = null;
-		activeShaderProgram = null;
+	public void activateTexture(int unit) {
+		int glUnit = GL20.GL_TEXTURE0 + unit;
+		if (glUnit != activeTexture) {
+			activeTexture = glUnit;
+			Gdx.gl.glActiveTexture(activeTexture);
+		}
 	}
 }
