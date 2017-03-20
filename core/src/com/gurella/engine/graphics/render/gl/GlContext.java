@@ -55,6 +55,7 @@ public class GlContext {
 	private StencilOp backDepthFailOp = StencilOp.defaultValue;
 	private StencilOp backPassOp = StencilOp.defaultValue;
 
+	private boolean enableCullFace = true;
 	private CullFace cullFace = CullFace.defaultValue;
 	private FrontFace frontFace = FrontFace.defaultValue;
 
@@ -107,6 +108,7 @@ public class GlContext {
 		updateStencilFunction();
 		updateStencilOp();
 
+		updateEnableCullFace();
 		updateCullFace();
 		updateFrontFace();
 		updateLineWidth();
@@ -154,6 +156,7 @@ public class GlContext {
 		backDepthFailOp = StencilOp.defaultValue;
 		backPassOp = StencilOp.defaultValue;
 
+		enableCullFace = true;
 		cullFace = CullFace.defaultValue;
 		frontFace = FrontFace.defaultValue;
 
@@ -1070,6 +1073,30 @@ public class GlContext {
 
 		if (clearMask != 0) {
 			gl20.glClear(clearMask);
+		}
+	}
+
+	public boolean isEnableCullFace() {
+		return enableCullFace;
+	}
+
+	public void setEnableCullFace(boolean enableCullFace) {
+		if (this.enableCullFace == enableCullFace) {
+			return;
+		}
+
+		this.enableCullFace = enableCullFace;
+
+		if (active) {
+			updateEnableCullFace();
+		}
+	}
+
+	private void updateEnableCullFace() {
+		if (enableCullFace) {
+			Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+		} else {
+			Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		}
 	}
 
