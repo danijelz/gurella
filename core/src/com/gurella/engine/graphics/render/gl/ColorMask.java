@@ -12,6 +12,8 @@ public enum ColorMask {
 	b(false, false, true, false),
 	ba(false, false, true, true),
 	a(false, false, false, true);
+	
+	public static final ColorMask defaultValue = rgba;
 
 	public final boolean rMask;
 	public final boolean gMask;

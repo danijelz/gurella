@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.IntMap;
 public enum FrontFace {
 	cw(GL_CW), ccw(GL_CCW);
 
+	public static final FrontFace defaultValue = ccw;
+
 	private static IntMap<FrontFace> valuesByGlValue = new IntMap<FrontFace>();
 
 	static {

@@ -20,6 +20,8 @@ public enum StencilOp {
 	decr(GL_DECR),
 	decrWrap(GL_DECR_WRAP),
 	invert(GL_INVERT);
+	
+	public static final StencilOp defaultValue = keep;
 
 	private static IntMap<StencilOp> valuesByGlValue = new IntMap<StencilOp>();
 

@@ -7,6 +7,13 @@ public class GridRectangle {
 	public GridRectangle() {
 	}
 
+	public GridRectangle(GridRectangle rect) {
+		this.x = rect.x;
+		this.y = rect.y;
+		this.width = rect.width;
+		this.height = rect.height;
+	}
+
 	public GridRectangle(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;

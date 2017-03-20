@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.IntMap;
 public enum CullFace {
 	disabled(-1), front(GL_FRONT), back(GL_BACK), frontAndBack(GL_FRONT_AND_BACK);
 
+	public static final CullFace defaultValue = back;
+
 	private static IntMap<CullFace> valuesByGlValue = new IntMap<CullFace>();
 
 	static {

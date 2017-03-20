@@ -1,8 +1,6 @@
 package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g3d.utils.TextureBinder;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.render.gl.BlendEquation;
 import com.gurella.engine.graphics.render.gl.BlendFunction;
@@ -12,7 +10,6 @@ import com.gurella.engine.graphics.render.gl.DepthTestFunction;
 import com.gurella.engine.graphics.render.gl.FrontFace;
 import com.gurella.engine.graphics.render.gl.StencilFunction;
 import com.gurella.engine.graphics.render.gl.StencilOp;
-import com.gurella.engine.graphics.render.shader.ShaderProgramExt;
 import com.gurella.engine.pool.PoolService;
 
 public class RenderState implements Poolable {
@@ -63,15 +60,6 @@ public class RenderState implements Poolable {
 	private float clearDepthValue;
 	private boolean stencilCleared;
 	private int clearStencilValue;
-
-	//////////////////////////////
-	private RenderTarget activeRenderTarget;
-	private ShaderProgramExt activeShaderProgram;
-	private IntMap<BoundTexture> activeTextures;
-
-	private TextureBinder textureBinder;
-
-	////////////////////////
 
 	static RenderState obtain() {
 		return PoolService.obtain(RenderState.class);
@@ -247,30 +235,6 @@ public class RenderState implements Poolable {
 
 	public void setClearStencilValue(int clearStencilValue) {
 		this.clearStencilValue = clearStencilValue;
-	}
-
-	public RenderTarget getActiveRenderTarget() {
-		return activeRenderTarget;
-	}
-
-	public void setActiveRenderTarget(RenderTarget renderTarget) {
-		this.activeRenderTarget = renderTarget;
-	}
-
-	public IntMap<BoundTexture> getBindedTextures() {
-		return activeTextures;
-	}
-
-	public void setBindedTextures(IntMap<BoundTexture> boundTextures) {
-		this.activeTextures = boundTextures;
-	}
-
-	public TextureBinder getTextureBinder() {
-		return textureBinder;
-	}
-
-	public void setTextureBinder(TextureBinder textureBinder) {
-		this.textureBinder = textureBinder;
 	}
 
 	@Override

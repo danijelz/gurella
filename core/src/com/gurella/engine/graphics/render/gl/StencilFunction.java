@@ -20,6 +20,8 @@ public enum StencilFunction {
 	notequal(GL_NOTEQUAL),
 	gequal(GL_GEQUAL),
 	always(GL_ALWAYS);
+	
+	public static final StencilFunction defaultValue = always;
 
 	private static IntMap<StencilFunction> valuesByGlValue = new IntMap<StencilFunction>();
 

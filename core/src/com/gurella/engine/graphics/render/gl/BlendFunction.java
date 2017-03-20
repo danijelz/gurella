@@ -34,6 +34,9 @@ public enum BlendFunction {
 	oneMinusConstantAlpha(GL_ONE_MINUS_CONSTANT_ALPHA);
 
 	private static IntMap<BlendFunction> functionsByGlValue = new IntMap<BlendFunction>();
+	
+	public static final BlendFunction defaultSource = one;
+	public static final BlendFunction defaultDestination = zero;
 
 	static {
 		BlendFunction[] values = values();

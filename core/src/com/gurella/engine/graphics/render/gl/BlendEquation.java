@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.IntMap;
 
 public enum BlendEquation {
 	add(GL_FUNC_ADD), substract(GL_FUNC_SUBTRACT), reverseSubstract(GL_FUNC_REVERSE_SUBTRACT);
+	
+	public static final BlendEquation defaultValue = add;
 
 	private static IntMap<BlendEquation> functionsByGlValue = new IntMap<BlendEquation>();
 

@@ -28,6 +28,7 @@ public class GraphicsService {
 	//GL_MAX_VIEWPORT_DIMS
 	//GL_MAX_COLOR_ATTACHMENTS
 	//GL_MAX_DRAW_BUFFERS
+	//GL_ALIASED_LINE_WIDTH_RANGE
 	//https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGet.xml
 	private static ObjectSet<String> glExtensions = new ObjectSet<String>();
 

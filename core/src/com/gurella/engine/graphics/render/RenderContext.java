@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gurella.engine.graphics.render.command.ClearRenderTargetCommand.ClearType;
 import com.gurella.engine.graphics.render.gl.CullFace;
 import com.gurella.engine.graphics.render.gl.DepthTestFunction;
@@ -222,23 +221,15 @@ public class RenderContext {
 		currentState.setClearStencilValue(clearStencilValue);
 	}
 
-	public RenderTarget getRenderTarget() {
-		return currentState.getActiveRenderTarget();
-	}
-
-	public void setRenderTarget(RenderTarget renderTarget) {
-		currentState.setActiveRenderTarget(renderTarget);
-	}
-
 	public void clear(ClearType type, Color clearColorValue, float clearDepthValue, int clearStencilValue) {
 		if (type.clearColor) {
 			setClearColorValue(clearColorValue);
 		}
-		
+
 		if (type.clearDepth) {
 			setClearDepthValue(clearDepthValue);
 		}
-		
+
 		if (type.clearStencil) {
 			setClearStencilValue(clearStencilValue);
 		}

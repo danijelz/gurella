@@ -20,6 +20,8 @@ public enum DepthTestFunction {
 	notequal(GL_NOTEQUAL),
 	gequal(GL_GEQUAL),
 	always(GL_ALWAYS);
+	
+	public static final DepthTestFunction defaultValue = less;
 
 	private static IntMap<DepthTestFunction> valuesByGlValue = new IntMap<DepthTestFunction>();
 
