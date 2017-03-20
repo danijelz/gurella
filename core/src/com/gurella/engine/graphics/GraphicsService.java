@@ -40,6 +40,13 @@ public class GraphicsService {
 		gl20 = Gdx.gl20;
 		gl30 = Gdx.gl30;
 
+		if (Gdx.app.getType() == ApplicationType.iOS) {
+			gl20.glGetIntegerv(GL20.GL_FRAMEBUFFER_BINDING, buffer);
+			defaultFramebufferHandle = buffer.get(0);
+		} else {
+			defaultFramebufferHandle = 0;
+		}
+
 		if (gl30 == null) {
 			String result = gl20.glGetString(GL20.GL_EXTENSIONS);
 			String[] extensions = result.split(" ");
@@ -51,13 +58,6 @@ public class GraphicsService {
 			for (int i = 0, n = buffer.get(0); i < n; ++i) {
 				glExtensions.add(gl30.glGetStringi(GL20.GL_EXTENSIONS, i).trim());
 			}
-		}
-
-		if (Gdx.app.getType() == ApplicationType.iOS) {
-			gl20.glGetIntegerv(GL20.GL_FRAMEBUFFER_BINDING, buffer);
-			defaultFramebufferHandle = buffer.get(0);
-		} else {
-			defaultFramebufferHandle = 0;
 		}
 
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer);
