@@ -1,7 +1,6 @@
 package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.graphics.Color;
-import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class ClearRenderTargetCommand implements RenderCommand {
@@ -11,7 +10,7 @@ public class ClearRenderTargetCommand implements RenderCommand {
 	public int clearStencilValue;
 
 	@Override
-	public void process(RenderContext renderContext, GlContext glContext) {
+	public void process(GlContext glContext) {
 		if (type.clearColor) {
 			glContext.setClearColorValue(clearColorValue);
 		}

@@ -1,6 +1,5 @@
 package com.gurella.engine.graphics.render.command;
 
-import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class CompositeRenderCommand implements RenderCommand {
@@ -11,7 +10,7 @@ public class CompositeRenderCommand implements RenderCommand {
 	}
 
 	@Override
-	public void process(RenderContext renderContext, GlContext glContext) {
-		composition.process(renderContext, glContext);
+	public void process(GlContext glContext) {
+		composition.process(glContext);
 	}
 }

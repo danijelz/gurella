@@ -12,6 +12,7 @@ import com.gurella.engine.graphics.render.gl.StencilFunction;
 import com.gurella.engine.graphics.render.gl.StencilOp;
 import com.gurella.engine.pool.PoolService;
 
+//TODO unused
 public class RenderState implements Poolable {
 	private ColorMask colorMask = ColorMask.rgba;
 

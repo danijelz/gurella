@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graphics.render.command.RenderComandBuffer;
+import com.gurella.engine.graphics.render.gl.GlContext;
 
 //TODO unused
 public class GraphicsService {
@@ -35,6 +36,8 @@ public class GraphicsService {
 	private static ObjectSet<String> glExtensions = new ObjectSet<String>();
 
 	private static IntBuffer buffer = BufferUtils.newIntBuffer(16);
+
+	private static GlContext context = new GlContext();
 
 	public static void init() {
 		gl20 = Gdx.gl20;
@@ -66,7 +69,11 @@ public class GraphicsService {
 	}
 
 	public void render(RenderComandBuffer comandBuffer) {
-
+		synchronized (context) {
+			context.activate();
+			comandBuffer.process(context);
+			context.deactivate();
+		}
 	}
 
 	public static int getMaxTextureImageUnits() {

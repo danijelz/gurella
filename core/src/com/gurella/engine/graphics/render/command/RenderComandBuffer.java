@@ -1,7 +1,6 @@
 package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class RenderComandBuffer {
@@ -19,9 +18,9 @@ public class RenderComandBuffer {
 		commands.removeValue(command, true);
 	}
 
-	public void process(RenderContext renderContext, GlContext glContext) {
+	public void process(GlContext glContext) {
 		for (int i = 0, n = commands.size; i < n; i++) {
-			commands.get(i).process(renderContext, glContext);
+			commands.get(i).process(glContext);
 		}
 	}
 }
