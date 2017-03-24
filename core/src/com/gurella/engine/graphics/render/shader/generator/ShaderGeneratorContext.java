@@ -18,7 +18,7 @@ public class ShaderGeneratorContext implements Poolable {
 		this.root = template;
 		builder.setLength(0);
 		define("GL20");
-		if (GraphicsService.isGL30Available()) {
+		if (GraphicsService.isGl30Available()) {
 			define("GL30");
 		}
 		for (String extension : GraphicsService.getGlExtensions()) {

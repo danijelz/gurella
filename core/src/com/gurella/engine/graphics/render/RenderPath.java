@@ -1,9 +1,7 @@
-package com.gurella.engine.graphics.render.path;
+package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.graphics.render.RenderContext;
-import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.command.RenderCommand;
 import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
@@ -15,7 +13,7 @@ public class RenderPath {
 	final Array<RenderCommand> preCommands = new Array<RenderCommand>();
 	final Array<RenderCommand> postCommands = new Array<RenderCommand>();
 
-	private final RenderContext context = new RenderContext();
+	private final RenderContext context = new RenderContext(this);
 	private final Array<RenderNode> rootNodes = new Array<RenderNode>();
 
 	// passes defined by path
@@ -28,9 +26,11 @@ public class RenderPath {
 	}
 
 	public void process(Scene scene) {
+		context.scene = scene;
 		for (int i = 0, n = rootNodes.size; i < n; i++) {
 			rootNodes.get(i).process(context);
 		}
+		context.scene = null;
 	}
 
 	public static class RenderPathMaterialProperties {

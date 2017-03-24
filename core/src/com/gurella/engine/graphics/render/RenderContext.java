@@ -11,13 +11,16 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraViewport;
 
 public class RenderContext {
-	private Scene scene;
+	final RenderPath path;
+	RenderNode node;
 
-	private Camera camera;
-	private CameraViewport viewport;
+	Scene scene;
+	Camera camera;
+	CameraViewport viewport;
 
-	private Technique technique;
-	private Pass pass;
+	String passName;
+	Technique technique;
+	Pass pass;
 
 	private RenderState currentState = new RenderState();
 	private Array<RenderState> states = new Array<RenderState>();
@@ -29,6 +32,10 @@ public class RenderContext {
 	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
 
 	public final ObjectMap<Object, Object> userData = new ObjectMap<Object, Object>();
+
+	RenderContext(RenderPath path) {
+		this.path = path;
+	}
 
 	public int saveState() {
 		return saveState(false);

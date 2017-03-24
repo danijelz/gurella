@@ -10,5 +10,5 @@ public interface Renderable {
 
 	RenederableGeometry getGeometry();
 
-	MaterialInstance getMaterial(String pass);
+	MaterialInstance getMaterialInstance();
 }

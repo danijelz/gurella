@@ -33,13 +33,16 @@ public class GraphicsService {
 	// GL_MAX_DRAW_BUFFERS
 	// GL_ALIASED_LINE_WIDTH_RANGE
 	// https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGet.xml
-	private static ObjectSet<String> glExtensions = new ObjectSet<String>();
 
-	private static IntBuffer buffer = BufferUtils.newIntBuffer(16);
-
-	private static GlContext context = new GlContext();
+	private static final ObjectSet<String> glExtensions = new ObjectSet<String>();
+	private static final IntBuffer buffer = BufferUtils.newIntBuffer(16);
+	private static final GlContext context = new GlContext();
 
 	public static void init() {
+		if (gl20 != null) {
+			return;
+		}
+
 		gl20 = Gdx.gl20;
 		gl30 = Gdx.gl30;
 
@@ -88,7 +91,7 @@ public class GraphicsService {
 		return glExtensions;
 	}
 
-	public static boolean isGL30Available() {
+	public static boolean isGl30Available() {
 		return gl30 != null;
 	}
 

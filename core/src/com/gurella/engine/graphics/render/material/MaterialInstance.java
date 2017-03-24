@@ -13,4 +13,12 @@ public class MaterialInstance implements Disposable {
 	public void dispose() {
 		//TODO
 	}
+
+	public void bind() {
+		bind(null);
+	}
+
+	public void bind(String passName) {
+		// TODO Auto-generated method stub
+	}
 }

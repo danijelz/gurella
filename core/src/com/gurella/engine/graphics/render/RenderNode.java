@@ -1,9 +1,7 @@
-package com.gurella.engine.graphics.render.path;
+package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.graphics.render.RenderContext;
-import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.command.RenderCommand;
 
 //TODO unused
@@ -26,10 +24,12 @@ public class RenderNode {
 		}
 	}
 
-	void process(RenderContext renderContext) {
+	void process(RenderContext context) {
+		context.node = this;
 		for (int i = 0, n = inputsByIndex.size; i < n; i++) {
-			inputsByIndex.get(i).outNode.process(renderContext);
+			inputsByIndex.get(i).outNode.process(context);
 		}
+		context.node = null;
 	}
 
 	private static class Connection {
