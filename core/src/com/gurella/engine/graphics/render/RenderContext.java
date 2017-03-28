@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.material.Pass;
 import com.gurella.engine.graphics.render.material.Technique;
-import com.gurella.engine.graphics.render.renderable.Renderable;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraViewport;
 
@@ -24,9 +23,6 @@ public class RenderContext {
 
 	private RenderState currentState = new RenderState();
 	private Array<RenderState> states = new Array<RenderState>();
-
-	private RenderQueueKeySupplier renderQueueKeySupplier;
-	private final ObjectMap<RenderQueueKey, RenderQueue> renderQueues = new ObjectMap<RenderQueueKey, RenderQueue>();
 
 	private final IntMap<RenderTarget> targetsById = new IntMap<RenderTarget>();
 	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
@@ -77,12 +73,5 @@ public class RenderContext {
 		}
 		currentState = states.peek();
 		return restored;
-	}
-
-	public interface RenderQueueKey extends Comparable<RenderQueueKey> {
-	}
-
-	public interface RenderQueueKeySupplier {
-		RenderQueueKey getKey(Renderable renderable);
 	}
 }
