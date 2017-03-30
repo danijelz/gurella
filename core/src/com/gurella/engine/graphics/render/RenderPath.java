@@ -7,7 +7,6 @@ import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
 
 public class RenderPath {
-	private final ObjectMap<String, RenderPathResource> globalResourcesByName = new ObjectMap<String, RenderPathResource>();
 	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
 	
 	final Array<RenderCommand> preCommands = new Array<RenderCommand>();

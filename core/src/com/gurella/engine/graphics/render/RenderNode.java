@@ -4,10 +4,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.command.RenderCommand;
 
-//TODO unused
 public class RenderNode {
 	RenderPath path;
-	final ObjectMap<String, RenderPathResource> nodeResourcesByName = new ObjectMap<String, RenderPathResource>();
 	final ObjectMap<String, RenderTarget> nodeTargetsByName = new ObjectMap<String, RenderTarget>();
 
 	final Array<RenderCommand> preCommands = new Array<RenderCommand>();
