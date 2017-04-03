@@ -56,8 +56,12 @@ public class AssetReferencePropertyEditor<T> extends SimplePropertyEditor<AssetR
 	}
 
 	private Class<T> resolveDefaultAssetType() {
-		AssetReference<T> defaultValue = DefaultInstances.getDefault(context.metaType.getType(), context.property);
+		AssetReference<T> defaultValue = getDefaultValue();
 		return defaultValue == null ? null : defaultValue.getAssetType();
+	}
+
+	private AssetReference<T> getDefaultValue() {
+		return DefaultInstances.getDefault(context.metaType.getType(), context.property);
 	}
 
 	private Object getManagedAsset() {
@@ -75,7 +79,12 @@ public class AssetReferencePropertyEditor<T> extends SimplePropertyEditor<AssetR
 
 	private void assetSelectionChanged(@SuppressWarnings("unused") T oldAsset, T newAsset) {
 		if (newAsset == null) {
-			setValue(null);
+			AssetReference<T> defaultValue = getDefaultValue();
+			if (context.isFixedValue() && defaultValue != null) {
+				setValue(new AssetReference<>(assetType, null, defaultValue.getFileType()));
+			} else {
+				setValue(null);
+			}
 		} else {
 			String fileName = GdxContext.getFileName(context.gdxContextId, newAsset);
 			setValue(new AssetReference<>(assetType, fileName, FileType.Internal));

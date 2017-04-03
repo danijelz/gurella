@@ -35,6 +35,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;
 
+//TODO add clear listener
 public class AssetSelectionWidget<T> extends Composite {
 	private final Text text;
 	private final Button selectAssetButton;
@@ -48,7 +49,6 @@ public class AssetSelectionWidget<T> extends Composite {
 	private T asset;
 	private T lastLoaded;
 
-	// TODO unload loaded assets
 	public AssetSelectionWidget(Composite parent, int gdxContextId, Class<T> assetType) {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;

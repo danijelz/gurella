@@ -17,6 +17,7 @@ public class TestCustomizableBeanEditor extends CustomizableBeanEditor<TestEdito
 		//createPropertyControls("testInt");
 		//createPropertyControls("group", "intGroup");
 		createPropertyControls("testObj");
+		createPropertyControls("textureRef");
 		//createPropertyControls("testObj2");
 
 //		createLabel("label");
