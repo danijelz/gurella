@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.ui;
 
+import static com.gurella.engine.asset.descriptor.AssetDescriptors.getAssetDescriptor;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
@@ -72,6 +73,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		GridDataFactory.defaultsFor(selectAssetButton).align(SWT.BEGINNING, SWT.BEGINNING).grab(false, false)
 				.hint(32, 22).applyTo(selectAssetButton);
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
+		selectAssetButton.setEnabled(assetType != null && getAssetDescriptor(assetType) != null);
 
 		DropTarget target = new DropTarget(text, DND.DROP_DEFAULT | DND.DROP_COPY);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
@@ -83,7 +85,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
-		AssetDescriptor<?> descriptor = AssetDescriptors.getAssetDescriptor(assetType);
+		AssetDescriptor<?> descriptor = getAssetDescriptor(assetType);
 		Object[] extensionsArr = descriptor.extensions.toArray(String.class);
 		String extensions = Arrays.stream(extensionsArr).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
