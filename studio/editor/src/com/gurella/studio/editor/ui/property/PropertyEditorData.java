@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IField;
@@ -18,8 +19,10 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.metatype.Property;
 import com.gurella.engine.metatype.ReflectionProperty;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
+import com.gurella.studio.editor.utils.Try;
 
 public class PropertyEditorData {
 	private static final Map<EditorPropertyKey, PropertyEditorData> editorProperties = new HashMap<>();
@@ -116,6 +119,15 @@ public class PropertyEditorData {
 		Class<?> beanType = context.bean.getClass();
 		Property<?> property = context.property;
 		return getGenericTypes(context.javaProject, beanType, property);
+	}
+
+	public static <T> Optional<Class<T>> getGenericType(PropertyEditorContext<?, ?> context, int index) {
+		List<String> genericTypes = getGenericTypes(context);
+		if (genericTypes == null || genericTypes.size() <= index) {
+			return Optional.empty();
+		}
+
+		return Optional.ofNullable(Try.ignored(() -> Reflection.forName(genericTypes.get(0)), null));
 	}
 
 	public static List<String> getGenericTypes(BeanEditorContext<?> context, Property<?> property) {

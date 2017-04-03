@@ -25,7 +25,7 @@ public class DefaultArrayMetaTypes {
 
 		@Override
 		public String getName() {
-			return type.getComponentType().getName() + "[]";
+			return type.getComponentType().getSimpleName() + "[]";
 		}
 
 		@Override

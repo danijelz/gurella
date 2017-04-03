@@ -2,7 +2,7 @@ package com.gurella.engine.metatype;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.metatype.DefaultMetaType.AbstractSimpleMetaType;
+import com.gurella.engine.metatype.DefaultMetaType.BaseSimpleMetaType;
 import com.gurella.engine.metatype.serialization.Input;
 import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.utils.Values;
@@ -26,7 +26,7 @@ public class EnumMetaTypeFactory implements MetaTypeFactory {
 		}
 	}
 
-	public static final class EnumMetaType<T extends Enum<T>> extends AbstractSimpleMetaType<T> {
+	public static final class EnumMetaType<T extends Enum<T>> extends BaseSimpleMetaType<T> {
 		private Class<T> enumType;
 		private T[] constants;
 

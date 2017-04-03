@@ -14,7 +14,7 @@ import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-//TODO caches, exceptions message
+//TODO caches
 public class Reflection {
 	// private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
 	// private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>,
@@ -74,8 +74,6 @@ public class Reflection {
 			@SuppressWarnings("unchecked")
 			Class<T> resourceType = (Class<T>) getClassResolver().forName(className);
 			return resourceType;
-		} catch (ReflectionException e) {
-			throw new GdxRuntimeException(e);
 		} catch (Exception e) {
 			throw new GdxRuntimeException(e);
 		}

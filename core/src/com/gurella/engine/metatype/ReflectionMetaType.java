@@ -33,6 +33,7 @@ import com.gurella.engine.metatype.serialization.Output;
 import com.gurella.engine.metatype.serialization.Serializable;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.DefaultInstances;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.IntLongMap;
@@ -59,6 +60,10 @@ public class ReflectionMetaType<T> implements MetaType<T> {
 		getInstance(OrderedMap.class, mapProps);
 		getInstance(OrderedSet.class, new String[] { "iterator1", "iterator2" }, mapProps);
 		getInstance(BoundingBox.class, new String[] { "cnt", "dim" }, (String[]) null);
+	}
+
+	public static <T> ReflectionMetaType<T> getInstance(Class<T> type) {
+		return getInstance(type, (String[]) null, (String[]) null);
 	}
 
 	public static <T> ReflectionMetaType<T> getInstance(Class<T> type, String... forcedProperties) {

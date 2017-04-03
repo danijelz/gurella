@@ -23,10 +23,10 @@ public class DefaultMetaType {
 
 	}
 
-	public static abstract class AbstractSimpleMetaType<T> implements SimpleMetaType<T> {
+	public static abstract class BaseSimpleMetaType<T> implements SimpleMetaType<T> {
 		private Class<T> type;
 
-		public AbstractSimpleMetaType(Class<T> type) {
+		public BaseSimpleMetaType(Class<T> type) {
 			this.type = type;
 		}
 
@@ -37,7 +37,7 @@ public class DefaultMetaType {
 
 		@Override
 		public String getName() {
-			return type.getName();
+			return type.getSimpleName();
 		}
 
 		@Override
@@ -56,7 +56,7 @@ public class DefaultMetaType {
 		}
 	}
 
-	public static abstract class PrimitiveMetaType<T> extends AbstractSimpleMetaType<T> {
+	public static abstract class PrimitiveMetaType<T> extends BaseSimpleMetaType<T> {
 		public PrimitiveMetaType(Class<T> type) {
 			super(type);
 		}
@@ -225,7 +225,7 @@ public class DefaultMetaType {
 		}
 	}
 
-	public static abstract class SimpleObjectMetaType<T> extends AbstractSimpleMetaType<T> {
+	public static abstract class SimpleObjectMetaType<T> extends BaseSimpleMetaType<T> {
 		public SimpleObjectMetaType(Class<T> type) {
 			super(type);
 		}
@@ -259,7 +259,7 @@ public class DefaultMetaType {
 		protected abstract T readValue(Input input);
 	}
 
-	public static final class VoidMetaType extends AbstractSimpleMetaType<Void> {
+	public static final class VoidMetaType extends BaseSimpleMetaType<Void> {
 		public static final VoidMetaType instance = new VoidMetaType();
 
 		private VoidMetaType() {
@@ -531,7 +531,7 @@ public class DefaultMetaType {
 
 		@Override
 		public String getName() {
-			return Locale.class.getName();
+			return Locale.class.getSimpleName();
 		}
 
 		@Override

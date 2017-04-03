@@ -84,7 +84,8 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
 		AssetDescriptor<?> descriptor = AssetDescriptors.getAssetDescriptor(assetType);
-		String extensions = Arrays.stream(descriptor.extensions.toArray()).map(e -> "*." + e).collect(joining(";"));
+		Object[] extensionsArr = descriptor.extensions.toArray(String.class);
+		String extensions = Arrays.stream(extensionsArr).map(e -> "*." + e).collect(joining(";"));
 		dialog.setFilterExtensions(new String[] { extensions });
 		dialog.setFilterPath(assetsFolder.getLocation().toString());
 		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
@@ -126,6 +127,19 @@ public class AssetSelectionWidget<T> extends Composite {
 			text.setText(extractFileName(path));
 			text.setMessage("");
 		}
+	}
+
+	public void setSelection(final String assetPath) {
+		if (assetPath == null) {
+			text.setText("");
+			text.setMessage("null");
+		} else {
+			asset = GdxContext.load(gdxContextId, assetPath, assetType);
+			text.setText(extractFileName(assetPath));
+			text.setMessage("");
+		}
+		unloadLastAsset();
+		lastLoaded = asset;
 	}
 
 	private static String extractFileName(String path) {

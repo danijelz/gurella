@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.managedobject.ManagedObjectMask;
 import com.gurella.engine.scene.Scene;
@@ -20,6 +21,10 @@ public class RenderSceneCommand implements RenderCommand {
 	boolean renderGui;
 
 	Predicate<RenderableComponent> filter;
+
+	@Override
+	public void init(RenderContext renderContext) {
+	}
 
 	@Override
 	public void process(GlContext glContext) {

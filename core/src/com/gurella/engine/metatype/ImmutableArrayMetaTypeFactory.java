@@ -38,7 +38,7 @@ public class ImmutableArrayMetaTypeFactory implements MetaTypeFactory {
 
 		@Override
 		public String getName() {
-			return type.getName();
+			return type.getSimpleName();
 		}
 
 		@Override
@@ -99,7 +99,7 @@ public class ImmutableArrayMetaTypeFactory implements MetaTypeFactory {
 		public Range<?> getRange() {
 			return null;
 		}
-		
+
 		@Override
 		public boolean isAsset() {
 			return false;

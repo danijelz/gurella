@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.graphics.render.command.RenderComandBuffer;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 //TODO unused
@@ -71,10 +70,10 @@ public class GraphicsService {
 		// TODO init other constants
 	}
 
-	public void render(RenderComandBuffer comandBuffer) {
+	public void render(GraphicsTask task) {
 		synchronized (context) {
 			context.activate();
-			comandBuffer.process(context);
+			task.run(context);
 			context.deactivate();
 		}
 	}
@@ -97,5 +96,9 @@ public class GraphicsService {
 
 	public static int getDefaultFramebufferHandle() {
 		return defaultFramebufferHandle;
+	}
+
+	public interface GraphicsTask {
+		void run(GlContext context);
 	}
 }

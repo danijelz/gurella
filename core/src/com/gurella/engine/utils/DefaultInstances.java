@@ -1,11 +1,16 @@
-package com.gurella.engine.metatype;
+package com.gurella.engine.utils;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.metatype.MetaType;
+import com.gurella.engine.metatype.MetaTypes;
+import com.gurella.engine.metatype.Property;
 
-class DefaultInstances {
+public class DefaultInstances {
 	private static final ObjectMap<Class<?>, Object> defaults = new ObjectMap<Class<?>, Object>();
+
+	private DefaultInstances() {
+	}
 
 	public static <T> T getDefault(Class<T> type) {
 		if (defaults.containsKey(type)) {
@@ -36,9 +41,6 @@ class DefaultInstances {
 
 	public static <T, P> P getDefault(Class<T> type, Property<P> property) {
 		T defaultBean = getDefault(type);
-		if (defaultBean == null) {
-			return null;
-		}
-		return property.getValue(defaultBean);
+		return defaultBean == null ? null : property.getValue(defaultBean);
 	}
 }

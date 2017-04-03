@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.render.command;
 
+import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.graphics.render.material.Material;
@@ -13,6 +14,10 @@ public class DrawQuadCommand implements RenderCommand {
 	private String passName;
 	private Material material;
 	private MaterialInstance materialInstance;
+
+	@Override
+	public void init(RenderContext renderContext) {
+	}
 
 	@Override
 	public void process(GlContext glContext) {

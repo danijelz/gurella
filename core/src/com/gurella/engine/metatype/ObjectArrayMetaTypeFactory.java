@@ -41,7 +41,7 @@ public class ObjectArrayMetaTypeFactory implements MetaTypeFactory {
 
 		@Override
 		public String getName() {
-			return type.getComponentType().getName() + "[]";
+			return type.getComponentType().getSimpleName() + "[]";
 		}
 
 		@Override

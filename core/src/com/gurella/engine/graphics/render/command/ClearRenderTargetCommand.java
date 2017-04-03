@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.graphics.Color;
+import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class ClearRenderTargetCommand implements RenderCommand {
@@ -8,6 +9,10 @@ public class ClearRenderTargetCommand implements RenderCommand {
 	public final Color clearColorValue = new Color();
 	public float clearDepthValue;
 	public int clearStencilValue;
+
+	@Override
+	public void init(RenderContext renderContext) {
+	}
 
 	@Override
 	public void process(GlContext glContext) {

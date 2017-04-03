@@ -28,7 +28,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		assetWidget = new AssetSelectionWidget<>(content, context.gdxContextId, assetType);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
-		assetWidget.setSelectionListener((o, n) -> assetSelectionChanged(o, n));
+		assetWidget.setSelectionListener(this::assetSelectionChanged);
 		assetWidget.setEnabled(rootAsset != null);
 
 		UiUtils.paintBordersFor(content);

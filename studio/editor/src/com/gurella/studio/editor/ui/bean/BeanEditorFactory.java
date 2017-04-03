@@ -17,6 +17,7 @@ import com.gurella.engine.editor.bean.BeanEditorDescriptor;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.common.ReferencedTypeResolver;
 import com.gurella.studio.editor.engine.bean.CustomBeanEditor;
 import com.gurella.studio.editor.engine.bean.CustomBeanEditorContextAdapter;
 import com.gurella.studio.editor.ui.bean.custom.TestCustomizableBeanEditor;
@@ -105,21 +106,7 @@ public class BeanEditorFactory {
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
-				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
-				if (resolveType.length != 1) {
-					return null;
-				}
-				String[] path = resolveType[0];
-				int last = path.length - 1;
-				path[last] = path[last].replaceAll("\\.", "\\$");
-				StringBuilder builder = new StringBuilder();
-				for (String part : path) {
-					if (builder.length() > 0) {
-						builder.append(".");
-					}
-					builder.append(part);
-				}
-				return builder.toString();
+				return ReferencedTypeResolver.resolveReferencedType(type, (String) memberValuePair.getValue());
 			}
 		}
 

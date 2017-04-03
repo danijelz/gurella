@@ -8,8 +8,7 @@ public class RenderNode {
 	RenderPath path;
 	final ObjectMap<String, RenderTarget> nodeTargetsByName = new ObjectMap<String, RenderTarget>();
 
-	final Array<RenderCommand> preCommands = new Array<RenderCommand>();
-	final Array<RenderCommand> postCommands = new Array<RenderCommand>();
+	final Array<RenderCommand> commands = new Array<RenderCommand>();
 
 	final Array<Connection> inputsByIndex = new Array<Connection>();
 	final ObjectMap<String, Connection> inputsByName = new ObjectMap<String, Connection>();
@@ -17,6 +16,10 @@ public class RenderNode {
 	final ObjectMap<String, Connection> outputsByName = new ObjectMap<String, Connection>();
 
 	void init(RenderContext renderContext) {
+		for (int i = 0, n = commands.size; i < n; i++) {
+			commands.get(i).init(renderContext);
+		}
+
 		for (int i = 0, n = inputsByIndex.size; i < n; i++) {
 			inputsByIndex.get(i).outNode.init(renderContext);
 		}

@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
+import com.gurella.engine.asset.AssetReference;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.metatype.DefaultMetaType.SimpleMetaType;
 import com.gurella.engine.metatype.MetaTypes;
@@ -92,6 +93,8 @@ public class PropertyEditorFactory {
 			return BigIntegerPropertyEditor.class;
 		} else if (propertyType == BigDecimal.class) {
 			return BigDecimalPropertyEditor.class;
+		} else if (propertyType == AssetReference.class) {
+			return cast(AssetReferencePropertyEditor.class);
 		} else if (propertyType.isArray()) {
 			return cast(ArrayPropertyEditor.class);
 		} else if (propertyType.isEnum()) {
@@ -197,6 +200,8 @@ public class PropertyEditorFactory {
 			return cast(new BigIntegerPropertyEditor(parent, cast(context)));
 		} else if (propertyType == BigDecimal.class) {
 			return cast(new BigDecimalPropertyEditor(parent, cast(context)));
+		} else if (propertyType == AssetReference.class) {
+			return cast(new AssetReferencePropertyEditor<Object>(parent, cast(context)));
 		} else if (propertyType.isArray()) {
 			return cast(new ArrayPropertyEditor<>(parent, context));
 		} else if (propertyType.isEnum()) {

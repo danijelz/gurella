@@ -1,6 +1,7 @@
-package com.gurella.engine.graphics.render.command;
+package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.graphics.render.command.RenderCommand;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
 public class RenderComandBuffer {
@@ -8,6 +9,10 @@ public class RenderComandBuffer {
 
 	public void add(RenderCommand command) {
 		commands.add(command);
+	}
+	
+	public void addAll(Array<RenderCommand> commands) {
+		this.commands.addAll(commands);
 	}
 
 	public void insert(int index, RenderCommand command) {

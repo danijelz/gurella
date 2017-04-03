@@ -7,12 +7,12 @@ import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
 
 public class RenderPath {
+	private final RenderContext context = new RenderContext(this);
 	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
 	
 	final Array<RenderCommand> preCommands = new Array<RenderCommand>();
 	final Array<RenderCommand> postCommands = new Array<RenderCommand>();
 
-	private final RenderContext context = new RenderContext(this);
 	private final Array<RenderNode> rootNodes = new Array<RenderNode>();
 
 	// passes defined by path

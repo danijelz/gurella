@@ -57,7 +57,7 @@ public class MapMetaTypeFactory implements MetaTypeFactory {
 
 		@Override
 		public String getName() {
-			return type.getName();
+			return type.getSimpleName();
 		}
 
 		@Override

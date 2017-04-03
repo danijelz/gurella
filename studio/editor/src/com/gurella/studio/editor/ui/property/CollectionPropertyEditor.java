@@ -7,13 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -30,6 +27,7 @@ import com.gurella.engine.metatype.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.common.ReferencedTypeResolver;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -117,37 +115,14 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		return componentType;
 	}
 
-	private Class<Object> resolveComponentType() throws JavaModelException {
-		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
-		if (genericTypes.size() > 0) {
-			try {
-				return Values.cast(Reflection.forName(genericTypes.get(0)));
-			} catch (Exception e) {
-			}
+	private Class<Object> resolveComponentType() {
+		Optional<Class<Object>> genericType = PropertyEditorData.getGenericType(context, 0);
+		if (genericType.isPresent()) {
+			return genericType.get();
 		}
 
-		Property<?> property = context.property;
-		IJavaProject javaProject = context.javaProject;
-		String typeName = context.bean.getClass().getName();
-		IType type = javaProject.findType(typeName);
-		final String propertyName = property.getName();
-		IField field = type.getField(propertyName);
-		String typeSignature = field.getTypeSignature();
-		String[] typeArguments = Signature.getTypeArguments(typeSignature);
-		if (typeArguments == null || typeArguments.length != 1) {
-			return Object.class;
-		}
-
-		String typeArgument = typeArguments[0];
-
-		switch (Signature.getTypeSignatureKind(typeArgument)) {
-		case Signature.CLASS_TYPE_SIGNATURE:
-			return Values.cast(Reflection.forName(Signature.toString(Signature.getTypeErasure(typeArgument))));
-		case Signature.ARRAY_TYPE_SIGNATURE:
-			return Values.cast(Reflection.forName(typeArgument));
-		default:
-			return Object.class;
-		}
+		Optional<String> referencedType = ReferencedTypeResolver.resolveReferencedType(context);
+		return referencedType.map(n -> Reflection.forName(n)).orElse(Object.class);
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
