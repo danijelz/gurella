@@ -109,8 +109,8 @@ public class AssetSelectionWidget<T> extends Composite {
 			return Optional.of(getAssetFolderRelativePath(absolutePath));
 		}
 
-		Optional<String> fileName = selectNewFileName(assetsFolder, extractFileName(absolutePath), getValidExtensions())
-				.map(this::getAssetFolderRelativePath);
+		Optional<String> fileName = selectNewFileName(getShell(), assetsFolder, extractFileName(absolutePath),
+				getValidExtensions()).map(this::getAssetFolderRelativePath);
 
 		// TODO copy asset
 		return Optional.empty();
