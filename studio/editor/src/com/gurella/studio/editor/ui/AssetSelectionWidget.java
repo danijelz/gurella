@@ -10,7 +10,6 @@ import java.util.function.BiConsumer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -26,19 +25,20 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.descriptor.AssetDescriptor;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;
 
-//TODO add clear listener
 public class AssetSelectionWidget<T> extends Composite {
+	private static final String emptySelectionMessage = "select";
+
 	private final Text text;
-	private final Button selectAssetButton;
+	private final Button selectButton;
 
 	private final int gdxContextId;
 	private final Class<T> assetType;
@@ -55,8 +55,6 @@ public class AssetSelectionWidget<T> extends Composite {
 		this.gdxContextId = gdxContextId;
 		this.assetsFolder = GdxContext.getAssetsFolder(gdxContextId);
 
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
@@ -65,22 +63,30 @@ public class AssetSelectionWidget<T> extends Composite {
 		addDisposeListener(e -> unloadLastAsset());
 
 		text = UiUtils.createText(this);
+		text.setMessage(emptySelectionMessage);
 		text.setEditable(false);
+		text.addListener(SWT.KeyUp, e -> onKeyUp(e.character));
 		GridDataFactory.defaultsFor(text).align(SWT.FILL, SWT.CENTER).grab(true, false).hint(100, 14).applyTo(text);
 
-		selectAssetButton = toolkit.createButton(this, "", SWT.PUSH);
-		selectAssetButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
-		GridDataFactory.defaultsFor(selectAssetButton).align(SWT.BEGINNING, SWT.BEGINNING).grab(false, false)
-				.hint(32, 22).applyTo(selectAssetButton);
-		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
-		selectAssetButton.setEnabled(assetType != null && getAssetDescriptor(assetType) != null);
+		selectButton = GurellaStudioPlugin.getToolkit().createButton(this, "", SWT.PUSH);
+		selectButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
+		GridDataFactory.defaultsFor(selectButton).align(SWT.BEGINNING, SWT.BEGINNING).grab(false, false).hint(32, 22)
+				.applyTo(selectButton);
+		selectButton.addListener(SWT.Selection, e -> showFileDialg());
+		selectButton.setEnabled(assetType != null && getAssetDescriptor(assetType) != null);
 
 		DropTarget target = new DropTarget(text, DND.DROP_DEFAULT | DND.DROP_COPY);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new AssetDropTarget());
 
-		toolkit.adapt(this);
+		UiUtils.adapt(this);
 		UiUtils.paintBordersFor(this);
+	}
+
+	private void onKeyUp(int character) {
+		if (SWT.DEL == character || SWT.BS == character) {
+			assetSelected(null);
+		}
 	}
 
 	private void showFileDialg() {
@@ -94,15 +100,17 @@ public class AssetSelectionWidget<T> extends Composite {
 	}
 
 	// TODO copy asset if not in project
-	private void assetSelected(final String path) {
+	private void assetSelected(final String assetPath) {
 		T oldAsset = asset;
-		IPath assetPath = new Path(path).makeRelativeTo(assetsFolder.getLocation());
-		asset = GdxContext.load(gdxContextId, assetPath.toString(), assetType);
-		text.setText(assetPath.lastSegment());
-		text.setMessage("");
+		setAsset(toRelativePath(assetPath));
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
 		unloadLastAsset();
 		lastLoaded = asset;
+	}
+
+	private String toRelativePath(final String assetPath) {
+		return Values.isBlank(assetPath) ? null
+				: new Path(assetPath).makeRelativeTo(assetsFolder.getLocation()).toString();
 	}
 
 	private void unloadLastAsset() {
@@ -119,11 +127,15 @@ public class AssetSelectionWidget<T> extends Composite {
 		return asset;
 	}
 
+	public void setAsset(final String assetPath) {
+		setAsset(Values.isBlank(assetPath) ? null : GdxContext.load(gdxContextId, assetPath, assetType));
+	}
+
 	public void setAsset(final T asset) {
 		this.asset = asset;
 		if (asset == null) {
 			text.setText("");
-			text.setMessage("null");
+			text.setMessage(emptySelectionMessage);
 		} else {
 			String path = GdxContext.getFileName(gdxContextId, asset);
 			text.setText(extractFileName(path));
@@ -132,14 +144,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	}
 
 	public void setSelection(final String assetPath) {
-		if (assetPath == null) {
-			text.setText("");
-			text.setMessage("null");
-		} else {
-			asset = GdxContext.load(gdxContextId, assetPath, assetType);
-			text.setText(extractFileName(assetPath));
-			text.setMessage("");
-		}
+		setAsset(assetPath);
 		unloadLastAsset();
 		lastLoaded = asset;
 	}
@@ -153,7 +158,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		text.setEnabled(enabled);
-		selectAssetButton.setEnabled(enabled);
+		selectButton.setEnabled(enabled);
 	}
 
 	private final class AssetDropTarget extends DropTargetAdapter {

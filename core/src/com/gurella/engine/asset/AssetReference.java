@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.metatype.PropertyDescriptor;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.Values;
 
 public final class AssetReference<T> {
 	@PropertyDescriptor
@@ -42,8 +43,24 @@ public final class AssetReference<T> {
 		return fileType;
 	}
 
+	public T getAsset() {
+		return asset;
+	}
+
+	public boolean isValid() {
+		return assetType != null && Values.isNotBlank(fileName);
+	}
+
+	public boolean isLoaded() {
+		return asset != null;
+	}
+
 	public T load() {
-		if (asset != null) {
+		if (asset == null) {
+			if (!isValid()) {
+				throw new RuntimeException("Invalid reference.");
+			}
+
 			asset = AssetService.load(fileName, fileType, assetType);
 		}
 		return asset;
@@ -51,11 +68,15 @@ public final class AssetReference<T> {
 
 	public void loadAsync(AsyncCallback<T> callback) {
 		if (asset != null) {
+			callback.onSuccess(asset);
+		} else if (isValid()) {
 			@SuppressWarnings("unchecked")
 			AssetReferenceCallback<T> wrapper = PoolService.obtain(AssetReferenceCallback.class);
 			wrapper.parent = callback;
 			wrapper.assetReference = this;
 			AssetService.loadAsync(wrapper, fileName, fileType, assetType, 0);
+		} else {
+			callback.onException(new RuntimeException("Invalid reference."));
 		}
 	}
 
