@@ -87,7 +87,6 @@ public class PolygonRegionLoader extends BaseAssetLoader<PolygonRegion, PolygonR
 		PolygonRegion polygonRegion;
 
 		public PolygonRegionData(String imagePath, float[] vertices) {
-			super();
 			this.imagePath = imagePath;
 			this.vertices = vertices;
 		}

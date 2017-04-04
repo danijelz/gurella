@@ -87,8 +87,8 @@ public class FileDialogUtils {
 
 	public static Optional<String> enterNewFileName(IFolder parent, String defaultName, boolean suggestName,
 			String extension) {
-		String name = suggestName ? suggestName(parent, defaultName, extension) : defaultName;
 		Shell shell = UiUtils.getActiveShell();
+		String name = suggestName ? suggestName(parent, defaultName, extension) : defaultName;
 		IInputValidator validator = i -> validateNewFileName(parent, i);
 		FileNameDialog dlg = new FileNameDialog(shell, "Name", "Enter name", name, validator);
 		return dlg.open() == Window.OK ? Optional.of(dlg.getValue()) : Optional.empty();

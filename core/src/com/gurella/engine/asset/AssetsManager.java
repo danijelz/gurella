@@ -331,9 +331,6 @@ class AssetsManager implements ApplicationCleanupListener, GlContextInvalidatedL
 		}
 
 		freeTask(task);
-
-		System.out.println(getDiagnostics());
-		System.out.println("--------------------------------------------\n\n");
 	}
 
 	private void freeTask(AssetLoadingTask<?> task) {

@@ -97,10 +97,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 		boolean needsUnescape = false, stringIsName = false, stringIsUnquoted = false;
 		RuntimeException parseRuntimeEx = null;
 
-		boolean debug = false;
-		if (debug)
-			System.out.println();
-
 		try {
 
 			// line 97 "JsonReader.java"
@@ -202,20 +198,14 @@ public class PoolableJsonReader implements BaseJsonReader {
 										value = unescape(value);
 									outer: if (stringIsName) {
 										stringIsName = false;
-										if (debug)
-											System.out.println("name: " + value);
 										names.add(value);
 									} else {
 										String name = names.size > 0 ? names.pop() : null;
 										if (stringIsUnquoted) {
 											if (value.equals("true")) {
-												if (debug)
-													System.out.println("boolean: " + name + "=true");
 												bool(name, true);
 												break outer;
 											} else if (value.equals("false")) {
-												if (debug)
-													System.out.println("boolean: " + name + "=false");
 												bool(name, false);
 												break outer;
 											} else if (value.equals("null")) {
@@ -252,17 +242,11 @@ public class PoolableJsonReader implements BaseJsonReader {
 											}
 											if (couldBeDouble) {
 												try {
-													if (debug)
-														System.out.println(
-																"double: " + name + "=" + Double.parseDouble(value));
 													number(name, Double.parseDouble(value), value);
 													break outer;
 												} catch (NumberFormatException ignored) {
 												}
 											} else if (couldBeLong) {
-												if (debug)
-													System.out.println(
-															"double: " + name + "=" + Double.parseDouble(value));
 												try {
 													number(name, Long.parseLong(value), value);
 													break outer;
@@ -270,8 +254,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 												}
 											}
 										}
-										if (debug)
-											System.out.println("string: " + name + "=" + value);
 										string(name, value);
 									}
 									stringIsUnquoted = false;
@@ -282,8 +264,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 								// line 181 "JsonReader.rl"
 								{
 									String name = names.size > 0 ? names.pop() : null;
-									if (debug)
-										System.out.println("startObject: " + name);
 									startObject(name);
 									{
 										if (top == stack.length) {
@@ -302,8 +282,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 								case 3:
 								// line 187 "JsonReader.rl"
 								{
-									if (debug)
-										System.out.println("endObject");
 									pop();
 									{
 										cs = stack[--top];
@@ -315,8 +293,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 								// line 192 "JsonReader.rl"
 								{
 									String name = names.size > 0 ? names.pop() : null;
-									if (debug)
-										System.out.println("startArray: " + name);
 									startArray(name);
 									{
 										if (top == stack.length) {
@@ -335,8 +311,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 								case 5:
 								// line 198 "JsonReader.rl"
 								{
-									if (debug)
-										System.out.println("endArray");
 									pop();
 									{
 										cs = stack[--top];
@@ -358,15 +332,11 @@ public class PoolableJsonReader implements BaseJsonReader {
 										}
 										p++;
 									}
-									if (debug)
-										System.out.println("comment " + new String(data, start, p - start));
 								}
 									break;
 								case 7:
 								// line 216 "JsonReader.rl"
 								{
-									if (debug)
-										System.out.println("unquotedChars");
 									s = p;
 									needsUnescape = false;
 									stringIsUnquoted = true;
@@ -388,8 +358,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 											case '\n':
 												break outer;
 											}
-											if (debug)
-												System.out.println("unquotedChar (name): '" + data[p] + "'");
 											p++;
 											if (p == eof)
 												break;
@@ -414,8 +382,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 											case '\n':
 												break outer;
 											}
-											if (debug)
-												System.out.println("unquotedChar (value): '" + data[p] + "'");
 											p++;
 											if (p == eof)
 												break;
@@ -430,8 +396,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 								case 8:
 								// line 270 "JsonReader.rl"
 								{
-									if (debug)
-										System.out.println("quotedChars");
 									s = ++p;
 									needsUnescape = false;
 									outer: while (true) {
@@ -481,20 +445,14 @@ public class PoolableJsonReader implements BaseJsonReader {
 										value = unescape(value);
 									outer: if (stringIsName) {
 										stringIsName = false;
-										if (debug)
-											System.out.println("name: " + value);
 										names.add(value);
 									} else {
 										String name = names.size > 0 ? names.pop() : null;
 										if (stringIsUnquoted) {
 											if (value.equals("true")) {
-												if (debug)
-													System.out.println("boolean: " + name + "=true");
 												bool(name, true);
 												break outer;
 											} else if (value.equals("false")) {
-												if (debug)
-													System.out.println("boolean: " + name + "=false");
 												bool(name, false);
 												break outer;
 											} else if (value.equals("null")) {
@@ -531,17 +489,11 @@ public class PoolableJsonReader implements BaseJsonReader {
 											}
 											if (couldBeDouble) {
 												try {
-													if (debug)
-														System.out.println(
-																"double: " + name + "=" + Double.parseDouble(value));
 													number(name, Double.parseDouble(value), value);
 													break outer;
 												} catch (NumberFormatException ignored) {
 												}
 											} else if (couldBeLong) {
-												if (debug)
-													System.out.println(
-															"double: " + name + "=" + Double.parseDouble(value));
 												try {
 													number(name, Long.parseLong(value), value);
 													break outer;
@@ -549,8 +501,6 @@ public class PoolableJsonReader implements BaseJsonReader {
 												}
 											}
 										}
-										if (debug)
-											System.out.println("string: " + name + "=" + value);
 										string(name, value);
 									}
 									stringIsUnquoted = false;

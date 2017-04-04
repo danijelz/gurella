@@ -1,11 +1,12 @@
 package com.gurella.studio.editor.ui;
 
 import static com.gurella.engine.asset.descriptor.AssetDescriptors.getAssetDescriptor;
+import static com.gurella.studio.editor.utils.FileDialogUtils.selectNewFileName;
 import static java.util.stream.Collectors.joining;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -53,7 +54,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;
 		this.gdxContextId = gdxContextId;
-		this.assetsFolder = GdxContext.getAssetsFolder(gdxContextId);
+		assetsFolder = GdxContext.getAssetsFolder(gdxContextId);
 
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
@@ -91,26 +92,40 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
-		AssetDescriptor<?> descriptor = getAssetDescriptor(assetType);
-		Object[] extensionsArr = descriptor.extensions.toArray(String.class);
-		String extensions = Arrays.stream(extensionsArr).map(e -> "*." + e).collect(joining(";"));
-		dialog.setFilterExtensions(new String[] { extensions });
+		dialog.setFilterExtensions(new String[] { getValidExtensions() });
 		dialog.setFilterPath(assetsFolder.getLocation().toString());
-		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
+		Optional.ofNullable(dialog.open()).flatMap(this::getRelativePath).ifPresent(this::assetSelected);
 	}
 
-	// TODO copy asset if not in project
+	private String getValidExtensions() {
+		AssetDescriptor<?> descriptor = getAssetDescriptor(assetType);
+		Object[] extensionsArr = descriptor.extensions.toArray(String.class);
+		String extensions = Stream.of(extensionsArr).map(e -> "*." + e).collect(joining(";"));
+		return extensions;
+	}
+
+	private Optional<String> getRelativePath(String absolutePath) {
+		if (assetsFolder.getLocation().isPrefixOf(new Path(absolutePath))) {
+			return Optional.of(getAssetFolderRelativePath(absolutePath));
+		}
+
+		Optional<String> fileName = selectNewFileName(assetsFolder, extractFileName(absolutePath), getValidExtensions())
+				.map(this::getAssetFolderRelativePath);
+
+		// TODO copy asset
+		return Optional.empty();
+	}
+
+	private String getAssetFolderRelativePath(String absolutePath) {
+		return new Path(absolutePath).makeRelativeTo(assetsFolder.getLocation()).toString();
+	}
+
 	private void assetSelected(final String assetPath) {
 		T oldAsset = asset;
-		setAsset(toRelativePath(assetPath));
+		setAsset(assetPath);
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
 		unloadLastAsset();
 		lastLoaded = asset;
-	}
-
-	private String toRelativePath(final String assetPath) {
-		return Values.isBlank(assetPath) ? null
-				: new Path(assetPath).makeRelativeTo(assetsFolder.getLocation()).toString();
 	}
 
 	private void unloadLastAsset() {
