@@ -25,7 +25,7 @@ import com.gurella.studio.gdx.GdxContext;
 
 public class ColorTextureAttributeEditor extends Composite {
 	private final int gdxContextId;
-	
+
 	private ColorSelectionWidget colorSelector;
 	private Button colorEnabledButton;
 
@@ -82,8 +82,8 @@ public class ColorTextureAttributeEditor extends Composite {
 			colorEnabledButton.setSelection(true);
 		}
 
-		colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
-		colorSelector.setColorChangeListener(e -> enableColor());
+		colorEnabledButton.addListener(SWT.Selection, e -> updateColor());
+		colorSelector.setColorChangeListener(e -> updateColor());
 
 		Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
@@ -94,11 +94,11 @@ public class ColorTextureAttributeEditor extends Composite {
 		toolkit.adapt(textureSelector);
 		textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 		textureSelector.setAsset(properties.texture);
-		textureSelector.setSelectionListener(this::textureSelectionChanged);
+		textureSelector.setSelectionListener(s -> updateTexture());
 
 		textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 		textureEnabledButton.setSelection(properties.texture != null);
-		textureEnabledButton.addListener(SWT.Selection, e -> enableTexture());
+		textureEnabledButton.addListener(SWT.Selection, e -> updateTexture());
 
 		label = toolkit.createLabel(this, "Offset U:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -135,20 +135,7 @@ public class ColorTextureAttributeEditor extends Composite {
 		scaleV.setEnabled(selection);
 	}
 
-	private void textureSelectionChanged(String selection) {
-		Texture oldAsset = textureGetter.get().texture;
-		Texture newAsset = Values.isBlank(selection) ? null : GdxContext.load(gdxContextId, selection, Texture.class);
-		
-		if (oldAsset != null) {
-			materialDescriptor.unload(oldAsset);
-		}
-		if (newAsset != null) {
-			materialDescriptor.bindAsset(newAsset);
-		}
-		valueChanged();
-	}
-
-	private void enableColor() {
+	private void updateColor() {
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
 		if (selection) {
@@ -156,47 +143,74 @@ public class ColorTextureAttributeEditor extends Composite {
 		} else {
 			colorSetter.accept(null);
 		}
-		
-		TextureAttributeProperties properties = textureGetter.get();
-		if (selection) {
-			colorSetter.accept(colorSelector.getColor());
-		} else {
-			properties.texture = null;
-			properties.offsetU = 0;
-			properties.offsetV = 0;
-			properties.scaleU = 1;
-			properties.scaleV = 1;
-		}
-		
+
 		valueChanged();
 	}
 
-	private void enableTexture() {
+	private void updateTexture() {
 		boolean selection = textureEnabledButton.getSelection();
 		textureSelector.setEnabled(selection);
 		offsetU.setEnabled(selection);
 		offsetV.setEnabled(selection);
 		scaleU.setEnabled(selection);
 		scaleV.setEnabled(selection);
+
+		TextureAttributeProperties properties = textureGetter.get();
+		if (selection) {
+			Texture oldTexture = properties.texture;
+			Texture newTexture = getSelectedTexture(oldTexture);
+
+			if (oldTexture != newTexture) {
+				properties.texture = newTexture;
+
+				if (oldTexture != null && newTexture != null) {
+					GdxContext.replaceDependency(gdxContextId, materialDescriptor, oldTexture, newTexture);
+					GdxContext.unload(gdxContextId, oldTexture);
+				} else if (oldTexture != null) {
+					GdxContext.removeDependency(gdxContextId, materialDescriptor, oldTexture);
+					GdxContext.unload(gdxContextId, oldTexture);
+				} else if (newTexture != null) {
+					GdxContext.addDependency(gdxContextId, materialDescriptor, newTexture);
+				}
+			}
+
+			properties.offsetU = toFloatValue(offsetU.getText(), 0);
+			properties.offsetV = toFloatValue(offsetV.getText(), 0);
+			properties.scaleU = toFloatValue(scaleU.getText(), 1);
+			properties.scaleV = toFloatValue(scaleV.getText(), 1);
+		} else {
+			Texture oldTexture = properties.texture;
+			if (oldTexture != null) {
+				GdxContext.removeDependency(gdxContextId, materialDescriptor, oldTexture);
+				GdxContext.unload(gdxContextId, oldTexture);
+			}
+
+			properties.texture = null;
+			properties.offsetU = 0;
+			properties.offsetV = 0;
+			properties.scaleU = 1;
+			properties.scaleV = 1;
+		}
+
 		valueChanged();
 	}
 
-	private void valueChanged() {
-		TextureAttributeProperties properties = textureGetter.get();
-		if (textureEnabledButton.getSelection()) {
-			//properties.texture = textureSelector.getAsset();
-			String textValue = offsetU.getText();
-			properties.offsetU = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
-			textValue = offsetV.getText();
-			properties.offsetV = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
-			textValue = scaleU.getText();
-			properties.scaleU = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
-			textValue = scaleV.getText();
-			properties.scaleV = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
-		} else {
-			properties.texture = null;
-		}
+	private static float toFloatValue(String textValue, float defaultValue) {
+		return Values.isBlank(textValue) ? defaultValue : Float.valueOf(textValue).floatValue();
+	}
 
+	private Texture getSelectedTexture(Texture oldTexture) {
+		String selection = textureSelector.getSelection();
+		if (Values.isBlank(selection)) {
+			return null;
+		} else if (selection.equals(GdxContext.getFileName(gdxContextId, oldTexture))) {
+			return oldTexture;
+		} else {
+			return GdxContext.load(gdxContextId, selection, Texture.class);
+		}
+	}
+
+	private void valueChanged() {
 		updater.run();
 	}
 }
