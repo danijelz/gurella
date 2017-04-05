@@ -134,7 +134,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	}
 
 	private void assetSelected(final String newSelection) {
-		setAsset(newSelection);
+		setSelection(newSelection);
 		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(newSelection));
 	}
 
@@ -142,19 +142,9 @@ public class AssetSelectionWidget<T> extends Composite {
 		this.selectionListener = selectionListener;
 	}
 
-	public void setAsset(final String assetPath) {
-		setAsset(Values.isBlank(assetPath) ? null : GdxContext.load(gdxContextId, assetPath, assetType));
-	}
-
 	public void setAsset(final T asset) {
-		if (asset == null) {
-			text.setText("");
-			text.setMessage(emptySelectionMessage);
-		} else {
-			String path = GdxContext.getFileName(gdxContextId, asset);
-			text.setText(Assets.getFileName(path));
-			text.setMessage("");
-		}
+		String newSelection = asset == null ? null : GdxContext.getFileName(gdxContextId, asset);
+		setSelection(newSelection);
 	}
 
 	public String getSelection() {

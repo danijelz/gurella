@@ -58,17 +58,15 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 		if (oldAsset != null && newAsset != null) {
 			GdxContext.replaceDependency(gdxContextId, rootAsset, oldAsset, newAsset);
+			GdxContext.unload(gdxContextId, oldAsset);
 		} else if (oldAsset != null) {
 			GdxContext.removeDependency(gdxContextId, rootAsset, oldAsset);
+			GdxContext.unload(gdxContextId, oldAsset);
 		} else if (newAsset != null) {
 			GdxContext.addDependency(gdxContextId, rootAsset, newAsset);
 		}
 
 		setValue(newAsset);
-
-		if (oldAsset != null) {
-			GdxContext.unload(gdxContextId, oldAsset);
-		}
 	}
 
 	@Override
