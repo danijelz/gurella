@@ -4,14 +4,17 @@ import static com.gurella.engine.asset.descriptor.AssetDescriptors.getAssetDescr
 import static com.gurella.studio.editor.utils.FileDialogUtils.selectNewFileName;
 import static java.util.stream.Collectors.joining;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -28,10 +31,12 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ResourceTransfer;
 
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.descriptor.AssetDescriptor;
 import com.gurella.engine.asset.descriptor.AssetDescriptors;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;
 
@@ -45,10 +50,9 @@ public class AssetSelectionWidget<T> extends Composite {
 	private final Class<T> assetType;
 	private final IFolder assetsFolder;
 
-	private BiConsumer<T, T> selectionListener;
+	private Consumer<String> selectionListener;
 
-	private T asset;
-	private T lastLoaded;
+	private String selection;
 
 	public AssetSelectionWidget(Composite parent, int gdxContextId, Class<T> assetType) {
 		super(parent, SWT.NONE);
@@ -61,7 +65,6 @@ public class AssetSelectionWidget<T> extends Composite {
 		layout.marginHeight = 2;
 		layout.verticalSpacing = 0;
 		setLayout(layout);
-		addDisposeListener(e -> unloadLastAsset());
 
 		text = UiUtils.createText(this);
 		text.setMessage(emptySelectionMessage);
@@ -86,7 +89,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void onKeyUp(int character) {
 		if (SWT.DEL == character || SWT.BS == character) {
-			assetSelected(null);
+			setSelection(null);
 		}
 	}
 
@@ -100,8 +103,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	private String getValidExtensions() {
 		AssetDescriptor<?> descriptor = getAssetDescriptor(assetType);
 		Object[] extensionsArr = descriptor.extensions.toArray(String.class);
-		String extensions = Stream.of(extensionsArr).map(e -> "*." + e).collect(joining(";"));
-		return extensions;
+		return Stream.of(extensionsArr).map(e -> "*." + e).collect(joining(";"));
 	}
 
 	private Optional<String> getRelativePath(String absolutePath) {
@@ -109,37 +111,35 @@ public class AssetSelectionWidget<T> extends Composite {
 			return Optional.of(getAssetFolderRelativePath(absolutePath));
 		}
 
-		Optional<String> fileName = selectNewFileName(getShell(), assetsFolder, extractFileName(absolutePath),
-				getValidExtensions()).map(this::getAssetFolderRelativePath);
+		boolean importAsset = MessageDialog.openQuestion(getShell(), "Import asset",
+				"Selection is not part of project. Do you want to import asset.");
+		return importAsset ? importAsset(absolutePath) : Optional.empty();
+	}
 
-		// TODO copy asset
-		return Optional.empty();
+	private Optional<String> importAsset(String absolutePath) {
+		Optional<String> relativePath = selectNewFileName(assetsFolder, Assets.getFileName(absolutePath),
+				getAssetDescriptor(assetType)).map(this::getAssetFolderRelativePath);
+		if (relativePath.isPresent()) {
+			Path importPath = new Path(relativePath.get());
+			IFolder importFolder = assetsFolder.getFolder(importPath.removeLastSegments(1));
+			IFile newFile = importFolder.getFile(importPath.lastSegment());
+			Try.unchecked(() -> newFile.create(new FileInputStream(new File(absolutePath)), true, null));
+		}
+
+		return relativePath;
 	}
 
 	private String getAssetFolderRelativePath(String absolutePath) {
 		return new Path(absolutePath).makeRelativeTo(assetsFolder.getLocation()).toString();
 	}
 
-	private void assetSelected(final String assetPath) {
-		T oldAsset = asset;
-		setAsset(assetPath);
-		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
-		unloadLastAsset();
-		lastLoaded = asset;
+	private void assetSelected(final String newSelection) {
+		setAsset(newSelection);
+		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(newSelection));
 	}
 
-	private void unloadLastAsset() {
-		if (lastLoaded != null) {
-			GdxContext.unload(gdxContextId, lastLoaded);
-		}
-	}
-
-	public void setSelectionListener(BiConsumer<T, T> selectionListener) {
+	public void setSelectionListener(Consumer<String> selectionListener) {
 		this.selectionListener = selectionListener;
-	}
-
-	public T getAsset() {
-		return asset;
 	}
 
 	public void setAsset(final String assetPath) {
@@ -147,26 +147,29 @@ public class AssetSelectionWidget<T> extends Composite {
 	}
 
 	public void setAsset(final T asset) {
-		this.asset = asset;
 		if (asset == null) {
 			text.setText("");
 			text.setMessage(emptySelectionMessage);
 		} else {
 			String path = GdxContext.getFileName(gdxContextId, asset);
-			text.setText(extractFileName(path));
+			text.setText(Assets.getFileName(path));
 			text.setMessage("");
 		}
 	}
 
-	public void setSelection(final String assetPath) {
-		setAsset(assetPath);
-		unloadLastAsset();
-		lastLoaded = asset;
+	public String getSelection() {
+		return selection;
 	}
 
-	private static String extractFileName(String path) {
-		int index = path.lastIndexOf('/');
-		return index < 0 ? path : path.substring(index + 1);
+	public void setSelection(final String selection) {
+		this.selection = selection;
+		if (Values.isBlank(selection)) {
+			text.setText("");
+			text.setMessage(emptySelectionMessage);
+		} else {
+			text.setText(Assets.getFileName(selection));
+			text.setMessage("");
+		}
 	}
 
 	@Override

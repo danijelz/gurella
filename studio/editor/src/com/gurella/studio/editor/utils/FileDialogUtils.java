@@ -3,9 +3,9 @@ package com.gurella.studio.editor.utils;
 import static org.eclipse.jface.dialogs.MessageDialog.openQuestion;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -32,11 +32,6 @@ public class FileDialogUtils {
 		return selectNewFileName(parent.getLocation(), defaultName, extensions);
 	}
 
-	public static Optional<String> selectNewFileName(Shell shell, IFolder parent, String defaultName,
-			String... extensions) {
-		return selectNewFileName(shell, parent.getLocation(), defaultName, extensions);
-	}
-
 	public static Optional<String> selectNewFileName(IFolder parent, String defaultName,
 			AssetDescriptor<?> descriptor) {
 		String[] extensions = descriptor.extensions.toArray(String.class);
@@ -49,15 +44,10 @@ public class FileDialogUtils {
 	}
 
 	public static Optional<String> selectNewFileName(IPath parent, String defaultName, String... extensions) {
-		return selectNewFileName(UiUtils.getActiveShell(), parent, defaultName, extensions);
-	}
-
-	public static Optional<String> selectNewFileName(Shell shell, IPath parent, String defaultName,
-			String... extensions) {
-		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		FileDialog dialog = new FileDialog(UiUtils.getActiveShell(), SWT.SAVE);
 		dialog.setFilterPath(parent.toString());
 		Function<? super String, ? extends String> prependDot = e -> e.indexOf('.') < 0 ? "*." + e : e;
-		dialog.setFilterExtensions(Arrays.stream(extensions).map(prependDot).toArray(i -> new String[i]));
+		dialog.setFilterExtensions(Stream.of(extensions).map(prependDot).toArray(i -> new String[i]));
 		String extension = extensions.length == 0 ? null : extensions[0];
 		dialog.setFileName(suggestName(parent, defaultName, extension));
 		return getPathSafely(dialog);

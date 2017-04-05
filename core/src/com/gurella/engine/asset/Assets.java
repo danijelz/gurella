@@ -47,6 +47,11 @@ public class Assets {
 		return assetFileName + '.' + DefaultAssetDescriptors.assetProps.getSingleExtension();
 	}
 
+	public static String getFileName(String path) {
+		int index = path.lastIndexOf('/');
+		return index < 0 ? path : path.substring(index + 1);
+	}
+
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
 		char fileTypeInfo = hasFileTypeInfo ? path.charAt(0) : getDefaultFileTypeInfo(path);

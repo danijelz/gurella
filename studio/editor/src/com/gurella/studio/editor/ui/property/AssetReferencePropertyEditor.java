@@ -11,6 +11,7 @@ import com.badlogic.gdx.Files.FileType;
 import com.gurella.engine.asset.AssetReference;
 import com.gurella.engine.utils.DefaultInstances;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.common.ReferencedTypeResolver;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
@@ -77,17 +78,14 @@ public class AssetReferencePropertyEditor<T> extends SimplePropertyEditor<AssetR
 		return null;
 	}
 
-	private void assetSelectionChanged(@SuppressWarnings("unused") T oldAsset, T newAsset) {
-		if (newAsset == null) {
+	private void assetSelectionChanged(String selection) {
+		if (Values.isNotBlank(selection)) {
+			setValue(new AssetReference<>(assetType, selection, FileType.Internal));
+		} else if (context.isFixedValue()) {
 			AssetReference<T> defaultValue = getDefaultValue();
-			if (context.isFixedValue() && defaultValue != null) {
-				setValue(new AssetReference<>(assetType, null, defaultValue.getFileType()));
-			} else {
-				setValue(null);
-			}
+			setValue(defaultValue == null ? null : new AssetReference<>(assetType, null, defaultValue.getFileType()));
 		} else {
-			String fileName = GdxContext.getFileName(context.gdxContextId, newAsset);
-			setValue(new AssetReference<>(assetType, fileName, FileType.Internal));
+			setValue(null);
 		}
 	}
 

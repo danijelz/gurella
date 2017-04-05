@@ -21,8 +21,11 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.ColorSelectionWidget;
 import com.gurella.studio.editor.utils.UiUtils;
+import com.gurella.studio.gdx.GdxContext;
 
 public class ColorTextureAttributeEditor extends Composite {
+	private final int gdxContextId;
+	
 	private ColorSelectionWidget colorSelector;
 	private Button colorEnabledButton;
 
@@ -46,6 +49,7 @@ public class ColorTextureAttributeEditor extends Composite {
 			Supplier<Color> colorGetter, Consumer<Color> colorSetter,
 			Supplier<TextureAttributeProperties> textureGetter, Runnable updater) {
 		super(parent, SWT.NONE);
+		this.gdxContextId = gdxContextId;
 
 		this.materialDescriptor = materialDescriptor;
 		this.colorGetter = colorGetter;
@@ -79,7 +83,7 @@ public class ColorTextureAttributeEditor extends Composite {
 		}
 
 		colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
-		colorSelector.setColorChangeListener(e -> valueChanged());
+		colorSelector.setColorChangeListener(e -> enableColor());
 
 		Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
@@ -90,7 +94,7 @@ public class ColorTextureAttributeEditor extends Composite {
 		toolkit.adapt(textureSelector);
 		textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 		textureSelector.setAsset(properties.texture);
-		textureSelector.setSelectionListener(this::assetSelectionChanged);
+		textureSelector.setSelectionListener(this::textureSelectionChanged);
 
 		textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 		textureEnabledButton.setSelection(properties.texture != null);
@@ -131,7 +135,10 @@ public class ColorTextureAttributeEditor extends Composite {
 		scaleV.setEnabled(selection);
 	}
 
-	private void assetSelectionChanged(Texture oldAsset, Texture newAsset) {
+	private void textureSelectionChanged(String selection) {
+		Texture oldAsset = textureGetter.get().texture;
+		Texture newAsset = Values.isBlank(selection) ? null : GdxContext.load(gdxContextId, selection, Texture.class);
+		
 		if (oldAsset != null) {
 			materialDescriptor.unload(oldAsset);
 		}
@@ -144,6 +151,23 @@ public class ColorTextureAttributeEditor extends Composite {
 	private void enableColor() {
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
+		if (selection) {
+			colorSetter.accept(colorSelector.getColor());
+		} else {
+			colorSetter.accept(null);
+		}
+		
+		TextureAttributeProperties properties = textureGetter.get();
+		if (selection) {
+			colorSetter.accept(colorSelector.getColor());
+		} else {
+			properties.texture = null;
+			properties.offsetU = 0;
+			properties.offsetV = 0;
+			properties.scaleU = 1;
+			properties.scaleV = 1;
+		}
+		
 		valueChanged();
 	}
 
@@ -158,15 +182,9 @@ public class ColorTextureAttributeEditor extends Composite {
 	}
 
 	private void valueChanged() {
-		if (colorEnabledButton.getSelection()) {
-			colorSetter.accept(colorSelector.getColor());
-		} else {
-			colorSetter.accept(null);
-		}
-
 		TextureAttributeProperties properties = textureGetter.get();
 		if (textureEnabledButton.getSelection()) {
-			properties.texture = textureSelector.getAsset();
+			//properties.texture = textureSelector.getAsset();
 			String textValue = offsetU.getText();
 			properties.offsetU = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
 			textValue = offsetV.getText();

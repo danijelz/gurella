@@ -5,17 +5,21 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.ui.AssetSelectionWidget;
 import com.gurella.studio.editor.ui.bean.BeanEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
 import com.gurella.studio.gdx.GdxContext;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
+	private Class<T> assetType;
+
 	private AssetSelectionWidget<T> assetWidget;
 	private Object rootAsset;
 
 	public AssetPropertyEditor(Composite parent, PropertyEditorContext<?, T> context, Class<T> assetType) {
 		super(parent, context);
+		this.assetType = assetType;
 
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -47,8 +51,11 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		return null;
 	}
 
-	private void assetSelectionChanged(T oldAsset, T newAsset) {
+	private void assetSelectionChanged(String selection) {
 		int gdxContextId = context.gdxContextId;
+		T oldAsset = getValue();
+		T newAsset = Values.isBlank(selection) ? null : GdxContext.load(gdxContextId, selection, assetType);
+
 		if (oldAsset != null && newAsset != null) {
 			GdxContext.replaceDependency(gdxContextId, rootAsset, oldAsset, newAsset);
 		} else if (oldAsset != null) {
@@ -58,6 +65,10 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		}
 
 		setValue(newAsset);
+
+		if (oldAsset != null) {
+			GdxContext.unload(gdxContextId, oldAsset);
+		}
 	}
 
 	@Override
