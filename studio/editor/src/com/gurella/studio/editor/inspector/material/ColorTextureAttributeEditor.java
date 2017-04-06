@@ -62,7 +62,7 @@ public class ColorTextureAttributeEditor extends Composite {
 
 		GridLayout layout = new GridLayout(5, false);
 		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginHeight = 2;
 		layout.horizontalSpacing = 5;
 		layout.verticalSpacing = 5;
 		setLayout(layout);
@@ -133,6 +133,8 @@ public class ColorTextureAttributeEditor extends Composite {
 		offsetV.setEnabled(selection);
 		scaleU.setEnabled(selection);
 		scaleV.setEnabled(selection);
+		
+		UiUtils.paintBordersFor(this);
 	}
 
 	private void updateColor() {

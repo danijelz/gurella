@@ -178,6 +178,7 @@ public class RenderSystem implements ComponentActivityListener, SceneConsumer, E
 		} else {
 			grid2d.render(batch);
 		}
+		
 		renderScene();
 		compass.render(batch);
 		infoRenderer.renderInfo(camera, batch);

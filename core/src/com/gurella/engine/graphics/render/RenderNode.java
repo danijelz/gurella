@@ -27,9 +27,15 @@ public class RenderNode {
 
 	void process(RenderContext context) {
 		context.node = this;
+
+		for (int i = 0, n = commands.size; i < n; i++) {
+			commands.get(i).process(null);
+		}
+
 		for (int i = 0, n = inputsByIndex.size; i < n; i++) {
 			inputsByIndex.get(i).outNode.process(context);
 		}
+
 		context.node = null;
 	}
 
