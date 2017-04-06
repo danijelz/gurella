@@ -39,7 +39,7 @@ public class RenderNode {
 		context.node = null;
 	}
 
-	private static class Connection {
+	static class Connection {
 		String inName;
 		RenderNode inNode;
 		String outName;

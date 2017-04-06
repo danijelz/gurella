@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.graphics.render.RenderPathIterator.RenderNodeConsumer;
 import com.gurella.engine.graphics.render.command.RenderCommand;
 import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
@@ -9,14 +10,21 @@ import com.gurella.engine.scene.Scene;
 public class RenderPath {
 	private final RenderContext context = new RenderContext(this);
 	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
-	
+
 	final Array<RenderCommand> preCommands = new Array<RenderCommand>();
 	final Array<RenderCommand> postCommands = new Array<RenderCommand>();
 
-	private final Array<RenderNode> rootNodes = new Array<RenderNode>();
+	final Array<RenderNode> rootNodes = new Array<RenderNode>();
+	final RenderPathIterator iterator = new RenderPathIterator();
 
 	// passes defined by path
 	private final Array<String> pathPasses = new Array<String>();
+
+	public void iterate(RenderNodeConsumer consumer) {
+		synchronized (iterator) {
+			iterator.iterate(rootNodes, consumer);
+		}
+	}
 
 	public void init() {
 		for (int i = 0, n = rootNodes.size; i < n; i++) {
