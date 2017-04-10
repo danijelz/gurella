@@ -17,6 +17,8 @@ public class RenderPath {
 	final Array<RenderNode> rootNodes = new Array<RenderNode>();
 	final RenderPathIterator iterator = new RenderPathIterator();
 
+	private final RenderNodeProcessor processor = new RenderNodeProcessor(context);
+
 	// passes defined by path
 	private final Array<String> pathPasses = new Array<String>();
 
@@ -26,17 +28,13 @@ public class RenderPath {
 		}
 	}
 
-	public void init() {
-		for (int i = 0, n = rootNodes.size; i < n; i++) {
-			rootNodes.get(i).init(context);
-		}
+	void init() {
+		iterate(new RenderNodeInitializer(context));
 	}
 
 	public void process(Scene scene) {
 		context.scene = scene;
-		for (int i = 0, n = rootNodes.size; i < n; i++) {
-			rootNodes.get(i).process(context);
-		}
+		iterate(processor);
 		context.scene = null;
 	}
 
@@ -45,6 +43,33 @@ public class RenderPath {
 		private ObjectMap<String, ShaderUnifrom> uniforms;
 		private Object vetrexStruct;
 		private Object fragmentStruct;
-		// TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
+		// TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive
+		// shadows...)
+	}
+
+	private static class RenderNodeInitializer implements RenderNodeConsumer {
+		private final RenderContext context;
+
+		RenderNodeInitializer(RenderContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public void consume(RenderNode node) {
+			node.init(context);
+		}
+	}
+
+	private static class RenderNodeProcessor implements RenderNodeConsumer {
+		private final RenderContext context;
+
+		RenderNodeProcessor(RenderContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public void consume(RenderNode node) {
+			node.process(context);
+		}
 	}
 }

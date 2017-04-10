@@ -83,7 +83,7 @@ public class GlContext {
 		gl20 = Gdx.gl20;
 		gl30 = Gdx.gl30;
 
-		int textureUnits = GraphicsService.getTextureImageUnits();
+		int textureUnits = GraphicsService.getMaxGlesTextureImageUnits();
 		this.textures = new GLTexture[textureUnits];
 		this.textureWeights = new int[textureUnits];
 		this.textureIds = new int[textureUnits];

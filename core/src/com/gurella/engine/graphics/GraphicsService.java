@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graphics.render.gl.GlContext;
 
-//TODO unused
 public class GraphicsService {
 	public final static int MAX_GLES_UNITS = 32;
 
@@ -19,17 +18,19 @@ public class GraphicsService {
 
 	private static int defaultFramebufferHandle;
 	private static int maxTextureImageUnits;
+	private static int maxVertexAttribs;
+	private static int maxRenderbufferSize;
+	private static int maxTextureSize;
+	private static int maxCubeMapTextureSize;
+
+	private static int maxColorAttachments = 1;
+	private static int maxDrawBuffers = 1;
 	// GL_MAX_FRAGMENT_UNIFORM_VECTORS
-	// GL_MAX_RENDERBUFFER_SIZE
-	// GL_MAX_TEXTURE_IMAGE_UNITS
-	// GL_MAX_TEXTURE_SIZE
+	// GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
 	// GL_MAX_VARYING_VECTORS
-	// GL_MAX_VERTEX_ATTRIBS
 	// GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
 	// GL_MAX_VERTEX_UNIFORM_VECTORS
 	// GL_MAX_VIEWPORT_DIMS
-	// GL_MAX_COLOR_ATTACHMENTS
-	// GL_MAX_DRAW_BUFFERS
 	// GL_ALIASED_LINE_WIDTH_RANGE
 	// https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGet.xml
 
@@ -44,6 +45,7 @@ public class GraphicsService {
 
 		gl20 = Gdx.gl20;
 		gl30 = Gdx.gl30;
+		boolean isGl30Capable = gl30 != null;
 
 		if (Gdx.app.getType() == ApplicationType.iOS) {
 			gl20.glGetIntegerv(GL20.GL_FRAMEBUFFER_BINDING, buffer);
@@ -52,21 +54,49 @@ public class GraphicsService {
 			defaultFramebufferHandle = 0;
 		}
 
-		if (gl30 == null) {
+		if (isGl30Capable) {
+			gl30.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, buffer);
+			for (int i = 0, n = buffer.get(0); i < n; ++i) {
+				glExtensions.add(gl30.glGetStringi(GL20.GL_EXTENSIONS, i).trim());
+			}
+		} else {
 			String result = gl20.glGetString(GL20.GL_EXTENSIONS);
 			String[] extensions = result.split(" ");
 			for (int i = 0, n = extensions.length; i < n; ++i) {
 				glExtensions.add(extensions[i].trim());
 			}
-		} else {
-			gl30.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, buffer);
-			for (int i = 0, n = buffer.get(0); i < n; ++i) {
-				glExtensions.add(gl30.glGetStringi(GL20.GL_EXTENSIONS, i).trim());
-			}
 		}
 
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer);
 		maxTextureImageUnits = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_ATTRIBS, buffer);
+		maxVertexAttribs = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_RENDERBUFFER_SIZE, buffer);
+		maxRenderbufferSize = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, buffer);
+		maxTextureSize = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, buffer);
+		maxCubeMapTextureSize = buffer.get(0);
+		buffer.clear();
+
+		if (isGl30Capable) {
+			Gdx.gl.glGetIntegerv(GL30.GL_MAX_COLOR_ATTACHMENTS, buffer);
+			maxColorAttachments = buffer.get(0);
+			buffer.clear();
+
+			Gdx.gl.glGetIntegerv(GL30.GL_MAX_DRAW_BUFFERS, buffer);
+			maxDrawBuffers = buffer.get(0);
+			buffer.clear();
+		}
+
 		// TODO init other constants
 	}
 
@@ -82,8 +112,32 @@ public class GraphicsService {
 		return maxTextureImageUnits;
 	}
 
-	public static int getTextureImageUnits() {
+	public static int getMaxGlesTextureImageUnits() {
 		return Math.min(getMaxTextureImageUnits(), MAX_GLES_UNITS);
+	}
+
+	public static int getMaxVertexAttribs() {
+		return maxVertexAttribs;
+	}
+
+	public static int getMaxRenderbufferSize() {
+		return maxRenderbufferSize;
+	}
+
+	public static int getMaxTextureSize() {
+		return maxTextureSize;
+	}
+
+	public static int getMaxCubeMapTextureSize() {
+		return maxCubeMapTextureSize;
+	}
+
+	public static int getMaxColorAttachments() {
+		return maxColorAttachments;
+	}
+
+	public static int getMaxDrawBuffers() {
+		return maxDrawBuffers;
 	}
 
 	public static ObjectSet<String> getGlExtensions() {
