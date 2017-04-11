@@ -6,6 +6,7 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graphics.render.gl.GlContext;
@@ -18,21 +19,21 @@ public class GraphicsService {
 
 	private static int defaultFramebufferHandle;
 	private static int maxTextureImageUnits;
-	private static int maxVertexAttribs;
 	private static int maxRenderbufferSize;
 	private static int maxTextureSize;
 	private static int maxCubeMapTextureSize;
-
+	private static int maxMaxCombinedTextureImageUnits;
+	private static int maxMaxVaryingVectors;
+	private static int maxVertexAttribs;
+	private static int maxVertexTextureImageUnits;
+	private static int maxVertexUniformVectors;
+	private static int maxFragmentUniformVectors;
+	private static int maxViewportDimsX;
+	private static int maxViewportDimsY;
+	private static int aliasedLineWidthRange;
+	private static int aliasedPointSizeRange;
 	private static int maxColorAttachments = 1;
 	private static int maxDrawBuffers = 1;
-	// GL_MAX_FRAGMENT_UNIFORM_VECTORS
-	// GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
-	// GL_MAX_VARYING_VECTORS
-	// GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
-	// GL_MAX_VERTEX_UNIFORM_VECTORS
-	// GL_MAX_VIEWPORT_DIMS
-	// GL_ALIASED_LINE_WIDTH_RANGE
-	// https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGet.xml
 
 	private static final ObjectSet<String> glExtensions = new ObjectSet<String>();
 	private static final IntBuffer buffer = BufferUtils.newIntBuffer(16);
@@ -71,10 +72,6 @@ public class GraphicsService {
 		maxTextureImageUnits = buffer.get(0);
 		buffer.clear();
 
-		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_ATTRIBS, buffer);
-		maxVertexAttribs = buffer.get(0);
-		buffer.clear();
-
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_RENDERBUFFER_SIZE, buffer);
 		maxRenderbufferSize = buffer.get(0);
 		buffer.clear();
@@ -87,6 +84,43 @@ public class GraphicsService {
 		maxCubeMapTextureSize = buffer.get(0);
 		buffer.clear();
 
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, buffer);
+		maxMaxCombinedTextureImageUnits = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VARYING_VECTORS, buffer);
+		maxMaxVaryingVectors = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_ATTRIBS, buffer);
+		maxVertexAttribs = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, buffer);
+		maxVertexTextureImageUnits = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, buffer);
+		maxVertexUniformVectors = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_FRAGMENT_UNIFORM_VECTORS, buffer);
+		maxFragmentUniformVectors = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VIEWPORT_DIMS, buffer);
+		maxViewportDimsX = buffer.get(0);
+		maxViewportDimsY = buffer.get(1);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_ALIASED_LINE_WIDTH_RANGE, buffer);
+		aliasedLineWidthRange = buffer.get(0);
+		buffer.clear();
+
+		Gdx.gl.glGetIntegerv(GL20.GL_ALIASED_POINT_SIZE_RANGE, buffer);
+		aliasedPointSizeRange = buffer.get(0);
+		buffer.clear();
+
 		if (isGl30Capable) {
 			Gdx.gl.glGetIntegerv(GL30.GL_MAX_COLOR_ATTACHMENTS, buffer);
 			maxColorAttachments = buffer.get(0);
@@ -96,16 +130,18 @@ public class GraphicsService {
 			maxDrawBuffers = buffer.get(0);
 			buffer.clear();
 		}
-
-		// TODO init other constants
 	}
 
-	public void render(GraphicsTask task) {
-		synchronized (context) {
-			context.activate();
-			task.run(context);
-			context.deactivate();
-		}
+	public static ObjectSet<String> getGlExtensions() {
+		return glExtensions;
+	}
+
+	public static boolean isGl30Available() {
+		return gl30 != null;
+	}
+
+	public static int getDefaultFramebufferHandle() {
+		return defaultFramebufferHandle;
 	}
 
 	public static int getMaxTextureImageUnits() {
@@ -114,10 +150,6 @@ public class GraphicsService {
 
 	public static int getMaxGlesTextureImageUnits() {
 		return Math.min(getMaxTextureImageUnits(), MAX_GLES_UNITS);
-	}
-
-	public static int getMaxVertexAttribs() {
-		return maxVertexAttribs;
 	}
 
 	public static int getMaxRenderbufferSize() {
@@ -132,6 +164,50 @@ public class GraphicsService {
 		return maxCubeMapTextureSize;
 	}
 
+	public static int getMaxMaxCombinedTextureImageUnits() {
+		return maxMaxCombinedTextureImageUnits;
+	}
+
+	public static int getMaxMaxVaryingVectors() {
+		return maxMaxVaryingVectors;
+	}
+
+	public static int getMaxVertexAttribs() {
+		return maxVertexAttribs;
+	}
+
+	public static int getMaxVertexTextureImageUnits() {
+		return maxVertexTextureImageUnits;
+	}
+
+	public static int getMaxVertexUniformVectors() {
+		return maxVertexUniformVectors;
+	}
+
+	public static int getMaxFragmentUniformVectors() {
+		return maxFragmentUniformVectors;
+	}
+
+	public static int getAliasedLineWidthRange() {
+		return aliasedLineWidthRange;
+	}
+
+	public static int getAliasedPointSizeRange() {
+		return aliasedPointSizeRange;
+	}
+
+	public static int getMaxViewportDimsX() {
+		return maxViewportDimsX;
+	}
+
+	public static int getMaxViewportDimsY() {
+		return maxViewportDimsY;
+	}
+
+	public static GridPoint2 getMaxViewportDims(GridPoint2 out) {
+		return out.set(maxViewportDimsX, maxViewportDimsY);
+	}
+
 	public static int getMaxColorAttachments() {
 		return maxColorAttachments;
 	}
@@ -140,16 +216,12 @@ public class GraphicsService {
 		return maxDrawBuffers;
 	}
 
-	public static ObjectSet<String> getGlExtensions() {
-		return glExtensions;
-	}
-
-	public static boolean isGl30Available() {
-		return gl30 != null;
-	}
-
-	public static int getDefaultFramebufferHandle() {
-		return defaultFramebufferHandle;
+	public void render(GraphicsTask task) {
+		synchronized (context) {
+			context.activate();
+			task.run(context);
+			context.deactivate();
+		}
 	}
 
 	public interface GraphicsTask {

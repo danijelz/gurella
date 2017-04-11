@@ -12,7 +12,7 @@ public class LaunchSceneApplication {
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "Gdx Editor";
-		cfg.useGL30 = false;
+		cfg.useGL30 = true;
 
 		cfg.width = 800;
 		cfg.height = 600;
