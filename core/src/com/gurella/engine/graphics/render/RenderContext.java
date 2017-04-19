@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.graphics.render.material.Pass;
 import com.gurella.engine.graphics.render.material.Technique;
 import com.gurella.engine.scene.Scene;
@@ -10,6 +11,9 @@ import com.gurella.engine.scene.camera.CameraViewport;
 
 public class RenderContext {
 	final RenderPath path;
+	
+	GlContext glContext;
+	
 	RenderNode node;
 
 	Scene scene;

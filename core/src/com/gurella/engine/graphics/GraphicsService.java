@@ -216,7 +216,7 @@ public class GraphicsService {
 		return maxDrawBuffers;
 	}
 
-	public void render(GraphicsTask task) {
+	public static void render(GraphicsTask task) {
 		synchronized (context) {
 			context.activate();
 			task.run(context);

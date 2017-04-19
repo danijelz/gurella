@@ -6,9 +6,11 @@ import com.gurella.engine.graphics.render.command.RenderCommand;
 
 public class RenderNode {
 	RenderPath path;
-	final ObjectMap<String, RenderTarget> nodeTargetsByName = new ObjectMap<String, RenderTarget>();
-
+	
+	String name;
 	final Array<RenderCommand> commands = new Array<RenderCommand>();
+
+	final ObjectMap<String, RenderTarget> nodeTargetsByName = new ObjectMap<String, RenderTarget>();
 
 	final Array<Connection> inputsByIndex = new Array<Connection>();
 	final ObjectMap<String, Connection> inputsByName = new ObjectMap<String, Connection>();
@@ -24,7 +26,7 @@ public class RenderNode {
 	void process(RenderContext context) {
 		context.node = this;
 		for (int i = 0, n = commands.size; i < n; i++) {
-			commands.get(i).process(null);
+			commands.get(i).process(/*TODO*/ null);
 		}
 		context.node = null;
 	}
@@ -32,6 +34,7 @@ public class RenderNode {
 	static class Connection {
 		String inName;
 		RenderNode inNode;
+		RenderTarget renderTarget;
 		String outName;
 		RenderNode outNode;
 	}
