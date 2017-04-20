@@ -7,9 +7,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graphics.render.gl.GlContext;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class GraphicsService {
 	public final static int MAX_GLES_UNITS = 32;
@@ -35,7 +36,8 @@ public class GraphicsService {
 	private static int maxColorAttachments = 1;
 	private static int maxDrawBuffers = 1;
 
-	private static final ObjectSet<String> glExtensions = new ObjectSet<String>();
+	private static final Array<String> _glExtensions = new Array<String>();
+	private static final ImmutableArray<String> glExtensions = new ImmutableArray<String>(_glExtensions);
 	private static final IntBuffer buffer = BufferUtils.newIntBuffer(16);
 	private static final GlContext context = new GlContext();
 
@@ -58,13 +60,13 @@ public class GraphicsService {
 		if (isGl30Capable) {
 			gl30.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, buffer);
 			for (int i = 0, n = buffer.get(0); i < n; ++i) {
-				glExtensions.add(gl30.glGetStringi(GL20.GL_EXTENSIONS, i).trim());
+				_glExtensions.add(gl30.glGetStringi(GL20.GL_EXTENSIONS, i).trim());
 			}
 		} else {
 			String result = gl20.glGetString(GL20.GL_EXTENSIONS);
 			String[] extensions = result.split(" ");
 			for (int i = 0, n = extensions.length; i < n; ++i) {
-				glExtensions.add(extensions[i].trim());
+				_glExtensions.add(extensions[i].trim());
 			}
 		}
 
@@ -132,7 +134,7 @@ public class GraphicsService {
 		}
 	}
 
-	public static ObjectSet<String> getGlExtensions() {
+	public static ImmutableArray<String> getGlExtensions() {
 		return glExtensions;
 	}
 
