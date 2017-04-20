@@ -2,12 +2,15 @@ package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.graphics.GraphicsService;
+import com.gurella.engine.graphics.GraphicsService.GraphicsTask;
 import com.gurella.engine.graphics.render.RenderPathIterator.RenderNodeConsumer;
 import com.gurella.engine.graphics.render.command.RenderCommand;
+import com.gurella.engine.graphics.render.gl.GlContext;
 import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
 
-public class RenderPath {
+public class RenderPath implements GraphicsTask {
 	private final RenderContext context = new RenderContext(this);
 	private final ObjectMap<String, RenderTarget> globalTargetsByName = new ObjectMap<String, RenderTarget>();
 
@@ -15,8 +18,8 @@ public class RenderPath {
 	final Array<RenderCommand> postCommands = new Array<RenderCommand>();
 
 	final Array<RenderNode> rootNodes = new Array<RenderNode>();
-	final RenderPathIterator iterator = new RenderPathIterator();
 
+	final RenderPathIterator iterator = new RenderPathIterator();
 	private final RenderNodeProcessor processor = new RenderNodeProcessor(context);
 
 	// passes defined by path
@@ -32,10 +35,17 @@ public class RenderPath {
 		iterate(new RenderNodeInitializer(context));
 	}
 
-	public void process(Scene scene) {
+	void process(Scene scene) {
 		context.scene = scene;
-		iterate(processor);
+		GraphicsService.render(this);
 		context.scene = null;
+	}
+
+	@Override
+	public void run(GlContext glContext) {
+		context.glContext = glContext;
+		iterate(processor);
+		context.glContext = null;
 	}
 
 	public static class RenderPathMaterialProperties {
