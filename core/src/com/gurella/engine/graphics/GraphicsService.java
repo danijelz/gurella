@@ -42,12 +42,14 @@ public class GraphicsService {
 	private static final GlContext context = new GlContext();
 
 	public static void init() {
-		if (gl20 != null) {
-			return;
+		synchronized (context) {
+			if (gl20 != null) {
+				return;
+			}
+			gl20 = Gdx.gl20;
+			gl30 = Gdx.gl30;
 		}
 
-		gl20 = Gdx.gl20;
-		gl30 = Gdx.gl30;
 		boolean isGl30Capable = gl30 != null;
 
 		if (Gdx.app.getType() == ApplicationType.iOS) {
