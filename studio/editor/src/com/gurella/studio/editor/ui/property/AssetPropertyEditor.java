@@ -14,7 +14,7 @@ import com.gurella.studio.gdx.GdxContext;
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	private Class<T> assetType;
 
-	private AssetSelectionWidget<T> assetWidget;
+	private AssetSelectionWidget<T> assetSelector;
 	private Object rootAsset;
 
 	public AssetPropertyEditor(Composite parent, PropertyEditorContext<?, T> context, Class<T> assetType) {
@@ -29,11 +29,11 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 		rootAsset = getManagedAsset();
 
-		assetWidget = new AssetSelectionWidget<>(content, context.gdxContextId, assetType);
-		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		assetWidget.setAsset(getValue());
-		assetWidget.setSelectionListener(this::assetSelectionChanged);
-		assetWidget.setEnabled(rootAsset != null);
+		assetSelector = new AssetSelectionWidget<>(content, context.gdxContextId, assetType);
+		assetSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		assetSelector.setAsset(getValue());
+		assetSelector.setSelectionListener(this::assetSelectionChanged);
+		assetSelector.setEnabled(rootAsset != null);
 
 		UiUtils.paintBordersFor(content);
 	}
@@ -71,6 +71,6 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 	@Override
 	protected void updateValue(T value) {
-		assetWidget.setAsset(value);
+		assetSelector.setAsset(value);
 	}
 }
