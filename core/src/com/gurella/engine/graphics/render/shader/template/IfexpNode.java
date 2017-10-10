@@ -4,6 +4,12 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 //http://algs4.cs.princeton.edu/13stacks/EvaluateDeluxe.java.html
+//https://github.com/nickgammon/parser
+//https://github.com/stefanhaustein/expressionparser/blob/master/core/src/main/java/org/kobjects/expressionparser/ExpressionParser.java
+//https://github.com/uklimaschewski/EvalEx/blob/master/src/main/java/com/udojava/evalex/Expression.java
+//https://github.com/prithwin-rajeeva/expression-parser/blob/master/main/src/main/java/org/winbandhu/parser/PrecedenceParser.java
+//https://github.com/dtitov/bracer/blob/master/src/main/java/com/autsia/bracer/BracerParser.java
+//https://github.com/ZulNs/AndroidMathExpressionParser/blob/master/app/src/main/java/id/zulns/androidmathexpressionparser/Parser.java
 public class IfexpNode extends ShaderTemplateNode {
 	private String firstProperty;
 	private String secondProperty;
