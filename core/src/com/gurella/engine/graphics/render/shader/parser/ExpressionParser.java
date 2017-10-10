@@ -1,7 +1,5 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
-import java.util.HashMap;
-
 import com.badlogic.gdx.utils.ObjectMap;
 
 ///https://github.com/nickgammon/parser/blob/master/parser.h
@@ -37,6 +35,38 @@ public class ExpressionParser {
 		ASSIGN_SUB, // +-
 		ASSIGN_MUL, // +*
 		ASSIGN_DIV // +/
+		;
+
+		public static TokenType get(char character) {
+			switch (character) {
+			case '=':
+				return ASSIGN;
+			case '<':
+				return LT;
+			case '>':
+				return GT;
+			case '+':
+				return PLUS;
+			case '-':
+				return MINUS;
+			case '/':
+				return DIVIDE;
+			case '*':
+				return MULTIPLY;
+			case '(':
+				return LHPAREN;
+			case ')':
+				return RHPAREN;
+			case ',':
+				return COMMA;
+			case '!':
+				return NOT;
+			default:
+				break;
+			}
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static interface OneArgFunction {
@@ -184,7 +214,6 @@ public class ExpressionParser {
 
 	// primary (base) tokens
 	double Primary(boolean get) {
-
 		if (get) {
 			GetToken(false); // one-token lookahead
 		}
@@ -281,161 +310,178 @@ public class ExpressionParser {
 
 		default:
 			throw new RuntimeException("Unexpected token: " + word_);
-
 		}
 	}
 
-	TokenType GetToken (boolean ignoreSign)
-	  {
-	  /*word_.erase (0, std::string::npos);
-	  
-	  // skip spaces
-	  while (*pWord_ && isspace (*pWord_))
-	    ++pWord_;
+	TokenType GetToken(boolean ignoreSign) {
+		word_ = null;
 
-	  pWordStart_ = pWord_;   // remember where word_ starts *now*
-	  
-	  // look out for unterminated statements and things
-	  if (*pWord_ == 0 &&  // we have EOF
-	      type_ == END)  // after already detecting it
-	    throw std::runtime_error ("Unexpected end of expression.");
+		// skip spaces
+		while (pWord_ > -1 && Character.isWhitespace(programChar(pWord_))) {
+			++pWord_;
+		}
 
-	  unsigned char cFirstCharacter = *pWord_;        // first character in new word_
-	  
-	  if (cFirstCharacter == 0)    // stop at end of file
-	    {
-	    word_ = "<end of expression>";
-	    return type_ = END;
-	    }
-	  
-	  unsigned char cNextCharacter  = *(pWord_ + 1);  // 2nd character in new word_
-	  
-	  // look for number
-	  // can be: + or - followed by a decimal point
-	  // or: + or - followed by a digit
-	  // or: starting with a digit
-	  // or: decimal point followed by a digit
-	  if ((!ignoreSign &&
-		   (cFirstCharacter == '+' || cFirstCharacter == '-') &&
-		   (isdigit (cNextCharacter) || cNextCharacter == '.')
-		   )
-		  || isdigit (cFirstCharacter)
-		  // allow decimal numbers without a leading 0. e.g. ".5"
-		  // Dennis Jones 01-30-2009
-		  || (cFirstCharacter == '.' && isdigit (cNextCharacter)) )
-		  {
-	    // skip sign for now
-	    if ((cFirstCharacter == '+' || cFirstCharacter == '-'))
-	      pWord_++;
-	    while (isdigit (*pWord_) || *pWord_ == '.')
-	      pWord_++;
-	    
-	    // allow for 1.53158e+15
-	    if (*pWord_ == 'e' || *pWord_ == 'E')
-	      {
-	      pWord_++; // skip 'e'
-	      if ((*pWord_  == '+' || *pWord_  == '-'))
-	        pWord_++; // skip sign after e
-	      while (isdigit (*pWord_))  // now digits after e
-	        pWord_++;      
-	      }
-	    
-	    word_ = std::string (pWordStart_, pWord_ - pWordStart_);
-	    
-	    std::istringstream is (word_);
-	    // parse std::string into double value
-	    is >> value_;
-	      
-	    if (is.fail () && !is.eof ())
-	      throw std::runtime_error ("Bad numeric literal: " + word_);
-	    return type_ = NUMBER;
-	    }   // end of number found
+		pWordStart_ = pWord_; // remember where word_ starts *now*
 
-	  // special test for 2-character sequences: <= >= == !=
-	  // also +=, -=, /=, *=
-	  if (cNextCharacter == '=')
-	    {
-	    switch (cFirstCharacter)
-	      {
-	      // comparisons
-	      case '=': type_ = EQ;   break;
-	      case '<': type_ = LE;   break;
-	      case '>': type_ = GE;   break;
-	      case '!': type_ = NE;   break;
-	      // assignments
-	      case '+': type_ = ASSIGN_ADD;   break;
-	      case '-': type_ = ASSIGN_SUB;   break;
-	      case '*': type_ = ASSIGN_MUL;   break;
-	      case '/': type_ = ASSIGN_DIV;   break;
-	      // none of the above
-	      default:  type_ = NONE; break;
-	      } // end of switch on cFirstCharacter
-	    
-	    if (type_ != NONE)
-	      {
-	      word_ = std::string (pWordStart_, 2);
-	      pWord_ += 2;   // skip both characters
-	      return type_;
-	      } // end of found one    
-	    } // end of *=
-	  
-	  switch (cFirstCharacter)
-	    {
-	    case '&': if (cNextCharacter == '&')    // &&
-	                {
-	                word_ = std::string (pWordStart_, 2);
-	                pWord_ += 2;   // skip both characters
-	                return type_ = AND;
-	                }
-	              break;
-	   case '|': if (cNextCharacter == '|')   // ||
-	                {
-	                word_ = std::string (pWordStart_, 2);
-	                pWord_ += 2;   // skip both characters
-	                return type_ = OR;
-	                }
-	              break;
-	    // single-character symboles
-	    case '=':
-	    case '<':
-	    case '>':
-	    case '+':
-	    case '-':
-	    case '/':
-	    case '*':
-	    case '(':
-	    case ')':
-	    case ',':
-	    case '!':
-	      word_ = std::string (pWordStart_, 1);
-	      ++pWord_;   // skip it
-	      return type_ = TokenType (cFirstCharacter);
-	    } // end of switch on cFirstCharacter
-	  
-	  if (!isalpha (cFirstCharacter))
-	    {
-	    if (cFirstCharacter < ' ')
-	      {
-	      std::ostringstream s;
-	      s << "Unexpected character (decimal " << int (cFirstCharacter) << ")";
-	      throw std::runtime_error (s.str ());    
-	      }
-	    else
-	      throw std::runtime_error ("Unexpected character: " + std::string (1, cFirstCharacter));
-	    }
-	  
-	  // we have a word (starting with A-Z) - pull it out
-	  while (isalnum (*pWord_) || *pWord_ == '_')
-	    ++pWord_;
-	  
-	  word_ = std::string (pWordStart_, pWord_ - pWordStart_);
-	  return type_ = NAME;*/
-		return null;
-	  }
+		// look out for unterminated statements and things
+		// we have EOF after already detecting it
+		if (pWord_ == 0 && type_ == TokenType.END) {
+			throw new RuntimeException("Unexpected end of expression.");
+		}
+
+		char cFirstCharacter = programChar(pWord_); // first character in new word_
+
+		if (cFirstCharacter == 0) // stop at end of file
+		{
+			word_ = "<end of expression>";
+			return type_ = TokenType.END;
+		}
+
+		char cNextCharacter = programChar(pWord_ + 1); // 2nd character in new word_
+
+		// look for number
+		// can be: + or - followed by a decimal point
+		// or: + or - followed by a digit
+		// or: starting with a digit
+		// or: decimal point followed by a digit
+		// allow decimal numbers without a leading 0. e.g. ".5"
+		// Dennis Jones 01-30-2009
+		if ((!ignoreSign && (cFirstCharacter == '+' || cFirstCharacter == '-')
+				&& (Character.isDigit(cNextCharacter) || cNextCharacter == '.')) || Character.isDigit(cFirstCharacter)
+				|| (cFirstCharacter == '.' && Character.isDigit(cNextCharacter))) {
+			// skip sign for now
+			if ((cFirstCharacter == '+' || cFirstCharacter == '-')) {
+				pWord_++;
+			}
+
+			char c = programChar(pWord_);
+			while (Character.isDigit(c) || c == '.') {
+				pWord_++;
+				c = programChar(pWord_);
+			}
+
+			// allow for 1.53158e+15
+			c = programChar(pWord_);
+			if (c == 'e' || c == 'E') {
+				pWord_++; // skip 'e'
+				c = programChar(pWord_);
+				if ((c == '+' || c == '-')) {
+					pWord_++; // skip sign after e
+				}
+
+				// now digits after e
+				while (Character.isDigit(programChar(pWord_)))
+					pWord_++;
+			}
+
+			word_ = program_.subSequence(pWordStart_, pWordStart_ + pWord_ - pWordStart_).toString();
+			value_ = Double.valueOf(word_);
+
+			return type_ = TokenType.NUMBER;
+		} // end of number found
+
+		// special test for 2-character sequences: <= >= == !=
+		// also +=, -=, /=, *=
+		if (cNextCharacter == '=') {
+			switch (cFirstCharacter) {
+			// comparisons
+			case '=':
+				type_ = TokenType.EQ;
+				break;
+			case '<':
+				type_ = TokenType.LE;
+				break;
+			case '>':
+				type_ = TokenType.GE;
+				break;
+			case '!':
+				type_ = TokenType.NE;
+				break;
+			// assignments
+			case '+':
+				type_ = TokenType.ASSIGN_ADD;
+				break;
+			case '-':
+				type_ = TokenType.ASSIGN_SUB;
+				break;
+			case '*':
+				type_ = TokenType.ASSIGN_MUL;
+				break;
+			case '/':
+				type_ = TokenType.ASSIGN_DIV;
+				break;
+			// none of the above
+			default:
+				type_ = TokenType.NONE;
+				break;
+			} // end of switch on cFirstCharacter
+
+			if (type_ != TokenType.NONE) {
+				word_ = program_.subSequence(pWordStart_, pWordStart_ + 2).toString();
+				pWord_ += 2; // skip both characters
+				return type_;
+			} // end of found one    
+		} // end of *=
+
+		switch (cFirstCharacter) {
+		case '&':
+			if (cNextCharacter == '&') // &&
+			{
+				word_ = program_.subSequence(pWordStart_, pWordStart_ + 2).toString();
+				pWord_ += 2; // skip both characters
+				return type_ = TokenType.AND;
+			}
+			break;
+		case '|':
+			if (cNextCharacter == '|') // ||
+			{
+				word_ = program_.subSequence(pWordStart_, pWordStart_ + 2).toString();
+				pWord_ += 2; // skip both characters
+				return type_ = TokenType.OR;
+			}
+			break;
+		// single-character symboles
+		case '=':
+		case '<':
+		case '>':
+		case '+':
+		case '-':
+		case '/':
+		case '*':
+		case '(':
+		case ')':
+		case ',':
+		case '!':
+			word_ = program_.subSequence(pWordStart_, pWordStart_ + 1).toString();
+			++pWord_; // skip it
+			return type_ = TokenType.get(cFirstCharacter);
+		} // end of switch on cFirstCharacter
+
+		if (!Character.isLetter(cFirstCharacter)) {
+			throw new RuntimeException("Unexpected character: " + cFirstCharacter);
+		}
+
+		// we have a word (starting with A-Z) - pull it out
+		char c = programChar(pWord_);
+		while (Character.isLetterOrDigit(c) || c == '_') {
+			++pWord_;
+		}
+
+		word_ = program_.subSequence(pWordStart_, pWordStart_ + pWord_ - pWordStart_).toString();
+		return type_ = TokenType.NAME;
+	}
+
+	private char programChar(int index) {
+		return program_.length() > index ? program_.charAt(index) : 0;
+	}
 
 	void CheckToken(TokenType wanted) {
 		if (type_ != wanted) {
 			throw new RuntimeException("'" + wanted + "' expected.");
 		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(new ExpressionParser().Evaluate("(2 + 2) * 3"));
 	}
 }
