@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render.shader.parser;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+import com.gurella.engine.graphics.render.shader.template.ExpressionNode.AcosOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.AndOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.AssignAddOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.AssignDivOperation;
@@ -16,6 +17,7 @@ import com.gurella.engine.graphics.render.shader.template.ExpressionNode.GeOpera
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.GtOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.IfOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.LeOperation;
+import com.gurella.engine.graphics.render.shader.template.ExpressionNode.LogOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.LtOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.MinusOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.MultiplyOperation;
@@ -36,6 +38,10 @@ public class ExpressionParser2 {
 	private static final ObjectMap<String, TernaryOperationFactory> ternaryOperations = new ObjectMap<String, TernaryOperationFactory>();
 
 	static {
+		new AcosOperationFactory();
+
+		new LogOperationFactory();
+
 		new IfOperationFactory();
 	}
 
@@ -479,12 +485,34 @@ public class ExpressionParser2 {
 		abstract ShaderTemplateExpression create(ShaderTemplateExpression arg);
 	}
 
+	private static class AcosOperationFactory extends UnaryOperationFactory {
+		AcosOperationFactory() {
+			super("acos");
+		}
+
+		@Override
+		ShaderTemplateExpression create(ShaderTemplateExpression arg) {
+			return new AcosOperation(arg);
+		}
+	}
+
 	private static abstract class BinaryOperationFactory {
 		BinaryOperationFactory(String name) {
 			binaryOperations.put(name, this);
 		}
 
 		abstract ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2);
+	}
+
+	private static class LogOperationFactory extends BinaryOperationFactory {
+		LogOperationFactory() {
+			super("log");
+		}
+
+		@Override
+		ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2) {
+			return new LogOperation(arg1, arg2);
+		}
 	}
 
 	private static abstract class TernaryOperationFactory {
@@ -510,12 +538,7 @@ public class ExpressionParser2 {
 
 	public static void main(String[] args) {
 		ShaderGeneratorContext context = new ShaderGeneratorContext();
-		String program = "a = 2, (2 + 2) * 3 + "
-				+ "if ("
-				+ " a == 2, "
-				+ " 3, "
-				+ " 2)"
-				;
+		String program = "a = 2, (2 + 2) * 3 + " + "if (" + " a == 2, " + " 3, " + " 2)";
 		System.out.println(program);
 		System.out.println(new ExpressionParser2().parse(program).evaluate(context));
 	}
