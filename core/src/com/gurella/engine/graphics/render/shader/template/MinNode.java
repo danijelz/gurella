@@ -6,7 +6,7 @@ public class MinNode extends EvaluateNode {
 	}
 
 	@Override
-	protected int evaluate(int first, int second) {
+	protected float evaluate(float first, float second) {
 		return Math.min(first, second);
 	}
 

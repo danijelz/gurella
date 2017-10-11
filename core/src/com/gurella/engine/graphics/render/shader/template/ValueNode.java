@@ -16,6 +16,6 @@ public class ValueNode extends ShaderTemplateNode {
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
-		context.append(Integer.toString(context.getValue(varName)));
+		context.append(Float.toString(context.getValue(varName)));
 	}
 }

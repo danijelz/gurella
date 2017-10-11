@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.shader.generator;
 
-import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.ObjectFloatMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
@@ -10,13 +11,18 @@ import com.gurella.engine.utils.Values;
 public class ShaderGeneratorContext implements Poolable {
 	private StringBuilder builder = new StringBuilder();
 
-	private final ObjectIntMap<String> values = new ObjectIntMap<String>();
+	private final ObjectFloatMap<String> values = new ObjectFloatMap<String>();
 
 	private ShaderTemplate root;
 
 	public void init(ShaderTemplate template) {
 		this.root = template;
 		builder.setLength(0);
+
+		values.put("pi", MathUtils.PI);
+		values.put("pi2", MathUtils.PI2);
+		values.put("e", MathUtils.E);
+
 		define("GL20");
 		if (GraphicsService.isGl30Available()) {
 			define("GL30");
@@ -50,16 +56,16 @@ public class ShaderGeneratorContext implements Poolable {
 		return values.containsKey(valueName);
 	}
 
-	public int getValue(String valueName) {
-		return values.get(valueName, 0);
+	public float getValue(String valueName) {
+		return values.get(valueName, 0.0f);
 	}
 
-	public void setValue(String valueName, int value) {
+	public void setValue(String valueName, float value) {
 		values.put(valueName, value);
 	}
 
 	public void unsetValue(String valueName) {
-		values.remove(valueName, 0);
+		values.remove(valueName, 0.0f);
 	}
 
 	public String getShaderSource(boolean format) {

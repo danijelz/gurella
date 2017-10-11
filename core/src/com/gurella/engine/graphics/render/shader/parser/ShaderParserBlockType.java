@@ -40,6 +40,8 @@ enum ShaderParserBlockType {
 	pundefine,
 
 	value;
+	
+	//TODO toInt
 
 	public final boolean composite;
 

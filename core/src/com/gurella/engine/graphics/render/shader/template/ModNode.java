@@ -6,7 +6,7 @@ public class ModNode extends EvaluateNode {
 	}
 
 	@Override
-	protected int evaluate(int first, int second) {
+	protected float evaluate(float first, float second) {
 		return first % second;
 	}
 

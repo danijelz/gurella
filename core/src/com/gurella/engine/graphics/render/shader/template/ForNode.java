@@ -4,39 +4,41 @@ import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContex
 
 public class ForNode extends ShaderTemplateNode {
 	private String countProperty;
-	private Integer countValue;
-	private String variableName;
+	private int iterations;
+	private boolean useIterations;
+	private String iterationsVariable;
 	private int startIndex;
 
 	public ForNode(String value) {
 		String[] params = value.split(",");
 		countProperty = params[0].trim();
-		variableName = params.length > 1 ? params[1].trim() : "i";
-		if(params.length > 2) {
+		iterationsVariable = params.length > 1 ? params[1].trim() : "i";
+		if (params.length > 2) {
 			startIndex = Integer.parseInt(params[2].trim());
 		}
 
 		try {
-			countValue = Integer.valueOf(countProperty);
+			iterations = Integer.parseInt(countProperty);
+			useIterations = true;
 		} catch (Exception e) {
 		}
 	}
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
-		int count = countValue == null ? context.getValue(countProperty) : countValue.intValue();
-		boolean valueSet = context.isValueSet(variableName);
-		int oldValue = valueSet ? context.getValue(variableName) : 0;
+		float count = useIterations ? context.getValue(countProperty) : iterations;
+		boolean valueSet = context.isValueSet(iterationsVariable);
+		float oldValue = valueSet ? context.getValue(iterationsVariable) : 0f;
 
 		for (int i = startIndex; i < count; i++) {
-			context.setValue(variableName, i);
+			context.setValue(iterationsVariable, i);
 			generateChildren(context);
 		}
 
 		if (valueSet) {
-			context.setValue(variableName, oldValue);
+			context.setValue(iterationsVariable, oldValue);
 		} else {
-			context.unsetValue(variableName);
+			context.unsetValue(iterationsVariable);
 		}
 	}
 

@@ -6,7 +6,8 @@ import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContex
 public abstract class EvaluateNode extends PreprocessedShaderTemplateNode {
 	private String firstProperty;
 	private String secondProperty;
-	private Integer constant;
+	private float constant;
+	private boolean useCnstant;
 
 	public EvaluateNode(boolean preprocessed, String expression) {
 		super(preprocessed);
@@ -19,7 +20,8 @@ public abstract class EvaluateNode extends PreprocessedShaderTemplateNode {
 		firstProperty = params[0].trim();
 		secondProperty = params[1].trim();
 		try {
-			constant = Integer.valueOf(secondProperty);
+			constant = Float.parseFloat(secondProperty);
+			useCnstant = true;
 		} catch (Exception e) {
 		}
 	}
@@ -27,8 +29,8 @@ public abstract class EvaluateNode extends PreprocessedShaderTemplateNode {
 	@Override
 	protected void preprocess(ShaderGeneratorContext context) {
 		if (preprocessed) {
-			int first = context.getValue(firstProperty);
-			int second = constant == null ? context.getValue(secondProperty) : constant.intValue();
+			float first = context.getValue(firstProperty);
+			float second = useCnstant ? context.getValue(secondProperty) : constant;
 			context.setValue(firstProperty, evaluate(first, second));
 		}
 	}
@@ -36,13 +38,13 @@ public abstract class EvaluateNode extends PreprocessedShaderTemplateNode {
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
 		if (!preprocessed) {
-			int first = context.getValue(firstProperty);
-			int second = constant == null ? context.getValue(secondProperty) : constant.intValue();
+			float first = context.getValue(firstProperty);
+			float second = useCnstant ? context.getValue(secondProperty) : constant;
 			context.setValue(firstProperty, evaluate(first, second));
 		}
 	}
 
-	protected abstract int evaluate(int first, int second);
+	protected abstract float evaluate(float first, float second);
 
 	@Override
 	protected String toStringValue() {

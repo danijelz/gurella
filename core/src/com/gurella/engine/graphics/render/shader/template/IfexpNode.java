@@ -54,8 +54,8 @@ public class IfexpNode extends ShaderTemplateNode {
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
-		int first = context.getValue(firstProperty);
-		int second = constant == null ? context.getValue(secondProperty) : constant.intValue();
+		float first = context.getValue(firstProperty);
+		float second = constant == null ? context.getValue(secondProperty) : constant.intValue();
 		if (operator.evaluate(first, second)) {
 			generateChildren(context);
 		}
@@ -69,7 +69,7 @@ public class IfexpNode extends ShaderTemplateNode {
 	private enum Operator {
 		eq, neq, gt, lt, gte, lte;
 
-		protected boolean evaluate(int first, int second) {
+		protected boolean evaluate(float first, float second) {
 			switch (this) {
 			case eq:
 				return first == second;

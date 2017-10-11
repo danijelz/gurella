@@ -96,27 +96,26 @@ public class ExpressionParser {
 	double value_;
 
 	// change program and evaluate it
-	public double Evaluate(CharSequence program) {
+	public double evaluate(CharSequence program) {
 		program_ = program;
-		return Evaluate();
-	}
-
-	double Evaluate() {
 		pWord_ = 0;
 		type_ = TokenType.NONE;
-		double v = CommaList(true);
-		if (type_ != TokenType.END)
+		double v = commaList(true);
+
+		if (type_ != TokenType.END) {
 			throw new RuntimeException("Unexpected text at end of expression: " + pWordStart_);
+		}
+
 		return v;
 	}
 
 	// expr1, expr2
-	double CommaList(boolean get) {
-		double left = Expression(get);
+	double commaList(boolean get) {
+		double left = expression(get);
 		while (true) {
 			switch (type_) {
 			case COMMA:
-				left = Expression(true);
+				left = expression(true);
 				break; // discard previous value
 			default:
 				return left;
@@ -125,17 +124,17 @@ public class ExpressionParser {
 	}
 
 	// AND and OR
-	double Expression(boolean get) {
-		double left = Comparison(get);
+	double expression(boolean get) {
+		double left = comparison(get);
 		while (true) {
 			switch (type_) {
 			case AND: {
-				double d = Comparison(true); // don't want short-circuit evaluation
+				double d = comparison(true); // don't want short-circuit evaluation
 				left = (left != 0.0) && (d != 0.0) ? 1 : 0;
 			}
 				break;
 			case OR: {
-				double d = Comparison(true); // don't want short-circuit evaluation
+				double d = comparison(true); // don't want short-circuit evaluation
 				left = (left != 0.0) || (d != 0.0) ? 1 : 0;
 			}
 				break;
@@ -146,27 +145,27 @@ public class ExpressionParser {
 	}
 
 	// LT, GT, LE, EQ etc.
-	double Comparison(boolean get) {
-		double left = AddSubtract(get);
+	double comparison(boolean get) {
+		double left = addSubtract(get);
 		while (true) {
 			switch (type_) {
 			case LT:
-				left = left < AddSubtract(true) ? 1.0 : 0.0;
+				left = left < addSubtract(true) ? 1.0 : 0.0;
 				break;
 			case GT:
-				left = left > AddSubtract(true) ? 1.0 : 0.0;
+				left = left > addSubtract(true) ? 1.0 : 0.0;
 				break;
 			case LE:
-				left = left <= AddSubtract(true) ? 1.0 : 0.0;
+				left = left <= addSubtract(true) ? 1.0 : 0.0;
 				break;
 			case GE:
-				left = left >= AddSubtract(true) ? 1.0 : 0.0;
+				left = left >= addSubtract(true) ? 1.0 : 0.0;
 				break;
 			case EQ:
-				left = left == AddSubtract(true) ? 1.0 : 0.0;
+				left = left == addSubtract(true) ? 1.0 : 0.0;
 				break;
 			case NE:
-				left = left != AddSubtract(true) ? 1.0 : 0.0;
+				left = left != addSubtract(true) ? 1.0 : 0.0;
 				break;
 			default:
 				return left;
@@ -175,15 +174,15 @@ public class ExpressionParser {
 	}
 
 	// add and subtract
-	double AddSubtract(boolean get) {
-		double left = Term(get);
+	double addSubtract(boolean get) {
+		double left = term(get);
 		while (true) {
 			switch (type_) {
 			case PLUS:
-				left += Term(true);
+				left += term(true);
 				break;
 			case MINUS:
-				left -= Term(true);
+				left -= term(true);
 				break;
 			default:
 				return left;
@@ -192,15 +191,15 @@ public class ExpressionParser {
 	}
 
 	// multiply and divide
-	double Term(boolean get) {
-		double left = Primary(get);
+	double term(boolean get) {
+		double left = primary(get);
 		while (true) {
 			switch (type_) {
 			case MULTIPLY:
-				left *= Primary(true);
+				left *= primary(true);
 				break;
 			case DIVIDE: {
-				double d = Primary(true);
+				double d = primary(true);
 				if (d == 0.0)
 					throw new RuntimeException("Divide by zero");
 				left /= d;
@@ -213,52 +212,52 @@ public class ExpressionParser {
 	}
 
 	// primary (base) tokens
-	double Primary(boolean get) {
+	double primary(boolean get) {
 		if (get) {
-			GetToken(false); // one-token lookahead
+			getToken(false); // one-token lookahead
 		}
 
 		switch (type_) {
 		case NUMBER: {
 			double v = value_;
-			GetToken(true); // get next one (one-token lookahead)
+			getToken(true); // get next one (one-token lookahead)
 			return v;
 		}
 
 		case NAME: {
 			String word = word_;
-			GetToken(true);
+			getToken(true);
 			if (type_ == TokenType.LHPAREN) {
 				// might be single-argument function (eg. abs (x) )
 				OneArgFunction si = OneArgumentFunctions.get(word);
 				if (si != null) {
-					double v = Expression(true); // get argument
+					double v = expression(true); // get argument
 					CheckToken(TokenType.RHPAREN);
-					GetToken(true); // get next one (one-token lookahead)
+					getToken(true); // get next one (one-token lookahead)
 					return si.eval(v); // evaluate function
 				}
 
 				// might be double-argument function (eg. roll (6, 2) )
 				TwoArgFunction di = TwoArgumentFunctions.get(word);
 				if (di != null) {
-					double v1 = Expression(true); // get argument 1 (not commalist)
+					double v1 = expression(true); // get argument 1 (not commalist)
 					CheckToken(TokenType.COMMA);
-					double v2 = Expression(true); // get argument 2 (not commalist)
+					double v2 = expression(true); // get argument 2 (not commalist)
 					CheckToken(TokenType.RHPAREN);
-					GetToken(true); // get next one (one-token lookahead)
+					getToken(true); // get next one (one-token lookahead)
 					return di.eval(v1, v2); // evaluate function
 				}
 
 				// might be double-argument function (eg. roll (6, 2) )
 				ThreeArgFunction ti = ThreeArgumentFunctions.get(word);
 				if (ti != null) {
-					double v1 = Expression(true); // get argument 1 (not commalist)
+					double v1 = expression(true); // get argument 1 (not commalist)
 					CheckToken(TokenType.COMMA);
-					double v2 = Expression(true); // get argument 2 (not commalist)
+					double v2 = expression(true); // get argument 2 (not commalist)
 					CheckToken(TokenType.COMMA);
-					double v3 = Expression(true); // get argument 3 (not commalist)
+					double v3 = expression(true); // get argument 3 (not commalist)
 					CheckToken(TokenType.RHPAREN);
-					GetToken(true); // get next one (one-token lookahead)
+					getToken(true); // get next one (one-token lookahead)
 					return ti.eval(v1, v2, v3); // evaluate function
 				}
 
@@ -266,45 +265,46 @@ public class ExpressionParser {
 			}
 
 			// not a function? must be a symbol in the symbol table
-			double v = symbols_.get(word); // get REFERENCE to symbol table entry
+			double v = symbols_.get(word).doubleValue();
 			// change table entry with expression? (eg. a = 22, or a = 22)
 			switch (type_) {
 			// maybe check for NaN or Inf here (see: isinf, isnan functions)
 			case ASSIGN:
-				v = Expression(true);
+				v = expression(true);
 				break;
 			case ASSIGN_ADD:
-				v += Expression(true);
+				v += expression(true);
 				break;
 			case ASSIGN_SUB:
-				v -= Expression(true);
+				v -= expression(true);
 				break;
 			case ASSIGN_MUL:
-				v *= Expression(true);
+				v *= expression(true);
 				break;
 			case ASSIGN_DIV: {
-				double d = Expression(true);
-				if (d == 0.0)
+				double d = expression(true);
+				if (d == 0.0) {
 					throw new RuntimeException("Divide by zero");
+				}
 				v /= d;
-				break; // change table entry with expression
-			} // end of ASSIGN_DIV
+				break;
+			}
 			default:
 				break; // do nothing for others
-			} // end of switch on type_
+			}
 			return v; // and return new value
 		}
 
-		case MINUS: // unary minus
-			return -Primary(true);
+		case MINUS:
+			return -primary(true);
 
-		case NOT: // unary not
-			return (Primary(true) == 0.0) ? 1.0 : 0.0;
+		case NOT:
+			return (primary(true) == 0.0) ? 1.0 : 0.0;
 
 		case LHPAREN: {
-			double v = CommaList(true); // inside parens, you could have commas
+			double v = commaList(true); // inside parens, you could have commas
 			CheckToken(TokenType.RHPAREN);
-			GetToken(true); // eat the )
+			getToken(true); // eat the )
 			return v;
 		}
 
@@ -313,7 +313,7 @@ public class ExpressionParser {
 		}
 	}
 
-	TokenType GetToken(boolean ignoreSign) {
+	TokenType getToken(boolean ignoreSign) {
 		word_ = null;
 
 		// skip spaces
@@ -375,7 +375,7 @@ public class ExpressionParser {
 			}
 
 			word_ = program_.subSequence(pWordStart_, pWordStart_ + pWord_ - pWordStart_).toString();
-			value_ = Double.valueOf(word_);
+			value_ = Double.parseDouble(word_);
 
 			return type_ = TokenType.NUMBER;
 		} // end of number found
@@ -420,7 +420,7 @@ public class ExpressionParser {
 				word_ = program_.subSequence(pWordStart_, pWordStart_ + 2).toString();
 				pWord_ += 2; // skip both characters
 				return type_;
-			} // end of found one    
+			} // end of found one
 		} // end of *=
 
 		switch (cFirstCharacter) {
@@ -482,6 +482,6 @@ public class ExpressionParser {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(new ExpressionParser().Evaluate("(2 + 2) * 3"));
+		System.out.println(new ExpressionParser().evaluate("(2 + 2) * 3"));
 	}
 }
