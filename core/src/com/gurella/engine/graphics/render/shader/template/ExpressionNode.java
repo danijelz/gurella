@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
@@ -74,17 +75,6 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		public UnaryOperation(ShaderTemplateExpression param) {
 			this.param = param;
-		}
-	}
-
-	public static class NopOperation extends UnaryOperation {
-		public NopOperation(ShaderTemplateExpression param) {
-			super(param);
-		}
-
-		@Override
-		public float evaluate(ShaderGeneratorContext context) {
-			return param.evaluate(context);
 		}
 	}
 
@@ -184,6 +174,171 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return -param.evaluate(context);
+		}
+	}
+
+	public static class AbsOperation extends UnaryOperation {
+		public AbsOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return Math.abs(param.evaluate(context));
+		}
+	}
+
+	public static class AcosOperation extends UnaryOperation {
+		public AcosOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.acos(param.evaluate(context));
+		}
+	}
+
+	public static class AsinOperation extends UnaryOperation {
+		public AsinOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.asin(param.evaluate(context));
+		}
+	}
+
+	public static class AtanOperation extends UnaryOperation {
+		public AtanOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.atan(param.evaluate(context));
+		}
+	}
+
+	public static class CeilOperation extends UnaryOperation {
+		public CeilOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.ceil(param.evaluate(context));
+		}
+	}
+
+	public static class CosOperation extends UnaryOperation {
+		public CosOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.cos(param.evaluate(context));
+		}
+	}
+
+	public static class FloorOperation extends UnaryOperation {
+		public FloorOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.floor(param.evaluate(context));
+		}
+	}
+
+	public static class LogeOperation extends UnaryOperation {
+		public LogeOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.log(MathUtils.E, param.evaluate(context));
+		}
+	}
+
+	public static class Log10Operation extends UnaryOperation {
+		public Log10Operation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.log(10f, param.evaluate(context));
+		}
+	}
+
+	public static class SinOperation extends UnaryOperation {
+		public SinOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.sin(param.evaluate(context));
+		}
+	}
+
+	public static class SqrtOperation extends UnaryOperation {
+		public SqrtOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.sqrt(param.evaluate(context));
+		}
+	}
+
+	public static class ExpOperation extends UnaryOperation {
+		public ExpOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.exp(param.evaluate(context));
+		}
+	}
+
+	public static class TanOperation extends UnaryOperation {
+		public TanOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.tan(param.evaluate(context));
+		}
+	}
+
+	public static class IntOperation extends UnaryOperation {
+		public IntOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (int) param.evaluate(context);
+		}
+	}
+
+	public static class RandOperation extends UnaryOperation {
+		public RandOperation(ShaderTemplateExpression param) {
+			super(param);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.random(param.evaluate(context));
 		}
 	}
 
@@ -333,6 +488,61 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 	}
 
+	public static class LogOperation extends BinaryOperation {
+		public LogOperation(ShaderTemplateExpression left, ShaderTemplateExpression right) {
+			super(left, right);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return MathUtils.log(left.evaluate(context), right.evaluate(context));
+		}
+	}
+
+	public static class MinOperation extends BinaryOperation {
+		public MinOperation(ShaderTemplateExpression left, ShaderTemplateExpression right) {
+			super(left, right);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return Math.min(left.evaluate(context), right.evaluate(context));
+		}
+	}
+
+	public static class MaxOperation extends BinaryOperation {
+		public MaxOperation(ShaderTemplateExpression left, ShaderTemplateExpression right) {
+			super(left, right);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return Math.max(left.evaluate(context), right.evaluate(context));
+		}
+	}
+
+	public static class ModOperation extends BinaryOperation {
+		public ModOperation(ShaderTemplateExpression left, ShaderTemplateExpression right) {
+			super(left, right);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.IEEEremainder(left.evaluate(context), right.evaluate(context));
+		}
+	}
+
+	public static class PowOperation extends BinaryOperation {
+		public PowOperation(ShaderTemplateExpression left, ShaderTemplateExpression right) {
+			super(left, right);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return (float) Math.pow(left.evaluate(context), right.evaluate(context));
+		}
+	}
+
 	public static abstract class TernaryOperation implements ShaderTemplateExpression {
 		final ShaderTemplateExpression first;
 		final ShaderTemplateExpression second;
@@ -343,6 +553,18 @@ public class ExpressionNode extends ShaderTemplateNode {
 			this.first = first;
 			this.second = second;
 			this.third = third;
+		}
+	}
+
+	public static class IfOperation extends TernaryOperation {
+		public IfOperation(ShaderTemplateExpression first, ShaderTemplateExpression second,
+				ShaderTemplateExpression third) {
+			super(first, second, third);
+		}
+
+		@Override
+		public float evaluate(ShaderGeneratorContext context) {
+			return first.evaluate(context) != 0 ? second.evaluate(context) : third.evaluate(context);
 		}
 	}
 
@@ -379,6 +601,7 @@ public class ExpressionNode extends ShaderTemplateNode {
 	//
 	// static int LoadTwoArgumentFunctions ()
 	// {
+	// TwoArgumentFunctions ["log"] = log;
 	// TwoArgumentFunctions ["min"] = DoMin;
 	// TwoArgumentFunctions ["max"] = DoMax;
 	// TwoArgumentFunctions ["mod"] = DoFmod;

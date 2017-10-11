@@ -14,6 +14,7 @@ import com.gurella.engine.graphics.render.shader.template.ExpressionNode.DivideO
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.EqOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.GeOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.GtOperation;
+import com.gurella.engine.graphics.render.shader.template.ExpressionNode.IfOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.LeOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.LtOperation;
 import com.gurella.engine.graphics.render.shader.template.ExpressionNode.MinusOperation;
@@ -30,9 +31,13 @@ import com.gurella.engine.graphics.render.shader.template.ExpressionNode.VarExpr
 //https://github.com/nickgammon/parser/blob/master/parser.h
 //https://github.com/nickgammon/parser/blob/master/parser.cpp
 public class ExpressionParser2 {
-	private static final ObjectMap<String, OneArgFunctionFactory> oneArgumentFunctions = new ObjectMap<String, OneArgFunctionFactory>();
-	private static final ObjectMap<String, TwoArgFunctionFactory> twoArgumentFunctions = new ObjectMap<String, TwoArgFunctionFactory>();
-	private static final ObjectMap<String, ThreeArgFunctionFactory> threeArgumentFunctions = new ObjectMap<String, ThreeArgFunctionFactory>();
+	private static final ObjectMap<String, UnaryOperationFactory> unaryOperations = new ObjectMap<String, UnaryOperationFactory>();
+	private static final ObjectMap<String, BinaryOperationFactory> binaryOperations = new ObjectMap<String, BinaryOperationFactory>();
+	private static final ObjectMap<String, TernaryOperationFactory> ternaryOperations = new ObjectMap<String, TernaryOperationFactory>();
+
+	static {
+		new IfOperationFactory();
+	}
 
 	CharSequence program;
 
@@ -172,8 +177,8 @@ public class ExpressionParser2 {
 			String word = this.word;
 			getToken(true);
 			if (type == TokenType.LHPAREN) {
-				// might be single-argument function (eg. abs (x) )
-				OneArgFunctionFactory si = oneArgumentFunctions.get(word);
+				// might be single-argument function (eg. abs (x))
+				UnaryOperationFactory si = unaryOperations.get(word);
 				if (si != null) {
 					ShaderTemplateExpression v = expression(true); // get argument
 					checkToken(TokenType.RHPAREN);
@@ -181,8 +186,8 @@ public class ExpressionParser2 {
 					return si.create(v); // evaluate function
 				}
 
-				// might be double-argument function (eg. roll (6, 2) )
-				TwoArgFunctionFactory di = twoArgumentFunctions.get(word);
+				// might be double-argument function (eg. roll (6, 2))
+				BinaryOperationFactory di = binaryOperations.get(word);
 				if (di != null) {
 					ShaderTemplateExpression v1 = expression(true); // get argument 1 (not commalist)
 					checkToken(TokenType.COMMA);
@@ -193,7 +198,7 @@ public class ExpressionParser2 {
 				}
 
 				// might be double-argument function (eg. roll (6, 2) )
-				ThreeArgFunctionFactory ti = threeArgumentFunctions.get(word);
+				TernaryOperationFactory ti = ternaryOperations.get(word);
 				if (ti != null) {
 					ShaderTemplateExpression v1 = expression(true); // get argument 1 (not commalist)
 					checkToken(TokenType.COMMA);
@@ -376,21 +381,29 @@ public class ExpressionParser2 {
 				return type = TokenType.OR;
 			}
 			break;
-		// single-character symboles
+		// single-character symbols
 		case '=':
+			return singleCharacterSymbol(TokenType.ASSIGN);
 		case '<':
+			return singleCharacterSymbol(TokenType.LT);
 		case '>':
+			return singleCharacterSymbol(TokenType.GT);
 		case '+':
+			return singleCharacterSymbol(TokenType.PLUS);
 		case '-':
+			return singleCharacterSymbol(TokenType.MINUS);
 		case '/':
+			return singleCharacterSymbol(TokenType.DIVIDE);
 		case '*':
+			return singleCharacterSymbol(TokenType.MULTIPLY);
 		case '(':
+			return singleCharacterSymbol(TokenType.LHPAREN);
 		case ')':
+			return singleCharacterSymbol(TokenType.RHPAREN);
 		case ',':
+			return singleCharacterSymbol(TokenType.COMMA);
 		case '!':
-			word = program.subSequence(pWordStart, pWordStart + 1).toString();
-			++pWord; // skip it
-			return type = TokenType.get(cFirstCharacter);
+			return singleCharacterSymbol(TokenType.NOT);
 		}
 
 		if (!Character.isLetter(cFirstCharacter)) {
@@ -406,6 +419,13 @@ public class ExpressionParser2 {
 
 		word = program.subSequence(pWordStart, pWordStart + pWord - pWordStart).toString();
 		return type = TokenType.NAME;
+	}
+
+	private TokenType singleCharacterSymbol(TokenType type) {
+		word = program.subSequence(pWordStart, pWordStart + 1).toString();
+		++pWord; // skip it
+		this.type = type;
+		return type;
 	}
 
 	private char programChar(int index) {
@@ -449,54 +469,54 @@ public class ExpressionParser2 {
 		ASSIGN_MUL, // +*
 		ASSIGN_DIV // +/
 		;
+	}
 
-		public static TokenType get(char character) {
-			switch (character) {
-			case '=':
-				return ASSIGN;
-			case '<':
-				return LT;
-			case '>':
-				return GT;
-			case '+':
-				return PLUS;
-			case '-':
-				return MINUS;
-			case '/':
-				return DIVIDE;
-			case '*':
-				return MULTIPLY;
-			case '(':
-				return LHPAREN;
-			case ')':
-				return RHPAREN;
-			case ',':
-				return COMMA;
-			case '!':
-				return NOT;
-			default:
-				break;
-			}
-			// TODO Auto-generated method stub
-			return null;
+	private static abstract class UnaryOperationFactory {
+		UnaryOperationFactory(String name) {
+			unaryOperations.put(name, this);
 		}
+
+		abstract ShaderTemplateExpression create(ShaderTemplateExpression arg);
 	}
 
-	private static interface OneArgFunctionFactory {
-		ShaderTemplateExpression create(ShaderTemplateExpression arg);
+	private static abstract class BinaryOperationFactory {
+		BinaryOperationFactory(String name) {
+			binaryOperations.put(name, this);
+		}
+
+		abstract ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2);
 	}
 
-	private static interface TwoArgFunctionFactory {
-		ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2);
-	}
+	private static abstract class TernaryOperationFactory {
+		TernaryOperationFactory(String name) {
+			ternaryOperations.put(name, this);
+		}
 
-	private static interface ThreeArgFunctionFactory {
-		ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2,
+		abstract ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2,
 				ShaderTemplateExpression arg3);
 	}
 
+	private static class IfOperationFactory extends TernaryOperationFactory {
+		IfOperationFactory() {
+			super("if");
+		}
+
+		@Override
+		ShaderTemplateExpression create(ShaderTemplateExpression arg1, ShaderTemplateExpression arg2,
+				ShaderTemplateExpression arg3) {
+			return new IfOperation(arg1, arg2, arg3);
+		}
+	}
+
 	public static void main(String[] args) {
-		System.out.println(
-				new ExpressionParser2().parse("a = 1, (2 + 2) * 3 + a").evaluate(new ShaderGeneratorContext()));
+		ShaderGeneratorContext context = new ShaderGeneratorContext();
+		String program = "a = 2, (2 + 2) * 3 + "
+				+ "if ("
+				+ " a == 2, "
+				+ " 3, "
+				+ " 2)"
+				;
+		System.out.println(program);
+		System.out.println(new ExpressionParser2().parse(program).evaluate(context));
 	}
 }
