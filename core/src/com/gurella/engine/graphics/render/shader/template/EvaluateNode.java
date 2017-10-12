@@ -29,18 +29,20 @@ public abstract class EvaluateNode extends PreprocessedShaderTemplateNode {
 	@Override
 	protected void preprocess(ShaderGeneratorContext context) {
 		if (preprocessed) {
-			float first = context.getValue(firstProperty);
-			float second = useCnstant ? context.getValue(secondProperty) : constant;
-			context.setValue(firstProperty, evaluate(first, second));
+			process(context);
 		}
+	}
+
+	private void process(ShaderGeneratorContext context) {
+		float first = context.getValue(firstProperty);
+		float second = useCnstant ? context.getValue(secondProperty) : constant;
+		context.setValue(firstProperty, evaluate(first, second));
 	}
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
 		if (!preprocessed) {
-			float first = context.getValue(firstProperty);
-			float second = useCnstant ? context.getValue(secondProperty) : constant;
-			context.setValue(firstProperty, evaluate(first, second));
+			process(context);
 		}
 	}
 

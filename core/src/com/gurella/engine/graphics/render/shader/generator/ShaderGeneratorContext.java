@@ -60,6 +60,14 @@ public class ShaderGeneratorContext implements Poolable {
 		return values.get(valueName, 0.0f);
 	}
 
+	public int getIntValue(String valueName) {
+		float value = values.get(valueName, 0.0f);
+		if (value != (int) value) {
+			throw new RuntimeException("value must be integer");
+		}
+		return (int) value;
+	}
+
 	public void setValue(String valueName, float value) {
 		values.put(valueName, value);
 	}

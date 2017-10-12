@@ -20,11 +20,16 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 	@Override
 	protected String toStringValue() {
-		return "if (" + expression + ")";
+		StringBuilder builder = new StringBuilder();
+		builder.append("if (");
+		expression.toString(builder);
+		return builder.append(')').toString();
 	}
 
 	public interface ShaderTemplateExpression {
 		float evaluate(ShaderGeneratorContext context);
+
+		void toString(StringBuilder builder);
 	}
 
 	public static class CompositeExpression implements ShaderTemplateExpression {
@@ -42,6 +47,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 			}
 			return result;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			for (int i = 0; i < expressions.size; i++) {
+				ShaderTemplateExpression expression = expressions.get(i);
+				if (i > 0) {
+					builder.append(", ");
+				}
+				builder.append('(').append(expression).append(')');
+			}
+		}
 	}
 
 	public static class NumberLiteralExpression implements ShaderTemplateExpression {
@@ -55,6 +71,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return value;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(value);
+		}
 	}
 
 	public static class VarExpression implements ShaderTemplateExpression {
@@ -67,6 +88,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return context.getValue(name);
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(name);
 		}
 	}
 
@@ -86,6 +112,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return param.evaluate(context) == 0.0f ? 1.0f : 0.0f;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('!').append('(').append(param).append(')');
 		}
 	}
 
@@ -117,6 +148,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		float evaluate(float assignee, float value) {
 			return value;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" = ");
+		}
 	}
 
 	public static class AssignAddOperation extends BaseAssignOperation {
@@ -127,6 +163,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		float evaluate(float assignee, float value) {
 			return assignee + value;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" += ");
 		}
 	}
 
@@ -139,6 +180,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		float evaluate(float assignee, float value) {
 			return assignee - value;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" -= ");
+		}
 	}
 
 	public static class AssignMulOperation extends BaseAssignOperation {
@@ -149,6 +195,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		float evaluate(float assignee, float value) {
 			return assignee * value;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" *= ");
 		}
 	}
 
@@ -164,6 +215,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 			}
 			return assignee / value;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" /= ");
+		}
 	}
 
 	public static class UnaryMinusOperation extends UnaryOperation {
@@ -174,6 +230,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return -param.evaluate(context);
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(" --");
 		}
 	}
 
@@ -186,6 +247,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return Math.abs(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("abs(").append(param).append(')');
+		}
 	}
 
 	public static class AcosOperation extends UnaryOperation {
@@ -196,6 +262,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.acos(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("acos(").append(param).append(')');
 		}
 	}
 
@@ -208,6 +279,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.asin(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("asin(").append(param).append(')');
+		}
 	}
 
 	public static class AtanOperation extends UnaryOperation {
@@ -218,6 +294,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.atan(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("atan(").append(param).append(')');
 		}
 	}
 
@@ -230,6 +311,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.ceil(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("ceil(").append(param).append(')');
+		}
 	}
 
 	public static class CosOperation extends UnaryOperation {
@@ -240,6 +326,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.cos(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("cos(").append(param).append(')');
 		}
 	}
 
@@ -252,6 +343,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.floor(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("floor(").append(param).append(')');
+		}
 	}
 
 	public static class LogeOperation extends UnaryOperation {
@@ -262,6 +358,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.log(MathUtils.E, param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("loge(").append(param).append(')');
 		}
 	}
 
@@ -274,6 +375,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.log(10f, param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("log10(").append(param).append(')');
+		}
 	}
 
 	public static class SinOperation extends UnaryOperation {
@@ -284,6 +390,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.sin(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("sin(").append(param).append(')');
 		}
 	}
 
@@ -296,6 +407,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.sqrt(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("sqrt(").append(param).append(')');
+		}
 	}
 
 	public static class ExpOperation extends UnaryOperation {
@@ -306,6 +422,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.exp(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("exp(").append(param).append(')');
 		}
 	}
 
@@ -318,6 +439,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.tan(param.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("tan(").append(param).append(')');
+		}
 	}
 
 	public static class IntOperation extends UnaryOperation {
@@ -329,6 +455,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (int) param.evaluate(context);
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("int(").append(param).append(')');
+		}
 	}
 
 	public static class RandOperation extends UnaryOperation {
@@ -339,6 +470,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.random(param.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("rand(").append(param).append(')');
 		}
 	}
 
@@ -361,6 +497,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (left.evaluate(context) != 0.0f) && (right.evaluate(context) != 0.0f) ? 1f : 0f;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" && ").append(right).append(')');
+		}
 	}
 
 	public static class OrOperation extends BinaryOperation {
@@ -371,6 +512,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return (left.evaluate(context) != 0.0f) || (right.evaluate(context) != 0.0f) ? 1f : 0f;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" || ").append(right).append(')');
 		}
 	}
 
@@ -383,6 +529,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) + right.evaluate(context);
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" + ").append(right).append(')');
+		}
 	}
 
 	public static class MinusOperation extends BinaryOperation {
@@ -394,6 +545,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) + right.evaluate(context);
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" - ").append(right).append(')');
+		}
 	}
 
 	public static class MultiplyOperation extends BinaryOperation {
@@ -404,6 +560,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) * right.evaluate(context);
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" * ").append(right).append(')');
 		}
 	}
 
@@ -420,6 +581,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 			}
 			return left.evaluate(context) / divider;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" / ").append(right).append(')');
+		}
 	}
 
 	public static class LtOperation extends BinaryOperation {
@@ -430,6 +596,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) < right.evaluate(context) ? 1.0f : 0.0f;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" < ").append(right).append(')');
 		}
 	}
 
@@ -442,6 +613,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) < right.evaluate(context) ? 1.0f : 0.0f;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" > ").append(right).append(')');
+		}
 	}
 
 	public static class LeOperation extends BinaryOperation {
@@ -452,6 +628,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) <= right.evaluate(context) ? 1.0f : 0.0f;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" <= ").append(right).append(')');
 		}
 	}
 
@@ -464,6 +645,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) <= right.evaluate(context) ? 1.0f : 0.0f;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" >= ").append(right).append(')');
+		}
 	}
 
 	public static class EqOperation extends BinaryOperation {
@@ -474,6 +660,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) == right.evaluate(context) ? 1.0f : 0.0f;
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" == ").append(right).append(')');
 		}
 	}
 
@@ -486,6 +677,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return left.evaluate(context) != right.evaluate(context) ? 1.0f : 0.0f;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(').append(left).append(" != ").append(right).append(')');
+		}
 	}
 
 	public static class LogOperation extends BinaryOperation {
@@ -496,6 +692,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return MathUtils.log(left.evaluate(context), right.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("log(").append(left).append(", ").append(right).append(')');
 		}
 	}
 
@@ -508,6 +709,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return Math.min(left.evaluate(context), right.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("min(").append(left).append(", ").append(right).append(')');
+		}
 	}
 
 	public static class MaxOperation extends BinaryOperation {
@@ -518,6 +724,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return Math.max(left.evaluate(context), right.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("max(").append(left).append(", ").append(right).append(')');
 		}
 	}
 
@@ -530,6 +741,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.IEEEremainder(left.evaluate(context), right.evaluate(context));
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("mod(").append(left).append(", ").append(right).append(')');
+		}
 	}
 
 	public static class PowOperation extends BinaryOperation {
@@ -540,6 +756,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return (float) Math.pow(left.evaluate(context), right.evaluate(context));
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("pow(").append(left).append(", ").append(right).append(')');
 		}
 	}
 
@@ -565,6 +786,11 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public float evaluate(ShaderGeneratorContext context) {
 			return first.evaluate(context) != 0 ? second.evaluate(context) : third.evaluate(context);
+		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append("if (").append(first).append(", ").append(second).append(", ").append(third).append(')');
 		}
 	}
 
