@@ -55,7 +55,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 				if (i > 0) {
 					builder.append(", ");
 				}
-				builder.append('(').append(expression).append(')');
+				builder.append('(');
+				expression.toString(builder);
+				builder.append(')');
 			}
 		}
 	}
@@ -116,7 +118,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append('!').append('(').append(param).append(')');
+			builder.append('!').append('(');
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -137,6 +141,14 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		abstract float evaluate(float assignee, float value);
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append(variableName).append(operatorToString());
+			param.toString(builder);
+		}
+
+		abstract String operatorToString();
 	}
 
 	public static class AssignOperation extends BaseAssignOperation {
@@ -150,8 +162,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append(" = ");
+		public String operatorToString() {
+			return " = ";
 		}
 	}
 
@@ -166,8 +178,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append(" += ");
+		public String operatorToString() {
+			return " += ";
 		}
 	}
 
@@ -182,8 +194,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append(" -= ");
+		public String operatorToString() {
+			return " -= ";
 		}
 	}
 
@@ -198,8 +210,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append(" *= ");
+		public String operatorToString() {
+			return " *= ";
 		}
 	}
 
@@ -217,8 +229,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append(" /= ");
+		public String operatorToString() {
+			return " /= ";
 		}
 	}
 
@@ -235,6 +247,7 @@ public class ExpressionNode extends ShaderTemplateNode {
 		@Override
 		public void toString(StringBuilder builder) {
 			builder.append(" --");
+			param.toString(builder);
 		}
 	}
 
@@ -250,7 +263,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("abs(").append(param).append(')');
+			builder.append("abs(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -266,7 +281,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("acos(").append(param).append(')');
+			builder.append("acos(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -282,7 +299,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("asin(").append(param).append(')');
+			builder.append("asin(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -298,7 +317,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("atan(").append(param).append(')');
+			builder.append("atan(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -314,7 +335,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("ceil(").append(param).append(')');
+			builder.append("ceil(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -330,7 +353,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("cos(").append(param).append(')');
+			builder.append("cos(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -346,7 +371,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("floor(").append(param).append(')');
+			builder.append("floor(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -362,7 +389,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("loge(").append(param).append(')');
+			builder.append("loge(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -378,7 +407,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("log10(").append(param).append(')');
+			builder.append("log10(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -394,7 +425,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("sin(").append(param).append(')');
+			builder.append("sin(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -410,7 +443,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("sqrt(").append(param).append(')');
+			builder.append("sqrt(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -426,7 +461,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("exp(").append(param).append(')');
+			builder.append("exp(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -442,7 +479,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("tan(").append(param).append(')');
+			builder.append("tan(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -458,7 +497,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("int(").append(param).append(')');
+			builder.append("int(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -474,7 +515,9 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("rand(").append(param).append(')');
+			builder.append("rand(");
+			param.toString(builder);
+			builder.append(')');
 		}
 	}
 
@@ -486,6 +529,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 			this.left = left;
 			this.right = right;
 		}
+
+		@Override
+		public void toString(StringBuilder builder) {
+			builder.append('(');
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		abstract String operatorToString();
 	}
 
 	public static class AndOperation extends BinaryOperation {
@@ -499,8 +553,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" && ").append(right).append(')');
+		public String operatorToString() {
+			return " && ";
 		}
 	}
 
@@ -515,8 +569,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" || ").append(right).append(')');
+		public String operatorToString() {
+			return " || ";
 		}
 	}
 
@@ -531,8 +585,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" + ").append(right).append(')');
+		public String operatorToString() {
+			return " + ";
 		}
 	}
 
@@ -547,8 +601,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" - ").append(right).append(')');
+		public String operatorToString() {
+			return " - ";
 		}
 	}
 
@@ -563,8 +617,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" * ").append(right).append(')');
+		public String operatorToString() {
+			return " * ";
 		}
 	}
 
@@ -583,8 +637,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" / ").append(right).append(')');
+		public String operatorToString() {
+			return " / ";
 		}
 	}
 
@@ -599,8 +653,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" < ").append(right).append(')');
+		public String operatorToString() {
+			return " < ";
 		}
 	}
 
@@ -615,8 +669,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" > ").append(right).append(')');
+		public String operatorToString() {
+			return " > ";
 		}
 	}
 
@@ -631,8 +685,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" <= ").append(right).append(')');
+		public String operatorToString() {
+			return " <= ";
 		}
 	}
 
@@ -647,8 +701,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" >= ").append(right).append(')');
+		public String operatorToString() {
+			return " >= ";
 		}
 	}
 
@@ -663,8 +717,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" == ").append(right).append(')');
+		public String operatorToString() {
+			return " == ";
 		}
 	}
 
@@ -679,8 +733,8 @@ public class ExpressionNode extends ShaderTemplateNode {
 		}
 
 		@Override
-		public void toString(StringBuilder builder) {
-			builder.append('(').append(left).append(" != ").append(right).append(')');
+		public String operatorToString() {
+			return " != ";
 		}
 	}
 
@@ -696,7 +750,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("log(").append(left).append(", ").append(right).append(')');
+			builder.append("log(");
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		@Override
+		String operatorToString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -712,7 +776,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("min(").append(left).append(", ").append(right).append(')');
+			builder.append("min(");
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		@Override
+		String operatorToString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -728,7 +802,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("max(").append(left).append(", ").append(right).append(')');
+			builder.append("max(");
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		@Override
+		String operatorToString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -744,7 +828,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("mod(").append(left).append(", ").append(right).append(')');
+			builder.append("mod(");
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		@Override
+		String operatorToString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -760,7 +854,17 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("pow(").append(left).append(", ").append(right).append(')');
+			builder.append("pow(");
+			left.toString(builder);
+			builder.append(operatorToString());
+			right.toString(builder);
+			builder.append(')');
+		}
+
+		@Override
+		String operatorToString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -790,7 +894,13 @@ public class ExpressionNode extends ShaderTemplateNode {
 
 		@Override
 		public void toString(StringBuilder builder) {
-			builder.append("if (").append(first).append(", ").append(second).append(", ").append(third).append(')');
+			builder.append("if (");
+			first.toString(builder);
+			builder.append(", ");
+			second.toString(builder);
+			builder.append(", ");
+			third.toString(builder);
+			builder.append(')');
 		}
 	}
 

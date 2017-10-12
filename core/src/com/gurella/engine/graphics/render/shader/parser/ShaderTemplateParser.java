@@ -143,6 +143,7 @@ public class ShaderTemplateParser implements Poolable {
 			case mod:
 			case min:
 			case max:
+			case toInt:
 			case define:
 			case undefine:
 			case pset:

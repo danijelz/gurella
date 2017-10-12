@@ -410,6 +410,7 @@ public class ExpressionParser {
 			return singleCharacterSymbol(TokenType.COMMA);
 		case '!':
 			return singleCharacterSymbol(TokenType.NOT);
+		default:
 		}
 
 		if (!Character.isLetter(cFirstCharacter)) {
@@ -540,6 +541,10 @@ public class ExpressionParser {
 		ShaderGeneratorContext context = new ShaderGeneratorContext();
 		String program = "a = 2, (2 + 2) * 3 + " + "if (" + " a == 2, " + " 3, " + " 2)";
 		System.out.println(program);
-		System.out.println(new ExpressionParser().parse(program).evaluate(context));
+		ShaderTemplateExpression expression = new ExpressionParser().parse(program);
+		System.out.println(expression.evaluate(context));
+		StringBuilder builder = new StringBuilder();
+		expression.toString(builder);
+		System.out.println(builder);
 	}
 }

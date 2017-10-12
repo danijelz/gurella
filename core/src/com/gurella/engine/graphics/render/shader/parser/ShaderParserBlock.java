@@ -18,6 +18,7 @@ import com.gurella.engine.graphics.render.shader.template.SetNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateNode;
 import com.gurella.engine.graphics.render.shader.template.SubNode;
+import com.gurella.engine.graphics.render.shader.template.ToIntNode;
 import com.gurella.engine.graphics.render.shader.template.UndefineNode;
 import com.gurella.engine.graphics.render.shader.template.ValueNode;
 
@@ -93,6 +94,9 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case value:
 			node.addChild(new ValueNode(value.toString()));
+			return;
+		case toInt:
+			node.addChild(new ToIntNode(value.toString()));
 			return;
 		case define:
 			node.addChild(new DefineNode(false, value.toString()));

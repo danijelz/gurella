@@ -25,6 +25,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.pundefine;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.toInt;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.undefine;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.value;
 
@@ -47,6 +48,7 @@ class ShaderTemplateTokens {
 	static final char[] modToken = "@mod".toCharArray();
 	static final char[] minToken = "@min".toCharArray();
 	static final char[] maxToken = "@max".toCharArray();
+	static final char[] intToken = "@int".toCharArray();
 	static final char[] defineToken = "@define".toCharArray();
 	static final char[] undefineToken = "@undefine".toCharArray();
 	static final char[] psetToken = "@pset".toCharArray();
@@ -83,6 +85,7 @@ class ShaderTemplateTokens {
 		putToken(modToken, mod);
 		putToken(minToken, min);
 		putToken(maxToken, max);
+		putToken(intToken, toInt);
 		putToken(defineToken, define);
 		putToken(undefineToken, undefine);
 		putToken(psetToken, pset);
