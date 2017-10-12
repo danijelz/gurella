@@ -183,7 +183,6 @@ public class ExpressionParser {
 			String word = this.word;
 			getToken(true);
 			if (type == TokenType.LHPAREN) {
-				// might be single-argument function (eg. abs (x))
 				UnaryOperationFactory si = unaryOperations.get(word);
 				if (si != null) {
 					ShaderTemplateExpression v = expression(true); // get argument
@@ -192,7 +191,6 @@ public class ExpressionParser {
 					return si.create(v); // evaluate function
 				}
 
-				// might be double-argument function (eg. roll (6, 2))
 				BinaryOperationFactory di = binaryOperations.get(word);
 				if (di != null) {
 					ShaderTemplateExpression v1 = expression(true); // get argument 1 (not commalist)
@@ -203,7 +201,6 @@ public class ExpressionParser {
 					return di.create(v1, v2); // evaluate function
 				}
 
-				// might be double-argument function (eg. roll (6, 2) )
 				TernaryOperationFactory ti = ternaryOperations.get(word);
 				if (ti != null) {
 					ShaderTemplateExpression v1 = expression(true); // get argument 1 (not commalist)
@@ -222,7 +219,6 @@ public class ExpressionParser {
 			// not a function? must be a symbol in the symbol table
 			// change table entry with expression? (eg. a = 22, or a = 22)
 			switch (type) {
-			// maybe check for NaN or Inf here (see: isinf, isnan functions)
 			case ASSIGN:
 				return new AssignOperation(expression(true), word);
 			case ASSIGN_ADD:
